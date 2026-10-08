@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <rect width="1280" height="640" fill="#0f172a"/>
+  <circle cx="1090" cy="320" r="110" fill="none" stroke="#38bdf8" stroke-width="16" stroke-dasharray="520 170"/>
+  <path d="M1146 214l32 40-48 10z" fill="#a3e635"/>
+  <text x="80" y="250" font-family="Helvetica, Arial, sans-serif" font-size="80" font-weight="700" fill="#f8fafc">Compounding Loop</text>
+  <text x="80" y="330" font-family="Helvetica, Arial, sans-serif" font-size="40" fill="#cbd5e1">Write the brief, check back tomorrow.</text>
+  <text x="80" y="400" font-family="Helvetica, Arial, sans-serif" font-size="32" fill="#94a3b8">Unattended, verified Claude Code build loops</text>
+  <rect x="80" y="470" width="760" height="80" rx="12" fill="#1e293b"/>
+  <text x="110" y="523" font-family="Menlo, Consolas, monospace" font-size="34" fill="#a3e635">npx compounding-loop init</text>
+  <text x="80" y="600" font-family="Helvetica, Arial, sans-serif" font-size="26" fill="#64748b">5 live sites · 215 pages · 2,125 passing tests · MIT</text>
+</svg>
