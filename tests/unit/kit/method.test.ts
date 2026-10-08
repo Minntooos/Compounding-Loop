@@ -62,6 +62,11 @@ describe('method/COMPOUNDING_LOOP.md and knowledge files', () => {
   it('ships a knowledge index with an example entry that has frontmatter', () => {
     expect(read('method', 'knowledge-index.md')).not.toMatch(/^K-\d+/m);
     expect(read('method', 'example', 'K-0001.md')).toMatch(/^---\nid: K-0001\n/);
+    for (const id of ['K-0002', 'K-0003']) {
+      const entry = read('method', 'example', `${id}.md`);
+      expect(entry).toMatch(new RegExp(`^---\\nid: ${id}\\n`));
+      for (const key of ['type:', 'status:', 'triggers:', 'evidence:']) expect(entry, `${id} ${key}`).toContain(key);
+    }
   });
 });
 
