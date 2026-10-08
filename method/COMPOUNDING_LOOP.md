@@ -24,6 +24,7 @@
   13. Measurement
   14. The human's role
   15. Commands
+  16. Lanes: several unattended runs, one repo
 - Part C: Templates
 - Part D: Setup and adoption order
 - Part E: Limits, open questions, where the ideas come from
@@ -381,6 +382,39 @@ Say it any way you like. The AI maps it to the right protocol.
 **And for the new window:**
 
 > Resume from `.ai/task.md`. Verify Current state against git and the checks before trusting it, tell me about any mismatch, then do the next step.
+
+### 16. Lanes: several unattended runs, one repo
+
+A lane is one scheduled run that owns one part of the codebase. Several lanes push to the same `main` on staggered schedules. Ownership of paths replaces merging: two lanes never edit the same file, so there is nothing to merge.
+
+**When to split into lanes**
+
+- Split when the work has parts with clean seams (core library, server, web UI, docs) and each part can be verified on its own, and when one run per hour would otherwise be the bottleneck.
+- Do not split a project that is small, or whose parts change together in most commits. A cross-cutting change in a laned repo means waiting on another lane, which costs a day. One loop with units in order is faster and simpler.
+- Start with two or three lanes. Each lane costs a run budget and a share of your plan's usage limit.
+
+**Ownership.** `.ai/lanes.json` lists each lane's `owns` globs and the `shared` files any lane may edit with the smallest possible change (lockfiles, config, shared types). Owning no overlapping paths is checked when the file is read. Reading is free: a lane may read anything. Fixing a red `main` is the one cross-lane edit allowed anywhere; tell the owner in your outbox.
+
+**Outboxes.** A lane talks to the others by writing only to its own `.ai/lanes/<lane>/outbox.md`, newest first: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`. At the start of every run each lane reads every other outbox and the control room's notes, and acts on messages to it or to `all`. Nobody writes into another lane's files, so there is no conflict even on the notes. Say what you shipped that someone waits on, and point to `path:line`.
+
+**The control room.** One more scheduled run, every few hours, plays the owner: it runs the whole test suite, does the leak check, reads each lane's task file and outbox, and writes only `.ai/control-room.md` and the smallest fixes. It extends a lane's run budget once if the lane made real progress, answers a `BLOCKED.md` question when the brief answers it safely, copies messages that have waited too long to the lane that ignores them, tells a lane to stop waiting for a finished one, and writes the root `DONE.md` when every lane is done and the product's done-when passes. It uses the trailer `Lane: control`.
+
+**The trailer check.** Every commit ends with `Lane: <lane>`. `loop check-lanes` reads the commits in a range and fails any commit that touches a path its lane does not own and that is not shared or the lane's own `.ai/lanes/<lane>/` folder. Commits without a trailer are reported, not failed, because humans commit too. Run it in CI on every push and pull request.
+
+**Rules that make parallel runs safe**
+
+1. Start every run with `git checkout main && git pull --ff-only`; pull again right before each push.
+2. A rejected push means `git pull --rebase` and push again. A rebase that conflicts in a file you do not own means `git rebase --abort`, note it under Tried, pull fresh and redo your small change on top.
+3. Never force-push. A lane's history is the other lanes' history too.
+4. Each lane has its own task file, run counter, `DONE.md` and `BLOCKED.md`. Only the control room writes the root `DONE.md`.
+
+**Failure modes seen when this repo was built by five lanes**
+
+- **Stale sandbox clones.** A cloud run can start from an old clone and report that someone force-pushed or that a file vanished. Check `git log` on a fresh pull before believing a run's account of history.
+- **Rate-limit starvation.** On a subscription plan, the lanes share one usage limit. Runs that end in about a second are usually the limit, not a bug. Fewer lanes, fewer runs per day or a lower-tier model for cheap lanes fixes it. The control room marks a lane with no commit in four hours as stalled.
+- **A lane waiting on a finished lane.** The web lane waited for an API the server lane would never add, because the server lane had already written `DONE.md`. The control room now tells the waiting lane to stop waiting, record the gap as a next improvement and finish. Before a lane writes its own `DONE.md` it reads the other outboxes to see who waits on it.
+- **A red `main` nobody owns.** When tests fail on a fresh pull, the lane that notices fixes it first, with the smallest change, and says so in its outbox.
+- **A lock that stops everything.** A runner that writes the session lock itself must tell the prompt the lock is its own, or every run stands down.
 
 ---
 

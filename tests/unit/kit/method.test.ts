@@ -47,6 +47,18 @@ describe('method/COMPOUNDING_LOOP.md and knowledge files', () => {
     expect(method).toContain('Run: N / 30');
   });
 
+  it('has a Lanes chapter in Part B, before Part C, covering the rules and the failure modes seen', () => {
+    const method = read('method', 'COMPOUNDING_LOOP.md');
+    const start = method.indexOf('### 16. Lanes');
+    expect(start).toBeGreaterThan(method.indexOf('## Part B'));
+    expect(start).toBeLessThan(method.indexOf('## Part C'));
+    const chapter = method.slice(start, method.indexOf('## Part C'));
+    for (const needle of ['When to split into lanes', 'Do not split', 'Ownership', 'Outboxes', 'The control room', 'The trailer check', 'Lane: <lane>', 'loop check-lanes', 'git pull --ff-only', 'git pull --rebase', 'Never force-push', 'Stale sandbox clones', 'Rate-limit starvation', 'A lane waiting on a finished lane']) {
+      expect(chapter, needle).toContain(needle);
+    }
+    expect(method).toContain('16. Lanes');
+  });
+
   it('ships a knowledge index with an example entry that has frontmatter', () => {
     expect(read('method', 'knowledge-index.md')).not.toMatch(/^K-\d+/m);
     expect(read('method', 'example', 'K-0001.md')).toMatch(/^---\nid: K-0001\n/);
