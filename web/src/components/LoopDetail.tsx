@@ -4,11 +4,14 @@ import { useState } from 'react';
 import type { LoopDetail as Detail } from '@core/types';
 import { api } from '../api/client';
 import { relativeTime } from '../lib/format';
+import { LanesTab } from './LanesTab';
 import { StatusBadge } from './StatusBadge';
 import { LoadError, Loading } from './QueryState';
 
-const TABS = ['Timeline', 'Contract', 'Knowledge', 'Decisions', 'Settings'] as const;
-type Tab = (typeof TABS)[number];
+const BASE_TABS = ['Timeline', 'Contract', 'Knowledge', 'Decisions', 'Settings'] as const;
+type Tab = (typeof BASE_TABS)[number] | 'Lanes';
+/** The Lanes tab appears (after Timeline) only for loops that have lanes. */
+const tabsFor = (loop: Detail): Tab[] => (loop.lanes ? ['Timeline', 'Lanes', ...BASE_TABS.slice(1)] : [...BASE_TABS]);
 
 // Entries are plain text from repo files: rendered as text nodes only, never as HTML.
 function TextList({ items, empty }: { items: string[]; empty: string }) {
@@ -26,6 +29,7 @@ function TabBody({ tab, loop }: { tab: Tab; loop: Detail }) {
           ))}
         </ol>
       );
+    case 'Lanes': return <LanesTab lanes={loop.lanes ?? []} />;
     case 'Contract':
       return (
         <ul className="space-y-2">
@@ -49,11 +53,11 @@ function TabBody({ tab, loop }: { tab: Tab; loop: Detail }) {
   }
 }
 
-function onTabKey(e: React.KeyboardEvent, tab: Tab, setTab: (t: Tab) => void) {
+function onTabKey(e: React.KeyboardEvent, tabs: Tab[], tab: Tab, setTab: (t: Tab) => void) {
   const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
   if (!step) return;
   e.preventDefault();
-  const next = TABS[(TABS.indexOf(tab) + step + TABS.length) % TABS.length] ?? tab;
+  const next = tabs[(tabs.indexOf(tab) + step + tabs.length) % tabs.length] ?? tab;
   setTab(next);
   document.getElementById(`tab-${next}`)?.focus();
 }
@@ -65,6 +69,7 @@ export function LoopDetail({ id }: { id: string }) {
   if (q.isError) return <LoadError what="this loop" onRetry={() => void q.refetch()} busy={q.isFetching} />;
   if (!q.data) return <p role="alert">No loop called “{id}”. <a href="#/" className="underline">Back to the fleet</a></p>;
   const loop = q.data;
+  const tabs = tabsFor(loop);
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -72,8 +77,8 @@ export function LoopDetail({ id }: { id: string }) {
         <span className="font-mono text-[12px]">Round {loop.round}/{loop.roundsTotal} · Run {loop.run}/{loop.runLimit}</span>
       </div>
       <div role="tablist" aria-label="Loop sections" className="flex flex-wrap gap-1 border-b" style={{ borderColor: 'var(--border)' }}>
-        {TABS.map((t) => (
-          <button key={t} type="button" role="tab" tabIndex={tab === t ? 0 : -1} onKeyDown={(e) => onTabKey(e, tab, setTab)} id={`tab-${t}`} aria-controls="loop-panel" aria-selected={tab === t} onClick={() => setTab(t)} className="rounded-t px-3 py-2 aria-selected:border-b-2 aria-selected:font-semibold" style={{ borderColor: 'var(--accent)' }}>{t}</button>
+        {tabs.map((t) => (
+          <button key={t} type="button" role="tab" tabIndex={tab === t ? 0 : -1} onKeyDown={(e) => onTabKey(e, tabs, tab, setTab)} id={`tab-${t}`} aria-controls="loop-panel" aria-selected={tab === t} onClick={() => setTab(t)} className="rounded-t px-3 py-2 aria-selected:border-b-2 aria-selected:font-semibold" style={{ borderColor: 'var(--accent)' }}>{t}</button>
         ))}
       </div>
       <div role="tabpanel" id="loop-panel" aria-labelledby={`tab-${tab}`}><TabBody tab={tab} loop={loop} /></div>

@@ -3,12 +3,16 @@ import { CheckCircle2, Inbox as InboxIcon } from 'lucide-react';
 import type { LoopSummary } from '@core/types';
 import { api } from '../api/client';
 import { relativeTime } from '../lib/format';
+import { lanesNeedingYou, needsYouCount } from '../lib/lanes';
+import { LaneStrip } from './LaneStrip';
 import { StatusBadge } from './StatusBadge';
 import { LoadError, Loading } from './QueryState';
 
 function NeedsYou({ loops, inbox }: { loops: LoopSummary[]; inbox: number }) {
-  const failing = loops.filter((l) => l.state === 'failing').length;
-  const count = inbox + failing;
+  const count = needsYouCount(loops, inbox);
+  // Inbox items open the inbox; otherwise the problem is a lane or a failing loop, so open that loop.
+  const trouble = loops.find((l) => lanesNeedingYou(l.lanes).length > 0 || l.state === 'failing');
+  const href = inbox === 0 && trouble ? `#/loop/${encodeURIComponent(trouble.id)}` : '#/inbox';
   if (count === 0) {
     return (
       <p role="status" className="flex items-center gap-2 rounded-lg border px-4 py-3 font-medium" style={{ borderColor: 'var(--done)', color: 'var(--done)' }}>
@@ -17,7 +21,7 @@ function NeedsYou({ loops, inbox }: { loops: LoopSummary[]; inbox: number }) {
     );
   }
   return (
-    <a href="#/inbox" className="flex items-center gap-2 rounded-lg border px-4 py-3 font-medium" style={{ borderColor: 'var(--blocked)', color: 'var(--blocked)' }}>
+    <a href={href} className="flex items-center gap-2 rounded-lg border px-4 py-3 font-medium" style={{ borderColor: 'var(--blocked)', color: 'var(--blocked)' }}>
       <InboxIcon aria-hidden size={18} />{count} {count === 1 ? 'thing needs' : 'things need'} you
     </a>
   );
@@ -39,6 +43,7 @@ function LoopCard({ loop }: { loop: LoopSummary }) {
           <dt style={{ color: 'var(--muted)' }}>Tests</dt><dd>{loop.tests ? `${loop.tests.passed} passed${loop.tests.failed ? `, ${loop.tests.failed} failed` : ''}` : 'no result'}</dd>
           <dt style={{ color: 'var(--muted)' }}>Live</dt><dd>{loop.live ? (loop.live.ok ? `up (${loop.live.status})` : `down (${loop.live.status})`) : 'not checked'}</dd>
         </dl>
+        {loop.lanes && <LaneStrip lanes={loop.lanes} />}
       </a>
     </li>
   );
