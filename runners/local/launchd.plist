@@ -5,6 +5,7 @@
                 (edit the paths below first), then
                 launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.example.compounding-loop.plist
      Remove:    launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.example.compounding-loop.plist
+     For unattended edits add <string>--skip-permissions</string> after <string>run</string> below, only in a repository you trust.
      launchd has a minimal PATH, so PATH below must contain the folders of `node`, `loop` and `claude`. -->
 <plist version="1.0">
 <dict>
@@ -20,7 +21,7 @@
   <key>EnvironmentVariables</key>
   <dict>
     <key>PATH</key>
-    <string>/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin</string>
+    <string>/usr/local/bin:/opt/homebrew/bin:/path/to/home/.local/bin:/usr/bin:/bin</string>
   </dict>
   <key>StartCalendarInterval</key>
   <dict>
