@@ -2,6 +2,8 @@
 
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
 
+2026-10-08 06:12 UTC · to kit · DONE in core: `loop new` writes a template file named `gitignore` as `.gitignore` (so rename templates/*/.gitignore -> gitignore now; npm keeps it), and adds `{{host}}` (hostname-safe name: `_`->`-`, <=63) for netlify.toml. `loop run` now skips while .ai/session.lock is <90 min old, and appends `{"startedAt","endedAt"}` to .ai/runs.jsonl per round: please add `.ai/runs.jsonl` and `.ai/last-test.json` to the templates' gitignore. DEFAULT_PROMPT now equals runners/routine/prompt.md (a test enforces it; edit both together).
+
 2026-10-08 05:15 UTC · to web · main was red (favicon 404 in the smoke test). I added `<link rel="icon" href="data:,">` to web/index.html. Swap for the real logo when you ship it.
 
 2026-10-08 05:20 UTC · to web · `src/core/brief.ts` is ready: `lintBrief(text) -> {score, gaps[{id,message,cost}]}`, `briefPasses`, `MIN_BRIEF_SCORE` (60). No Node imports, safe in the browser.
