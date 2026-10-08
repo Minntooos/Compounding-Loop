@@ -3,6 +3,8 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { formatLaneCheck, runCheckLanes } from './checkLanes.js';
 import { runDoctor } from './doctor.js';
+import { runAddLanes } from './lanesInit.js';
+import { parseLaneList } from '../core/lanesInit.js';
 import { DEFAULT_PORT, runDashboard } from './dashboard.js';
 import { realGh } from './gh.js';
 import { runInit } from './init.js';
@@ -23,8 +25,15 @@ program
   .argument('[dir]', 'target repo folder', '.')
   .option('--force', 'skip the brief check and overwrite existing kit files')
   .option('--dry-run', 'show what would be written without writing')
-  .action(async (dir: string, options: { force?: boolean; dryRun?: boolean }) => {
-    const result = await runInit(path.resolve(dir), { force: Boolean(options.force), dryRun: Boolean(options.dryRun) });
+  .option('--lanes <names>', 'also set up parallel lanes, e.g. --lanes core,web,docs (writes .ai/lanes.json and per-lane files)')
+  .action(async (dir: string, options: { force?: boolean; dryRun?: boolean; lanes?: string }) => {
+    const laneList = options.lanes === undefined ? undefined : parseLaneList(options.lanes);
+    if (laneList?.error) {
+      console.error(laneList.error);
+      process.exitCode = 1;
+      return;
+    }
+    const result = await runInit(path.resolve(dir), { force: Boolean(options.force), dryRun: Boolean(options.dryRun), ...(laneList && { skipTask: true }) });
     if (result.refused) {
       console.error(result.refused);
       process.exitCode = 1;
@@ -33,6 +42,37 @@ program
     for (const action of result.actions) console.log(`${action.kind.padEnd(9)} ${action.dest}${action.reason ? `  (${action.reason})` : ''}`);
     if (result.missing.includes('method/operating-card.md')) console.error('warning: the Operating Card was NOT installed, so CLAUDE.md is unchanged.');
     for (const rel of result.missing) console.error(`warning: ${rel} is not in this package yet; used a built-in fallback or skipped it`);
+    if (laneList) {
+      try {
+        const lanes = await runAddLanes(path.resolve(dir), laneList.names.map((name) => ({ name, owns: [`${name}/**`] })), { force: Boolean(options.force), dryRun: Boolean(options.dryRun), existingOk: true });
+        for (const action of lanes.actions) console.log(`${action.kind.padEnd(9)} ${action.dest}${action.reason ? `  (${action.reason})` : ''}`);
+        for (const rel of lanes.missing) console.error(`warning: ${rel} is not in this package yet; used a built-in fallback`);
+        console.log('Each lane owns `<name>/**` for now: edit "owns" in .ai/lanes.json to match your folders, then run `loop check-lanes`.');
+      } catch (error) {
+        fail(error);
+      }
+    }
+  });
+
+const lanesCommand = program.command('lanes').description('Manage parallel lanes (see .ai/lanes.json)');
+lanesCommand
+  .command('add')
+  .description('Add a lane that owns the given path globs, with its task file and outbox')
+  .argument('<name>', 'lane name: lowercase letters, digits, dashes')
+  .requiredOption('--owns <globs...>', 'path globs this lane owns, e.g. --owns "src/api/**" "tests/api/**"')
+  .option('--cron <cron>', 'cron expression for the lane (default: next staggered hourly minute)')
+  .option('--dir <dir>', 'repo folder', '.')
+  .option('--dry-run', 'show what would be written without writing')
+  .action(async (name: string, options: { owns: string[]; cron?: string; dir: string; dryRun?: boolean }) => {
+    try {
+      const parsed = parseLaneList(name);
+      if (parsed.error || parsed.names.length !== 1) throw new Error(parsed.error ?? 'Add one lane at a time.');
+      const lanes = await runAddLanes(path.resolve(options.dir), [{ name, owns: options.owns, ...(options.cron && { cron: options.cron }) }], { force: false, dryRun: Boolean(options.dryRun) });
+      for (const action of lanes.actions) console.log(`${action.kind.padEnd(9)} ${action.dest}${action.reason ? `  (${action.reason})` : ''}`);
+      for (const rel of lanes.missing) console.error(`warning: ${rel} is not in this package yet; used a built-in fallback`);
+    } catch (error) {
+      fail(error);
+    }
   });
 
 program

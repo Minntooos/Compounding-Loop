@@ -55,8 +55,9 @@ export interface InitResult {
   refused?: string;
 }
 
-export async function runInit(target: string, options: { force: boolean; dryRun: boolean }, kit?: Kit): Promise<InitResult> {
-  const loaded = kit ?? (await loadKit());
+export async function runInit(target: string, options: { force: boolean; dryRun: boolean; /** Laned loops keep their tasks per lane, so skip the single `.ai/task.md`. */ skipTask?: boolean }, kit?: Kit): Promise<InitResult> {
+  const loadedKit = kit ?? (await loadKit());
+  const loaded = options.skipTask ? { ...loadedKit, files: loadedKit.files.filter((f) => f.dest !== '.ai/task.md') } : loadedKit;
   const brief = await readIfExists(path.join(target, 'IDEA.md'));
   const blocker = options.force ? undefined : briefBlocker(brief);
   if (blocker) return { actions: [], missing: loaded.missing, refused: blocker };
