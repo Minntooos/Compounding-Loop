@@ -13,7 +13,7 @@ export interface RunCounter {
 
 /** Reads the `Run: N / LIMIT` line of a task.md; undefined when the line is missing or malformed. */
 export function parseRunCounter(taskText: string): RunCounter | undefined {
-  const match = /^Run:\s*(\d+)\s*\/\s*(\d+)\s*$/m.exec(taskText);
+  const match = /^Run:\s*(\d+)\s*\/\s*(\d+)\b/m.exec(taskText);
   if (!match) return undefined;
   return { run: Number(match[1]), limit: Number(match[2]) };
 }
@@ -22,7 +22,9 @@ export function parseRunCounter(taskText: string): RunCounter | undefined {
 export function parseLockTime(lockText: string): Date | undefined {
   const line = lockText.trim().split(/\r?\n/)[0]?.trim();
   if (!line) return undefined;
-  const at = new Date(line);
+  // The lock is documented as UTC; a bare "2026-10-08 05:00" would otherwise parse as local time.
+  const hasZone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(line);
+  const at = new Date(hasZone ? line : `${line.replace(' ', 'T')}Z`);
   return Number.isNaN(at.getTime()) ? undefined : at;
 }
 
@@ -51,7 +53,11 @@ async function readOptional(file: string): Promise<string | undefined> {
 /** Commit time of HEAD, or undefined when the folder is not a git repo or has no commits. */
 export async function readLastCommitAt(dir: string): Promise<Date | undefined> {
   try {
-    const { stdout } = await execFileAsync('git', ['log', '-1', '--format=%cI'], { cwd: dir });
+    const { stdout } = await execFileAsync('git', ['log', '-1', '--format=%cI'], {
+      cwd: dir,
+      // Stop git walking up into a parent repo: a folder that is not itself a repo has no commits.
+      env: { ...process.env, GIT_CEILING_DIRECTORIES: path.dirname(path.resolve(dir)) },
+    });
     const at = new Date(stdout.trim());
     return Number.isNaN(at.getTime()) ? undefined : at;
   } catch {

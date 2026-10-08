@@ -11,6 +11,9 @@ describe('parseRunCounter', () => {
   it('reads N and the limit', () => {
     expect(parseRunCounter('# Task\n\nRun: 12 / 30\nStatus: x')).toEqual({ run: 12, limit: 30 });
   });
+  it('tolerates trailing text', () => {
+    expect(parseRunCounter('Run: 3 / 30 (budget)')).toEqual({ run: 3, limit: 30 });
+  });
   it('returns undefined when missing', () => {
     expect(parseRunCounter('no counter here')).toBeUndefined();
   });
@@ -19,6 +22,9 @@ describe('parseRunCounter', () => {
 describe('parseLockTime', () => {
   it('reads an ISO timestamp', () => {
     expect(parseLockTime('2026-10-08T05:00:00Z\n')?.toISOString()).toBe('2026-10-08T05:00:00.000Z');
+  });
+  it('treats a zone-less timestamp as UTC', () => {
+    expect(parseLockTime('2026-10-08 05:00')?.toISOString()).toBe('2026-10-08T05:00:00.000Z');
   });
   it('rejects garbage and empty text', () => {
     expect(parseLockTime('not a date')).toBeUndefined();

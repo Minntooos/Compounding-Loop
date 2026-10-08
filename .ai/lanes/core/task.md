@@ -1,7 +1,7 @@
 # Lane: core
 
-Run: 0 / 30
-Status: not started
+Run: 1 / 30
+Status: unit 1 done
 
 ## Contract
 **Goal:** the `loop` CLI and the pure logic in `src/core` that every other lane builds on (IDEA.md must-haves 1–7).
@@ -23,10 +23,10 @@ Status: not started
 7. `loop dashboard [--demo] [--port] [--no-open]` (#7): imports `startServer` from `src/server` (server lane exposes it; ask in your outbox if missing).
 
 ## Decisions
-(none yet: write "decision · reason · how to reverse")
+roundsDone = count of .ai/done-vN.md only (not +1 for DONE.md) · matches IDEA.md and deriveStatus's "Round roundsDone+1" · change readLoopFacts + status.ts together.
 
 ## Confirmed
-(facts proven by a command or test; cite path:line)
+- repo.ts readers pass tests/unit/core/repo.test.ts; DONE.md/BLOCKED.md live at repo root, session.lock/task.md/done-vN in .ai/.
 
 ## Guesses
 (unproven beliefs; never treat one as fact in a later run)
@@ -39,4 +39,4 @@ Status: not started
 - Add a dependency without a Decisions entry.
 
 ## Handoff
-(each run ends by writing: where it stopped, the exact next step, anything half-done)
+Run 1: fixed red main (favicon), shipped unit 1 (src/core/repo.ts). Next: unit 2, src/core/brief.ts (no Node imports). Nothing half-done.
