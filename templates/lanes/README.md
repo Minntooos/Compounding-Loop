@@ -7,7 +7,7 @@ Files `loop init --lanes` copies into a repository that runs several lanes. A la
 | `task.md` | `.ai/lanes/<lane>/task.md` | lane |
 | `outbox.md` | `.ai/lanes/<lane>/outbox.md` | lane |
 | `control-room.md` | `.ai/control-room.md` | repo |
-| `claude-section.md` | appended to `CLAUDE.md` and `AGENTS.md` | repo |
+| `claude-section.md` | appended to `CLAUDE.md` and `AGENTS.md`; wrapped in `<!-- compounding-loop:lanes -->` markers so a second run replaces the block instead of duplicating it | repo |
 | `ci-check-lanes.yml` | `.github/workflows/check-lanes.yml` | repo |
 
 ## Placeholders

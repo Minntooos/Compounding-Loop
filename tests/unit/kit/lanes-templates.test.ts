@@ -49,7 +49,7 @@ describe('templates/lanes', () => {
 
   it('CLAUDE.md section states ownership, trailer, outbox, git and stop rules', () => {
     const section = read('claude-section.md');
-    for (const needle of ['Lane: <your lane>', 'loop check-lanes', 'outbox.md', 'control-room.md', 'git pull --ff-only', 'git pull --rebase', 'Never force-push', 'BLOCKED.md', 'DONE.md', '.ai/lanes.json']) {
+    for (const needle of ['Lane: <your lane>', 'loop check-lanes', 'outbox.md', 'control-room.md', 'git pull --ff-only', 'git pull --rebase', 'Never force-push', 'BLOCKED.md', 'DONE.md', '.ai/lanes.json', '<!-- compounding-loop:lanes -->', '<!-- /compounding-loop:lanes -->', 'reviewer subagent', 'Decisions', 'add-only', 'Never:']) {
       expect(section, needle).toContain(needle);
     }
   });
@@ -63,5 +63,6 @@ describe('templates/lanes', () => {
     const steps = wf.jobs['check-lanes']?.steps ?? [];
     expect(steps[0]?.with).toMatchObject({ 'fetch-depth': 0, 'persist-credentials': false });
     expect(steps.some((s) => s.run?.includes('check-lanes --range'))).toBe(true);
+    expect(steps.map((s) => s.run ?? '').join('\n')).toContain('git cat-file -e');
   });
 });
