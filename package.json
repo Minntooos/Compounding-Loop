@@ -36,7 +36,7 @@
     "check": "node scripts/check.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p web/tsconfig.json --noEmit",
     "unit": "vitest run",
-    "build": "tsc -p tsconfig.build.json && vite build",
+    "build": "tsc -p tsconfig.build.json && node demo/copy-demo.mjs && vite build",
     "e2e": "playwright test",
     "test": "npm run check && npm run typecheck && npm run unit && npm run build && npm run e2e",
     "dev:web": "vite",

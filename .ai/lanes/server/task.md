@@ -1,7 +1,7 @@
 # Lane: server
 
 Run: 1 / 30
-Status: in progress (unit 1 done)
+Status: in progress (units 1-2 done)
 
 ## Contract
 **Goal:** the local HTTP server the dashboard talks to, plus the scrubbed demo data (IDEA.md must-haves 17–18).
@@ -28,6 +28,9 @@ Status: in progress (unit 1 done)
 - Demo snapshot shape = `DemoSnapshot` in src/core/types.ts (`{generatedAt, loops: LoopDetail[], inbox, checks}`) · web needs one file, the same shapes as the API · change builder + types together.
 - Demo `name` is the site domain, `state` is `done` for finished reports · simplest honest mapping · edit toLoopDetail.
 - Builder is plain `.mjs` with a `.d.mts` for types · contract names build-demo.mjs · none.
+
+## Decisions (cont.)
+- Demo snapshot ships as dist/server/five-sites.json (copied by `demo/copy-demo.mjs` in `npm run build`) · CLAUDE.md forbids adding demo/ to package `files`, and scripts/check.mjs enforces it · none.
 
 ## Confirmed
 - demo/five-sites.json is rebuilt with `node demo/build-demo.mjs`; tests/unit/server/demo.test.ts fails if it is stale or unscrubbed.
