@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { LOCK_MINUTES } from '../core/status.js';
 import type { HealthCheck, LaneStatus, LoopFacts } from '../core/types.js';
@@ -27,6 +27,44 @@ export function leakCheck(netlifyToml: string | undefined): Check {
   return root
     ? { kind: 'leak', ok: false, reason: 'netlify.toml publishes the repo root, so .ai/ and CLAUDE.md are public', proof: `publish = ${JSON.stringify(publish)}` }
     : { kind: 'leak', ok: true, reason: `only ${publish} is published`, proof: `publish = ${JSON.stringify(publish)}` };
+}
+
+const isRoot = (folder: string) => ['', '.', './', '/'].includes(folder.trim());
+
+/** What each host's config text says is published; only an explicit repo root counts as a leak. */
+export interface DeployConfigs {
+  /** Text of `vercel.json`. */
+  vercel?: string;
+  /** Text of `wrangler.toml` (Cloudflare Pages / Workers assets). */
+  wrangler?: string;
+  /** Text of every `.github/workflows/*.yml`. */
+  workflows?: readonly string[];
+}
+
+/** Hosts (besides Netlify) whose config publishes the repo root, so `.ai/`, CLAUDE.md and IDEA.md would be served. */
+export function rootPublishers(configs: DeployConfigs): string[] {
+  const found: string[] = [];
+  const vercel = /"outputDirectory"\s*:\s*"([^"]*)"/.exec(configs.vercel ?? '')?.[1];
+  if (vercel !== undefined && isRoot(vercel)) found.push(`vercel.json outputDirectory = ${JSON.stringify(vercel)}`);
+  const wrangler = /^\s*(?:pages_build_output_dir|directory)\s*=\s*["']([^"']*)["']/m.exec(configs.wrangler ?? '')?.[1];
+  if (wrangler !== undefined && isRoot(wrangler)) found.push(`wrangler.toml publishes ${JSON.stringify(wrangler)}`);
+  for (const workflow of configs.workflows ?? []) {
+    // actions/upload-pages-artifact (GitHub Pages) with no `path` uploads "./_site"; an explicit "." is the repo root.
+    const step = /uses:\s*actions\/upload-pages-artifact[^\n]*\n((?:[ \t]+[^\n]*\n?)*)/.exec(workflow)?.[1];
+    const pagesPath = /^\s*path:\s*["']?([^"'\s#]*)/m.exec(step ?? '')?.[1];
+    if (pagesPath !== undefined && isRoot(pagesPath)) found.push(`GitHub Pages workflow uploads ${JSON.stringify(pagesPath)}`);
+  }
+  return found;
+}
+
+/** The loop's leak check over every host config: Netlify first, then Vercel, Cloudflare Pages and GitHub Pages. */
+export function deployLeakCheck(netlifyToml: string | undefined, others: DeployConfigs): Check {
+  const netlify = leakCheck(netlifyToml);
+  const roots = rootPublishers(others);
+  if (netlify.ok && roots.length === 0) return netlify;
+  if (!netlify.ok && roots.length === 0) return netlify;
+  const reasons = [...(netlify.ok ? [] : [`netlify.toml ${netlify.proof}`]), ...roots];
+  return { kind: 'leak', ok: false, reason: 'the repo root is published, so .ai/ and CLAUDE.md are public', proof: reasons.join('; ') };
 }
 
 /** Stale lock: a lock older than the lock window with no commit since it was taken means a session died holding it. */
@@ -156,14 +194,19 @@ async function readOptional(file: string): Promise<string | undefined> {
 
 /** Runs all five checks for one clone, plus the two lane checks when the loop has lanes. */
 export async function checkLoop(dir: string, facts: LoopFacts, now: Date, periodMinutes?: number, lanes?: readonly LaneStatus[]): Promise<HealthCheck[]> {
-  const [toml, runLog, testText] = await Promise.all([
+  const workflowDir = path.join(dir, '.github', 'workflows');
+  const workflowFiles = (await readdir(workflowDir).catch(() => [] as string[])).filter((f) => /\.ya?ml$/.test(f));
+  const [toml, vercel, wrangler, workflows, runLog, testText] = await Promise.all([
     readOptional(path.join(dir, 'netlify.toml')),
+    readOptional(path.join(dir, 'vercel.json')),
+    readOptional(path.join(dir, 'wrangler.toml')),
+    Promise.all(workflowFiles.map((f) => readFile(path.join(workflowDir, f), 'utf8').catch(() => ''))),
     readOptional(path.join(dir, '.ai', 'runs.jsonl')),
     readOptional(path.join(dir, '.ai', 'last-test.json')),
   ]);
   const loopId = path.basename(dir);
   const checks = [
-    leakCheck(toml),
+    deployLeakCheck(toml, { ...(vercel !== undefined && { vercel }), ...(wrangler !== undefined && { wrangler }), workflows }),
     staleLockCheck(facts, now),
     // A stopped loop (BLOCKED/DONE) keeps old run records; they say nothing about its health now.
     shortRunsCheck(facts.hasBlocked || facts.hasDone || runLog === undefined ? [] : parseRunLog(runLog)),

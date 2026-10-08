@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
-  checkLoop, failingTestsCheck, leakCheck, parseRunLog, parseTestRecord, runnerSilentCheck, shortRunsCheck, staleLockCheck,
+  checkLoop, deployLeakCheck, failingTestsCheck, leakCheck, rootPublishers, parseRunLog, parseTestRecord, runnerSilentCheck, shortRunsCheck, staleLockCheck,
 } from '../../../src/server/health.js';
 
 const now = new Date('2026-10-08T12:00:00Z');
@@ -133,6 +133,42 @@ describe('checkLoop', () => {
       expect(checks.map((c) => c.kind)).toEqual(['leak', 'stale-lock', 'short-runs', 'failing-tests', 'runner-silent']);
       expect(new Set(checks.map((c) => c.loopId))).toEqual(new Set([path.basename(dir)]));
       expect(checks.filter((c) => !c.ok).map((c) => c.kind)).toEqual(['leak', 'failing-tests']);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
+
+describe('deployLeakCheck', () => {
+  const pages = (path?: string) => `jobs:\n  deploy:\n    steps:\n      - uses: actions/upload-pages-artifact@v3\n${path === undefined ? '' : `        with:\n          path: ${path}\n`}      - run: echo done\n`;
+
+  it('passes with no host config or with a built subfolder', () => {
+    expect(deployLeakCheck(undefined, {}).ok).toBe(true);
+    expect(deployLeakCheck(undefined, { vercel: '{"outputDirectory":"dist"}', wrangler: 'pages_build_output_dir = "dist"', workflows: [pages('_site'), pages()] }).ok).toBe(true);
+    expect(deployLeakCheck(undefined, { vercel: '', wrangler: '', workflows: [''] }).ok).toBe(true);
+  });
+
+  it('fails when Vercel, Cloudflare Pages or GitHub Pages publish the repo root', () => {
+    expect(rootPublishers({ vercel: '{ "outputDirectory": "." }' })).toEqual(['vercel.json outputDirectory = "."']);
+    expect(rootPublishers({ wrangler: 'name = "x"\npages_build_output_dir = "./"\n' })).toHaveLength(1);
+    expect(rootPublishers({ wrangler: '[assets]\ndirectory = "."\n' })).toHaveLength(1);
+    expect(rootPublishers({ workflows: [pages('.')] })).toEqual(['GitHub Pages workflow uploads "."']);
+  });
+
+  it('reports every leaking host in one failing leak check', () => {
+    const check = deployLeakCheck('[build]\n publish = "."\n', { vercel: '{"outputDirectory":""}' });
+    expect(check).toMatchObject({ kind: 'leak', ok: false });
+    expect(check.proof).toContain('netlify');
+    expect(check.proof).toContain('vercel.json');
+  });
+
+  it('checkLoop reads the config files of a clone', async () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'cl-leak-'));
+    try {
+      mkdirSync(path.join(dir, '.github', 'workflows'), { recursive: true });
+      writeFileSync(path.join(dir, '.github', 'workflows', 'pages.yml'), pages('.'));
+      const checks = await checkLoop(dir, { hasBlocked: false, hasDone: false, roundsDone: 0, healthFailures: [] }, now);
+      expect(checks.find((c) => c.kind === 'leak')?.ok).toBe(false);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

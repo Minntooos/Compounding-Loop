@@ -1,7 +1,7 @@
 # Lane: server — round 2 (0.2.0 "Lanes")
 
 Run: 1 / 20
-Status: in progress (units 1-4 done; next: 5 demo loop + scrub test, 6)
+Status: in progress (units 1-4, 5 data+scrub, 6 leak checks done; next: merge sixth loop into served demo once web updates e2e counts; lane-cron stall is core's)
 Round 1 record: `.ai/lanes/server/done-v1.md` (`git show 3385cdf:.ai/lanes/server/task.md` for its Decisions).
 
 ## Contract
