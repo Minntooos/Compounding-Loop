@@ -1,0 +1,3071 @@
+{
+  "generatedAt": "2026-10-06T21:44:10.086Z",
+  "loops": [
+    {
+      "id": "proj1",
+      "name": "powerstationruntime.netlify.app",
+      "url": "https://powerstationruntime.netlify.app",
+      "state": "done",
+      "reason": "all 5 rounds done",
+      "round": 5,
+      "roundsTotal": 5,
+      "run": 0,
+      "runLimit": 30,
+      "tests": {
+        "passed": 278,
+        "failed": 0,
+        "at": "2026-10-06T21:41:53.269Z"
+      },
+      "live": {
+        "ok": true,
+        "status": 200,
+        "leaked": []
+      },
+      "pages": 55,
+      "lastCommit": {
+        "sha": "11d2403",
+        "at": "2026-10-06T21:24:58.000Z",
+        "message": "v5 done: DONE.md, retro log; remove task.md"
+      },
+      "timeline": [
+        {
+          "sha": "11d2403",
+          "at": "2026-10-06T21:24:58.000Z",
+          "message": "v5 done: DONE.md, retro log; remove task.md"
+        },
+        {
+          "sha": "561566f",
+          "at": "2026-10-06T21:24:25.000Z",
+          "message": "Add /projector/ page from Optoma and Epson specs"
+        },
+        {
+          "sha": "2d58697",
+          "at": "2026-10-06T21:22:01.000Z",
+          "message": "Add /induction-cooktop/ page from Nuwave wattage settings"
+        },
+        {
+          "sha": "781ed79",
+          "at": "2026-10-06T21:19:40.000Z",
+          "message": "Add /gas-furnace/ page from DOE furnace figures; record skipped pages"
+        },
+        {
+          "sha": "4c15528",
+          "at": "2026-10-06T21:16:46.000Z",
+          "message": "Add /blender/ page with sourced maker wattages"
+        },
+        {
+          "sha": "e8045cf",
+          "at": "2026-10-06T21:14:21.000Z",
+          "message": "Add /rice-cooker/ page with sourced maker wattages"
+        },
+        {
+          "sha": "cc9c0e4",
+          "at": "2026-10-06T21:12:01.000Z",
+          "message": "Add /air-fryer/ page with sourced maker wattages; update handoff"
+        },
+        {
+          "sha": "dffc25a",
+          "at": "2026-10-06T20:44:26.000Z",
+          "message": "Start v5: move v4 DONE.md to .ai/done-v4.md, new task file"
+        },
+        {
+          "sha": "fb3f354",
+          "at": "2026-10-06T18:25:07.000Z",
+          "message": "v4 done: DONE.md, retro log, K-0007; remove task.md"
+        },
+        {
+          "sha": "106b59f",
+          "at": "2026-10-06T18:23:21.000Z",
+          "message": "Kettle review fixes; update handoff"
+        },
+        {
+          "sha": "2d6f91a",
+          "at": "2026-10-06T18:22:02.000Z",
+          "message": "Add /electric-kettle/ page and lib/water.js heatWaterWh with unit tests"
+        },
+        {
+          "sha": "f72e483",
+          "at": "2026-10-06T18:20:22.000Z",
+          "message": "Washing machine review fixes; update handoff"
+        },
+        {
+          "sha": "86ba6f7",
+          "at": "2026-10-06T18:19:12.000Z",
+          "message": "Add /washing-machine/ page (VT/DOE watts, ENERGY STAR criteria)"
+        },
+        {
+          "sha": "78c13f2",
+          "at": "2026-10-06T18:17:39.000Z",
+          "message": "Power tools review fixes; update handoff"
+        },
+        {
+          "sha": "eeeda6e",
+          "at": "2026-10-06T18:16:28.000Z",
+          "message": "Add /power-tools/ page (DEWALT 15 A tools, Milwaukee M18 charger input)"
+        },
+        {
+          "sha": "ae73837",
+          "at": "2026-10-06T18:14:55.000Z",
+          "message": "Wi-Fi router review fixes; update handoff"
+        },
+        {
+          "sha": "4b13234",
+          "at": "2026-10-06T18:13:48.000Z",
+          "message": "Add /wifi-router/ page (eero and NETGEAR power figures)"
+        },
+        {
+          "sha": "79b9fcf",
+          "at": "2026-10-06T18:12:18.000Z",
+          "message": "Gaming console review fixes; update task handoff"
+        },
+        {
+          "sha": "ce3b792",
+          "at": "2026-10-06T18:11:05.000Z",
+          "message": "Add /gaming-console/ page (Microsoft and PlayStation power figures); drop stale session lock"
+        },
+        {
+          "sha": "082d8ba",
+          "at": "2026-10-06T17:13:40.000Z",
+          "message": "Electric car review fixes: support caveat, safer example, evMiles() with tests, exact EPA sources"
+        },
+        {
+          "sha": "32716fc",
+          "at": "2026-10-06T17:11:17.000Z",
+          "message": "Add /electric-car/ page (EPA kWh/100 mi, miles per station charge), evs.json"
+        },
+        {
+          "sha": "c784668",
+          "at": "2026-10-06T17:09:26.000Z",
+          "message": "E-bike review fixes: per-page device limit (keeps laptop mAh check), CPSC charging safety, Ah hint, solar daily use"
+        },
+        {
+          "sha": "a56961c",
+          "at": "2026-10-06T17:06:25.000Z",
+          "message": "Add /ebike/ charges page (Bosch and Rad Power Bikes battery Wh), ebikes.json"
+        },
+        {
+          "sha": "cf49f6d",
+          "at": "2026-10-06T17:03:55.000Z",
+          "message": "Start v4 round: archive DONE.md as .ai/done-v3.md, new task.md"
+        },
+        {
+          "sha": "bf25e48",
+          "at": "2026-10-06T17:03:47.000Z",
+          "message": "v3 done: retro, knowledge entries, DONE.md"
+        },
+        {
+          "sha": "53cd375",
+          "at": "2026-10-06T17:03:47.000Z",
+          "message": "Test that hand-written model tables list every model in models.json"
+        },
+        {
+          "sha": "fa5ccf6",
+          "at": "2026-10-06T17:01:39.000Z",
+          "message": "Desktop page review fixes: DOE estimate wording, calculation section, worked example"
+        },
+        {
+          "sha": "3b07313",
+          "at": "2026-10-06T17:00:03.000Z",
+          "message": "Add /desktop-computer/ page (Apple Mac mini measured watts, Dell monitor, DOE figures)"
+        },
+        {
+          "sha": "fd0c1ee",
+          "at": "2026-10-06T16:58:21.000Z",
+          "message": "Instant Pot review fixes: drop unsourced comparison, clearer worked example, trademark note"
+        },
+        {
+          "sha": "b532331",
+          "at": "2026-10-06T16:56:36.000Z",
+          "message": "Add /instant-pot/ page (Instant Pot Duo 700/1,000/1,200 W)"
+        }
+      ],
+      "contract": [
+        {
+          "text": "Runtime calculator (home page)",
+          "pass": true
+        },
+        {
+          "text": "Appliance data in `site/data/appliances.json`",
+          "pass": true
+        },
+        {
+          "text": "Size calculator (the reverse)",
+          "pass": true
+        },
+        {
+          "text": "Solar charging time calculator",
+          "pass": true
+        },
+        {
+          "text": "Watt-hours converter",
+          "pass": true
+        },
+        {
+          "text": "Appliance pages (the clusters above)",
+          "pass": true
+        },
+        {
+          "text": "Model pages",
+          "pass": true
+        },
+        {
+          "text": "Models comparison page",
+          "pass": true
+        },
+        {
+          "text": "How we calculate",
+          "pass": true
+        },
+        {
+          "text": "Safety notes where they matter",
+          "pass": true
+        }
+      ],
+      "knowledge": [],
+      "decisions": [],
+      "history": [
+        {
+          "at": "2026-10-05T23:17:56.000Z",
+          "pages": 1
+        },
+        {
+          "at": "2026-10-05T23:21:59.000Z",
+          "pages": 2
+        },
+        {
+          "at": "2026-10-05T23:22:37.000Z",
+          "pages": 2
+        },
+        {
+          "at": "2026-10-05T23:25:06.000Z",
+          "pages": 2
+        },
+        {
+          "at": "2026-10-06T00:10:09.000Z",
+          "pages": 3
+        },
+        {
+          "at": "2026-10-06T00:11:08.000Z",
+          "pages": 3
+        },
+        {
+          "at": "2026-10-06T00:24:40.000Z",
+          "pages": 3
+        },
+        {
+          "at": "2026-10-06T03:09:56.000Z",
+          "pages": 4
+        },
+        {
+          "at": "2026-10-06T03:10:41.000Z",
+          "pages": 4
+        },
+        {
+          "at": "2026-10-06T03:23:59.000Z",
+          "pages": 4
+        },
+        {
+          "at": "2026-10-06T03:55:43.000Z",
+          "pages": 4
+        },
+        {
+          "at": "2026-10-06T04:09:57.000Z",
+          "pages": 5
+        },
+        {
+          "at": "2026-10-06T04:10:42.000Z",
+          "pages": 5
+        },
+        {
+          "at": "2026-10-06T04:11:27.000Z",
+          "pages": 5
+        },
+        {
+          "at": "2026-10-06T08:10:28.000Z",
+          "pages": 5
+        },
+        {
+          "at": "2026-10-06T08:10:56.000Z",
+          "pages": 5
+        },
+        {
+          "at": "2026-10-06T08:11:25.000Z",
+          "pages": 5
+        },
+        {
+          "at": "2026-10-06T09:09:16.000Z",
+          "pages": 5
+        },
+        {
+          "at": "2026-10-06T10:08:58.000Z",
+          "pages": 5
+        },
+        {
+          "at": "2026-10-06T13:09:34.000Z",
+          "pages": 6
+        },
+        {
+          "at": "2026-10-06T13:10:25.000Z",
+          "pages": 6
+        },
+        {
+          "at": "2026-10-06T13:11:11.000Z",
+          "pages": 7
+        },
+        {
+          "at": "2026-10-06T13:11:49.000Z",
+          "pages": 7
+        },
+        {
+          "at": "2026-10-06T13:12:56.000Z",
+          "pages": 11
+        },
+        {
+          "at": "2026-10-06T13:13:45.000Z",
+          "pages": 11
+        },
+        {
+          "at": "2026-10-06T13:14:50.000Z",
+          "pages": 13
+        },
+        {
+          "at": "2026-10-06T13:15:32.000Z",
+          "pages": 13
+        },
+        {
+          "at": "2026-10-06T13:15:53.000Z",
+          "pages": 13
+        },
+        {
+          "at": "2026-10-06T14:11:33.000Z",
+          "pages": 14
+        },
+        {
+          "at": "2026-10-06T14:12:38.000Z",
+          "pages": 14
+        },
+        {
+          "at": "2026-10-06T14:13:10.000Z",
+          "pages": 14
+        },
+        {
+          "at": "2026-10-06T14:14:21.000Z",
+          "pages": 18
+        },
+        {
+          "at": "2026-10-06T14:15:41.000Z",
+          "pages": 18
+        },
+        {
+          "at": "2026-10-06T14:17:26.000Z",
+          "pages": 20
+        },
+        {
+          "at": "2026-10-06T14:18:51.000Z",
+          "pages": 20
+        },
+        {
+          "at": "2026-10-06T14:19:36.000Z",
+          "pages": 20
+        },
+        {
+          "at": "2026-10-06T14:21:05.000Z",
+          "pages": 20
+        },
+        {
+          "at": "2026-10-06T15:12:06.000Z",
+          "pages": 21
+        },
+        {
+          "at": "2026-10-06T15:12:22.000Z",
+          "pages": 21
+        },
+        {
+          "at": "2026-10-06T15:33:16.000Z",
+          "pages": 22
+        },
+        {
+          "at": "2026-10-06T15:35:05.000Z",
+          "pages": 22
+        },
+        {
+          "at": "2026-10-06T15:35:55.000Z",
+          "pages": 22
+        },
+        {
+          "at": "2026-10-06T15:36:05.000Z",
+          "pages": 22
+        },
+        {
+          "at": "2026-10-06T15:38:42.000Z",
+          "pages": 23
+        },
+        {
+          "at": "2026-10-06T15:40:23.000Z",
+          "pages": 23
+        },
+        {
+          "at": "2026-10-06T15:44:05.000Z",
+          "pages": 24
+        },
+        {
+          "at": "2026-10-06T15:46:25.000Z",
+          "pages": 24
+        },
+        {
+          "at": "2026-10-06T15:48:38.000Z",
+          "pages": 25
+        },
+        {
+          "at": "2026-10-06T15:51:04.000Z",
+          "pages": 25
+        },
+        {
+          "at": "2026-10-06T15:53:04.000Z",
+          "pages": 26
+        },
+        {
+          "at": "2026-10-06T15:55:34.000Z",
+          "pages": 26
+        },
+        {
+          "at": "2026-10-06T15:57:10.000Z",
+          "pages": 27
+        },
+        {
+          "at": "2026-10-06T15:58:41.000Z",
+          "pages": 27
+        },
+        {
+          "at": "2026-10-06T16:00:39.000Z",
+          "pages": 28
+        },
+        {
+          "at": "2026-10-06T16:03:38.000Z",
+          "pages": 28
+        },
+        {
+          "at": "2026-10-06T16:05:47.000Z",
+          "pages": 29
+        },
+        {
+          "at": "2026-10-06T16:07:26.000Z",
+          "pages": 29
+        },
+        {
+          "at": "2026-10-06T16:09:36.000Z",
+          "pages": 30
+        },
+        {
+          "at": "2026-10-06T16:11:47.000Z",
+          "pages": 30
+        },
+        {
+          "at": "2026-10-06T16:14:26.000Z",
+          "pages": 30
+        },
+        {
+          "at": "2026-10-06T16:14:02.000Z",
+          "pages": 31
+        },
+        {
+          "at": "2026-10-06T16:16:02.000Z",
+          "pages": 31
+        },
+        {
+          "at": "2026-10-06T16:17:27.000Z",
+          "pages": 32
+        },
+        {
+          "at": "2026-10-06T16:19:10.000Z",
+          "pages": 32
+        },
+        {
+          "at": "2026-10-06T16:19:53.000Z",
+          "pages": 32
+        },
+        {
+          "at": "2026-10-06T16:20:02.000Z",
+          "pages": 32
+        },
+        {
+          "at": "2026-10-06T16:22:14.000Z",
+          "pages": 33
+        },
+        {
+          "at": "2026-10-06T16:25:14.000Z",
+          "pages": 33
+        },
+        {
+          "at": "2026-10-06T16:27:04.000Z",
+          "pages": 34
+        },
+        {
+          "at": "2026-10-06T16:29:24.000Z",
+          "pages": 34
+        },
+        {
+          "at": "2026-10-06T16:31:10.000Z",
+          "pages": 35
+        },
+        {
+          "at": "2026-10-06T16:34:02.000Z",
+          "pages": 35
+        },
+        {
+          "at": "2026-10-06T16:36:07.000Z",
+          "pages": 36
+        },
+        {
+          "at": "2026-10-06T16:38:11.000Z",
+          "pages": 36
+        },
+        {
+          "at": "2026-10-06T16:40:09.000Z",
+          "pages": 37
+        },
+        {
+          "at": "2026-10-06T16:41:25.000Z",
+          "pages": 37
+        },
+        {
+          "at": "2026-10-06T16:43:07.000Z",
+          "pages": 38
+        },
+        {
+          "at": "2026-10-06T16:46:35.000Z",
+          "pages": 38
+        },
+        {
+          "at": "2026-10-06T16:48:39.000Z",
+          "pages": 39
+        },
+        {
+          "at": "2026-10-06T16:50:59.000Z",
+          "pages": 39
+        },
+        {
+          "at": "2026-10-06T16:53:17.000Z",
+          "pages": 40
+        },
+        {
+          "at": "2026-10-06T16:55:04.000Z",
+          "pages": 40
+        },
+        {
+          "at": "2026-10-06T16:56:36.000Z",
+          "pages": 41
+        },
+        {
+          "at": "2026-10-06T16:58:21.000Z",
+          "pages": 41
+        },
+        {
+          "at": "2026-10-06T17:00:03.000Z",
+          "pages": 42
+        },
+        {
+          "at": "2026-10-06T17:01:39.000Z",
+          "pages": 42
+        },
+        {
+          "at": "2026-10-06T17:03:47.000Z",
+          "pages": 42
+        },
+        {
+          "at": "2026-10-06T17:03:47.000Z",
+          "pages": 42
+        },
+        {
+          "at": "2026-10-06T17:03:55.000Z",
+          "pages": 42
+        },
+        {
+          "at": "2026-10-06T17:06:25.000Z",
+          "pages": 43
+        },
+        {
+          "at": "2026-10-06T17:09:26.000Z",
+          "pages": 43
+        },
+        {
+          "at": "2026-10-06T17:11:17.000Z",
+          "pages": 44
+        },
+        {
+          "at": "2026-10-06T17:13:40.000Z",
+          "pages": 44
+        },
+        {
+          "at": "2026-10-06T18:11:05.000Z",
+          "pages": 45
+        },
+        {
+          "at": "2026-10-06T18:12:18.000Z",
+          "pages": 45
+        },
+        {
+          "at": "2026-10-06T18:13:48.000Z",
+          "pages": 46
+        },
+        {
+          "at": "2026-10-06T18:14:55.000Z",
+          "pages": 46
+        },
+        {
+          "at": "2026-10-06T18:16:28.000Z",
+          "pages": 47
+        },
+        {
+          "at": "2026-10-06T18:17:39.000Z",
+          "pages": 47
+        },
+        {
+          "at": "2026-10-06T18:19:12.000Z",
+          "pages": 48
+        },
+        {
+          "at": "2026-10-06T18:20:22.000Z",
+          "pages": 48
+        },
+        {
+          "at": "2026-10-06T18:22:02.000Z",
+          "pages": 49
+        },
+        {
+          "at": "2026-10-06T18:23:21.000Z",
+          "pages": 49
+        },
+        {
+          "at": "2026-10-06T18:25:07.000Z",
+          "pages": 49
+        },
+        {
+          "at": "2026-10-06T20:44:26.000Z",
+          "pages": 49
+        },
+        {
+          "at": "2026-10-06T21:12:01.000Z",
+          "pages": 50
+        },
+        {
+          "at": "2026-10-06T21:14:21.000Z",
+          "pages": 51
+        },
+        {
+          "at": "2026-10-06T21:16:46.000Z",
+          "pages": 52
+        },
+        {
+          "at": "2026-10-06T21:19:40.000Z",
+          "pages": 53
+        },
+        {
+          "at": "2026-10-06T21:22:01.000Z",
+          "pages": 54
+        },
+        {
+          "at": "2026-10-06T21:24:25.000Z",
+          "pages": 55
+        },
+        {
+          "at": "2026-10-06T21:24:58.000Z",
+          "pages": 55
+        }
+      ]
+    },
+    {
+      "id": "proj2",
+      "name": "clearpoolmath.netlify.app",
+      "url": "https://clearpoolmath.netlify.app",
+      "state": "done",
+      "reason": "all 5 rounds done",
+      "round": 5,
+      "roundsTotal": 5,
+      "run": 0,
+      "runLimit": 30,
+      "tests": {
+        "passed": 543,
+        "failed": 0,
+        "at": "2026-10-06T21:42:27.420Z"
+      },
+      "live": {
+        "ok": true,
+        "status": 200,
+        "leaked": []
+      },
+      "pages": 40,
+      "lastCommit": {
+        "sha": "ec5adac",
+        "at": "2026-10-06T21:41:25.000Z",
+        "message": "Volume page: shorten meta description to 145 chars so npm run check passes"
+      },
+      "timeline": [
+        {
+          "sha": "ec5adac",
+          "at": "2026-10-06T21:41:25.000Z",
+          "message": "Volume page: shorten meta description to 145 chars so npm run check passes"
+        },
+        {
+          "sha": "726cca7",
+          "at": "2026-10-06T18:31:08.000Z",
+          "message": "v5 done: DONE.md, handoff files"
+        },
+        {
+          "sha": "0613449",
+          "at": "2026-10-06T18:30:51.000Z",
+          "message": "Volume page: mention straight-sided oval in description"
+        },
+        {
+          "sha": "b1156f4",
+          "at": "2026-10-06T18:30:23.000Z",
+          "message": "Volume calculator: add straight-sided oval shape (stadium formula)"
+        },
+        {
+          "sha": "ce7047c",
+          "at": "2026-10-06T18:27:22.000Z",
+          "message": "Update handoff"
+        },
+        {
+          "sha": "88b3748",
+          "at": "2026-10-06T18:27:22.000Z",
+          "message": "Leak calculator: require 6+ hour tests, soften evaporation verdict"
+        },
+        {
+          "sha": "cf5cfb6",
+          "at": "2026-10-06T18:25:49.000Z",
+          "message": "Add pool leak bucket test calculator (leak vs evaporation, gallons per day)"
+        },
+        {
+          "sha": "278ace8",
+          "at": "2026-10-06T18:23:47.000Z",
+          "message": "Mixing page: cite EPA report, say call 911, update handoff"
+        },
+        {
+          "sha": "c40d964",
+          "at": "2026-10-06T18:22:30.000Z",
+          "message": "Add can-you-mix-pool-chemicals safety page (CDC guidance, EPA label rules)"
+        },
+        {
+          "sha": "3066d14",
+          "at": "2026-10-06T17:13:58.000Z",
+          "message": "Add pool cover savings calculator (DOE heating and water figures, evaporation heat)"
+        },
+        {
+          "sha": "0509879",
+          "at": "2026-10-06T17:08:24.000Z",
+          "message": "Add liquid chlorine vs tablets comparison (amount, CYA, calcium, cost)"
+        },
+        {
+          "sha": "0a57b6c",
+          "at": "2026-10-06T17:00:57.000Z",
+          "message": "Add 'what to add to my pool' planner: all readings to ordered doses"
+        },
+        {
+          "sha": "34a7aad",
+          "at": "2026-10-06T16:52:22.000Z",
+          "message": "Add salt chlorinator output calculator (% setting from daily use and cell rating)"
+        },
+        {
+          "sha": "358ebe2",
+          "at": "2026-10-06T16:46:57.000Z",
+          "message": "Add breakpoint chlorination calculator (10 x combined chlorine)"
+        },
+        {
+          "sha": "bb13fbb",
+          "at": "2026-10-06T16:41:59.000Z",
+          "message": "Start v5: move v4 DONE.md to .ai/done-v4.md, new task file"
+        },
+        {
+          "sha": "3bb2c4a",
+          "at": "2026-10-06T16:41:49.000Z",
+          "message": "v4 done: DONE.md, log, retro knowledge entries"
+        },
+        {
+          "sha": "1c0400f",
+          "at": "2026-10-06T16:40:59.000Z",
+          "message": "Add phosphate remover calculator (Orenda PR-10,000 label chart, cited targets)"
+        },
+        {
+          "sha": "82a4c81",
+          "at": "2026-10-06T16:35:59.000Z",
+          "message": "Add pool gallons chart (round, straight-sided oval, rectangle); stop volume page overwriting a saved volume on load"
+        },
+        {
+          "sha": "ba8d174",
+          "at": "2026-10-06T16:26:29.000Z",
+          "message": "Add pool filter pressure guide with backwash/clean checker"
+        },
+        {
+          "sha": "4bf1397",
+          "at": "2026-10-06T16:21:41.000Z",
+          "message": "Add daily chlorine calculator (measured loss, dose per day, days to minimum)"
+        },
+        {
+          "sha": "2aa31c0",
+          "at": "2026-10-06T16:16:04.000Z",
+          "message": "Add pool closing checklist with close-temperature check and climate steps"
+        },
+        {
+          "sha": "c84782a",
+          "at": "2026-10-06T16:14:29.000Z",
+          "message": "Hold the routine while the credit session runs (lock expires 90 min after 2026-10-06T16:14:25Z)"
+        },
+        {
+          "sha": "fc6253f",
+          "at": "2026-10-06T16:11:11.000Z",
+          "message": "Add pool cover size calculator (winter cover overlap, fit check)"
+        },
+        {
+          "sha": "47d098f",
+          "at": "2026-10-06T15:30:41.000Z",
+          "message": "Add task for the next round"
+        },
+        {
+          "sha": "f8be9b8",
+          "at": "2026-10-06T15:30:26.000Z",
+          "message": "Start v4: build the 10 next pages"
+        },
+        {
+          "sha": "83fca6f",
+          "at": "2026-10-06T13:27:27.000Z",
+          "message": "v3 done: DONE.md, log, retro"
+        },
+        {
+          "sha": "1f06900",
+          "at": "2026-10-06T13:26:21.000Z",
+          "message": "Filter page: guard stale saved select, finer rate display"
+        },
+        {
+          "sha": "7941341",
+          "at": "2026-10-06T13:25:01.000Z",
+          "message": "Add pool filter size calculator (sand, cartridge, DE design rates)"
+        },
+        {
+          "sha": "be01c8f",
+          "at": "2026-10-06T10:44:38.000Z",
+          "message": "Add hot tub water change schedule calculator"
+        },
+        {
+          "sha": "9c7400f",
+          "at": "2026-10-06T10:39:54.000Z",
+          "message": "Add salt pool pH rise guide with weekly acid budget"
+        }
+      ],
+      "contract": [
+        {
+          "text": "Pool volume calculator",
+          "pass": true
+        },
+        {
+          "text": "Chemical products data in `site/data/chemicals.json`",
+          "pass": true
+        },
+        {
+          "text": "One calculator per cluster above",
+          "pass": true
+        },
+        {
+          "text": "LSI/CSI calculator using the standard formula (pH, temperature, calcium hardness, total alkalinity with a CYA correction, TDS)",
+          "pass": true
+        },
+        {
+          "text": "Water replacement calculator",
+          "pass": true
+        },
+        {
+          "text": "Recommended ranges page with a cited source per range (e.g",
+          "pass": true
+        },
+        {
+          "text": "Test log",
+          "pass": true
+        },
+        {
+          "text": "Hot tub calculator",
+          "pass": true
+        },
+        {
+          "text": "Safety on every dosing page",
+          "pass": true
+        }
+      ],
+      "knowledge": [],
+      "decisions": [],
+      "history": [
+        {
+          "at": "2026-10-05T23:17:58.000Z",
+          "pages": 1
+        },
+        {
+          "at": "2026-10-05T23:20:09.000Z",
+          "pages": 1
+        },
+        {
+          "at": "2026-10-05T23:25:58.000Z",
+          "pages": 2
+        },
+        {
+          "at": "2026-10-05T23:26:37.000Z",
+          "pages": 2
+        },
+        {
+          "at": "2026-10-06T00:24:23.000Z",
+          "pages": 2
+        },
+        {
+          "at": "2026-10-06T00:45:52.000Z",
+          "pages": 3
+        },
+        {
+          "at": "2026-10-06T00:46:20.000Z",
+          "pages": 3
+        },
+        {
+          "at": "2026-10-06T03:22:38.000Z",
+          "pages": 4
+        },
+        {
+          "at": "2026-10-06T03:23:32.000Z",
+          "pages": 4
+        },
+        {
+          "at": "2026-10-06T03:25:14.000Z",
+          "pages": 5
+        },
+        {
+          "at": "2026-10-06T03:26:06.000Z",
+          "pages": 5
+        },
+        {
+          "at": "2026-10-06T03:27:39.000Z",
+          "pages": 6
+        },
+        {
+          "at": "2026-10-06T03:28:18.000Z",
+          "pages": 6
+        },
+        {
+          "at": "2026-10-06T03:29:43.000Z",
+          "pages": 7
+        },
+        {
+          "at": "2026-10-06T03:30:27.000Z",
+          "pages": 7
+        },
+        {
+          "at": "2026-10-06T03:32:40.000Z",
+          "pages": 8
+        },
+        {
+          "at": "2026-10-06T03:33:20.000Z",
+          "pages": 8
+        },
+        {
+          "at": "2026-10-06T03:33:48.000Z",
+          "pages": 8
+        },
+        {
+          "at": "2026-10-06T03:34:27.000Z",
+          "pages": 8
+        },
+        {
+          "at": "2026-10-06T03:35:39.000Z",
+          "pages": 9
+        },
+        {
+          "at": "2026-10-06T03:36:40.000Z",
+          "pages": 9
+        },
+        {
+          "at": "2026-10-06T03:38:00.000Z",
+          "pages": 10
+        },
+        {
+          "at": "2026-10-06T03:38:59.000Z",
+          "pages": 10
+        },
+        {
+          "at": "2026-10-06T03:40:52.000Z",
+          "pages": 11
+        },
+        {
+          "at": "2026-10-06T03:41:55.000Z",
+          "pages": 11
+        },
+        {
+          "at": "2026-10-06T03:43:14.000Z",
+          "pages": 12
+        },
+        {
+          "at": "2026-10-06T03:44:15.000Z",
+          "pages": 12
+        },
+        {
+          "at": "2026-10-06T03:46:15.000Z",
+          "pages": 13
+        },
+        {
+          "at": "2026-10-06T03:47:48.000Z",
+          "pages": 13
+        },
+        {
+          "at": "2026-10-06T03:48:01.000Z",
+          "pages": 13
+        },
+        {
+          "at": "2026-10-06T03:56:12.000Z",
+          "pages": 13
+        },
+        {
+          "at": "2026-10-06T04:22:26.000Z",
+          "pages": 14
+        },
+        {
+          "at": "2026-10-06T04:23:30.000Z",
+          "pages": 14
+        },
+        {
+          "at": "2026-10-06T04:25:13.000Z",
+          "pages": 15
+        },
+        {
+          "at": "2026-10-06T04:26:23.000Z",
+          "pages": 15
+        },
+        {
+          "at": "2026-10-06T04:29:05.000Z",
+          "pages": 15
+        },
+        {
+          "at": "2026-10-06T04:59:21.000Z",
+          "pages": 15
+        },
+        {
+          "at": "2026-10-06T08:21:49.000Z",
+          "pages": 16
+        },
+        {
+          "at": "2026-10-06T08:23:16.000Z",
+          "pages": 16
+        },
+        {
+          "at": "2026-10-06T08:24:52.000Z",
+          "pages": 17
+        },
+        {
+          "at": "2026-10-06T08:25:18.000Z",
+          "pages": 17
+        },
+        {
+          "at": "2026-10-06T08:27:00.000Z",
+          "pages": 18
+        },
+        {
+          "at": "2026-10-06T08:28:03.000Z",
+          "pages": 18
+        },
+        {
+          "at": "2026-10-06T08:30:31.000Z",
+          "pages": 19
+        },
+        {
+          "at": "2026-10-06T08:31:38.000Z",
+          "pages": 19
+        },
+        {
+          "at": "2026-10-06T08:33:30.000Z",
+          "pages": 20
+        },
+        {
+          "at": "2026-10-06T08:34:43.000Z",
+          "pages": 20
+        },
+        {
+          "at": "2026-10-06T08:35:22.000Z",
+          "pages": 20
+        },
+        {
+          "at": "2026-10-06T09:30:12.000Z",
+          "pages": 20
+        },
+        {
+          "at": "2026-10-06T10:23:55.000Z",
+          "pages": 21
+        },
+        {
+          "at": "2026-10-06T10:28:02.000Z",
+          "pages": 22
+        },
+        {
+          "at": "2026-10-06T10:32:18.000Z",
+          "pages": 23
+        },
+        {
+          "at": "2026-10-06T10:36:18.000Z",
+          "pages": 24
+        },
+        {
+          "at": "2026-10-06T10:39:54.000Z",
+          "pages": 25
+        },
+        {
+          "at": "2026-10-06T10:44:38.000Z",
+          "pages": 26
+        },
+        {
+          "at": "2026-10-06T13:25:01.000Z",
+          "pages": 27
+        },
+        {
+          "at": "2026-10-06T13:26:21.000Z",
+          "pages": 27
+        },
+        {
+          "at": "2026-10-06T13:27:27.000Z",
+          "pages": 27
+        },
+        {
+          "at": "2026-10-06T15:30:26.000Z",
+          "pages": 27
+        },
+        {
+          "at": "2026-10-06T15:30:41.000Z",
+          "pages": 27
+        },
+        {
+          "at": "2026-10-06T16:11:11.000Z",
+          "pages": 28
+        },
+        {
+          "at": "2026-10-06T16:14:29.000Z",
+          "pages": 28
+        },
+        {
+          "at": "2026-10-06T16:16:04.000Z",
+          "pages": 29
+        },
+        {
+          "at": "2026-10-06T16:21:41.000Z",
+          "pages": 30
+        },
+        {
+          "at": "2026-10-06T16:26:29.000Z",
+          "pages": 31
+        },
+        {
+          "at": "2026-10-06T16:35:59.000Z",
+          "pages": 32
+        },
+        {
+          "at": "2026-10-06T16:40:59.000Z",
+          "pages": 33
+        },
+        {
+          "at": "2026-10-06T16:41:49.000Z",
+          "pages": 33
+        },
+        {
+          "at": "2026-10-06T16:41:59.000Z",
+          "pages": 33
+        },
+        {
+          "at": "2026-10-06T16:46:57.000Z",
+          "pages": 34
+        },
+        {
+          "at": "2026-10-06T16:52:22.000Z",
+          "pages": 35
+        },
+        {
+          "at": "2026-10-06T17:00:57.000Z",
+          "pages": 36
+        },
+        {
+          "at": "2026-10-06T17:08:24.000Z",
+          "pages": 37
+        },
+        {
+          "at": "2026-10-06T17:13:58.000Z",
+          "pages": 38
+        },
+        {
+          "at": "2026-10-06T18:22:30.000Z",
+          "pages": 39
+        },
+        {
+          "at": "2026-10-06T18:23:47.000Z",
+          "pages": 39
+        },
+        {
+          "at": "2026-10-06T18:25:49.000Z",
+          "pages": 40
+        },
+        {
+          "at": "2026-10-06T18:27:22.000Z",
+          "pages": 40
+        },
+        {
+          "at": "2026-10-06T18:27:22.000Z",
+          "pages": 40
+        },
+        {
+          "at": "2026-10-06T18:30:23.000Z",
+          "pages": 40
+        },
+        {
+          "at": "2026-10-06T18:30:51.000Z",
+          "pages": 40
+        },
+        {
+          "at": "2026-10-06T18:31:08.000Z",
+          "pages": 40
+        },
+        {
+          "at": "2026-10-06T21:41:25.000Z",
+          "pages": 40
+        }
+      ]
+    },
+    {
+      "id": "proj3",
+      "name": "yarnsums.netlify.app",
+      "url": "https://yarnsums.netlify.app",
+      "state": "done",
+      "reason": "all 5 rounds done",
+      "round": 5,
+      "roundsTotal": 5,
+      "run": 0,
+      "runLimit": 30,
+      "tests": {
+        "passed": 419,
+        "failed": 0,
+        "at": "2026-10-06T21:42:57.028Z"
+      },
+      "live": {
+        "ok": true,
+        "status": 200,
+        "leaked": []
+      },
+      "pages": 40,
+      "lastCommit": {
+        "sha": "83f5c6d",
+        "at": "2026-10-06T17:52:28.000Z",
+        "message": "Remove credit-session lock: cloud credit is used up, routines take over"
+      },
+      "timeline": [
+        {
+          "sha": "83f5c6d",
+          "at": "2026-10-06T17:52:28.000Z",
+          "message": "Remove credit-session lock: cloud credit is used up, routines take over"
+        },
+        {
+          "sha": "998300d",
+          "at": "2026-10-06T17:52:18.000Z",
+          "message": "Refresh credit-session lock (session still building)"
+        },
+        {
+          "sha": "5a40b9f",
+          "at": "2026-10-06T17:50:21.000Z",
+          "message": "Finish v5: DONE.md, log, remove task.md"
+        },
+        {
+          "sha": "f1a5abe",
+          "at": "2026-10-06T17:49:39.000Z",
+          "message": "Yarn cost: allow part skeins, show prices as entered, note negative prices"
+        },
+        {
+          "sha": "daf37f6",
+          "at": "2026-10-06T17:48:17.000Z",
+          "message": "Yarn substitution: optional prices per skein and project cost comparison"
+        },
+        {
+          "sha": "23955ad",
+          "at": "2026-10-06T17:46:57.000Z",
+          "message": "Raglan bottom-up: give sleeve top count, set-aside stitches and decrease round"
+        },
+        {
+          "sha": "1780275",
+          "at": "2026-10-06T17:45:17.000Z",
+          "message": "Raglan: add the bottom-up version of the yoke plan"
+        },
+        {
+          "sha": "d726723",
+          "at": "2026-10-06T17:43:52.000Z",
+          "message": "Knitting time: stitches-in-all on shaped pages, tiny-value wording, layout, links"
+        },
+        {
+          "sha": "10e4d4f",
+          "at": "2026-10-06T17:12:34.000Z",
+          "message": "Add knitting time calculator: hours and days from your own timed speed"
+        },
+        {
+          "sha": "02be534",
+          "at": "2026-10-06T17:10:42.000Z",
+          "message": "Restore 10 missing home cards; test that home lists every page; circle fixes"
+        },
+        {
+          "sha": "a556cc0",
+          "at": "2026-10-06T17:07:34.000Z",
+          "message": "Add crochet circle calculator: flat circle by diameter, flatness check, yarn"
+        },
+        {
+          "sha": "b7b0ca6",
+          "at": "2026-10-06T17:05:27.000Z",
+          "message": "Stitch multiples: flag impractical shared counts, name clashing fields, looser parsing"
+        },
+        {
+          "sha": "62aca68",
+          "at": "2026-10-06T17:03:15.000Z",
+          "message": "Add stitch multiple calculator: combine pattern repeats (CRT) with tests"
+        },
+        {
+          "sha": "8b6a288",
+          "at": "2026-10-06T17:01:12.000Z",
+          "message": "Short rows: two closing rows, single pair ignores span, drop shoulder claims"
+        },
+        {
+          "sha": "d01c3c4",
+          "at": "2026-10-06T16:59:07.000Z",
+          "message": "Add short row calculator: pairs from length, evenly spaced turns"
+        },
+        {
+          "sha": "86a3ab7",
+          "at": "2026-10-06T16:56:35.000Z",
+          "message": "Pi shawl: clarify doubling vs plain rounds, allow larger cast-on, source test refs"
+        },
+        {
+          "sha": "c4cc355",
+          "at": "2026-10-06T16:54:19.000Z",
+          "message": "Add pi shawl calculator: doubling sections, flat-circle check, yarn"
+        },
+        {
+          "sha": "d3e9f1a",
+          "at": "2026-10-06T16:51:01.000Z",
+          "message": "Foundation chain: correct chain-multiple advice when the turning chain counts"
+        },
+        {
+          "sha": "50b62e7",
+          "at": "2026-10-06T16:50:00.000Z",
+          "message": "Add foundation chain calculator with turning-chain conventions and tests"
+        },
+        {
+          "sha": "e141b17",
+          "at": "2026-10-06T16:47:37.000Z",
+          "message": "C2C: clearer shift-phase wording, single-block last row, whole-block swatch hint"
+        },
+        {
+          "sha": "9c42c57",
+          "at": "2026-10-06T16:45:49.000Z",
+          "message": "Add C2C crochet calculator: blocks, diagonal-row phases and yarn"
+        },
+        {
+          "sha": "21c9c21",
+          "at": "2026-10-06T16:43:23.000Z",
+          "message": "Start v5: build the 10 next pages"
+        },
+        {
+          "sha": "49124ba",
+          "at": "2026-10-06T16:43:11.000Z",
+          "message": "Finish v4: DONE.md, retro knowledge, log, remove task.md"
+        },
+        {
+          "sha": "12ad08a",
+          "at": "2026-10-06T16:42:17.000Z",
+          "message": "Sock yarn: convert new fields for returning cm visitors, show yarn by its inputs"
+        },
+        {
+          "sha": "25a72ab",
+          "at": "2026-10-06T16:40:16.000Z",
+          "message": "Sock calculator: yarn for the pair from a weighed swatch"
+        },
+        {
+          "sha": "41c0b71",
+          "at": "2026-10-06T16:38:36.000Z",
+          "message": "Crochet hat: warn when the gauge does not suit the stitch; soften claims"
+        },
+        {
+          "sha": "0be3657",
+          "at": "2026-10-06T16:36:20.000Z",
+          "message": "Add crochet hat calculator: crown from gauge, rounds to the brim"
+        },
+        {
+          "sha": "fbd349a",
+          "at": "2026-10-06T16:32:23.000Z",
+          "message": "Button band: say the single buttonhole is centred; task notes"
+        },
+        {
+          "sha": "750baf2",
+          "at": "2026-10-06T16:30:29.000Z",
+          "message": "Add button band and buttonhole spacing calculator with tests"
+        },
+        {
+          "sha": "15b2d1a",
+          "at": "2026-10-06T16:27:18.000Z",
+          "message": "Amigurumi: mark yarn fields optional, note on oval and yarn count; fix comma"
+        }
+      ],
+      "contract": [
+        {
+          "text": "Increase/decrease evenly calculator",
+          "pass": true
+        },
+        {
+          "text": "Gauge calculator",
+          "pass": true
+        },
+        {
+          "text": "Yarn amount estimator",
+          "pass": true
+        },
+        {
+          "text": "Blanket yarn calculator and blanket size chart",
+          "pass": true
+        },
+        {
+          "text": "Needle and hook size charts with US, UK/Canadian and metric sizes, based on the Craft Yarn Council's standards (yarnstandards.com)",
+          "pass": true
+        },
+        {
+          "text": "Yarn weight chart",
+          "pass": true
+        },
+        {
+          "text": "Cast-on calculator",
+          "pass": true
+        },
+        {
+          "text": "Yarn substitution calculator",
+          "pass": true
+        },
+        {
+          "text": "Hat calculator",
+          "pass": true
+        },
+        {
+          "text": "UK vs US crochet terms reference page.",
+          "pass": true
+        },
+        {
+          "text": "Every instruction can be copied with one tap and prints cleanly",
+          "pass": true
+        }
+      ],
+      "knowledge": [],
+      "decisions": [],
+      "history": [
+        {
+          "at": "2026-10-05T23:18:01.000Z",
+          "pages": 1
+        },
+        {
+          "at": "2026-10-05T23:20:12.000Z",
+          "pages": 1
+        },
+        {
+          "at": "2026-10-05T23:26:22.000Z",
+          "pages": 3
+        },
+        {
+          "at": "2026-10-05T23:27:15.000Z",
+          "pages": 3
+        },
+        {
+          "at": "2026-10-05T23:27:25.000Z",
+          "pages": 3
+        },
+        {
+          "at": "2026-10-06T00:24:48.000Z",
+          "pages": 3
+        },
+        {
+          "at": "2026-10-06T01:21:18.000Z",
+          "pages": 4
+        },
+        {
+          "at": "2026-10-06T01:21:52.000Z",
+          "pages": 4
+        },
+        {
+          "at": "2026-10-06T03:23:35.000Z",
+          "pages": 4
+        },
+        {
+          "at": "2026-10-06T03:34:34.000Z",
+          "pages": 5
+        },
+        {
+          "at": "2026-10-06T03:35:24.000Z",
+          "pages": 5
+        },
+        {
+          "at": "2026-10-06T03:36:25.000Z",
+          "pages": 6
+        },
+        {
+          "at": "2026-10-06T03:37:05.000Z",
+          "pages": 6
+        },
+        {
+          "at": "2026-10-06T03:38:10.000Z",
+          "pages": 7
+        },
+        {
+          "at": "2026-10-06T03:39:06.000Z",
+          "pages": 7
+        },
+        {
+          "at": "2026-10-06T03:40:26.000Z",
+          "pages": 8
+        },
+        {
+          "at": "2026-10-06T03:41:13.000Z",
+          "pages": 8
+        },
+        {
+          "at": "2026-10-06T03:43:02.000Z",
+          "pages": 9
+        },
+        {
+          "at": "2026-10-06T03:44:01.000Z",
+          "pages": 9
+        },
+        {
+          "at": "2026-10-06T03:45:13.000Z",
+          "pages": 10
+        },
+        {
+          "at": "2026-10-06T03:45:59.000Z",
+          "pages": 10
+        },
+        {
+          "at": "2026-10-06T03:47:31.000Z",
+          "pages": 11
+        },
+        {
+          "at": "2026-10-06T03:48:32.000Z",
+          "pages": 11
+        },
+        {
+          "at": "2026-10-06T03:49:55.000Z",
+          "pages": 12
+        },
+        {
+          "at": "2026-10-06T03:50:49.000Z",
+          "pages": 12
+        },
+        {
+          "at": "2026-10-06T03:52:09.000Z",
+          "pages": 13
+        },
+        {
+          "at": "2026-10-06T03:53:02.000Z",
+          "pages": 13
+        },
+        {
+          "at": "2026-10-06T03:54:21.000Z",
+          "pages": 14
+        },
+        {
+          "at": "2026-10-06T03:55:31.000Z",
+          "pages": 14
+        },
+        {
+          "at": "2026-10-06T03:56:15.000Z",
+          "pages": 14
+        },
+        {
+          "at": "2026-10-06T03:56:45.000Z",
+          "pages": 14
+        },
+        {
+          "at": "2026-10-06T04:00:13.000Z",
+          "pages": 14
+        },
+        {
+          "at": "2026-10-06T04:32:56.000Z",
+          "pages": 14
+        },
+        {
+          "at": "2026-10-06T07:34:21.000Z",
+          "pages": 14
+        },
+        {
+          "at": "2026-10-06T09:30:10.000Z",
+          "pages": 14
+        },
+        {
+          "at": "2026-10-06T09:35:01.000Z",
+          "pages": 15
+        },
+        {
+          "at": "2026-10-06T09:36:05.000Z",
+          "pages": 15
+        },
+        {
+          "at": "2026-10-06T09:38:27.000Z",
+          "pages": 16
+        },
+        {
+          "at": "2026-10-06T09:39:36.000Z",
+          "pages": 16
+        },
+        {
+          "at": "2026-10-06T09:40:58.000Z",
+          "pages": 16
+        },
+        {
+          "at": "2026-10-06T09:42:49.000Z",
+          "pages": 18
+        },
+        {
+          "at": "2026-10-06T09:43:46.000Z",
+          "pages": 18
+        },
+        {
+          "at": "2026-10-06T09:45:20.000Z",
+          "pages": 19
+        },
+        {
+          "at": "2026-10-06T09:46:28.000Z",
+          "pages": 19
+        },
+        {
+          "at": "2026-10-06T09:47:38.000Z",
+          "pages": 20
+        },
+        {
+          "at": "2026-10-06T09:48:31.000Z",
+          "pages": 20
+        },
+        {
+          "at": "2026-10-06T09:50:33.000Z",
+          "pages": 21
+        },
+        {
+          "at": "2026-10-06T09:52:11.000Z",
+          "pages": 21
+        },
+        {
+          "at": "2026-10-06T09:53:43.000Z",
+          "pages": 22
+        },
+        {
+          "at": "2026-10-06T09:54:46.000Z",
+          "pages": 22
+        },
+        {
+          "at": "2026-10-06T09:55:56.000Z",
+          "pages": 22
+        },
+        {
+          "at": "2026-10-06T15:30:29.000Z",
+          "pages": 22
+        },
+        {
+          "at": "2026-10-06T15:30:43.000Z",
+          "pages": 22
+        },
+        {
+          "at": "2026-10-06T15:34:32.000Z",
+          "pages": 23
+        },
+        {
+          "at": "2026-10-06T15:36:32.000Z",
+          "pages": 23
+        },
+        {
+          "at": "2026-10-06T15:39:11.000Z",
+          "pages": 24
+        },
+        {
+          "at": "2026-10-06T15:40:22.000Z",
+          "pages": 24
+        },
+        {
+          "at": "2026-10-06T15:42:05.000Z",
+          "pages": 25
+        },
+        {
+          "at": "2026-10-06T15:42:38.000Z",
+          "pages": 25
+        },
+        {
+          "at": "2026-10-06T15:44:19.000Z",
+          "pages": 26
+        },
+        {
+          "at": "2026-10-06T15:45:48.000Z",
+          "pages": 26
+        },
+        {
+          "at": "2026-10-06T15:47:32.000Z",
+          "pages": 27
+        },
+        {
+          "at": "2026-10-06T15:48:55.000Z",
+          "pages": 27
+        },
+        {
+          "at": "2026-10-06T15:50:54.000Z",
+          "pages": 28
+        },
+        {
+          "at": "2026-10-06T15:52:10.000Z",
+          "pages": 28
+        },
+        {
+          "at": "2026-10-06T15:52:43.000Z",
+          "pages": 28
+        },
+        {
+          "at": "2026-10-06T15:59:29.000Z",
+          "pages": 28
+        },
+        {
+          "at": "2026-10-06T16:05:44.000Z",
+          "pages": 28
+        },
+        {
+          "at": "2026-10-06T16:06:36.000Z",
+          "pages": 28
+        },
+        {
+          "at": "2026-10-06T16:09:36.000Z",
+          "pages": 29
+        },
+        {
+          "at": "2026-10-06T16:11:38.000Z",
+          "pages": 29
+        },
+        {
+          "at": "2026-10-06T16:11:52.000Z",
+          "pages": 29
+        },
+        {
+          "at": "2026-10-06T16:12:08.000Z",
+          "pages": 29
+        },
+        {
+          "at": "2026-10-06T16:14:33.000Z",
+          "pages": 29
+        },
+        {
+          "at": "2026-10-06T16:14:30.000Z",
+          "pages": 29
+        },
+        {
+          "at": "2026-10-06T16:15:38.000Z",
+          "pages": 29
+        },
+        {
+          "at": "2026-10-06T16:20:09.000Z",
+          "pages": 30
+        },
+        {
+          "at": "2026-10-06T16:22:04.000Z",
+          "pages": 30
+        },
+        {
+          "at": "2026-10-06T16:25:21.000Z",
+          "pages": 31
+        },
+        {
+          "at": "2026-10-06T16:27:18.000Z",
+          "pages": 31
+        },
+        {
+          "at": "2026-10-06T16:30:29.000Z",
+          "pages": 32
+        },
+        {
+          "at": "2026-10-06T16:32:23.000Z",
+          "pages": 32
+        },
+        {
+          "at": "2026-10-06T16:36:20.000Z",
+          "pages": 33
+        },
+        {
+          "at": "2026-10-06T16:38:36.000Z",
+          "pages": 33
+        },
+        {
+          "at": "2026-10-06T16:40:16.000Z",
+          "pages": 33
+        },
+        {
+          "at": "2026-10-06T16:42:17.000Z",
+          "pages": 33
+        },
+        {
+          "at": "2026-10-06T16:43:11.000Z",
+          "pages": 33
+        },
+        {
+          "at": "2026-10-06T16:43:23.000Z",
+          "pages": 33
+        },
+        {
+          "at": "2026-10-06T16:45:49.000Z",
+          "pages": 34
+        },
+        {
+          "at": "2026-10-06T16:47:37.000Z",
+          "pages": 34
+        },
+        {
+          "at": "2026-10-06T16:50:00.000Z",
+          "pages": 35
+        },
+        {
+          "at": "2026-10-06T16:51:01.000Z",
+          "pages": 35
+        },
+        {
+          "at": "2026-10-06T16:54:19.000Z",
+          "pages": 36
+        },
+        {
+          "at": "2026-10-06T16:56:35.000Z",
+          "pages": 36
+        },
+        {
+          "at": "2026-10-06T16:59:07.000Z",
+          "pages": 37
+        },
+        {
+          "at": "2026-10-06T17:01:12.000Z",
+          "pages": 37
+        },
+        {
+          "at": "2026-10-06T17:03:15.000Z",
+          "pages": 38
+        },
+        {
+          "at": "2026-10-06T17:05:27.000Z",
+          "pages": 38
+        },
+        {
+          "at": "2026-10-06T17:07:34.000Z",
+          "pages": 39
+        },
+        {
+          "at": "2026-10-06T17:10:42.000Z",
+          "pages": 39
+        },
+        {
+          "at": "2026-10-06T17:12:34.000Z",
+          "pages": 40
+        },
+        {
+          "at": "2026-10-06T17:43:52.000Z",
+          "pages": 40
+        },
+        {
+          "at": "2026-10-06T17:45:17.000Z",
+          "pages": 40
+        },
+        {
+          "at": "2026-10-06T17:46:57.000Z",
+          "pages": 40
+        },
+        {
+          "at": "2026-10-06T17:48:17.000Z",
+          "pages": 40
+        },
+        {
+          "at": "2026-10-06T17:49:39.000Z",
+          "pages": 40
+        },
+        {
+          "at": "2026-10-06T17:50:21.000Z",
+          "pages": 40
+        },
+        {
+          "at": "2026-10-06T17:52:18.000Z",
+          "pages": 40
+        },
+        {
+          "at": "2026-10-06T17:52:28.000Z",
+          "pages": 40
+        }
+      ]
+    },
+    {
+      "id": "proj4",
+      "name": "quiltcalculators.netlify.app",
+      "url": "https://quiltcalculators.netlify.app",
+      "state": "done",
+      "reason": "all 5 rounds done",
+      "round": 5,
+      "roundsTotal": 5,
+      "run": 0,
+      "runLimit": 30,
+      "tests": {
+        "passed": 452,
+        "failed": 0,
+        "at": "2026-10-06T21:43:23.963Z"
+      },
+      "live": {
+        "ok": true,
+        "status": 200,
+        "leaked": []
+      },
+      "pages": 43,
+      "lastCommit": {
+        "sha": "4f17620",
+        "at": "2026-10-06T17:12:15.000Z",
+        "message": "DONE.md: v5 complete; retro log and knowledge; release the session lock"
+      },
+      "timeline": [
+        {
+          "sha": "4f17620",
+          "at": "2026-10-06T17:12:15.000Z",
+          "message": "DONE.md: v5 complete; retro log and knowledge; release the session lock"
+        },
+        {
+          "sha": "0876aef",
+          "at": "2026-10-06T17:11:17.000Z",
+          "message": "Setting triangles: rectangular on-point layouts, fix block count"
+        },
+        {
+          "sha": "463209e",
+          "at": "2026-10-06T17:06:23.000Z",
+          "message": "Add kaleidoscope quilt calculator"
+        },
+        {
+          "sha": "a5c6869",
+          "at": "2026-10-06T17:01:26.000Z",
+          "message": "Add triangle quilt calculator"
+        },
+        {
+          "sha": "3f1b7d6",
+          "at": "2026-10-06T16:56:02.000Z",
+          "message": "Add quilting thread calculator"
+        },
+        {
+          "sha": "72ca74e",
+          "at": "2026-10-06T16:52:19.000Z",
+          "message": "Add jelly roll race calculator"
+        },
+        {
+          "sha": "16b6f04",
+          "at": "2026-10-06T16:48:13.000Z",
+          "message": "Add disappearing nine patch calculator"
+        },
+        {
+          "sha": "aa85681",
+          "at": "2026-10-06T16:43:32.000Z",
+          "message": "Add bargello quilt calculator"
+        },
+        {
+          "sha": "609fcce",
+          "at": "2026-10-06T16:39:13.000Z",
+          "message": "Add courthouse steps quilt calculator"
+        },
+        {
+          "sha": "6ce2995",
+          "at": "2026-10-06T16:35:15.000Z",
+          "message": "Add rail fence quilt calculator"
+        },
+        {
+          "sha": "c79aec1",
+          "at": "2026-10-06T16:31:28.000Z",
+          "message": "Add baby quilt calculator"
+        },
+        {
+          "sha": "77fd4bd",
+          "at": "2026-10-06T16:25:37.000Z",
+          "message": "Credit session: take the lock"
+        },
+        {
+          "sha": "c9478df",
+          "at": "2026-10-06T16:23:33.000Z",
+          "message": "Start v5: build the 10 next pages"
+        },
+        {
+          "sha": "dc20987",
+          "at": "2026-10-06T16:03:23.000Z",
+          "message": "DONE.md: v4 complete; retro log; remove task.md"
+        },
+        {
+          "sha": "948d6a3",
+          "at": "2026-10-06T16:03:02.000Z",
+          "message": "Add quilt batting types guide"
+        },
+        {
+          "sha": "50feb41",
+          "at": "2026-10-06T16:00:10.000Z",
+          "message": "Add fabric shrinkage calculator"
+        },
+        {
+          "sha": "9056bea",
+          "at": "2026-10-06T15:56:48.000Z",
+          "message": "Add quilt sashing by size page"
+        },
+        {
+          "sha": "4d106b1",
+          "at": "2026-10-06T15:53:56.000Z",
+          "message": "Add nine patch quilt calculator"
+        },
+        {
+          "sha": "b426412",
+          "at": "2026-10-06T15:50:16.000Z",
+          "message": "Add charm pack and layer cake quilt size page"
+        },
+        {
+          "sha": "c1218b2",
+          "at": "2026-10-06T15:47:17.000Z",
+          "message": "Add quilt border by size page"
+        },
+        {
+          "sha": "d12888f",
+          "at": "2026-10-06T15:37:30.000Z",
+          "message": "Add hourglass quilt calculator"
+        },
+        {
+          "sha": "ca54ac3",
+          "at": "2026-10-06T15:30:45.000Z",
+          "message": "Add task for the next round"
+        },
+        {
+          "sha": "a408c67",
+          "at": "2026-10-06T15:30:31.000Z",
+          "message": "Start v4: build the 10 next pages"
+        },
+        {
+          "sha": "e63393d",
+          "at": "2026-10-06T09:57:39.000Z",
+          "message": "DONE.md: v3 complete; retro log; remove task.md"
+        },
+        {
+          "sha": "c253e2e",
+          "at": "2026-10-06T09:56:06.000Z",
+          "message": "Add hexagon quilt size chart"
+        },
+        {
+          "sha": "990a722",
+          "at": "2026-10-06T09:54:50.000Z",
+          "message": "Cost calculator: format yards, clearer price note"
+        },
+        {
+          "sha": "6c5673f",
+          "at": "2026-10-06T09:53:55.000Z",
+          "message": "Add quilt cost calculator"
+        },
+        {
+          "sha": "a9ac5e6",
+          "at": "2026-10-06T09:51:43.000Z",
+          "message": "Add pinwheel quilt calculator"
+        },
+        {
+          "sha": "7f825f9",
+          "at": "2026-10-06T09:50:20.000Z",
+          "message": "Batting by size: soften unsourced wording"
+        },
+        {
+          "sha": "050d8c5",
+          "at": "2026-10-06T09:49:13.000Z",
+          "message": "Add quilt batting by size page"
+        }
+      ],
+      "contract": [
+        {
+          "text": "Fraction-aware math",
+          "pass": true
+        },
+        {
+          "text": "Backing calculator",
+          "pass": true
+        },
+        {
+          "text": "Binding calculator",
+          "pass": true
+        },
+        {
+          "text": "Batting calculator",
+          "pass": true
+        },
+        {
+          "text": "Border calculator",
+          "pass": true
+        },
+        {
+          "text": "HST, QST and flying geese calculators",
+          "pass": true
+        },
+        {
+          "text": "Setting triangles calculator for on-point layouts",
+          "pass": true
+        },
+        {
+          "text": "Quilt size chart",
+          "pass": true
+        },
+        {
+          "text": "Precut calculator",
+          "pass": true
+        },
+        {
+          "text": "Layout calculator",
+          "pass": true
+        },
+        {
+          "text": "Every result has a printable cutting list.",
+          "pass": true
+        }
+      ],
+      "knowledge": [],
+      "decisions": [],
+      "history": [
+        {
+          "at": "2026-10-05T23:18:03.000Z",
+          "pages": 1
+        },
+        {
+          "at": "2026-10-05T23:20:15.000Z",
+          "pages": 1
+        },
+        {
+          "at": "2026-10-05T23:27:14.000Z",
+          "pages": 2
+        },
+        {
+          "at": "2026-10-05T23:28:35.000Z",
+          "pages": 3
+        },
+        {
+          "at": "2026-10-05T23:30:51.000Z",
+          "pages": 4
+        },
+        {
+          "at": "2026-10-06T00:24:57.000Z",
+          "pages": 4
+        },
+        {
+          "at": "2026-10-06T01:57:39.000Z",
+          "pages": 5
+        },
+        {
+          "at": "2026-10-06T01:58:15.000Z",
+          "pages": 5
+        },
+        {
+          "at": "2026-10-06T03:24:50.000Z",
+          "pages": 5
+        },
+        {
+          "at": "2026-10-06T03:45:26.000Z",
+          "pages": 6
+        },
+        {
+          "at": "2026-10-06T03:46:59.000Z",
+          "pages": 7
+        },
+        {
+          "at": "2026-10-06T03:48:22.000Z",
+          "pages": 8
+        },
+        {
+          "at": "2026-10-06T03:50:32.000Z",
+          "pages": 9
+        },
+        {
+          "at": "2026-10-06T03:52:23.000Z",
+          "pages": 9
+        },
+        {
+          "at": "2026-10-06T03:54:14.000Z",
+          "pages": 10
+        },
+        {
+          "at": "2026-10-06T03:55:23.000Z",
+          "pages": 10
+        },
+        {
+          "at": "2026-10-06T03:57:15.000Z",
+          "pages": 11
+        },
+        {
+          "at": "2026-10-06T03:58:08.000Z",
+          "pages": 11
+        },
+        {
+          "at": "2026-10-06T03:59:26.000Z",
+          "pages": 12
+        },
+        {
+          "at": "2026-10-06T04:00:19.000Z",
+          "pages": 12
+        },
+        {
+          "at": "2026-10-06T04:01:33.000Z",
+          "pages": 13
+        },
+        {
+          "at": "2026-10-06T04:02:26.000Z",
+          "pages": 13
+        },
+        {
+          "at": "2026-10-06T04:02:45.000Z",
+          "pages": 13
+        },
+        {
+          "at": "2026-10-06T04:38:31.000Z",
+          "pages": 13
+        },
+        {
+          "at": "2026-10-06T04:59:32.000Z",
+          "pages": 13
+        },
+        {
+          "at": "2026-10-06T07:47:47.000Z",
+          "pages": 14
+        },
+        {
+          "at": "2026-10-06T07:48:42.000Z",
+          "pages": 14
+        },
+        {
+          "at": "2026-10-06T07:50:54.000Z",
+          "pages": 15
+        },
+        {
+          "at": "2026-10-06T07:52:25.000Z",
+          "pages": 15
+        },
+        {
+          "at": "2026-10-06T07:55:35.000Z",
+          "pages": 16
+        },
+        {
+          "at": "2026-10-06T07:56:37.000Z",
+          "pages": 16
+        },
+        {
+          "at": "2026-10-06T07:58:33.000Z",
+          "pages": 17
+        },
+        {
+          "at": "2026-10-06T07:59:33.000Z",
+          "pages": 17
+        },
+        {
+          "at": "2026-10-06T08:01:03.000Z",
+          "pages": 18
+        },
+        {
+          "at": "2026-10-06T08:01:59.000Z",
+          "pages": 18
+        },
+        {
+          "at": "2026-10-06T08:03:43.000Z",
+          "pages": 19
+        },
+        {
+          "at": "2026-10-06T08:04:47.000Z",
+          "pages": 19
+        },
+        {
+          "at": "2026-10-06T08:06:28.000Z",
+          "pages": 20
+        },
+        {
+          "at": "2026-10-06T08:07:41.000Z",
+          "pages": 20
+        },
+        {
+          "at": "2026-10-06T08:09:26.000Z",
+          "pages": 21
+        },
+        {
+          "at": "2026-10-06T08:10:08.000Z",
+          "pages": 21
+        },
+        {
+          "at": "2026-10-06T08:12:09.000Z",
+          "pages": 22
+        },
+        {
+          "at": "2026-10-06T08:13:35.000Z",
+          "pages": 22
+        },
+        {
+          "at": "2026-10-06T08:14:20.000Z",
+          "pages": 22
+        },
+        {
+          "at": "2026-10-06T09:30:14.000Z",
+          "pages": 22
+        },
+        {
+          "at": "2026-10-06T09:45:05.000Z",
+          "pages": 23
+        },
+        {
+          "at": "2026-10-06T09:46:19.000Z",
+          "pages": 23
+        },
+        {
+          "at": "2026-10-06T09:49:13.000Z",
+          "pages": 24
+        },
+        {
+          "at": "2026-10-06T09:50:20.000Z",
+          "pages": 24
+        },
+        {
+          "at": "2026-10-06T09:51:43.000Z",
+          "pages": 25
+        },
+        {
+          "at": "2026-10-06T09:53:55.000Z",
+          "pages": 26
+        },
+        {
+          "at": "2026-10-06T09:54:50.000Z",
+          "pages": 26
+        },
+        {
+          "at": "2026-10-06T09:56:06.000Z",
+          "pages": 27
+        },
+        {
+          "at": "2026-10-06T09:57:39.000Z",
+          "pages": 27
+        },
+        {
+          "at": "2026-10-06T15:30:31.000Z",
+          "pages": 27
+        },
+        {
+          "at": "2026-10-06T15:30:45.000Z",
+          "pages": 27
+        },
+        {
+          "at": "2026-10-06T15:37:30.000Z",
+          "pages": 28
+        },
+        {
+          "at": "2026-10-06T15:47:17.000Z",
+          "pages": 29
+        },
+        {
+          "at": "2026-10-06T15:50:16.000Z",
+          "pages": 30
+        },
+        {
+          "at": "2026-10-06T15:53:56.000Z",
+          "pages": 31
+        },
+        {
+          "at": "2026-10-06T15:56:48.000Z",
+          "pages": 32
+        },
+        {
+          "at": "2026-10-06T16:00:10.000Z",
+          "pages": 33
+        },
+        {
+          "at": "2026-10-06T16:03:02.000Z",
+          "pages": 34
+        },
+        {
+          "at": "2026-10-06T16:03:23.000Z",
+          "pages": 34
+        },
+        {
+          "at": "2026-10-06T16:23:33.000Z",
+          "pages": 34
+        },
+        {
+          "at": "2026-10-06T16:25:37.000Z",
+          "pages": 34
+        },
+        {
+          "at": "2026-10-06T16:31:28.000Z",
+          "pages": 35
+        },
+        {
+          "at": "2026-10-06T16:35:15.000Z",
+          "pages": 36
+        },
+        {
+          "at": "2026-10-06T16:39:13.000Z",
+          "pages": 37
+        },
+        {
+          "at": "2026-10-06T16:43:32.000Z",
+          "pages": 38
+        },
+        {
+          "at": "2026-10-06T16:48:13.000Z",
+          "pages": 39
+        },
+        {
+          "at": "2026-10-06T16:52:19.000Z",
+          "pages": 40
+        },
+        {
+          "at": "2026-10-06T16:56:02.000Z",
+          "pages": 41
+        },
+        {
+          "at": "2026-10-06T17:01:26.000Z",
+          "pages": 42
+        },
+        {
+          "at": "2026-10-06T17:06:23.000Z",
+          "pages": 43
+        },
+        {
+          "at": "2026-10-06T17:11:17.000Z",
+          "pages": 43
+        },
+        {
+          "at": "2026-10-06T17:12:15.000Z",
+          "pages": 43
+        }
+      ]
+    },
+    {
+      "id": "proj5",
+      "name": "mathtank.netlify.app",
+      "url": "https://mathtank.netlify.app",
+      "state": "done",
+      "reason": "all 5 rounds done",
+      "round": 5,
+      "roundsTotal": 5,
+      "run": 0,
+      "runLimit": 30,
+      "tests": {
+        "passed": 433,
+        "failed": 0,
+        "at": "2026-10-06T21:44:00.875Z"
+      },
+      "live": {
+        "ok": true,
+        "status": 200,
+        "leaked": []
+      },
+      "pages": 37,
+      "lastCommit": {
+        "sha": "1afd71d",
+        "at": "2026-10-06T17:14:30.000Z",
+        "message": "v5 complete: DONE.md, log, knowledge note, remove task.md"
+      },
+      "timeline": [
+        {
+          "sha": "1afd71d",
+          "at": "2026-10-06T17:14:30.000Z",
+          "message": "v5 complete: DONE.md, log, knowledge note, remove task.md"
+        },
+        {
+          "sha": "0e10051",
+          "at": "2026-10-06T17:12:18.000Z",
+          "message": "Add hexagon and pentagon aquarium volume page; skip unverifiable skimmer and PAR pages"
+        },
+        {
+          "sha": "1a5f4f2",
+          "at": "2026-10-06T17:03:57.000Z",
+          "message": "Add conductivity to salinity calculator page (PSS-78)"
+        },
+        {
+          "sha": "413a942",
+          "at": "2026-10-06T16:57:22.000Z",
+          "message": "Add freshwater aquarium salt dose calculator page"
+        },
+        {
+          "sha": "460d059",
+          "at": "2026-10-06T16:50:52.000Z",
+          "message": "Add dosing pump calibration calculator page; skip duplicate hydrometer page"
+        },
+        {
+          "sha": "1467574",
+          "at": "2026-10-06T16:44:32.000Z",
+          "message": "Add RO/DI waste water ratio calculator page"
+        },
+        {
+          "sha": "fa4bbef",
+          "at": "2026-10-06T16:38:44.000Z",
+          "message": "Add aquarium electricity cost calculator page"
+        },
+        {
+          "sha": "2b67776",
+          "at": "2026-10-06T16:33:30.000Z",
+          "message": "Add TDS to ppm converter page and home tool index"
+        },
+        {
+          "sha": "aef205e",
+          "at": "2026-10-06T16:25:54.000Z",
+          "message": "Credit session: take the lock"
+        },
+        {
+          "sha": "c2c08ea",
+          "at": "2026-10-06T16:24:45.000Z",
+          "message": "Start v5: build the 10 next pages"
+        },
+        {
+          "sha": "5387faf",
+          "at": "2026-10-06T16:18:46.000Z",
+          "message": "v4 complete: DONE.md, log, remove task.md"
+        },
+        {
+          "sha": "f0ab8d4",
+          "at": "2026-10-06T16:18:10.000Z",
+          "message": "Separate label volume unit for liquid fertilizer tool"
+        },
+        {
+          "sha": "62d612d",
+          "at": "2026-10-06T16:15:53.000Z",
+          "message": "Add liquid fertilizer dose tool to fertilizer calculator"
+        },
+        {
+          "sha": "afd03d9",
+          "at": "2026-10-06T16:14:33.000Z",
+          "message": "Kalkwasser page: real-world note, soften balance claim"
+        },
+        {
+          "sha": "570a394",
+          "at": "2026-10-06T16:13:30.000Z",
+          "message": "Add kalkwasser dosing calculator page"
+        },
+        {
+          "sha": "720d41b",
+          "at": "2026-10-06T16:11:23.000Z",
+          "message": "Magnesium page note; update task state"
+        },
+        {
+          "sha": "69cfc0a",
+          "at": "2026-10-06T16:10:17.000Z",
+          "message": "Add magnesium dosing calculator page"
+        },
+        {
+          "sha": "5b746fe",
+          "at": "2026-10-06T16:08:30.000Z",
+          "message": "Tighten acclimation wording and limits"
+        },
+        {
+          "sha": "422bd53",
+          "at": "2026-10-06T16:07:32.000Z",
+          "message": "Add drip acclimation calculator page"
+        },
+        {
+          "sha": "90d67aa",
+          "at": "2026-10-06T16:05:46.000Z",
+          "message": "Fix chiller wording; update task state"
+        },
+        {
+          "sha": "941818b",
+          "at": "2026-10-06T16:04:39.000Z",
+          "message": "Add aquarium chiller size calculator page"
+        },
+        {
+          "sha": "fda057a",
+          "at": "2026-10-06T16:02:55.000Z",
+          "message": "Soften unsourced claim on ammonia page"
+        },
+        {
+          "sha": "76c6ed4",
+          "at": "2026-10-06T16:01:58.000Z",
+          "message": "Add ammonia toxicity calculator page"
+        },
+        {
+          "sha": "bfcf6dc",
+          "at": "2026-10-06T15:59:55.000Z",
+          "message": "Note KH assumption on remineralization page"
+        },
+        {
+          "sha": "8fdfdbb",
+          "at": "2026-10-06T15:58:59.000Z",
+          "message": "Add RO water remineralization calculator page"
+        },
+        {
+          "sha": "65f2954",
+          "at": "2026-10-06T15:30:48.000Z",
+          "message": "Add task for the next round"
+        },
+        {
+          "sha": "54b46d1",
+          "at": "2026-10-06T15:30:33.000Z",
+          "message": "Start v4: build the 10 next pages"
+        },
+        {
+          "sha": "922c585",
+          "at": "2026-10-06T10:14:54.000Z",
+          "message": "v3 complete: DONE.md, log, remove task.md"
+        },
+        {
+          "sha": "f82d988",
+          "at": "2026-10-06T10:13:12.000Z",
+          "message": "Add dGH to ppm water hardness converter page"
+        },
+        {
+          "sha": "68d268c",
+          "at": "2026-10-06T10:11:18.000Z",
+          "message": "Reef dosing: per-mode readings, alkalinity day count, softened sourcing; task notes"
+        }
+      ],
+      "contract": [
+        {
+          "text": "Volume calculator (home page)",
+          "pass": true
+        },
+        {
+          "text": "Standard tank sizes chart in `site/data/tanks.json`",
+          "pass": true
+        },
+        {
+          "text": "Substrate calculator",
+          "pass": true
+        },
+        {
+          "text": "Heater calculator",
+          "pass": true
+        },
+        {
+          "text": "Filter flow calculator",
+          "pass": true
+        },
+        {
+          "text": "Water change calculator",
+          "pass": true
+        },
+        {
+          "text": "CO2 calculator",
+          "pass": true
+        },
+        {
+          "text": "Salinity calculator",
+          "pass": true
+        },
+        {
+          "text": "Salt mix calculator",
+          "pass": true
+        },
+        {
+          "text": "Fertilizer dosing calculator",
+          "pass": true
+        },
+        {
+          "text": "Tank weight calculator",
+          "pass": true
+        },
+        {
+          "text": "Fish-welfare and safety notes where they matter",
+          "pass": true
+        }
+      ],
+      "knowledge": [],
+      "decisions": [],
+      "history": [
+        {
+          "at": "2026-10-05T23:18:06.000Z",
+          "pages": 1
+        },
+        {
+          "at": "2026-10-05T23:20:18.000Z",
+          "pages": 1
+        },
+        {
+          "at": "2026-10-05T23:35:56.000Z",
+          "pages": 1
+        },
+        {
+          "at": "2026-10-05T23:36:46.000Z",
+          "pages": 1
+        },
+        {
+          "at": "2026-10-06T00:25:05.000Z",
+          "pages": 1
+        },
+        {
+          "at": "2026-10-06T02:33:28.000Z",
+          "pages": 2
+        },
+        {
+          "at": "2026-10-06T02:34:10.000Z",
+          "pages": 2
+        },
+        {
+          "at": "2026-10-06T03:24:53.000Z",
+          "pages": 2
+        },
+        {
+          "at": "2026-10-06T03:57:23.000Z",
+          "pages": 3
+        },
+        {
+          "at": "2026-10-06T03:58:18.000Z",
+          "pages": 3
+        },
+        {
+          "at": "2026-10-06T03:59:48.000Z",
+          "pages": 4
+        },
+        {
+          "at": "2026-10-06T04:00:32.000Z",
+          "pages": 4
+        },
+        {
+          "at": "2026-10-06T04:01:47.000Z",
+          "pages": 5
+        },
+        {
+          "at": "2026-10-06T04:02:27.000Z",
+          "pages": 5
+        },
+        {
+          "at": "2026-10-06T04:03:53.000Z",
+          "pages": 6
+        },
+        {
+          "at": "2026-10-06T04:04:48.000Z",
+          "pages": 6
+        },
+        {
+          "at": "2026-10-06T04:06:19.000Z",
+          "pages": 7
+        },
+        {
+          "at": "2026-10-06T04:06:59.000Z",
+          "pages": 7
+        },
+        {
+          "at": "2026-10-06T04:08:58.000Z",
+          "pages": 8
+        },
+        {
+          "at": "2026-10-06T04:09:49.000Z",
+          "pages": 8
+        },
+        {
+          "at": "2026-10-06T04:11:55.000Z",
+          "pages": 9
+        },
+        {
+          "at": "2026-10-06T04:12:52.000Z",
+          "pages": 9
+        },
+        {
+          "at": "2026-10-06T04:14:15.000Z",
+          "pages": 10
+        },
+        {
+          "at": "2026-10-06T04:15:20.000Z",
+          "pages": 10
+        },
+        {
+          "at": "2026-10-06T04:16:49.000Z",
+          "pages": 11
+        },
+        {
+          "at": "2026-10-06T04:17:51.000Z",
+          "pages": 11
+        },
+        {
+          "at": "2026-10-06T04:18:51.000Z",
+          "pages": 11
+        },
+        {
+          "at": "2026-10-06T04:20:00.000Z",
+          "pages": 11
+        },
+        {
+          "at": "2026-10-06T04:38:51.000Z",
+          "pages": 11
+        },
+        {
+          "at": "2026-10-06T04:59:45.000Z",
+          "pages": 11
+        },
+        {
+          "at": "2026-10-06T07:58:08.000Z",
+          "pages": 12
+        },
+        {
+          "at": "2026-10-06T07:59:01.000Z",
+          "pages": 12
+        },
+        {
+          "at": "2026-10-06T08:00:03.000Z",
+          "pages": 13
+        },
+        {
+          "at": "2026-10-06T08:01:03.000Z",
+          "pages": 13
+        },
+        {
+          "at": "2026-10-06T08:02:55.000Z",
+          "pages": 14
+        },
+        {
+          "at": "2026-10-06T08:03:55.000Z",
+          "pages": 14
+        },
+        {
+          "at": "2026-10-06T08:04:50.000Z",
+          "pages": 15
+        },
+        {
+          "at": "2026-10-06T08:05:47.000Z",
+          "pages": 15
+        },
+        {
+          "at": "2026-10-06T08:57:58.000Z",
+          "pages": 16
+        },
+        {
+          "at": "2026-10-06T09:00:13.000Z",
+          "pages": 17
+        },
+        {
+          "at": "2026-10-06T09:02:51.000Z",
+          "pages": 18
+        },
+        {
+          "at": "2026-10-06T09:04:05.000Z",
+          "pages": 18
+        },
+        {
+          "at": "2026-10-06T09:06:53.000Z",
+          "pages": 19
+        },
+        {
+          "at": "2026-10-06T09:08:06.000Z",
+          "pages": 19
+        },
+        {
+          "at": "2026-10-06T09:09:11.000Z",
+          "pages": 19
+        },
+        {
+          "at": "2026-10-06T09:30:15.000Z",
+          "pages": 19
+        },
+        {
+          "at": "2026-10-06T09:57:43.000Z",
+          "pages": 20
+        },
+        {
+          "at": "2026-10-06T09:58:45.000Z",
+          "pages": 20
+        },
+        {
+          "at": "2026-10-06T10:02:14.000Z",
+          "pages": 21
+        },
+        {
+          "at": "2026-10-06T10:04:35.000Z",
+          "pages": 22
+        },
+        {
+          "at": "2026-10-06T10:06:07.000Z",
+          "pages": 22
+        },
+        {
+          "at": "2026-10-06T10:06:50.000Z",
+          "pages": 22
+        },
+        {
+          "at": "2026-10-06T10:08:47.000Z",
+          "pages": 23
+        },
+        {
+          "at": "2026-10-06T10:11:18.000Z",
+          "pages": 23
+        },
+        {
+          "at": "2026-10-06T10:13:12.000Z",
+          "pages": 24
+        },
+        {
+          "at": "2026-10-06T10:14:54.000Z",
+          "pages": 24
+        },
+        {
+          "at": "2026-10-06T15:30:33.000Z",
+          "pages": 24
+        },
+        {
+          "at": "2026-10-06T15:30:48.000Z",
+          "pages": 24
+        },
+        {
+          "at": "2026-10-06T15:58:59.000Z",
+          "pages": 25
+        },
+        {
+          "at": "2026-10-06T15:59:55.000Z",
+          "pages": 25
+        },
+        {
+          "at": "2026-10-06T16:01:58.000Z",
+          "pages": 26
+        },
+        {
+          "at": "2026-10-06T16:02:55.000Z",
+          "pages": 26
+        },
+        {
+          "at": "2026-10-06T16:04:39.000Z",
+          "pages": 27
+        },
+        {
+          "at": "2026-10-06T16:05:46.000Z",
+          "pages": 27
+        },
+        {
+          "at": "2026-10-06T16:07:32.000Z",
+          "pages": 28
+        },
+        {
+          "at": "2026-10-06T16:08:30.000Z",
+          "pages": 28
+        },
+        {
+          "at": "2026-10-06T16:10:17.000Z",
+          "pages": 29
+        },
+        {
+          "at": "2026-10-06T16:11:23.000Z",
+          "pages": 29
+        },
+        {
+          "at": "2026-10-06T16:13:30.000Z",
+          "pages": 30
+        },
+        {
+          "at": "2026-10-06T16:14:33.000Z",
+          "pages": 30
+        },
+        {
+          "at": "2026-10-06T16:15:53.000Z",
+          "pages": 30
+        },
+        {
+          "at": "2026-10-06T16:18:10.000Z",
+          "pages": 30
+        },
+        {
+          "at": "2026-10-06T16:18:46.000Z",
+          "pages": 30
+        },
+        {
+          "at": "2026-10-06T16:24:45.000Z",
+          "pages": 30
+        },
+        {
+          "at": "2026-10-06T16:25:54.000Z",
+          "pages": 30
+        },
+        {
+          "at": "2026-10-06T16:33:30.000Z",
+          "pages": 31
+        },
+        {
+          "at": "2026-10-06T16:38:44.000Z",
+          "pages": 32
+        },
+        {
+          "at": "2026-10-06T16:44:32.000Z",
+          "pages": 33
+        },
+        {
+          "at": "2026-10-06T16:50:52.000Z",
+          "pages": 34
+        },
+        {
+          "at": "2026-10-06T16:57:22.000Z",
+          "pages": 35
+        },
+        {
+          "at": "2026-10-06T17:03:57.000Z",
+          "pages": 36
+        },
+        {
+          "at": "2026-10-06T17:12:18.000Z",
+          "pages": 37
+        },
+        {
+          "at": "2026-10-06T17:14:30.000Z",
+          "pages": 37
+        }
+      ]
+    }
+  ],
+  "inbox": [],
+  "checks": [
+    {
+      "loopId": "proj1",
+      "kind": "leak",
+      "ok": true,
+      "reason": "no leaked strings on the live site",
+      "proof": "GET https://powerstationruntime.netlify.app returned 200"
+    },
+    {
+      "loopId": "proj1",
+      "kind": "failing-tests",
+      "ok": true,
+      "reason": "all tests pass",
+      "proof": "43 unit and 235 browser tests passed"
+    },
+    {
+      "loopId": "proj2",
+      "kind": "leak",
+      "ok": true,
+      "reason": "no leaked strings on the live site",
+      "proof": "GET https://clearpoolmath.netlify.app returned 200"
+    },
+    {
+      "loopId": "proj2",
+      "kind": "failing-tests",
+      "ok": true,
+      "reason": "all tests pass",
+      "proof": "193 unit and 350 browser tests passed"
+    },
+    {
+      "loopId": "proj3",
+      "kind": "leak",
+      "ok": true,
+      "reason": "no leaked strings on the live site",
+      "proof": "GET https://yarnsums.netlify.app returned 200"
+    },
+    {
+      "loopId": "proj3",
+      "kind": "failing-tests",
+      "ok": true,
+      "reason": "all tests pass",
+      "proof": "227 unit and 192 browser tests passed"
+    },
+    {
+      "loopId": "proj4",
+      "kind": "leak",
+      "ok": true,
+      "reason": "no leaked strings on the live site",
+      "proof": "GET https://quiltcalculators.netlify.app returned 200"
+    },
+    {
+      "loopId": "proj4",
+      "kind": "failing-tests",
+      "ok": true,
+      "reason": "all tests pass",
+      "proof": "282 unit and 170 browser tests passed"
+    },
+    {
+      "loopId": "proj5",
+      "kind": "leak",
+      "ok": true,
+      "reason": "no leaked strings on the live site",
+      "proof": "GET https://mathtank.netlify.app returned 200"
+    },
+    {
+      "loopId": "proj5",
+      "kind": "failing-tests",
+      "ok": true,
+      "reason": "all tests pass",
+      "proof": "197 unit and 236 browser tests passed"
+    }
+  ]
+}

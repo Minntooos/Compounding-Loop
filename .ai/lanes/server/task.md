@@ -1,7 +1,7 @@
 # Lane: server
 
-Run: 0 / 30
-Status: not started
+Run: 1 / 30
+Status: in progress (unit 1 done)
 
 ## Contract
 **Goal:** the local HTTP server the dashboard talks to, plus the scrubbed demo data (IDEA.md must-haves 17–18).
@@ -25,10 +25,12 @@ Status: not started
 7. `startServer` serving `dist/web` with a strict CSP header; a static demo export (`demo/static/` with `api/*.json`) for GitHub Pages. Agree the static-mode shape with web in your outbox.
 
 ## Decisions
-(none yet: write "decision · reason · how to reverse")
+- Demo snapshot shape = `DemoSnapshot` in src/core/types.ts (`{generatedAt, loops: LoopDetail[], inbox, checks}`) · web needs one file, the same shapes as the API · change builder + types together.
+- Demo `name` is the site domain, `state` is `done` for finished reports · simplest honest mapping · edit toLoopDetail.
+- Builder is plain `.mjs` with a `.d.mts` for types · contract names build-demo.mjs · none.
 
 ## Confirmed
-(facts proven by a command or test; cite path:line)
+- demo/five-sites.json is rebuilt with `node demo/build-demo.mjs`; tests/unit/server/demo.test.ts fails if it is stale or unscrubbed.
 
 ## Guesses
 (unproven beliefs; never treat one as fact in a later run)
