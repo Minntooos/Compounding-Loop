@@ -1,6 +1,6 @@
 # Lane: docs — round 2 (0.2.0 "Lanes" + launch)
 
-Run: 0 / 20
+Run: 1 / 20
 Status: not started
 Round 1 record: `.ai/lanes/docs/done-v1.md` (`git show 3385cdf:.ai/lanes/docs/task.md` for its Decisions).
 
@@ -41,6 +41,7 @@ Round 1 record: `.ai/lanes/docs/done-v1.md` (`git show 3385cdf:.ai/lanes/docs/ta
 ## Decisions
 
 ## Confirmed
+- Fresh-install test #1 passes (see .ai/audit/docs.md). Check 7 (docs flags vs --help) shipped in scripts/check.mjs; exact-match flags, stops at && ; #. Known gap: subcommand groups (`loop lanes add --owns`) are not looked up per subcommand; extend check 7 when `lanes` ships.
 
 ## Guesses
 
@@ -51,4 +52,5 @@ Round 1 record: `.ai/lanes/docs/done-v1.md` (`git show 3385cdf:.ai/lanes/docs/ta
 - Describe a feature in the README before its lane has shipped and tested it.
 
 ## Handoff
+Run 1 done: units 1 (audit) and 2 (check) shipped. Next: unit 3 (README rework, comparison table w/ sourced claims, FAQ with 5 questions, fix repo URL casing in badges), then unit 4 once `init --lanes`/`check-lanes` appear in `loop --help` (they did not at 2026-10-08 20:00 UTC). Use docs/assets/screens/*.png from web. No lane-feature text until shipped.
 Round 2 starts here. Commits carry a `Lane: docs` trailer (CLAUDE.md).

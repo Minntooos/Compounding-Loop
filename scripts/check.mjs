@@ -67,6 +67,28 @@ for (const f of textFiles.filter((f) => /^(demo|templates|runners|plugin)\//.tes
   }
 }
 
+// 7. Every `loop <cmd> --flag` in README, docs and launch drafts must exist in `node bin/loop.js <cmd> --help`.
+{
+  const helpCache = new Map();
+  const helpFor = (cmd) => {
+    if (!helpCache.has(cmd)) {
+      try { helpCache.set(cmd, execFileSync('node', ['bin/loop.js', cmd, '--help'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })); }
+      catch { helpCache.set(cmd, null); }
+    }
+    return helpCache.get(cmd);
+  };
+  const docFiles = files.filter((f) => f === 'README.md' || /^(docs|launch)\/[^/]+\.md$/.test(f));
+  for (const f of docFiles) {
+    for (const [, cmd, rest] of read(f).matchAll(/\b(?:compounding-loop|loop) ([a-z][a-z-]*)((?: +[^\s`|&;#]+)*)/g)) {
+      const flags = [...rest.matchAll(/(?:^| )(--[a-z][a-z-]*)/g)].map((m) => m[1]);
+      if (flags.length === 0) continue;
+      const help = helpFor(cmd);
+      if (help === null) { fail(`${f}: \`loop ${cmd}\` is not a command`); continue; }
+      for (const flag of flags) if (!new RegExp(`(^|[\\s,])${flag}(?![a-z-])`).test(help)) fail(`${f}: \`loop ${cmd} ${flag}\` is not in \`loop ${cmd} --help\``);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(`check: ${failures.length} problem(s)\n- ${failures.join('\n- ')}`);
   process.exit(1);
