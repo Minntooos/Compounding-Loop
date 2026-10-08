@@ -1,6 +1,6 @@
 # Compounding Loop
 
-**Write the brief, check back tomorrow.** Several unattended Claude Code lanes, one repo, no merge conflicts, every round verified by your own tests. Local dashboard included.
+**Write the brief, check back tomorrow.** Several unattended Claude Code lanes, one repo, each lane owning its own paths so they do not step on each other, every round verified by your own tests. Local dashboard included.
 
 ```sh
 npx compounding-loop init

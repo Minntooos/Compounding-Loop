@@ -72,16 +72,20 @@ for (const f of textFiles.filter((f) => /^(demo|templates|runners|plugin)\//.tes
   const helpCache = new Map();
   const helpFor = (cmd) => {
     if (!helpCache.has(cmd)) {
-      try { helpCache.set(cmd, execFileSync(process.execPath, ['--import', 'tsx', 'src/cli/index.ts', cmd, '--help'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })); }
+      try { helpCache.set(cmd, execFileSync(process.execPath, ['--import', 'tsx', 'src/cli/index.ts', ...cmd.split(' '), '--help'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })); }
       catch { helpCache.set(cmd, null); }
     }
     return helpCache.get(cmd);
   };
   const docFiles = files.filter((f) => f === 'README.md' || /^(docs|launch)\/[^/]+\.md$/.test(f));
   for (const f of docFiles) {
-    for (const [, cmd, rest] of read(f).matchAll(/\b(?:compounding-loop|loop) ([a-z][a-z-]*)((?: +[^\s`|&;#]+)*)/g)) {
+    for (let [, cmd, rest] of read(f).matchAll(/\b(?:compounding-loop|loop) ([a-z][a-z-]*)((?: +[^\s`|&;#]+)*)/g)) {
       const flags = [...rest.matchAll(/(?:^| )(--[a-z][a-z-]*)/g)].map((m) => m[1]);
       if (flags.length === 0) continue;
+      // `loop lanes add --owns`: a group command's flags live on its subcommand.
+      const sub = rest.trim().split(/ +/)[0];
+      const groupHelp = helpFor(cmd);
+      if (groupHelp !== null && /^[a-z]/.test(sub) && new RegExp(`^  ${sub}\\b`, 'm').test(groupHelp)) cmd = `${cmd} ${sub}`;
       const help = helpFor(cmd);
       if (help === null) { fail(`${f}: \`loop ${cmd}\` is not a command`); continue; }
       for (const flag of flags) if (!new RegExp(`(^|[\\s,])${flag}(?![a-z-])`).test(help)) fail(`${f}: \`loop ${cmd} ${flag}\` is not in \`loop ${cmd} --help\``);

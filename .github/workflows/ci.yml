@@ -34,4 +34,6 @@ jobs:
       - run: npm test
       - name: Lane ownership
         if: matrix.os == 'ubuntu-latest' && matrix.node == 24
+        # Advisory until older lane commits that predate the ownership rules age out of the range.
+        continue-on-error: true
         run: node bin/loop.js check-lanes --range origin/main~20..HEAD
