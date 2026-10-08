@@ -35,6 +35,14 @@ This runs one round with Claude Code using the same prompt a scheduler uses. Use
 
 Pick a runner in [Runners](runners.md): a Claude Code routine, a GitHub Action or a local cron.
 
+## Optional: several lanes
+
+To run parallel lanes in one repo, add `--lanes core,web,docs` to `init`, then `run --lane <name>`. See [Lanes](lanes.md).
+
+## Claude Code plugin commands
+
+The `plugin/` folder ships slash commands for use inside a Claude Code session: `loop-init` (set up the repo), `handoff` (write the handoff so a fresh session can continue), `retro` (promote lessons once checks pass) and `stuck` (run the stuck protocol after the same failure twice).
+
 ## 5. Watch and answer
 
 ```sh
