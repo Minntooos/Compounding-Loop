@@ -1,7 +1,7 @@
 // Planning for `loop init --lanes` and `loop lanes add`: decides what to write, without touching the disk.
 import { fillPlaceholders } from './template.js';
 import type { InitAction } from './init.js';
-import { isValidLaneName, validateLanesConfig, type Lane, type LanesConfig } from './lanes.js';
+import { isValidLaneName, normalizePath, validateLanesConfig, type Lane, type LanesConfig } from './lanes.js';
 
 export const LANES_START = '<!-- compounding-loop:lanes:start -->';
 export const LANES_END = '<!-- compounding-loop:lanes:end -->';
@@ -75,9 +75,19 @@ export function parseLaneList(list: string): { names: string[]; error?: string }
   return dupe ? { names, error: `Lane "${dupe}" is listed twice.` } : { names };
 }
 
+/** Slash-separated and repo-relative: a Windows-style or absolute glob would be stored but could never match. */
+function checkedGlob(lane: string, glob: string): string {
+  const normalized = normalizePath(glob);
+  if (/^[a-z]:/i.test(normalized) || glob.trim().startsWith('/') || normalized.split('/').includes('..')) {
+    throw new Error(`Lane "${lane}": "${glob}" must be a path relative to the repo root, like src/api/**.`);
+  }
+  return normalized;
+}
+
 /** Lanes to add to `existing` (undefined = new config); throws with the reason when the result would be invalid. */
 export function addLanes(existing: LanesConfig | undefined, additions: readonly Lane[]): LanesConfig {
   const base: LanesConfig = existing ?? { lanes: [], shared: [...DEFAULT_SHARED] };
+  additions = additions.map((lane) => ({ ...lane, owns: lane.owns.map((glob) => checkedGlob(lane.name, glob)) }));
   for (const lane of additions) {
     if (base.lanes.some((l) => l.name === lane.name)) throw new Error(`Lane "${lane.name}" already exists in .ai/lanes.json. Pick another name or edit the file.`);
   }

@@ -18,6 +18,12 @@ describe('addLanes', () => {
   it('starts a config with default shared files', () => {
     expect(addLanes(undefined, [{ name: 'a', owns: ['a/**'] }]).shared).toEqual(DEFAULT_SHARED);
   });
+  it('stores globs slash-separated and rejects absolute or escaping ones', () => {
+    expect(addLanes(undefined, [{ name: 'w', owns: ['web\\**'] }]).lanes[0]?.owns).toEqual(['web/**']);
+    expect(() => addLanes(undefined, [{ name: 'w', owns: ['/abs/**'] }])).toThrow(/relative/);
+    expect(() => addLanes(undefined, [{ name: 'w', owns: ['C:\\x\\**'] }])).toThrow(/relative/);
+    expect(() => addLanes(undefined, [{ name: 'w', owns: ['../x/**'] }])).toThrow(/relative/);
+  });
   it('rejects duplicates and overlaps with a fix', () => {
     const base = addLanes(undefined, [{ name: 'a', owns: ['src/**'] }]);
     expect(() => addLanes(base, [{ name: 'a', owns: ['x/**'] }])).toThrow(/already exists/);
