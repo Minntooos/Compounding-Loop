@@ -19,25 +19,35 @@ export const MIN_BRIEF_SCORE = 60;
 
 interface Section {
   heading: string;
+  /** Own text plus the text of deeper sub-headings, so "### Core" bullets count for "## Must have". */
   body: string;
 }
 
-const VAGUE_WORDS = /\b(good|nice|great|modern|fast|clean|user-friendly|intuitive|robust|scalable|beautiful|etc)\b/i;
+const VAGUE_WORDS = /\b(good|nice|great|modern|fast|clean|user-friendly|intuitive|robust|scalable|beautiful)\b/i;
 const MIN_WORDS = 120;
+/** Bold labels (`**Goal:** text`) count as the deepest heading level. */
+const LABEL_LEVEL = 7;
 
 function splitSections(text: string): Section[] {
-  const sections: Section[] = [];
-  let current: Section | undefined;
+  const flat: { heading: string; level: number; own: string }[] = [];
   for (const line of text.split(/\r?\n/)) {
-    const heading = /^#{1,6}\s+(.*?)\s*#*\s*$/.exec(line);
-    if (heading) {
-      current = { heading: heading[1] ?? '', body: '' };
-      sections.push(current);
-    } else if (current) {
-      current.body += `${line}\n`;
+    const heading = /^(#{1,6})\s+(.*?)\s*#*\s*$/.exec(line);
+    const label = /^\s*\*\*(.+?)\*\*:?\s*(.*)$/.exec(line) ?? /^\s*\*\*(.+?):\*\*\s*(.*)$/.exec(line);
+    if (heading) flat.push({ heading: heading[2] ?? '', level: (heading[1] ?? '#').length, own: '' });
+    else if (label && !/^\s*[-*+]\s/.test(line)) flat.push({ heading: (label[1] ?? '').replace(/:$/, ''), level: LABEL_LEVEL, own: `${label[2] ?? ''}\n` });
+    else {
+      const last = flat[flat.length - 1];
+      if (last) last.own += `${line}\n`;
     }
   }
-  return sections;
+  return flat.map((section, i) => {
+    let body = section.own;
+    for (const later of flat.slice(i + 1)) {
+      if (later.level <= section.level) break;
+      body += later.own;
+    }
+    return { heading: section.heading, body };
+  });
 }
 
 const findSection = (sections: Section[], pattern: RegExp) => sections.find((s) => pattern.test(s.heading));
@@ -63,17 +73,17 @@ export function lintBrief(text: string): BriefLint {
   const gaps: BriefGap[] = [];
   const miss = (gap: BriefGap) => gaps.push(gap);
 
-  const oneLine = findSection(sections, /one line|summary|goal|what (this|it) is|pitch/i);
+  const oneLine = findSection(sections, /^\W*(one[- ]line|summary|overview|goal|what (this|it) is|pitch)\b/i);
   if (!oneLine || oneLine.body.trim().length < 20) {
     miss({ id: 'one-line', cost: 15, message: 'No one-line description of what you are building.' });
   }
 
-  const audience = findSection(sections, /who|audience|users?|customers?/i);
+  const audience = findSection(sections, /^\W*(who\b|audience|users?\b|customers?\b|target)/i);
   if (!audience || audience.body.trim().length < 20) {
     miss({ id: 'audience', cost: 15, message: 'No audience: say who this is for.' });
   }
 
-  const mustHeading = findSection(sections, /must[- ]have|requirements?|features?|scope|deliverables?/i);
+  const mustHeading = findSection(sections, /^\W*(must[- ]?haves?|requirements?|features?|deliverables?|scope\b)/i);
   const items = mustHeading ? listItems(mustHeading.body) : [];
   if (items.length < 3) {
     miss({ id: 'must-haves', cost: 20, message: 'Fewer than three must-haves listed as bullets.' });
@@ -88,13 +98,13 @@ export function lintBrief(text: string): BriefLint {
     }
   }
 
-  const doneWhen = findSection(sections, /done[- ]when|definition of done|acceptance|success criteria/i);
-  const checkable = doneWhen ? /`[^`]+`|\bnpm\b|\bpytest\b|\btest(s)?\b/i.test(doneWhen.body) : false;
+  const doneWhen = findSection(sections, /^\W*(done[- ]when|definition of done|acceptance|success criteria)/i);
+  const checkable = doneWhen ? /`[^`]+`|\b(npm|pnpm|yarn|pytest|make|cargo)\b|\btests?\s+(pass|green)/i.test(doneWhen.body) : false;
   if (!checkable) {
     miss({ id: 'done-when', cost: 25, message: 'No checkable done-when: list commands or tests that must pass.' });
   }
 
-  const outOfScope = findSection(sections, /out of scope|not in scope|non-goals?|not included|won'?t/i);
+  const outOfScope = findSection(sections, /^\W*(out of scope|not in scope|non-goals?|not included|won'?t)/i);
   if (!outOfScope || outOfScope.body.trim().length < 10) {
     miss({ id: 'out-of-scope', cost: 15, message: 'No out-of-scope section: say what the loop must not build.' });
   }

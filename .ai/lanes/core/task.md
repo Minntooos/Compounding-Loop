@@ -1,7 +1,7 @@
 # Lane: core
 
 Run: 1 / 30
-Status: unit 1 done
+Status: units 1-2 done
 
 ## Contract
 **Goal:** the `loop` CLI and the pure logic in `src/core` that every other lane builds on (IDEA.md must-haves 1–7).
@@ -39,4 +39,4 @@ roundsDone = count of .ai/done-vN.md only (not +1 for DONE.md) · matches IDEA.m
 - Add a dependency without a Decisions entry.
 
 ## Handoff
-Run 1: fixed red main (favicon), shipped unit 1 (src/core/repo.ts). Next: unit 2, src/core/brief.ts (no Node imports). Nothing half-done.
+Run 1: fixed red main (favicon), shipped unit 1 (src/core/repo.ts). Unit 2 shipped (src/core/brief.ts, exports lintBrief/briefPasses/MIN_BRIEF_SCORE). Next: unit 3, `loop init`. Nothing half-done.

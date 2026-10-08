@@ -61,6 +61,30 @@ describe('lintBrief', () => {
   });
 });
 
+describe('lintBrief heading handling', () => {
+  it('does not match "Non-goals" as a goal or "Whole thing" as an audience', () => {
+    const ids = lintBrief('## Non-goals\nNothing sold here at all, ever.\n## Whole thing\nSome long enough text about it.').gaps.map((g) => g.id);
+    expect(ids).toContain('one-line');
+    expect(ids).toContain('audience');
+  });
+  it('does not read "Out of scope" as the must-haves', () => {
+    const reordered = good.replace(/## Out of scope[\s\S]*?\n\nExtra/, 'Extra') + '\n## Out of scope\nAccounts, payments and a backend are not built.\n';
+    expect(lintBrief(reordered).score).toBe(100);
+  });
+  it('counts bullets under sub-headings', () => {
+    const nested = good.replace(/## Must have[\s\S]*?## Done when/, '## Must have\n### Core\n- Twenty pages in `sitemap.xml`\n- 90+ Lighthouse score\n- `/about` with 3 sources\n\n## Done when');
+    expect(lintBrief(nested).score).toBe(100);
+  });
+  it('reads bold labels as headings', () => {
+    const labels = '**Goal:** A static site of twenty mortgage calculators.\n**Users:** First-time home buyers in the US.\n';
+    expect(lintBrief(labels).gaps.map((g) => g.id)).not.toContain('one-line');
+    expect(lintBrief(labels).gaps.map((g) => g.id)).not.toContain('audience');
+  });
+  it('does not accept "tests someday" as checkable', () => {
+    expect(lintBrief(good.replace(/## Done when[\s\S]*?## Out/, '## Done when\nHas tests someday.\n\n## Out')).gaps.map((g) => g.id)).toEqual(['done-when']);
+  });
+});
+
 describe('listItems and isVagueItem', () => {
   it('reads bullets, numbers and checkboxes', () => {
     expect(listItems('- a\n* b\n1. c\n2) d\n- [x] e\ntext')).toEqual(['a', 'b', 'c', 'd', 'e']);
