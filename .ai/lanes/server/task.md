@@ -1,7 +1,7 @@
 # Lane: server
 
 Run: 1 / 30
-Status: in progress (units 1-7 done)
+Status: DONE (units 1-7)
 
 ## Contract
 **Goal:** the local HTTP server the dashboard talks to, plus the scrubbed demo data (IDEA.md must-haves 17–18).
@@ -48,4 +48,4 @@ Status: in progress (units 1-7 done)
 - Add a dependency without a Decisions entry.
 
 ## Handoff
-(each run ends by writing: where it stopped, the exact next step, anything half-done)
+Run 1: all 7 units shipped, lane DONE. Nothing half-done. See DONE.md for the next 10 improvements.
