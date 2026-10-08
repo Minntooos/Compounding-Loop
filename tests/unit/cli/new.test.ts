@@ -6,7 +6,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { Gh } from '../../../src/core/gh.js';
 import { listTemplates, runNew } from '../../../src/cli/new.js';
 
-const tsx = path.resolve('node_modules/.bin/tsx');
+// Run tsx's CLI through node: node_modules/.bin/tsx is a .cmd shim on Windows, which execFile cannot start.
+const tsx = path.resolve('node_modules/tsx/dist/cli.mjs');
 const cli = path.resolve('src/cli/index.ts');
 
 describe('loop new', () => {
@@ -60,7 +61,7 @@ describe('loop new', () => {
   });
 
   it('the CLI creates a folder whose own check script runs', () => {
-    execFileSync(tsx, [cli, 'new', 'static-site', 'demo-x', '--dry-run'], { cwd: parent });
+    execFileSync(process.execPath, [tsx, cli, 'new', 'static-site', 'demo-x', '--dry-run'], { cwd: parent });
     const dir = path.join(parent, 'demo-x');
     // The starter page is a placeholder, so the template's check is expected to flag it until the loop builds the site.
     let output = '';
@@ -75,7 +76,7 @@ describe('loop new', () => {
   // Slow: needs `npm install` (network) for the template's Playwright. Run with LOOP_SLOW=1.
   it.runIf(process.env.LOOP_SLOW)('the new folder passes its full npm test', () => {
     const dir = path.join(parent, 'slow-x');
-    execFileSync(tsx, [cli, 'new', 'static-site', 'slow-x', '--dry-run'], { cwd: parent });
+    execFileSync(process.execPath, [tsx, cli, 'new', 'static-site', 'slow-x', '--dry-run'], { cwd: parent });
     execFileSync('npm', ['install'], { cwd: dir, stdio: 'inherit' });
     execFileSync('npm', ['test'], { cwd: dir, stdio: 'inherit' });
   }, 600_000);

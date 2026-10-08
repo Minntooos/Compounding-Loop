@@ -5,7 +5,8 @@ import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { runAnswer, runNextRound, runStatus } from '../../../src/cli/loops.js';
 
-const tsx = path.resolve('node_modules/.bin/tsx');
+// Run tsx's CLI through node: node_modules/.bin/tsx is a .cmd shim on Windows, which execFile cannot start.
+const tsx = path.resolve('node_modules/tsx/dist/cli.mjs');
 const cli = path.resolve('src/cli/index.ts');
 
 describe('loop status / next-round / answer', () => {
@@ -82,8 +83,8 @@ describe('loop status / next-round / answer', () => {
   });
 
   it('runs through the CLI', () => {
-    const out = execFileSync(tsx, [cli, 'status', dir], { encoding: 'utf8' });
+    const out = execFileSync(process.execPath, [tsx, cli, 'status', dir], { encoding: 'utf8' });
     expect(out).toContain('Nothing needs you.');
-    expect(() => execFileSync(tsx, [cli, 'answer', 'x', '--dir', dir], { stdio: 'pipe' })).toThrow(/No BLOCKED.md/);
+    expect(() => execFileSync(process.execPath, [tsx, cli, 'answer', 'x', '--dir', dir], { stdio: 'pipe' })).toThrow(/No BLOCKED.md/);
   });
 });

@@ -78,8 +78,8 @@ describe('loadDemoSnapshot', () => {
   it('falls back to the next candidate and fails clearly when none exist', async () => {
     const { loadDemoSnapshot } = await import('../../../src/server/data.js');
     const real = new URL('../../../demo/five-sites.json', import.meta.url);
-    expect((await loadDemoSnapshot([new URL('file:///nope.json'), real])).loops).toHaveLength(5);
-    await expect(loadDemoSnapshot([new URL('file:///nope.json')])).rejects.toThrow(/demo snapshot not found/);
+    expect((await loadDemoSnapshot([new URL('./nope.json', import.meta.url), real])).loops).toHaveLength(5);
+    await expect(loadDemoSnapshot([new URL('./nope.json', import.meta.url)])).rejects.toThrow(/demo snapshot not found/);
   });
 });
 

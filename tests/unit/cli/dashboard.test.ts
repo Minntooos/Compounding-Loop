@@ -44,7 +44,7 @@ describe('browserCommand', () => {
 // Needs the server lane's startServer; skipped until src/server/index.ts exists.
 describe.runIf(serverShipped(process.cwd()))('loop dashboard --demo --no-open (real server)', () => {
   it('starts and answers /api/health', async () => {
-    const child = spawn(path.resolve('node_modules/.bin/tsx'), [path.resolve('src/cli/index.ts'), 'dashboard', '--demo', '--no-open', '--port', '0'], { stdio: ['ignore', 'pipe', 'inherit'] });
+    const child = spawn(process.execPath, [path.resolve('node_modules/tsx/dist/cli.mjs'), path.resolve('src/cli/index.ts'), 'dashboard', '--demo', '--no-open', '--port', '0'], { stdio: ['ignore', 'pipe', 'inherit'] });
     try {
       const url = await new Promise<string>((resolve, reject) => {
         const timer = setTimeout(() => reject(new Error('server did not start')), 15_000);
