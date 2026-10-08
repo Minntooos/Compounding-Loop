@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { formatLaneCheck, runCheckLanes } from './checkLanes.js';
+import { runDoctor } from './doctor.js';
 import { DEFAULT_PORT, runDashboard } from './dashboard.js';
 import { realGh } from './gh.js';
 import { runInit } from './init.js';
@@ -148,6 +149,19 @@ program
       const result = await runCheckLanes(path.resolve(dir), options.range);
       console.log(formatLaneCheck(result));
       if (result.problems.length > 0) process.exitCode = 1;
+    } catch (error) {
+      fail(error);
+    }
+  });
+
+program
+  .command('doctor')
+  .description('Check that node, git, gh, claude and Playwright Chromium are installed, and say how to fix what is not')
+  .action(async () => {
+    try {
+      const { report, passed } = await runDoctor();
+      console.log(report);
+      if (!passed) process.exitCode = 1;
     } catch (error) {
       fail(error);
     }

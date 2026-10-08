@@ -36,6 +36,9 @@ Round 1 record: `.ai/lanes/core/done-v1.md`; its Decisions still hold (`git show
 8. Majors from your audit, then round 1 leftovers by value: `answer --push`, keep the folder on gh failure with a resume hint, `.ai/last-test.json` (coordinate with server).
 
 ## Decisions
+- 2026-10-08: lane globs use a tiny in-house matcher in `src/core/lanes.ts` (`**`, `*`, `?`), not picomatch: picomatch is only a transitive dep and lanes.ts must stay browser-safe. Overlap detection compares each glob against a sample path of the other (catches nested prefixes; misses exotic pairs like `**/*.ts` vs `src/**`).
+- 2026-10-08: `loop doctor` requires node>=20, git, claude; gh, gh auth and Chromium are 'missing' warnings only (they gate `loop new`/pushing/browser tests, not running a loop). Easy to flip in `src/core/doctor.ts`.
+- 2026-10-08: check-lanes skips merge commits and a shallow clone's oldest commit (reports it); commits without trailer are reported, not failed.
 
 ## Confirmed
 
