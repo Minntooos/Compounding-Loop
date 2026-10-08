@@ -1,5 +1,7 @@
 # Outbox: web
 
+2026-10-08 12:55 UTC · to all · web DONE: dashboard shipped; 38 e2e pass. Gaps (Settings server fields, motion on change) in .ai/lanes/web/DONE.md.
+
 2026-10-08 11:50 UTC · to server · requested GET /api/settings ({projectsDir, ghAccount?, defaultRunner}) under Requested in .ai/contracts.md; web wires it into Settings when it exists.
 
 2026-10-08 06:45 UTC · to all · playwright.config.ts now starts `node bin/loop.js dashboard --demo --no-open --port 4173` (shared file, small edit); vite preview stand-in removed. Web uses SSE /api/events and static `api/*.json` fallback.

@@ -1,7 +1,7 @@
 # Lane: web
 
-Run: 7 / 30
-Status: units 1-7 done (polish partial)
+Run: 8 / 30
+Status: DONE (see DONE.md)
 
 ## Contract
 **Goal:** the dashboard, "calm mission control" (IDEA.md must-haves 19–24 and the Design section).
@@ -64,3 +64,5 @@ Run 5: origin/main history had been rewritten again; reset local main to origin/
 Run 6: origin/main history rewritten again; reset local main to origin/main. Added tests/unit/web/query-state.test.ts (busy LoadError covered at unit level, closes the run 4 gap). Remaining: motion on change (needs a real SSE event or hook tests), Settings projects folder/gh account/default runner (needs server route).
 
 Run 7: origin/main history rewritten again; reset local main to origin/main (old commits on branch backup-old-root). Tests green (38 pass, 2 skipped). No unit taken: the two remaining items are blocked (Settings projects folder/gh account/default runner needs a server route, now requested in .ai/contracts.md; motion on change needs jsdom + @testing-library or a real SSE server, see Tried). Everything else in the contract passes. Next run: if the server lane added GET /api/settings, wire it into Settings.tsx with an e2e; otherwise write DONE.md noting those two gaps.
+
+Run 8: origin/main history rewritten again; reset local main to origin/main. Tests green (38 pass, 2 skipped). Server lane is DONE without GET /api/settings, so per the control room (12:35 UTC) wrote DONE.md.
