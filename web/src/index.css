@@ -1,0 +1,27 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/jetbrains-mono';
+
+/* Design tokens from IDEA.md. Dark first; light when the OS asks for it or data-theme="light". */
+:root {
+  --bg: #0b0d10; --surface: #13161b; --border: #232831; --text: #e6e8eb; --muted: #8b93a1;
+  --accent: #8b7cff; --building: #4c8dff; --blocked: #f5a524; --done: #3ddc97; --failing: #f04d4d;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    --bg: #fafafa; --surface: #ffffff; --border: #e4e6ea; --text: #111318; --muted: #5b6370;
+    --accent: #6c5ce7; --building: #2563eb; --blocked: #b45309; --done: #15803d; --failing: #dc2626;
+    color-scheme: light;
+  }
+}
+:root[data-theme='light'] {
+  --bg: #fafafa; --surface: #ffffff; --border: #e4e6ea; --text: #111318; --muted: #5b6370;
+  --accent: #6c5ce7; --building: #2563eb; --blocked: #b45309; --done: #15803d; --failing: #dc2626;
+  color-scheme: light;
+}
+@theme {
+  --font-sans: 'Inter Variable', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+}
+body { background: var(--bg); color: var(--text); font-family: var(--font-sans); font-size: 14px; }

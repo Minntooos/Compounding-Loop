@@ -1,0 +1,1289 @@
+{
+ "id": "proj3",
+ "repo": "https://github.com/Minntooos/proj3",
+ "domain": "yarnsums.netlify.app",
+ "futureDomain": "yarnsums.com",
+ "oneLiner": "Knitting and crochet calculators that give stitch-by-stitch written instructions, not just numbers: increase and decrease evenly, gauge, yarn amounts, sizes and conversions.",
+ "audience": [
+  "Knitters and crocheters, beginner to advanced, who modify patterns or design their own",
+  "Mostly on phones, often mid-project with yarn in hand",
+  "US and UK terms both matter (UK and US crochet stitch names differ; needle sizes differ)"
+ ],
+ "mustHave": [
+  "Increase/decrease evenly calculator",
+  "Gauge calculator",
+  "Yarn amount estimator",
+  "Blanket yarn calculator and blanket size chart",
+  "Needle and hook size charts with US, UK/Canadian and metric sizes, based on the Craft Yarn Council's standards (yarnstandards.com)",
+  "Yarn weight chart",
+  "Cast-on calculator",
+  "Yarn substitution calculator",
+  "Hat calculator",
+  "UK vs US crochet terms reference page.",
+  "Every instruction can be copied with one tap and prints cleanly"
+ ],
+ "competitors": "Search for these by name: stitchmath, knittingtips' calculators, crochetcalc, crochetyarncalculator, hobbyhygge. Typical gaps are one tool per site, numbers without written instructions, no crochet notation, and pages full of ads. Beat them on depth and on instructions you can follow row by row.",
+ "monetization": "The owner may add ads or yarn affiliate links later. Never add them yourself.",
+ "routine": {
+  "id": "trig_01Js8cQpbPozmhdqPrnDHsWQ",
+  "cron": "31 * * * *",
+  "url": "https://claude.ai/code/routines/trig_01Js8cQpbPozmhdqPrnDHsWQ"
+ },
+ "status": "finished",
+ "round": 5,
+ "roundsDone": 5,
+ "maxRounds": 5,
+ "rounds": [
+  {
+   "round": 1,
+   "finishedAt": "2026-10-06T09:30:10.000Z"
+  },
+  {
+   "round": 2,
+   "finishedAt": "2026-10-06T15:30:29.000Z"
+  },
+  {
+   "round": 3,
+   "finishedAt": "2026-10-06T15:59:29.000Z"
+  },
+  {
+   "round": 4,
+   "finishedAt": "2026-10-06T16:43:23.000Z"
+  },
+  {
+   "round": 5,
+   "finishedAt": "2026-10-06T17:50:21.000Z"
+  }
+ ],
+ "lock": null,
+ "builder": "routine",
+ "setup": {
+  "netlify": true,
+  "address": true,
+  "gsc": true,
+  "sitemap": true
+ },
+ "run": 0,
+ "runLimit": 30,
+ "blockedText": "",
+ "doneText": "# DONE (v5, covers v1 to v5)\n\n## What was built (40 pages in `site/`, all in `sitemap.xml`)\nv1 (14 pages) is in `.ai/done-v1.md`, v2 (8) in `.ai/done-v2.md`, v3 (6) in `.ai/done-v3.md` and v4 (5 new pages plus the menu and two merges) in `.ai/done-v4.md`. v5 worked through v4's \"10 best next pages\":\n\n| # | Item | Result | Target keyword |\n|---|---|---|---|\n| 1 | C2C crochet blanket | New page `/c2c-crochet-calculator/` | c2c crochet calculator, corner to corner blanket size |\n| 2 | Foundation chain | New page `/foundation-chain-calculator/` | how many chains for a crochet blanket, foundation chain calculator |\n| 3 | Pi shawl | New page `/pi-shawl-calculator/` (built from the doubling principle, with a flat-circle check) | pi shawl calculator, circular shawl |\n| 4 | Short row spacing | New page `/short-row-calculator/` (short rows at both ends: bust darts, back neck, hems) | short row calculator, bust dart short rows |\n| 5 | Stitch repeat combiner | New page `/stitch-multiple-calculator/` | stitch multiple calculator, combine pattern repeats |\n| 6 | Crochet circle / rug | New page `/crochet-circle-calculator/` | crochet circle calculator, round crochet rug |\n| 7 | Knitting time | New page `/knitting-time-calculator/` | how long to knit a blanket |\n| 8 | Toe-up sock | Skipped: the short-row heel's centre count was not verifiable | - |\n| 9 | Bottom-up raglan | Merged into `/raglan-calculator/` (bottom-up line and section; a separate page would be a doorway) | bottom up raglan |\n| 10 | Project yarn cost | Merged into `/yarn-substitution-calculator/` (optional prices; thin on its own) | yarn cost calculator |\n\nAlso fixed: ten v4/v5 pages had no card on the home page (the cards had been inserted into the menu markup and wiped). They are restored, and `tests/menu.spec.js` now fails if any sitemap page lacks a home-page card. The crescent shawl, pi shawl and crochet circle results now show \"Stitches in all\" for the knitting time calculator.\n\nEvery calculation is a pure function in `site/js/lib/` with unit tests in `tests/unit/`. Each new page has a browser test, a home card, a menu entry, a sitemap entry and cross-links.\n\n## Test results\n`npm test`: check OK (40 pages), 227 unit tests and 192 browser tests (phone and laptop), all passing. Every unit was reviewed by a separate reviewer before pushing. Blockers found and fixed before their push: the short-row closing rows (two rows are needed, not one), impractical shared counts in the stitch multiple calculator, the missing \"stitches in all\" totals the knitting time page relied on, and the bottom-up raglan sleeve and underarm counts.\n\n## Unsure of\n- Pi shawl: the exact Zimmermann schedule was not verified, so the page follows the sourced principle (stitches double when the radius doubles) with an editable cast-on and first section. It never claims to be her pattern.\n- Crochet circle and hat: the round-1 count comes from geometry (2π × stitch/round gauge ratio), cross-checked against the usual 6 (sc) and 12 (dc).\n- C2C: one block gauge is used for both directions; blocks that aren't square need the height adjusted (the page says so).\n- Short rows: only the both-ends layout is covered; one-ended shoulder short rows are not.\n- Stitch multiples: counts more than twice the target width are reported as impractical rather than given.\n- Knitting time: depends entirely on the visitor's timed sample; finishing time is not included.\n- Still open from earlier rounds: gloves with fingers and Japanese sizes (unverified), needle and hook chart gaps, afghan sizes.\n\n## Owner's launch checklist\n1. Check that the Netlify site serves `https://yarnsums.netlify.app/` (the address in IDEA.md).\n2. Add that address to Search Console as a URL-prefix property (the verification tag is on the home page) and submit `/sitemap.xml`.\n3. Buy yarnsums.com once there's budget, then move over with 301 redirects.\n\n## 10 best next pages (by likely demand and weak current results)\n1. \"Will I have enough yarn?\" calculator: weigh what is left and a few rows, compare with the rows still to knit\n2. Blanket border calculator: stitches to pick up around all four sides, with mitred corners\n3. Crochet oval and basket base calculator (starting chain and rounds for an oval)\n4. Shoulder shaping with one-ended short rows (the case the short row page leaves out)\n5. Felting and blocking shrinkage calculator from a measured swatch, before and after\n6. Crochet hexagon blanket calculator (hexagons per row and column, half hexagons for straight edges)\n7. Neckband pick-up calculator (could be merged into the button band page if thin)\n8. Toe-up sock calculator (needs a sourced short-row heel)\n9. Gloves with fingers (needs a sourced rule for splitting stitches between fingers)\n10. Japanese needle and hook sizes (needs a manufacturer's table)\n",
+ "currentState": [],
+ "decisions": [],
+ "tried": [],
+ "confirmed": [],
+ "pages": [
+  {
+   "url": "/",
+   "title": "Knitting & Crochet Calculators | YarnSums",
+   "h1": "Knitting and Crochet Calculators",
+   "words": 1192
+  },
+  {
+   "url": "/amigurumi-ball-calculator/",
+   "title": "Amigurumi Ball Calculator: Crochet Sphere Pattern",
+   "h1": "Amigurumi Ball Calculator",
+   "words": 979
+  },
+  {
+   "url": "/blanket-size-chart/",
+   "title": "Blanket Size Chart: Knit and Crochet Blanket Sizes",
+   "h1": "Blanket Size Chart",
+   "words": 791
+  },
+  {
+   "url": "/blanket-yarn-calculator/",
+   "title": "Blanket Yarn Calculator: Crochet and Knit Blanket Yarn",
+   "h1": "Blanket Yarn Calculator",
+   "words": 787
+  },
+  {
+   "url": "/button-band-calculator/",
+   "title": "Button Band and Buttonhole Spacing Calculator",
+   "h1": "Button Band and Buttonhole Spacing Calculator",
+   "words": 871
+  },
+  {
+   "url": "/c2c-crochet-calculator/",
+   "title": "C2C Crochet Calculator: Corner to Corner Blanket Size",
+   "h1": "C2C Crochet Calculator",
+   "words": 818
+  },
+  {
+   "url": "/cast-on-calculator/",
+   "title": "Cast On Calculator: How Many Stitches to Cast On",
+   "h1": "Cast On Calculator",
+   "words": 786
+  },
+  {
+   "url": "/crescent-shawl-calculator/",
+   "title": "Crescent Shawl Calculator: Rows, Stitches and Yarn",
+   "h1": "Crescent Shawl Calculator",
+   "words": 985
+  },
+  {
+   "url": "/crochet-abbreviations/",
+   "title": "Crochet Abbreviations List: US Terms Glossary",
+   "h1": "Crochet Abbreviations List",
+   "words": 673
+  },
+  {
+   "url": "/crochet-circle-calculator/",
+   "title": "Crochet Circle Calculator: Flat Circles, Rugs, Coasters",
+   "h1": "Crochet Circle Calculator",
+   "words": 822
+  },
+  {
+   "url": "/crochet-hat-calculator/",
+   "title": "Crochet Hat Calculator: Crown Rounds by Head Size",
+   "h1": "Crochet Hat Calculator",
+   "words": 911
+  },
+  {
+   "url": "/crochet-hook-sizes/",
+   "title": "Crochet Hook Size Chart: US Letters to mm",
+   "h1": "Crochet Hook Size Chart",
+   "words": 739
+  },
+  {
+   "url": "/decrease-evenly-calculator/",
+   "title": "Decrease Evenly Calculator for Knitting & Crochet",
+   "h1": "Decrease Evenly Calculator",
+   "words": 510
+  },
+  {
+   "url": "/foundation-chain-calculator/",
+   "title": "Foundation Chain Calculator: How Many Chains to Crochet",
+   "h1": "Foundation Chain Calculator",
+   "words": 873
+  },
+  {
+   "url": "/gauge-calculator/",
+   "title": "Knitting Gauge Calculator: Convert Pattern Stitches",
+   "h1": "Knitting Gauge Calculator",
+   "words": 820
+  },
+  {
+   "url": "/granny-square-blanket-calculator/",
+   "title": "Granny Square Blanket Calculator: Squares and Yarn",
+   "h1": "Granny Square Blanket Calculator",
+   "words": 699
+  },
+  {
+   "url": "/hat-calculator/",
+   "title": "Knitting Hat Calculator: Cast-On and Crown Decreases",
+   "h1": "Knitting Hat Calculator",
+   "words": 772
+  },
+  {
+   "url": "/how-to-measure-gauge/",
+   "title": "How to Measure Gauge: Swatch Calculator",
+   "h1": "How to Measure Gauge",
+   "words": 740
+  },
+  {
+   "url": "/increase-evenly-calculator/",
+   "title": "Increase Evenly Calculator for Knitting & Crochet",
+   "h1": "Increase Evenly Calculator",
+   "words": 603
+  },
+  {
+   "url": "/knitting-abbreviations/",
+   "title": "Knitting Abbreviations List: Searchable Glossary",
+   "h1": "Knitting Abbreviations List",
+   "words": 790
+  },
+  {
+   "url": "/knitting-chart-symbols/",
+   "title": "Knitting Chart Symbols and Chart to Written Row Tool",
+   "h1": "Knitting Chart Symbols, Read Out Row by Row",
+   "words": 894
+  },
+  {
+   "url": "/knitting-needle-sizes/",
+   "title": "Knitting Needle Size Chart: US, UK and mm",
+   "h1": "Knitting Needle Size Chart",
+   "words": 836
+  },
+  {
+   "url": "/knitting-time-calculator/",
+   "title": "How Long to Knit a Blanket? Knitting Time Calculator",
+   "h1": "Knitting Time Calculator",
+   "words": 638
+  },
+  {
+   "url": "/mitten-calculator/",
+   "title": "Mitten Knitting Calculator: Cast-On and Thumb Gusset",
+   "h1": "Mitten Knitting Calculator",
+   "words": 902
+  },
+  {
+   "url": "/pi-shawl-calculator/",
+   "title": "Pi Shawl Calculator: Circular Shawl Doubling Rounds",
+   "h1": "Pi Shawl Calculator",
+   "words": 848
+  },
+  {
+   "url": "/raglan-calculator/",
+   "title": "Raglan Sweater Calculator: Top-Down Increases",
+   "h1": "Raglan Sweater Calculator",
+   "words": 975
+  },
+  {
+   "url": "/row-counter/",
+   "title": "Free Online Row Counter for Knitting and Crochet",
+   "h1": "Row Counter",
+   "words": 661
+  },
+  {
+   "url": "/scarf-calculator/",
+   "title": "Scarf Calculator: Stitches, Rows and Yarn",
+   "h1": "Scarf Calculator",
+   "words": 779
+  },
+  {
+   "url": "/shawl-calculator/",
+   "title": "Triangle Shawl Calculator: Increases, Size and Yarn",
+   "h1": "Triangle Shawl Calculator",
+   "words": 810
+  },
+  {
+   "url": "/short-row-calculator/",
+   "title": "Short Row Calculator: Evenly Spaced Turns",
+   "h1": "Short Row Calculator",
+   "words": 875
+  },
+  {
+   "url": "/sleeve-increase-calculator/",
+   "title": "Sleeve Increase Calculator: Knit and Crochet Sleeves",
+   "h1": "Sleeve Increase Calculator",
+   "words": 715
+  },
+  {
+   "url": "/sock-calculator/",
+   "title": "Sock Knitting Calculator: Cast-On, Heel and Toe",
+   "h1": "Sock Knitting Calculator",
+   "words": 1162
+  },
+  {
+   "url": "/stitch-multiple-calculator/",
+   "title": "Stitch Multiple Calculator: Combine Pattern Repeats",
+   "h1": "Stitch Multiple Calculator",
+   "words": 726
+  },
+  {
+   "url": "/stripe-pattern-calculator/",
+   "title": "Stripe Pattern Calculator: Rows Per Colour",
+   "h1": "Stripe Pattern Calculator",
+   "words": 717
+  },
+  {
+   "url": "/sweater-size-chart/",
+   "title": "Sweater Size Chart for Knitters: Women, Men and Kids",
+   "h1": "Sweater Size Chart with Ease Guide: Women, Men and Children",
+   "words": 1160
+  },
+  {
+   "url": "/uk-us-crochet-terms/",
+   "title": "UK vs US Crochet Terms: Chart and Pattern Converter",
+   "h1": "UK vs US Crochet Terms",
+   "words": 753
+  },
+  {
+   "url": "/wpi-yarn-weight-calculator/",
+   "title": "WPI Yarn Weight and Yardage Calculator",
+   "h1": "WPI Yarn Weight and Yardage Calculator",
+   "words": 700
+  },
+  {
+   "url": "/yarn-amount-calculator/",
+   "title": "Yarn Amount Calculator: How Much Yarn Do I Need",
+   "h1": "Yarn Amount Calculator",
+   "words": 772
+  },
+  {
+   "url": "/yarn-substitution-calculator/",
+   "title": "Yarn Substitution Calculator: How Many Skeins",
+   "h1": "Yarn Substitution Calculator",
+   "words": 757
+  },
+  {
+   "url": "/yarn-weight-chart/",
+   "title": "Yarn Weight Chart: Categories 0-7, Gauge and Needles",
+   "h1": "Yarn Weight Chart",
+   "words": 892
+  }
+ ],
+ "planned": [
+  {
+   "keywords": "knitting calculator, crochet calculator, yarn calculator",
+   "urls": [
+    "/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "increase evenly calculator, how to increase evenly across a row",
+   "urls": [
+    "/increase-evenly-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "decrease evenly calculator",
+   "urls": [
+    "/decrease-evenly-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "knitting gauge calculator, gauge converter, resize pattern for different gauge",
+   "urls": [
+    "/gauge-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "how much yarn do i need, yarn amount calculator",
+   "urls": [
+    "/yarn-amount-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "how much yarn for a blanket, crochet blanket yarn calculator",
+   "urls": [
+    "/blanket-yarn-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "blanket size chart, crochet blanket sizes",
+   "urls": [
+    "/blanket-size-chart/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "knitting needle size chart, needle size conversion us uk metric",
+   "urls": [
+    "/knitting-needle-sizes/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "crochet hook size chart",
+   "urls": [
+    "/crochet-hook-sizes/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "yarn weight chart, yarn weight categories",
+   "urls": [
+    "/yarn-weight-chart/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "how many stitches to cast on, cast on calculator",
+   "urls": [
+    "/cast-on-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "yarn substitution calculator",
+   "urls": [
+    "/yarn-substitution-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "hat size chart knitting, how many stitches for a hat",
+   "urls": [
+    "/hat-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "uk vs us crochet terms",
+   "urls": [
+    "/uk-us-crochet-terms/"
+   ],
+   "built": true
+  }
+ ],
+ "plannedCount": 14,
+ "builtPlannedCount": 14,
+ "sitemapCount": 40,
+ "libs": [
+  "abbrev.js",
+  "amigurumi.js",
+  "blanket.js",
+  "buttonband.js",
+  "c2c.js",
+  "caston.js",
+  "chain.js",
+  "chart.js",
+  "circle.js",
+  "crescent.js",
+  "crochethat.js",
+  "crochetterms.js",
+  "evenly.js",
+  "gauge.js",
+  "granny.js",
+  "hat.js",
+  "hooks.js",
+  "knittime.js",
+  "measuregauge.js",
+  "mitten.js",
+  "multiple.js",
+  "pishawl.js",
+  "raglan.js",
+  "rowcounter.js",
+  "scarf.js",
+  "shawl.js",
+  "shortrows.js",
+  "sleeve.js",
+  "sock.js",
+  "stripes.js",
+  "substitute.js",
+  "sweater.js",
+  "wpi.js",
+  "yarnamount.js",
+  "yarnweight.js"
+ ],
+ "unitTestCount": 227,
+ "browserTestCount": 56,
+ "data": [
+  {
+   "file": "abbreviations.json",
+   "entries": 4,
+   "searchVerified": 1
+  },
+  {
+   "file": "blanket-sizes.json",
+   "entries": 7,
+   "searchVerified": 7
+  },
+  {
+   "file": "crochet-terms.json",
+   "entries": 5,
+   "searchVerified": 1
+  },
+  {
+   "file": "foot-sizes.json",
+   "entries": 6,
+   "searchVerified": 1
+  },
+  {
+   "file": "hand-sizes.json",
+   "entries": 9,
+   "searchVerified": 1
+  },
+  {
+   "file": "head-circumference.json",
+   "entries": 7,
+   "searchVerified": 2
+  },
+  {
+   "file": "hook-sizes.json",
+   "entries": 11,
+   "searchVerified": 11
+  },
+  {
+   "file": "needle-sizes.json",
+   "entries": 16,
+   "searchVerified": 16
+  },
+  {
+   "file": "scarf-sizes.json",
+   "entries": 2,
+   "searchVerified": 1
+  },
+  {
+   "file": "sweater-sizes.json",
+   "entries": 3,
+   "searchVerified": 4
+  },
+  {
+   "file": "wpi.json",
+   "entries": 6,
+   "searchVerified": 1
+  },
+  {
+   "file": "yarn-weights.json",
+   "entries": 8,
+   "searchVerified": 1
+  }
+ ],
+ "commits": [
+  {
+   "sha": "83f5c6d",
+   "at": "2026-10-06T17:52:28.000Z",
+   "author": "Minntooos",
+   "msg": "Remove credit-session lock: cloud credit is used up, routines take over"
+  },
+  {
+   "sha": "998300d",
+   "at": "2026-10-06T17:52:18.000Z",
+   "author": "Minntooos",
+   "msg": "Refresh credit-session lock (session still building)"
+  },
+  {
+   "sha": "5a40b9f",
+   "at": "2026-10-06T17:50:21.000Z",
+   "author": "Claude",
+   "msg": "Finish v5: DONE.md, log, remove task.md"
+  },
+  {
+   "sha": "f1a5abe",
+   "at": "2026-10-06T17:49:39.000Z",
+   "author": "Claude",
+   "msg": "Yarn cost: allow part skeins, show prices as entered, note negative prices"
+  },
+  {
+   "sha": "daf37f6",
+   "at": "2026-10-06T17:48:17.000Z",
+   "author": "Claude",
+   "msg": "Yarn substitution: optional prices per skein and project cost comparison"
+  },
+  {
+   "sha": "23955ad",
+   "at": "2026-10-06T17:46:57.000Z",
+   "author": "Claude",
+   "msg": "Raglan bottom-up: give sleeve top count, set-aside stitches and decrease round"
+  },
+  {
+   "sha": "1780275",
+   "at": "2026-10-06T17:45:17.000Z",
+   "author": "Claude",
+   "msg": "Raglan: add the bottom-up version of the yoke plan"
+  },
+  {
+   "sha": "d726723",
+   "at": "2026-10-06T17:43:52.000Z",
+   "author": "Claude",
+   "msg": "Knitting time: stitches-in-all on shaped pages, tiny-value wording, layout, links"
+  },
+  {
+   "sha": "10e4d4f",
+   "at": "2026-10-06T17:12:34.000Z",
+   "author": "Claude",
+   "msg": "Add knitting time calculator: hours and days from your own timed speed"
+  },
+  {
+   "sha": "02be534",
+   "at": "2026-10-06T17:10:42.000Z",
+   "author": "Claude",
+   "msg": "Restore 10 missing home cards; test that home lists every page; circle fixes"
+  },
+  {
+   "sha": "a556cc0",
+   "at": "2026-10-06T17:07:34.000Z",
+   "author": "Claude",
+   "msg": "Add crochet circle calculator: flat circle by diameter, flatness check, yarn"
+  },
+  {
+   "sha": "b7b0ca6",
+   "at": "2026-10-06T17:05:27.000Z",
+   "author": "Claude",
+   "msg": "Stitch multiples: flag impractical shared counts, name clashing fields, looser parsing"
+  },
+  {
+   "sha": "62aca68",
+   "at": "2026-10-06T17:03:15.000Z",
+   "author": "Claude",
+   "msg": "Add stitch multiple calculator: combine pattern repeats (CRT) with tests"
+  },
+  {
+   "sha": "8b6a288",
+   "at": "2026-10-06T17:01:12.000Z",
+   "author": "Claude",
+   "msg": "Short rows: two closing rows, single pair ignores span, drop shoulder claims"
+  },
+  {
+   "sha": "d01c3c4",
+   "at": "2026-10-06T16:59:07.000Z",
+   "author": "Claude",
+   "msg": "Add short row calculator: pairs from length, evenly spaced turns"
+  },
+  {
+   "sha": "86a3ab7",
+   "at": "2026-10-06T16:56:35.000Z",
+   "author": "Claude",
+   "msg": "Pi shawl: clarify doubling vs plain rounds, allow larger cast-on, source test refs"
+  },
+  {
+   "sha": "c4cc355",
+   "at": "2026-10-06T16:54:19.000Z",
+   "author": "Claude",
+   "msg": "Add pi shawl calculator: doubling sections, flat-circle check, yarn"
+  },
+  {
+   "sha": "d3e9f1a",
+   "at": "2026-10-06T16:51:01.000Z",
+   "author": "Claude",
+   "msg": "Foundation chain: correct chain-multiple advice when the turning chain counts"
+  },
+  {
+   "sha": "50b62e7",
+   "at": "2026-10-06T16:50:00.000Z",
+   "author": "Claude",
+   "msg": "Add foundation chain calculator with turning-chain conventions and tests"
+  },
+  {
+   "sha": "e141b17",
+   "at": "2026-10-06T16:47:37.000Z",
+   "author": "Claude",
+   "msg": "C2C: clearer shift-phase wording, single-block last row, whole-block swatch hint"
+  },
+  {
+   "sha": "9c42c57",
+   "at": "2026-10-06T16:45:49.000Z",
+   "author": "Claude",
+   "msg": "Add C2C crochet calculator: blocks, diagonal-row phases and yarn"
+  },
+  {
+   "sha": "21c9c21",
+   "at": "2026-10-06T16:43:23.000Z",
+   "author": "Claude",
+   "msg": "Start v5: build the 10 next pages"
+  },
+  {
+   "sha": "49124ba",
+   "at": "2026-10-06T16:43:11.000Z",
+   "author": "Claude",
+   "msg": "Finish v4: DONE.md, retro knowledge, log, remove task.md"
+  },
+  {
+   "sha": "12ad08a",
+   "at": "2026-10-06T16:42:17.000Z",
+   "author": "Claude",
+   "msg": "Sock yarn: convert new fields for returning cm visitors, show yarn by its inputs"
+  },
+  {
+   "sha": "25a72ab",
+   "at": "2026-10-06T16:40:16.000Z",
+   "author": "Claude",
+   "msg": "Sock calculator: yarn for the pair from a weighed swatch"
+  },
+  {
+   "sha": "41c0b71",
+   "at": "2026-10-06T16:38:36.000Z",
+   "author": "Claude",
+   "msg": "Crochet hat: warn when the gauge does not suit the stitch; soften claims"
+  },
+  {
+   "sha": "0be3657",
+   "at": "2026-10-06T16:36:20.000Z",
+   "author": "Claude",
+   "msg": "Add crochet hat calculator: crown from gauge, rounds to the brim"
+  },
+  {
+   "sha": "fbd349a",
+   "at": "2026-10-06T16:32:23.000Z",
+   "author": "Claude",
+   "msg": "Button band: say the single buttonhole is centred; task notes"
+  },
+  {
+   "sha": "750baf2",
+   "at": "2026-10-06T16:30:29.000Z",
+   "author": "Claude",
+   "msg": "Add button band and buttonhole spacing calculator with tests"
+  },
+  {
+   "sha": "15b2d1a",
+   "at": "2026-10-06T16:27:18.000Z",
+   "author": "Claude",
+   "msg": "Amigurumi: mark yarn fields optional, note on oval and yarn count; fix comma"
+  }
+ ],
+ "commitCount": 109,
+ "lastCommitAt": "2026-10-06T17:52:28.000Z",
+ "history": [
+  {
+   "at": "2026-10-05T23:18:01.000Z",
+   "pages": 1,
+   "sha": "aafd8f9"
+  },
+  {
+   "at": "2026-10-05T23:20:12.000Z",
+   "pages": 1,
+   "sha": "e3cbc1e"
+  },
+  {
+   "at": "2026-10-05T23:26:22.000Z",
+   "pages": 3,
+   "sha": "bac24ea"
+  },
+  {
+   "at": "2026-10-05T23:27:15.000Z",
+   "pages": 3,
+   "sha": "5770fca"
+  },
+  {
+   "at": "2026-10-05T23:27:25.000Z",
+   "pages": 3,
+   "sha": "e034740"
+  },
+  {
+   "at": "2026-10-06T00:24:48.000Z",
+   "pages": 3,
+   "sha": "3c3c0b7"
+  },
+  {
+   "at": "2026-10-06T01:21:18.000Z",
+   "pages": 4,
+   "sha": "be4ea85"
+  },
+  {
+   "at": "2026-10-06T01:21:52.000Z",
+   "pages": 4,
+   "sha": "f8b8e86"
+  },
+  {
+   "at": "2026-10-06T03:23:35.000Z",
+   "pages": 4,
+   "sha": "6cc1a81"
+  },
+  {
+   "at": "2026-10-06T03:34:34.000Z",
+   "pages": 5,
+   "sha": "c1cda79"
+  },
+  {
+   "at": "2026-10-06T03:35:24.000Z",
+   "pages": 5,
+   "sha": "d446cf2"
+  },
+  {
+   "at": "2026-10-06T03:36:25.000Z",
+   "pages": 6,
+   "sha": "79c0d1a"
+  },
+  {
+   "at": "2026-10-06T03:37:05.000Z",
+   "pages": 6,
+   "sha": "4e2d518"
+  },
+  {
+   "at": "2026-10-06T03:38:10.000Z",
+   "pages": 7,
+   "sha": "2fa4689"
+  },
+  {
+   "at": "2026-10-06T03:39:06.000Z",
+   "pages": 7,
+   "sha": "6b12c39"
+  },
+  {
+   "at": "2026-10-06T03:40:26.000Z",
+   "pages": 8,
+   "sha": "4e2ff35"
+  },
+  {
+   "at": "2026-10-06T03:41:13.000Z",
+   "pages": 8,
+   "sha": "0026059"
+  },
+  {
+   "at": "2026-10-06T03:43:02.000Z",
+   "pages": 9,
+   "sha": "3903716"
+  },
+  {
+   "at": "2026-10-06T03:44:01.000Z",
+   "pages": 9,
+   "sha": "28b5e4c"
+  },
+  {
+   "at": "2026-10-06T03:45:13.000Z",
+   "pages": 10,
+   "sha": "c298208"
+  },
+  {
+   "at": "2026-10-06T03:45:59.000Z",
+   "pages": 10,
+   "sha": "3be8f0f"
+  },
+  {
+   "at": "2026-10-06T03:47:31.000Z",
+   "pages": 11,
+   "sha": "392e2d8"
+  },
+  {
+   "at": "2026-10-06T03:48:32.000Z",
+   "pages": 11,
+   "sha": "bfee0d6"
+  },
+  {
+   "at": "2026-10-06T03:49:55.000Z",
+   "pages": 12,
+   "sha": "26ebb7a"
+  },
+  {
+   "at": "2026-10-06T03:50:49.000Z",
+   "pages": 12,
+   "sha": "2cf1dfb"
+  },
+  {
+   "at": "2026-10-06T03:52:09.000Z",
+   "pages": 13,
+   "sha": "a5d35eb"
+  },
+  {
+   "at": "2026-10-06T03:53:02.000Z",
+   "pages": 13,
+   "sha": "5de412f"
+  },
+  {
+   "at": "2026-10-06T03:54:21.000Z",
+   "pages": 14,
+   "sha": "9a38a63"
+  },
+  {
+   "at": "2026-10-06T03:55:31.000Z",
+   "pages": 14,
+   "sha": "8c77ae7"
+  },
+  {
+   "at": "2026-10-06T03:56:15.000Z",
+   "pages": 14,
+   "sha": "286a1ae"
+  },
+  {
+   "at": "2026-10-06T03:56:45.000Z",
+   "pages": 14,
+   "sha": "e689efc"
+  },
+  {
+   "at": "2026-10-06T04:00:13.000Z",
+   "pages": 14,
+   "sha": "47611e2"
+  },
+  {
+   "at": "2026-10-06T04:32:56.000Z",
+   "pages": 14,
+   "sha": "6a8662c"
+  },
+  {
+   "at": "2026-10-06T07:34:21.000Z",
+   "pages": 14,
+   "sha": "a32647d"
+  },
+  {
+   "at": "2026-10-06T09:30:10.000Z",
+   "pages": 14,
+   "sha": "4cf94fd"
+  },
+  {
+   "at": "2026-10-06T09:35:01.000Z",
+   "pages": 15,
+   "sha": "0ff4a39"
+  },
+  {
+   "at": "2026-10-06T09:36:05.000Z",
+   "pages": 15,
+   "sha": "bfef8af"
+  },
+  {
+   "at": "2026-10-06T09:38:27.000Z",
+   "pages": 16,
+   "sha": "ea7bad8"
+  },
+  {
+   "at": "2026-10-06T09:39:36.000Z",
+   "pages": 16,
+   "sha": "e8c5ab1"
+  },
+  {
+   "at": "2026-10-06T09:40:58.000Z",
+   "pages": 16,
+   "sha": "2567c87"
+  },
+  {
+   "at": "2026-10-06T09:42:49.000Z",
+   "pages": 18,
+   "sha": "57b7b9e"
+  },
+  {
+   "at": "2026-10-06T09:43:46.000Z",
+   "pages": 18,
+   "sha": "c65d079"
+  },
+  {
+   "at": "2026-10-06T09:45:20.000Z",
+   "pages": 19,
+   "sha": "d54dda9"
+  },
+  {
+   "at": "2026-10-06T09:46:28.000Z",
+   "pages": 19,
+   "sha": "777d057"
+  },
+  {
+   "at": "2026-10-06T09:47:38.000Z",
+   "pages": 20,
+   "sha": "31d12d1"
+  },
+  {
+   "at": "2026-10-06T09:48:31.000Z",
+   "pages": 20,
+   "sha": "5b0e6d9"
+  },
+  {
+   "at": "2026-10-06T09:50:33.000Z",
+   "pages": 21,
+   "sha": "a8b7766"
+  },
+  {
+   "at": "2026-10-06T09:52:11.000Z",
+   "pages": 21,
+   "sha": "d98f1ca"
+  },
+  {
+   "at": "2026-10-06T09:53:43.000Z",
+   "pages": 22,
+   "sha": "d1b4650"
+  },
+  {
+   "at": "2026-10-06T09:54:46.000Z",
+   "pages": 22,
+   "sha": "5d9a4d0"
+  },
+  {
+   "at": "2026-10-06T09:55:56.000Z",
+   "pages": 22,
+   "sha": "507cbfa"
+  },
+  {
+   "at": "2026-10-06T15:30:29.000Z",
+   "pages": 22,
+   "sha": "93dc612"
+  },
+  {
+   "at": "2026-10-06T15:30:43.000Z",
+   "pages": 22,
+   "sha": "596f87c"
+  },
+  {
+   "at": "2026-10-06T15:34:32.000Z",
+   "pages": 23,
+   "sha": "e3ab8ac"
+  },
+  {
+   "at": "2026-10-06T15:36:32.000Z",
+   "pages": 23,
+   "sha": "d45f7dc"
+  },
+  {
+   "at": "2026-10-06T15:39:11.000Z",
+   "pages": 24,
+   "sha": "3dd8e0f"
+  },
+  {
+   "at": "2026-10-06T15:40:22.000Z",
+   "pages": 24,
+   "sha": "6aab033"
+  },
+  {
+   "at": "2026-10-06T15:42:05.000Z",
+   "pages": 25,
+   "sha": "9020303"
+  },
+  {
+   "at": "2026-10-06T15:42:38.000Z",
+   "pages": 25,
+   "sha": "5a3943b"
+  },
+  {
+   "at": "2026-10-06T15:44:19.000Z",
+   "pages": 26,
+   "sha": "09f7763"
+  },
+  {
+   "at": "2026-10-06T15:45:48.000Z",
+   "pages": 26,
+   "sha": "fd6da84"
+  },
+  {
+   "at": "2026-10-06T15:47:32.000Z",
+   "pages": 27,
+   "sha": "581f0e3"
+  },
+  {
+   "at": "2026-10-06T15:48:55.000Z",
+   "pages": 27,
+   "sha": "4492723"
+  },
+  {
+   "at": "2026-10-06T15:50:54.000Z",
+   "pages": 28,
+   "sha": "8db0b78"
+  },
+  {
+   "at": "2026-10-06T15:52:10.000Z",
+   "pages": 28,
+   "sha": "b7b5fe3"
+  },
+  {
+   "at": "2026-10-06T15:52:43.000Z",
+   "pages": 28,
+   "sha": "cd73d27"
+  },
+  {
+   "at": "2026-10-06T15:59:29.000Z",
+   "pages": 28,
+   "sha": "eea81cc"
+  },
+  {
+   "at": "2026-10-06T16:05:44.000Z",
+   "pages": 28,
+   "sha": "9488737"
+  },
+  {
+   "at": "2026-10-06T16:06:36.000Z",
+   "pages": 28,
+   "sha": "1a2d65a"
+  },
+  {
+   "at": "2026-10-06T16:09:36.000Z",
+   "pages": 29,
+   "sha": "4f7df6a"
+  },
+  {
+   "at": "2026-10-06T16:11:38.000Z",
+   "pages": 29,
+   "sha": "0a206c0"
+  },
+  {
+   "at": "2026-10-06T16:11:52.000Z",
+   "pages": 29,
+   "sha": "ef92955"
+  },
+  {
+   "at": "2026-10-06T16:12:08.000Z",
+   "pages": 29,
+   "sha": "52d2694"
+  },
+  {
+   "at": "2026-10-06T16:14:33.000Z",
+   "pages": 29,
+   "sha": "26975ad"
+  },
+  {
+   "at": "2026-10-06T16:14:30.000Z",
+   "pages": 29,
+   "sha": "11ca74f"
+  },
+  {
+   "at": "2026-10-06T16:15:38.000Z",
+   "pages": 29,
+   "sha": "9347fbe"
+  },
+  {
+   "at": "2026-10-06T16:20:09.000Z",
+   "pages": 30,
+   "sha": "21679de"
+  },
+  {
+   "at": "2026-10-06T16:22:04.000Z",
+   "pages": 30,
+   "sha": "8f2345c"
+  },
+  {
+   "at": "2026-10-06T16:25:21.000Z",
+   "pages": 31,
+   "sha": "b58c1f2"
+  },
+  {
+   "at": "2026-10-06T16:27:18.000Z",
+   "pages": 31,
+   "sha": "15b2d1a"
+  },
+  {
+   "at": "2026-10-06T16:30:29.000Z",
+   "pages": 32,
+   "sha": "750baf2"
+  },
+  {
+   "at": "2026-10-06T16:32:23.000Z",
+   "pages": 32,
+   "sha": "fbd349a"
+  },
+  {
+   "at": "2026-10-06T16:36:20.000Z",
+   "pages": 33,
+   "sha": "0be3657"
+  },
+  {
+   "at": "2026-10-06T16:38:36.000Z",
+   "pages": 33,
+   "sha": "41c0b71"
+  },
+  {
+   "at": "2026-10-06T16:40:16.000Z",
+   "pages": 33,
+   "sha": "25a72ab"
+  },
+  {
+   "at": "2026-10-06T16:42:17.000Z",
+   "pages": 33,
+   "sha": "12ad08a"
+  },
+  {
+   "at": "2026-10-06T16:43:11.000Z",
+   "pages": 33,
+   "sha": "49124ba"
+  },
+  {
+   "at": "2026-10-06T16:43:23.000Z",
+   "pages": 33,
+   "sha": "21c9c21"
+  },
+  {
+   "at": "2026-10-06T16:45:49.000Z",
+   "pages": 34,
+   "sha": "9c42c57"
+  },
+  {
+   "at": "2026-10-06T16:47:37.000Z",
+   "pages": 34,
+   "sha": "e141b17"
+  },
+  {
+   "at": "2026-10-06T16:50:00.000Z",
+   "pages": 35,
+   "sha": "50b62e7"
+  },
+  {
+   "at": "2026-10-06T16:51:01.000Z",
+   "pages": 35,
+   "sha": "d3e9f1a"
+  },
+  {
+   "at": "2026-10-06T16:54:19.000Z",
+   "pages": 36,
+   "sha": "c4cc355"
+  },
+  {
+   "at": "2026-10-06T16:56:35.000Z",
+   "pages": 36,
+   "sha": "86a3ab7"
+  },
+  {
+   "at": "2026-10-06T16:59:07.000Z",
+   "pages": 37,
+   "sha": "d01c3c4"
+  },
+  {
+   "at": "2026-10-06T17:01:12.000Z",
+   "pages": 37,
+   "sha": "8b6a288"
+  },
+  {
+   "at": "2026-10-06T17:03:15.000Z",
+   "pages": 38,
+   "sha": "62aca68"
+  },
+  {
+   "at": "2026-10-06T17:05:27.000Z",
+   "pages": 38,
+   "sha": "b7b0ca6"
+  },
+  {
+   "at": "2026-10-06T17:07:34.000Z",
+   "pages": 39,
+   "sha": "a556cc0"
+  },
+  {
+   "at": "2026-10-06T17:10:42.000Z",
+   "pages": 39,
+   "sha": "02be534"
+  },
+  {
+   "at": "2026-10-06T17:12:34.000Z",
+   "pages": 40,
+   "sha": "10e4d4f"
+  },
+  {
+   "at": "2026-10-06T17:43:52.000Z",
+   "pages": 40,
+   "sha": "d726723"
+  },
+  {
+   "at": "2026-10-06T17:45:17.000Z",
+   "pages": 40,
+   "sha": "1780275"
+  },
+  {
+   "at": "2026-10-06T17:46:57.000Z",
+   "pages": 40,
+   "sha": "23955ad"
+  },
+  {
+   "at": "2026-10-06T17:48:17.000Z",
+   "pages": 40,
+   "sha": "daf37f6"
+  },
+  {
+   "at": "2026-10-06T17:49:39.000Z",
+   "pages": 40,
+   "sha": "f1a5abe"
+  },
+  {
+   "at": "2026-10-06T17:50:21.000Z",
+   "pages": 40,
+   "sha": "5a40b9f"
+  },
+  {
+   "at": "2026-10-06T17:52:18.000Z",
+   "pages": 40,
+   "sha": "998300d"
+  },
+  {
+   "at": "2026-10-06T17:52:28.000Z",
+   "pages": 40,
+   "sha": "83f5c6d"
+  }
+ ],
+ "tests": {
+  "ok": true,
+  "browserPassed": 192,
+  "browserFailed": 0,
+  "browserSkipped": 0,
+  "unitPassed": 227,
+  "unitFailed": 0,
+  "checkProblems": 0,
+  "ranAt": "2026-10-06T21:42:57.028Z"
+ },
+ "gsc": {
+  "checkedAt": "2026-10-06T21:42:57.028Z",
+  "property": "https://yarnsums.netlify.app/",
+  "submittedAt": "2026-10-06T04:48:39.298Z",
+  "downloadedAt": "2026-10-06T04:48:40.250Z",
+  "pending": false,
+  "submitted": "14",
+  "errors": "0",
+  "warnings": "0",
+  "clicks": 0,
+  "impressions": 0,
+  "position": null,
+  "pagesSeen": 0,
+  "topQueries": [],
+  "home": {
+   "verdict": "PASS",
+   "coverage": "Submitted and indexed",
+   "lastCrawl": "2026-10-06T06:58:37Z"
+  },
+  "ok": true
+ },
+ "live": {
+  "checkedAt": "2026-10-06T21:43:06.135Z",
+  "live": true,
+  "status": 200,
+  "leaked": []
+ },
+ "collectedAt": "2026-10-06T21:43:06.135Z"
+}

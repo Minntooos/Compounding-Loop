@@ -1,0 +1,1140 @@
+{
+ "id": "proj2",
+ "repo": "https://github.com/Minntooos/proj2",
+ "domain": "clearpoolmath.netlify.app",
+ "futureDomain": "clearpoolmath.com",
+ "oneLiner": "Exact, product-aware pool and hot tub chemistry calculators: how much of *your* chemical to add to *your* water, with the reasoning shown and a simple test log.",
+ "audience": [
+  "Residential pool owners doing their own maintenance, chlorine and saltwater pools (US first: gallons, ounces, pounds; also litres, grams and kilograms)",
+  "Hot tub and spa owners (small volumes, where dosing errors matter more)",
+  "New owners who don't yet know what FC, CC, TA, CYA or LSI mean"
+ ],
+ "mustHave": [
+  "Pool volume calculator",
+  "Chemical products data in `site/data/chemicals.json`",
+  "One calculator per cluster above",
+  "LSI/CSI calculator using the standard formula (pH, temperature, calcium hardness, total alkalinity with a CYA correction, TDS)",
+  "Water replacement calculator",
+  "Recommended ranges page with a cited source per range (e.g",
+  "Test log",
+  "Hot tub calculator",
+  "Safety on every dosing page"
+ ],
+ "competitors": "Search for these by name: swimuniversity (calculator inside a content site), poolchemcalculators, waterbalancetools, poolchemtracker, poolchemicalcalculator, simplifiedpools, poolformula. Trouble Free Pool's Pool Math app is the trusted name among enthusiasts. Most web calculators handle one chemical form, ignore side effects, or don't show their working. Beat them with product-specific dosing, side effects and cited ranges.",
+ "monetization": "The owner may add affiliate links (test kits, chemicals) or ads later. Never add them yourself.",
+ "routine": {
+  "id": "trig_01JnuLdqZKsRLPQuBrisW4eZ",
+  "cron": "19 * * * *",
+  "url": "https://claude.ai/code/routines/trig_01JnuLdqZKsRLPQuBrisW4eZ"
+ },
+ "status": "finished",
+ "round": 5,
+ "roundsDone": 6,
+ "maxRounds": 5,
+ "rounds": [
+  {
+   "round": 1,
+   "finishedAt": "2026-10-06T04:59:21.000Z"
+  },
+  {
+   "round": 2,
+   "finishedAt": "2026-10-06T09:30:12.000Z"
+  },
+  {
+   "round": 3,
+   "finishedAt": "2026-10-06T15:30:26.000Z"
+  },
+  {
+   "round": 4,
+   "finishedAt": "2026-10-06T16:41:59.000Z"
+  },
+  {
+   "round": 5,
+   "finishedAt": "2026-10-06T18:31:08.000Z"
+  },
+  {
+   "round": 6,
+   "finishedAt": "2026-10-06T18:31:08.000Z"
+  }
+ ],
+ "lock": null,
+ "builder": "routine",
+ "setup": {
+  "netlify": true,
+  "address": true,
+  "gsc": true,
+  "sitemap": true
+ },
+ "run": 0,
+ "runLimit": 30,
+ "blockedText": "",
+ "doneText": "# DONE: ClearPoolMath v1 to v5\n\nCanonical host: `https://clearpoolmath.netlify.app`. The sitemap lists 42 pages plus the home page's links. Pages from v1 and v2 are in `.ai/done-v2.md`, v3 in `.ai/done-v3.md`, v4 in `.ai/done-v4.md`. v5 added:\n\n| Page | Target keyword |\n|---|---|\n| `/breakpoint-chlorination-calculator/` | breakpoint chlorination / combined chlorine (lib `breakpoint.js`) |\n| `/salt-chlorinator-output-calculator/` | salt cell output setting (lib `swg.js`) |\n| `/what-to-add-to-my-pool/` | what to add to my pool from test results (lib `today.js`) |\n| `/liquid-chlorine-vs-tablets/` | liquid chlorine vs tablets (lib `compare.js`, data `chlorine-ph.json`) |\n| `/pool-cover-savings-calculator/` | solar / pool cover savings (lib `coversave.js`, data `cover-savings.json`) |\n| `/can-you-mix-pool-chemicals/` | can you mix pool chemicals (text page, CDC and EPA sources) |\n| `/pool-leak-bucket-test-calculator/` | pool leak bucket test (lib `leak.js`) |\n\nAlso: the volume calculator now has an \"Oval with straight sides\" shape (stadium formula), so the 8 to 12% ellipse under-read has a proper alternative.\n\n## Test results\n`npm test` green at last push: 193 unit tests, 350 browser tests, check OK.\n\n## Skipped (and why)\n- Borate calculator: no primary per-ppm dosing source found, only product labels.\n- Salt cell chart by model and bromine dose: manufacturer sources unreachable or contradictory (carried from v4).\n\n## Unsure / worth a human look\n- The leak test treats a difference over 1/16 inch as a leak, and needs 6+ hours. That threshold is this site's own judgment (stated on the page), not a published standard.\n- The mixing page's facts (never mix chlorine with acid or different chlorine products; storage below 95 °F) are from the CDC pool chemical safety page and EPA-registered labels via search; WebFetch is blocked so the pages were not read in full. A human should read it once.\n- The volume calculator's straight-sided oval unit test uses the textbook stadium area (MathWorld) and matches the chart page, but has no manufacturer's gallon figure behind it.\n- Most data entries are `\"via\": \"search\"`.\n- History note: `origin/main` was force-updated by something outside this loop at the start of run 6. The older local line was kept as the local branch `backup-old-main` (not pushed).\n\n## Owner launch checklist\n1. Check Netlify serves `https://clearpoolmath.netlify.app/`.\n2. Add it to Google Search Console as a URL-prefix property and submit `/sitemap.xml`.\n3. Buy clearpoolmath.com when there is budget, then tell the loop to switch the canonical host.\n\n## 10 best next pages\n1. Pool pump size / flow rate calculator (turnover and head loss, needs a verified source).\n2. Pool water balance for hot weather: chlorine loss vs sun and temperature, if a cited source appears.\n3. Salt cell chart and bromine dose, once manufacturer sources are reachable.\n4. Borate calculator, if a primary dosing source is found.\n5. Pool heat-up time calculator (BTU, volume, rise in °F; extends the heater page).\n6. Saltwater pool vs chlorine pool running cost comparison (reuses `runcost.js`).\n7. Pool shock schedule: how often to shock by season and use (cited).\n8. Cloudy pool water causes and fix, a diagnostic page linking each dose tool.\n9. Hot tub chemical calculator by dose (bromine and chlorine), if sources agree.\n10. Above ground pool liner size calculator (liner types and overlaps, needs maker sources).\n",
+ "currentState": [],
+ "decisions": [],
+ "tried": [],
+ "confirmed": [],
+ "pages": [
+  {
+   "url": "/",
+   "title": "Pool Chemical Calculator: Exact Doses for Your Pool",
+   "h1": "Pool Chemical Calculator: Exact Doses for Your Own Pool",
+   "words": 1050
+  },
+  {
+   "url": "/alkalinity-calculator/",
+   "title": "Alkalinity Calculator: Baking Soda or Acid to Adjust Pool TA",
+   "h1": "Alkalinity Calculator: Baking Soda or Acid to Adjust Pool TA",
+   "words": 736
+  },
+  {
+   "url": "/baking-soda-vs-soda-ash-vs-borax/",
+   "title": "Baking Soda vs Soda Ash vs Borax in a Pool: What Raises What",
+   "h1": "Baking Soda vs Soda Ash vs Borax in a Pool: What Raises What",
+   "words": 619
+  },
+  {
+   "url": "/breakpoint-chlorination-calculator/",
+   "title": "Breakpoint Chlorination Calculator: Combined Chlorine",
+   "h1": "Breakpoint Chlorination Calculator: Combined Chlorine",
+   "words": 782
+  },
+  {
+   "url": "/calcium-hardness-calculator/",
+   "title": "Calcium Hardness Calculator: How Much Calcium Chloride",
+   "h1": "Calcium Hardness Calculator: How Much Calcium Chloride",
+   "words": 613
+  },
+  {
+   "url": "/can-you-mix-pool-chemicals/",
+   "title": "Can You Mix Pool Chemicals? Mixing and Storage Safety",
+   "h1": "Can You Mix Pool Chemicals? Mixing and Storage Safety",
+   "words": 855
+  },
+  {
+   "url": "/chlorine-calculator/",
+   "title": "Chlorine Calculator: How Much Chlorine to Add to Your Pool",
+   "h1": "Chlorine Calculator: How Much Chlorine to Add to Your Pool",
+   "words": 762
+  },
+  {
+   "url": "/chlorine-cya-chart/",
+   "title": "Chlorine to CYA Ratio Chart: Free Chlorine by CYA Level",
+   "h1": "Chlorine to CYA Ratio Chart: Free Chlorine by CYA Level",
+   "words": 756
+  },
+  {
+   "url": "/daily-chlorine-calculator/",
+   "title": "Daily Chlorine Calculator: How Much to Add Each Day",
+   "h1": "Daily Chlorine Calculator: How Much to Add Each Day",
+   "words": 841
+  },
+  {
+   "url": "/green-pool-slam-guide/",
+   "title": "Green Pool Fix: SLAM Steps and When to Stop",
+   "h1": "Green Pool Fix: SLAM Steps and When to Stop",
+   "words": 829
+  },
+  {
+   "url": "/hot-tub-calculator/",
+   "title": "Hot Tub Chlorine Calculator: Dose in Teaspoons or Grams",
+   "h1": "Hot Tub Chlorine Calculator: Dose in Teaspoons or Grams",
+   "words": 652
+  },
+  {
+   "url": "/hot-tub-water-change-schedule/",
+   "title": "Hot Tub Water Change Schedule: Days Between Drains",
+   "h1": "Hot Tub Water Change Schedule: Days Between Drains",
+   "words": 576
+  },
+  {
+   "url": "/liquid-chlorine-vs-tablets/",
+   "title": "Liquid Chlorine vs Tablets vs Shock: Compared",
+   "h1": "Liquid Chlorine vs Tablets vs Shock: Compared",
+   "words": 813
+  },
+  {
+   "url": "/lower-cyanuric-acid/",
+   "title": "How to Lower Cyanuric Acid in a Pool: Water to Replace",
+   "h1": "How to Lower Cyanuric Acid in a Pool: Options and Water to Replace",
+   "words": 762
+  },
+  {
+   "url": "/lsi-calculator/",
+   "title": "LSI Calculator: Langelier Saturation Index for Pools",
+   "h1": "LSI Calculator: Langelier Saturation Index for Pools",
+   "words": 677
+  },
+  {
+   "url": "/ph-calculator/",
+   "title": "Pool pH Calculator: Muriatic Acid or Soda Ash Dose",
+   "h1": "Pool pH Calculator: Muriatic Acid or Soda Ash Dose",
+   "words": 700
+  },
+  {
+   "url": "/phosphate-remover-calculator/",
+   "title": "Phosphate Remover Calculator: Pool Phosphate Levels",
+   "h1": "Phosphate Remover Calculator: Pool Phosphate Levels",
+   "words": 769
+  },
+  {
+   "url": "/pool-chemistry-levels/",
+   "title": "Ideal Pool Chemistry Levels Chart With Sources",
+   "h1": "Ideal Pool Chemistry Levels Chart With Sources",
+   "words": 833
+  },
+  {
+   "url": "/pool-closing-checklist/",
+   "title": "Pool Closing Checklist: When and How to Winterize",
+   "h1": "Pool Closing Checklist: When and How to Winterize",
+   "words": 953
+  },
+  {
+   "url": "/pool-cover-savings-calculator/",
+   "title": "Pool Cover Savings Calculator: Heat and Water",
+   "h1": "Pool Cover Savings Calculator: Heat and Water",
+   "words": 825
+  },
+  {
+   "url": "/pool-cover-size-calculator/",
+   "title": "Pool Cover Size Calculator: Winter Cover Overlap",
+   "h1": "Pool Cover Size Calculator: Winter Cover Overlap",
+   "words": 943
+  },
+  {
+   "url": "/pool-filter-pressure-guide/",
+   "title": "Pool Filter Pressure: When to Backwash or Clean",
+   "h1": "Pool Filter Pressure: When to Backwash or Clean",
+   "words": 928
+  },
+  {
+   "url": "/pool-filter-size-calculator/",
+   "title": "Pool Filter Size Calculator: Sand, Cartridge and DE",
+   "h1": "Pool Filter Size Calculator: Sand, Cartridge and DE",
+   "words": 875
+  },
+  {
+   "url": "/pool-gallons-chart/",
+   "title": "Pool Gallons Chart: Round, Oval and Rectangle Sizes",
+   "h1": "Pool Gallons Chart: Round, Oval and Rectangle Sizes",
+   "words": 746
+  },
+  {
+   "url": "/pool-heater-calculator/",
+   "title": "Pool Heater Calculator: BTU Size and Heat-Up Time",
+   "h1": "Pool Heater Calculator: BTU Size and Heat-Up Time",
+   "words": 753
+  },
+  {
+   "url": "/pool-leak-bucket-test-calculator/",
+   "title": "Pool Leak Bucket Test Calculator: Leak or Evaporation?",
+   "h1": "Pool Leak Bucket Test Calculator: Leak or Evaporation?",
+   "words": 723
+  },
+  {
+   "url": "/pool-opening-checklist/",
+   "title": "Pool Opening Checklist: Chemical Order and Doses",
+   "h1": "Pool Opening Checklist: Chemical Order and Doses",
+   "words": 956
+  },
+  {
+   "url": "/pool-running-cost-calculator/",
+   "title": "Pool Running Cost Calculator: Cost Per Month",
+   "h1": "Pool Running Cost Calculator: Cost Per Month",
+   "words": 767
+  },
+  {
+   "url": "/pool-tds-calculator/",
+   "title": "Pool TDS Calculator: When to Drain and Replace",
+   "h1": "Pool TDS Calculator: When to Drain and Replace",
+   "words": 788
+  },
+  {
+   "url": "/pool-volume-calculator/",
+   "title": "Pool Volume Calculator: How Many Gallons Is My Pool?",
+   "h1": "Pool Volume Calculator: How Many Gallons Is My Pool?",
+   "words": 801
+  },
+  {
+   "url": "/pool-water-top-up-calculator/",
+   "title": "Pool Water Top-Up Calculator: Gallons to Add and Hose Fill Time",
+   "h1": "Pool Water Top-Up Calculator: Gallons to Add and Hose Fill Time",
+   "words": 723
+  },
+  {
+   "url": "/pump-run-time-calculator/",
+   "title": "Pool Pump Run Time Calculator: Turnover Time and Hours Per Day",
+   "h1": "Pool Pump Run Time Calculator: Turnover Time and Hours Per Day",
+   "words": 809
+  },
+  {
+   "url": "/salt-calculator/",
+   "title": "Pool Salt Calculator: How Much Salt to Add to a Pool",
+   "h1": "Pool Salt Calculator: How Much Salt to Add to a Pool",
+   "words": 670
+  },
+  {
+   "url": "/salt-chlorinator-output-calculator/",
+   "title": "Salt Chlorinator Output Calculator: % Setting",
+   "h1": "Salt Chlorinator Output Calculator: % Setting",
+   "words": 880
+  },
+  {
+   "url": "/salt-pool-ph-keeps-rising/",
+   "title": "Why Salt Pool pH Keeps Rising and How Much Acid It Takes",
+   "h1": "Why Salt Pool pH Keeps Rising and How Much Acid It Takes",
+   "words": 669
+  },
+  {
+   "url": "/shock-calculator/",
+   "title": "Pool Shock Calculator: How Much Shock to Add by CYA Level",
+   "h1": "Pool Shock Calculator: How Much Shock to Add by CYA Level",
+   "words": 795
+  },
+  {
+   "url": "/stabilizer-calculator/",
+   "title": "Cyanuric Acid Calculator: How Much Pool Stabilizer to Add",
+   "h1": "Cyanuric Acid Calculator: How Much Pool Stabilizer to Add",
+   "words": 607
+  },
+  {
+   "url": "/test-log/",
+   "title": "Pool Test Log: Track Your Water Readings Privately",
+   "h1": "Pool Test Log: Track Your Water Readings Privately",
+   "words": 540
+  },
+  {
+   "url": "/water-replacement-calculator/",
+   "title": "Partial Drain Calculator: Lower CYA, Salt or Calcium",
+   "h1": "Partial Drain Calculator: Lower CYA, Salt or Calcium by Water Replacement",
+   "words": 696
+  },
+  {
+   "url": "/what-to-add-to-my-pool/",
+   "title": "What to Add to My Pool: All Test Results at Once",
+   "h1": "What to Add to My Pool: All Test Results at Once",
+   "words": 810
+  }
+ ],
+ "planned": [
+  {
+   "keywords": "pool chemical calculator, pool calculator",
+   "urls": [
+    "/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "pool volume calculator, how many gallons is my pool",
+   "urls": [
+    "/pool-volume-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "how much chlorine to add to pool, chlorine calculator",
+   "urls": [
+    "/chlorine-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "pool shock calculator, how much shock for pool",
+   "urls": [
+    "/shock-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "how to lower / raise pH in pool, muriatic acid calculator",
+   "urls": [
+    "/ph-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "how to raise / lower alkalinity, baking soda for pool calculator",
+   "urls": [
+    "/alkalinity-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "cyanuric acid calculator, pool stabilizer calculator",
+   "urls": [
+    "/stabilizer-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "how to lower cyanuric acid, partial drain calculator",
+   "urls": [
+    "/water-replacement-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "chlorine to cya ratio, fc cya chart",
+   "urls": [
+    "/chlorine-cya-chart/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "pool salt calculator, how much salt for saltwater pool",
+   "urls": [
+    "/salt-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "calcium hardness calculator, raise calcium in pool",
+   "urls": [
+    "/calcium-hardness-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "lsi calculator, langelier saturation index pool, csi calculator",
+   "urls": [
+    "/lsi-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "hot tub chemical calculator, how much chlorine in hot tub",
+   "urls": [
+    "/hot-tub-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "ideal pool chemistry levels, pool chemistry chart",
+   "urls": [
+    "/pool-chemistry-levels/"
+   ],
+   "built": true
+  }
+ ],
+ "plannedCount": 14,
+ "builtPlannedCount": 14,
+ "sitemapCount": 40,
+ "libs": [
+  "alkalinity.js",
+  "amendments.js",
+  "breakpoint.js",
+  "calcium.js",
+  "closing.js",
+  "compare.js",
+  "cover.js",
+  "coversave.js",
+  "cyatrend.js",
+  "dailycl.js",
+  "dilution.js",
+  "dosing.js",
+  "fccya.js",
+  "fill.js",
+  "filter.js",
+  "gallons.js",
+  "heater.js",
+  "leak.js",
+  "lsi.js",
+  "ph.js",
+  "phdrift.js",
+  "phosphate.js",
+  "pressure.js",
+  "runcost.js",
+  "salt.js",
+  "slam.js",
+  "spa.js",
+  "stabilizer.js",
+  "swg.js",
+  "tds.js",
+  "testlog.js",
+  "today.js",
+  "turnover.js",
+  "volume.js"
+ ],
+ "unitTestCount": 193,
+ "browserTestCount": 136,
+ "data": [
+  {
+   "file": "chemicals.json",
+   "entries": 7,
+   "searchVerified": 15
+  },
+  {
+   "file": "chlorine-ph.json",
+   "entries": 3,
+   "searchVerified": 3
+  },
+  {
+   "file": "cover-savings.json",
+   "entries": 4,
+   "searchVerified": 3
+  },
+  {
+   "file": "covers.json",
+   "entries": 2,
+   "searchVerified": 2
+  },
+  {
+   "file": "filters.json",
+   "entries": 3,
+   "searchVerified": 3
+  },
+  {
+   "file": "phosphate.json",
+   "entries": 3,
+   "searchVerified": 3
+  },
+  {
+   "file": "pressure.json",
+   "entries": 2,
+   "searchVerified": 2
+  },
+  {
+   "file": "ranges.json",
+   "entries": 7,
+   "searchVerified": 11
+  }
+ ],
+ "commits": [
+  {
+   "sha": "ec5adac",
+   "at": "2026-10-06T21:41:25.000Z",
+   "author": "Minntooos",
+   "msg": "Volume page: shorten meta description to 145 chars so npm run check passes"
+  },
+  {
+   "sha": "726cca7",
+   "at": "2026-10-06T18:31:08.000Z",
+   "author": "Claude",
+   "msg": "v5 done: DONE.md, handoff files"
+  },
+  {
+   "sha": "0613449",
+   "at": "2026-10-06T18:30:51.000Z",
+   "author": "Claude",
+   "msg": "Volume page: mention straight-sided oval in description"
+  },
+  {
+   "sha": "b1156f4",
+   "at": "2026-10-06T18:30:23.000Z",
+   "author": "Claude",
+   "msg": "Volume calculator: add straight-sided oval shape (stadium formula)"
+  },
+  {
+   "sha": "ce7047c",
+   "at": "2026-10-06T18:27:22.000Z",
+   "author": "Claude",
+   "msg": "Update handoff"
+  },
+  {
+   "sha": "88b3748",
+   "at": "2026-10-06T18:27:22.000Z",
+   "author": "Claude",
+   "msg": "Leak calculator: require 6+ hour tests, soften evaporation verdict"
+  },
+  {
+   "sha": "cf5cfb6",
+   "at": "2026-10-06T18:25:49.000Z",
+   "author": "Claude",
+   "msg": "Add pool leak bucket test calculator (leak vs evaporation, gallons per day)"
+  },
+  {
+   "sha": "278ace8",
+   "at": "2026-10-06T18:23:47.000Z",
+   "author": "Claude",
+   "msg": "Mixing page: cite EPA report, say call 911, update handoff"
+  },
+  {
+   "sha": "c40d964",
+   "at": "2026-10-06T18:22:30.000Z",
+   "author": "Claude",
+   "msg": "Add can-you-mix-pool-chemicals safety page (CDC guidance, EPA label rules)"
+  },
+  {
+   "sha": "3066d14",
+   "at": "2026-10-06T17:13:58.000Z",
+   "author": "Claude",
+   "msg": "Add pool cover savings calculator (DOE heating and water figures, evaporation heat)"
+  },
+  {
+   "sha": "0509879",
+   "at": "2026-10-06T17:08:24.000Z",
+   "author": "Claude",
+   "msg": "Add liquid chlorine vs tablets comparison (amount, CYA, calcium, cost)"
+  },
+  {
+   "sha": "0a57b6c",
+   "at": "2026-10-06T17:00:57.000Z",
+   "author": "Claude",
+   "msg": "Add 'what to add to my pool' planner: all readings to ordered doses"
+  },
+  {
+   "sha": "34a7aad",
+   "at": "2026-10-06T16:52:22.000Z",
+   "author": "Claude",
+   "msg": "Add salt chlorinator output calculator (% setting from daily use and cell rating)"
+  },
+  {
+   "sha": "358ebe2",
+   "at": "2026-10-06T16:46:57.000Z",
+   "author": "Claude",
+   "msg": "Add breakpoint chlorination calculator (10 x combined chlorine)"
+  },
+  {
+   "sha": "bb13fbb",
+   "at": "2026-10-06T16:41:59.000Z",
+   "author": "Claude",
+   "msg": "Start v5: move v4 DONE.md to .ai/done-v4.md, new task file"
+  },
+  {
+   "sha": "3bb2c4a",
+   "at": "2026-10-06T16:41:49.000Z",
+   "author": "Claude",
+   "msg": "v4 done: DONE.md, log, retro knowledge entries"
+  },
+  {
+   "sha": "1c0400f",
+   "at": "2026-10-06T16:40:59.000Z",
+   "author": "Claude",
+   "msg": "Add phosphate remover calculator (Orenda PR-10,000 label chart, cited targets)"
+  },
+  {
+   "sha": "82a4c81",
+   "at": "2026-10-06T16:35:59.000Z",
+   "author": "Claude",
+   "msg": "Add pool gallons chart (round, straight-sided oval, rectangle); stop volume page overwriting a saved volume on load"
+  },
+  {
+   "sha": "ba8d174",
+   "at": "2026-10-06T16:26:29.000Z",
+   "author": "Claude",
+   "msg": "Add pool filter pressure guide with backwash/clean checker"
+  },
+  {
+   "sha": "4bf1397",
+   "at": "2026-10-06T16:21:41.000Z",
+   "author": "Claude",
+   "msg": "Add daily chlorine calculator (measured loss, dose per day, days to minimum)"
+  },
+  {
+   "sha": "2aa31c0",
+   "at": "2026-10-06T16:16:04.000Z",
+   "author": "Claude",
+   "msg": "Add pool closing checklist with close-temperature check and climate steps"
+  },
+  {
+   "sha": "c84782a",
+   "at": "2026-10-06T16:14:29.000Z",
+   "author": "Minntooos",
+   "msg": "Hold the routine while the credit session runs (lock expires 90 min after 2026-10-06T16:14:25Z)"
+  },
+  {
+   "sha": "fc6253f",
+   "at": "2026-10-06T16:11:11.000Z",
+   "author": "Claude",
+   "msg": "Add pool cover size calculator (winter cover overlap, fit check)"
+  },
+  {
+   "sha": "47d098f",
+   "at": "2026-10-06T15:30:41.000Z",
+   "author": "Claude",
+   "msg": "Add task for the next round"
+  },
+  {
+   "sha": "f8be9b8",
+   "at": "2026-10-06T15:30:26.000Z",
+   "author": "Claude",
+   "msg": "Start v4: build the 10 next pages"
+  },
+  {
+   "sha": "83fca6f",
+   "at": "2026-10-06T13:27:27.000Z",
+   "author": "Claude",
+   "msg": "v3 done: DONE.md, log, retro"
+  },
+  {
+   "sha": "1f06900",
+   "at": "2026-10-06T13:26:21.000Z",
+   "author": "Claude",
+   "msg": "Filter page: guard stale saved select, finer rate display"
+  },
+  {
+   "sha": "7941341",
+   "at": "2026-10-06T13:25:01.000Z",
+   "author": "Claude",
+   "msg": "Add pool filter size calculator (sand, cartridge, DE design rates)"
+  },
+  {
+   "sha": "be01c8f",
+   "at": "2026-10-06T10:44:38.000Z",
+   "author": "Claude",
+   "msg": "Add hot tub water change schedule calculator"
+  },
+  {
+   "sha": "9c7400f",
+   "at": "2026-10-06T10:39:54.000Z",
+   "author": "Claude",
+   "msg": "Add salt pool pH rise guide with weekly acid budget"
+  }
+ ],
+ "commitCount": 83,
+ "lastCommitAt": "2026-10-06T21:41:25.000Z",
+ "history": [
+  {
+   "at": "2026-10-05T23:17:58.000Z",
+   "pages": 1,
+   "sha": "ecfa3c5"
+  },
+  {
+   "at": "2026-10-05T23:20:09.000Z",
+   "pages": 1,
+   "sha": "3ad3c04"
+  },
+  {
+   "at": "2026-10-05T23:25:58.000Z",
+   "pages": 2,
+   "sha": "19fbc9f"
+  },
+  {
+   "at": "2026-10-05T23:26:37.000Z",
+   "pages": 2,
+   "sha": "e341c2c"
+  },
+  {
+   "at": "2026-10-06T00:24:23.000Z",
+   "pages": 2,
+   "sha": "4092f01"
+  },
+  {
+   "at": "2026-10-06T00:45:52.000Z",
+   "pages": 3,
+   "sha": "a28998f"
+  },
+  {
+   "at": "2026-10-06T00:46:20.000Z",
+   "pages": 3,
+   "sha": "55bdbb1"
+  },
+  {
+   "at": "2026-10-06T03:22:38.000Z",
+   "pages": 4,
+   "sha": "41f30aa"
+  },
+  {
+   "at": "2026-10-06T03:23:32.000Z",
+   "pages": 4,
+   "sha": "a515ecb"
+  },
+  {
+   "at": "2026-10-06T03:25:14.000Z",
+   "pages": 5,
+   "sha": "57de788"
+  },
+  {
+   "at": "2026-10-06T03:26:06.000Z",
+   "pages": 5,
+   "sha": "2224236"
+  },
+  {
+   "at": "2026-10-06T03:27:39.000Z",
+   "pages": 6,
+   "sha": "5a54c34"
+  },
+  {
+   "at": "2026-10-06T03:28:18.000Z",
+   "pages": 6,
+   "sha": "15b8297"
+  },
+  {
+   "at": "2026-10-06T03:29:43.000Z",
+   "pages": 7,
+   "sha": "237989d"
+  },
+  {
+   "at": "2026-10-06T03:30:27.000Z",
+   "pages": 7,
+   "sha": "b53d025"
+  },
+  {
+   "at": "2026-10-06T03:32:40.000Z",
+   "pages": 8,
+   "sha": "35d9680"
+  },
+  {
+   "at": "2026-10-06T03:33:20.000Z",
+   "pages": 8,
+   "sha": "de56cb3"
+  },
+  {
+   "at": "2026-10-06T03:33:48.000Z",
+   "pages": 8,
+   "sha": "fc95f29"
+  },
+  {
+   "at": "2026-10-06T03:34:27.000Z",
+   "pages": 8,
+   "sha": "541cb3f"
+  },
+  {
+   "at": "2026-10-06T03:35:39.000Z",
+   "pages": 9,
+   "sha": "c238949"
+  },
+  {
+   "at": "2026-10-06T03:36:40.000Z",
+   "pages": 9,
+   "sha": "3ba8621"
+  },
+  {
+   "at": "2026-10-06T03:38:00.000Z",
+   "pages": 10,
+   "sha": "dbb3ccf"
+  },
+  {
+   "at": "2026-10-06T03:38:59.000Z",
+   "pages": 10,
+   "sha": "83dc1b3"
+  },
+  {
+   "at": "2026-10-06T03:40:52.000Z",
+   "pages": 11,
+   "sha": "ac4a1be"
+  },
+  {
+   "at": "2026-10-06T03:41:55.000Z",
+   "pages": 11,
+   "sha": "97b2bc0"
+  },
+  {
+   "at": "2026-10-06T03:43:14.000Z",
+   "pages": 12,
+   "sha": "3898683"
+  },
+  {
+   "at": "2026-10-06T03:44:15.000Z",
+   "pages": 12,
+   "sha": "f93c00f"
+  },
+  {
+   "at": "2026-10-06T03:46:15.000Z",
+   "pages": 13,
+   "sha": "3c16deb"
+  },
+  {
+   "at": "2026-10-06T03:47:48.000Z",
+   "pages": 13,
+   "sha": "ae00af3"
+  },
+  {
+   "at": "2026-10-06T03:48:01.000Z",
+   "pages": 13,
+   "sha": "e0904eb"
+  },
+  {
+   "at": "2026-10-06T03:56:12.000Z",
+   "pages": 13,
+   "sha": "1ef820e"
+  },
+  {
+   "at": "2026-10-06T04:22:26.000Z",
+   "pages": 14,
+   "sha": "599ee73"
+  },
+  {
+   "at": "2026-10-06T04:23:30.000Z",
+   "pages": 14,
+   "sha": "742dbfd"
+  },
+  {
+   "at": "2026-10-06T04:25:13.000Z",
+   "pages": 15,
+   "sha": "96ed297"
+  },
+  {
+   "at": "2026-10-06T04:26:23.000Z",
+   "pages": 15,
+   "sha": "87d8df1"
+  },
+  {
+   "at": "2026-10-06T04:29:05.000Z",
+   "pages": 15,
+   "sha": "bc90cdc"
+  },
+  {
+   "at": "2026-10-06T04:59:21.000Z",
+   "pages": 15,
+   "sha": "ef0158a"
+  },
+  {
+   "at": "2026-10-06T08:21:49.000Z",
+   "pages": 16,
+   "sha": "5182a88"
+  },
+  {
+   "at": "2026-10-06T08:23:16.000Z",
+   "pages": 16,
+   "sha": "81bc41f"
+  },
+  {
+   "at": "2026-10-06T08:24:52.000Z",
+   "pages": 17,
+   "sha": "c7e9e2f"
+  },
+  {
+   "at": "2026-10-06T08:25:18.000Z",
+   "pages": 17,
+   "sha": "d342189"
+  },
+  {
+   "at": "2026-10-06T08:27:00.000Z",
+   "pages": 18,
+   "sha": "c6b2e9e"
+  },
+  {
+   "at": "2026-10-06T08:28:03.000Z",
+   "pages": 18,
+   "sha": "9d62f73"
+  },
+  {
+   "at": "2026-10-06T08:30:31.000Z",
+   "pages": 19,
+   "sha": "b722898"
+  },
+  {
+   "at": "2026-10-06T08:31:38.000Z",
+   "pages": 19,
+   "sha": "f1cbcbd"
+  },
+  {
+   "at": "2026-10-06T08:33:30.000Z",
+   "pages": 20,
+   "sha": "7445432"
+  },
+  {
+   "at": "2026-10-06T08:34:43.000Z",
+   "pages": 20,
+   "sha": "e277c87"
+  },
+  {
+   "at": "2026-10-06T08:35:22.000Z",
+   "pages": 20,
+   "sha": "f4ab8b1"
+  },
+  {
+   "at": "2026-10-06T09:30:12.000Z",
+   "pages": 20,
+   "sha": "37d7516"
+  },
+  {
+   "at": "2026-10-06T10:23:55.000Z",
+   "pages": 21,
+   "sha": "9813fc8"
+  },
+  {
+   "at": "2026-10-06T10:28:02.000Z",
+   "pages": 22,
+   "sha": "ec2d9fe"
+  },
+  {
+   "at": "2026-10-06T10:32:18.000Z",
+   "pages": 23,
+   "sha": "f092a9e"
+  },
+  {
+   "at": "2026-10-06T10:36:18.000Z",
+   "pages": 24,
+   "sha": "d5915ee"
+  },
+  {
+   "at": "2026-10-06T10:39:54.000Z",
+   "pages": 25,
+   "sha": "9c7400f"
+  },
+  {
+   "at": "2026-10-06T10:44:38.000Z",
+   "pages": 26,
+   "sha": "be01c8f"
+  },
+  {
+   "at": "2026-10-06T13:25:01.000Z",
+   "pages": 27,
+   "sha": "7941341"
+  },
+  {
+   "at": "2026-10-06T13:26:21.000Z",
+   "pages": 27,
+   "sha": "1f06900"
+  },
+  {
+   "at": "2026-10-06T13:27:27.000Z",
+   "pages": 27,
+   "sha": "83fca6f"
+  },
+  {
+   "at": "2026-10-06T15:30:26.000Z",
+   "pages": 27,
+   "sha": "f8be9b8"
+  },
+  {
+   "at": "2026-10-06T15:30:41.000Z",
+   "pages": 27,
+   "sha": "47d098f"
+  },
+  {
+   "at": "2026-10-06T16:11:11.000Z",
+   "pages": 28,
+   "sha": "fc6253f"
+  },
+  {
+   "at": "2026-10-06T16:14:29.000Z",
+   "pages": 28,
+   "sha": "c84782a"
+  },
+  {
+   "at": "2026-10-06T16:16:04.000Z",
+   "pages": 29,
+   "sha": "2aa31c0"
+  },
+  {
+   "at": "2026-10-06T16:21:41.000Z",
+   "pages": 30,
+   "sha": "4bf1397"
+  },
+  {
+   "at": "2026-10-06T16:26:29.000Z",
+   "pages": 31,
+   "sha": "ba8d174"
+  },
+  {
+   "at": "2026-10-06T16:35:59.000Z",
+   "pages": 32,
+   "sha": "82a4c81"
+  },
+  {
+   "at": "2026-10-06T16:40:59.000Z",
+   "pages": 33,
+   "sha": "1c0400f"
+  },
+  {
+   "at": "2026-10-06T16:41:49.000Z",
+   "pages": 33,
+   "sha": "3bb2c4a"
+  },
+  {
+   "at": "2026-10-06T16:41:59.000Z",
+   "pages": 33,
+   "sha": "bb13fbb"
+  },
+  {
+   "at": "2026-10-06T16:46:57.000Z",
+   "pages": 34,
+   "sha": "358ebe2"
+  },
+  {
+   "at": "2026-10-06T16:52:22.000Z",
+   "pages": 35,
+   "sha": "34a7aad"
+  },
+  {
+   "at": "2026-10-06T17:00:57.000Z",
+   "pages": 36,
+   "sha": "0a57b6c"
+  },
+  {
+   "at": "2026-10-06T17:08:24.000Z",
+   "pages": 37,
+   "sha": "0509879"
+  },
+  {
+   "at": "2026-10-06T17:13:58.000Z",
+   "pages": 38,
+   "sha": "3066d14"
+  },
+  {
+   "at": "2026-10-06T18:22:30.000Z",
+   "pages": 39,
+   "sha": "c40d964"
+  },
+  {
+   "at": "2026-10-06T18:23:47.000Z",
+   "pages": 39,
+   "sha": "278ace8"
+  },
+  {
+   "at": "2026-10-06T18:25:49.000Z",
+   "pages": 40,
+   "sha": "cf5cfb6"
+  },
+  {
+   "at": "2026-10-06T18:27:22.000Z",
+   "pages": 40,
+   "sha": "88b3748"
+  },
+  {
+   "at": "2026-10-06T18:27:22.000Z",
+   "pages": 40,
+   "sha": "ce7047c"
+  },
+  {
+   "at": "2026-10-06T18:30:23.000Z",
+   "pages": 40,
+   "sha": "b1156f4"
+  },
+  {
+   "at": "2026-10-06T18:30:51.000Z",
+   "pages": 40,
+   "sha": "0613449"
+  },
+  {
+   "at": "2026-10-06T18:31:08.000Z",
+   "pages": 40,
+   "sha": "726cca7"
+  },
+  {
+   "at": "2026-10-06T21:41:25.000Z",
+   "pages": 40,
+   "sha": "ec5adac"
+  }
+ ],
+ "tests": {
+  "ok": true,
+  "browserPassed": 350,
+  "browserFailed": 0,
+  "browserSkipped": 0,
+  "unitPassed": 193,
+  "unitFailed": 0,
+  "checkProblems": 0,
+  "ranAt": "2026-10-06T21:42:27.420Z"
+ },
+ "gsc": {
+  "checkedAt": "2026-10-06T21:42:27.420Z",
+  "property": "https://clearpoolmath.netlify.app/",
+  "submittedAt": "2026-10-06T04:48:39.109Z",
+  "downloadedAt": "2026-10-06T04:48:40.323Z",
+  "pending": false,
+  "submitted": "15",
+  "errors": "0",
+  "warnings": "0",
+  "clicks": 0,
+  "impressions": 0,
+  "position": null,
+  "pagesSeen": 0,
+  "topQueries": [],
+  "home": {
+   "verdict": "PASS",
+   "coverage": "Submitted and indexed",
+   "lastCrawl": "2026-10-06T06:35:35Z"
+  },
+  "ok": true
+ },
+ "live": {
+  "checkedAt": "2026-10-06T21:42:36.707Z",
+  "live": true,
+  "status": 200,
+  "leaked": []
+ },
+ "collectedAt": "2026-10-06T21:42:36.707Z"
+}

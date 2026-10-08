@@ -1,0 +1,1122 @@
+{
+ "id": "proj4",
+ "repo": "https://github.com/Minntooos/proj4",
+ "domain": "quiltcalculators.netlify.app",
+ "futureDomain": "quiltcalculators.com",
+ "oneLiner": "Every quilting calculation in one trustworthy place: backing, binding, batting, borders, half-square triangles and other units, setting triangles, yardage and precuts, with cutting diagrams and fractional-inch answers.",
+ "audience": [
+  "Quilters, mostly in the US, often older and on tablets or desktops, who think in inches and eighths, not decimals",
+  "Beginners who need to know how much fabric to buy before going to the shop",
+  "Experienced quilters who want quick, reliable math for a new layout"
+ ],
+ "mustHave": [
+  "Fraction-aware math",
+  "Backing calculator",
+  "Binding calculator",
+  "Batting calculator",
+  "Border calculator",
+  "HST, QST and flying geese calculators",
+  "Setting triangles calculator for on-point layouts",
+  "Quilt size chart",
+  "Precut calculator",
+  "Layout calculator",
+  "Every result has a printable cutting list."
+ ],
+ "competitors": "Search for these by name: quiltersparadiseesc's calculators, bindingcalculatorquilt, fabricmathtools, quiltcalculator.com, Omni Calculator's quilting tools. Typical gaps are one tool per site, decimals instead of fractions, no diagrams and no printable cutting list. Beat them on completeness, fractions and diagrams.",
+ "monetization": "The owner may add ads or fabric/notion affiliate links later. Never add them yourself.",
+ "routine": {
+  "id": "trig_014K7NNEUy3qBovKD1xPuRE4",
+  "cron": "43 * * * *",
+  "url": "https://claude.ai/code/routines/trig_014K7NNEUy3qBovKD1xPuRE4"
+ },
+ "status": "finished",
+ "round": 5,
+ "roundsDone": 5,
+ "maxRounds": 5,
+ "rounds": [
+  {
+   "round": 1,
+   "finishedAt": "2026-10-06T04:59:32.000Z"
+  },
+  {
+   "round": 2,
+   "finishedAt": "2026-10-06T09:30:14.000Z"
+  },
+  {
+   "round": 3,
+   "finishedAt": "2026-10-06T15:30:31.000Z"
+  },
+  {
+   "round": 4,
+   "finishedAt": "2026-10-06T16:23:33.000Z"
+  },
+  {
+   "round": 5,
+   "finishedAt": "2026-10-06T17:12:15.000Z"
+  }
+ ],
+ "lock": null,
+ "builder": "routine",
+ "setup": {
+  "netlify": true,
+  "address": true,
+  "gsc": true,
+  "sitemap": true
+ },
+ "run": 0,
+ "runLimit": 30,
+ "blockedText": "",
+ "doneText": "# DONE: quiltcalculators.com v1 to v5\n\nFinished 2026-10-06 (v5 in one cloud session, 10 runs of the v5 task). `npm test` passes: `npm run check` OK (43 pages), 282 unit tests (0 failing) and 170 browser tests (every page on laptop and phone, plus a feature test per tool). Every v5 diff was checked by a reviewer subagent that did not write it, and its blockers were fixed before each push to `main`.\n\n## What was built\n\n### v1 to v4 (details in `.ai/done-v1.md` to `.ai/done-v4.md`)\nHome page plus backing, binding, batting, border, half square triangle, quarter square triangle, flying geese, setting triangles, fabric yardage, quilt size chart, precut, quilt layout, hexagon, log cabin, sashing, fabric by size, fat quarter, backing by size, Dresden plate, square in a square and conversion chart pages (v1, v2); binding by size, batting by size, pinwheel, quilt cost and hexagon quilt size chart (v3); hourglass, border by size, charm pack quilt size, nine patch, sashing by size, fabric shrinkage and batting types (v4).\n\n### v5 (new)\n| Page | Target keyword | What it does |\n|---|---|---|\n| `/baby-quilt-calculator/` | baby quilt calculator, baby quilt size | Backing, batting package and binding for stroller, play mat and crib quilts or any baby size, with a safe-sleep note |\n| `/rail-fence-quilt-calculator/` | rail fence quilt calculator | Strip sets, blocks per set and yardage per fabric, with a zigzag preview |\n| `/courthouse-steps-quilt-calculator/` | courthouse steps quilt calculator | Every log in sewing order, yardage of both fabrics, block diagram |\n| `/bargello-quilt-calculator/` | bargello quilt calculator | Tube method: quilt size, tubes, rings to slice and fabric, with a wave preview |\n| `/disappearing-nine-patch-calculator/` | disappearing nine patch calculator | Block size rule (3S − 2), quilt size, charm packs or yardage per fabric, block diagram |\n| `/jelly-roll-race-calculator/` | jelly roll race quilt size | Top size from strips, strip length and folds; size table for 20 to 80 strips |\n| `/quilting-thread-calculator/` | how much thread to quilt a quilt | Top and bobbin thread by size and density (Superior Threads' table), spools to buy |\n| `/triangle-quilt-calculator/` | triangle quilt calculator, 60 degree triangles | Strip width, triangles per strip, rows, yardage for one or two fabrics, preview |\n| `/kaleidoscope-quilt-calculator/` | kaleidoscope quilt block calculator | 45 degree wedges, corner squares, yardage, block diagram |\n\nAlso changed: nav, home cards, sitemap (now 43 pages) and cross-links from related pages.\n\n**Fix to a published page:** `/setting-triangles-calculator/` said a 3 × 3 on-point top holds 9 blocks. It holds 13 (an area check proves it: 18 block areas = 13 blocks + 8 half-block side triangles + 4 quarter-block corners). The page now takes blocks across and down, gives the right block count for square and rectangular layouts (item 10 of the v4 list, merged here rather than a near-duplicate page) and keeps the same URL. The triangle cut sizes were always right.\n\n## Items from the v4 list not built as their own page\n- **Quilt label** (half of item 7): dropped; a label has no calculation or data, so the page would be thin. The thread half was built.\n- **Rectangular on-point setting triangles** (item 10): merged into the setting triangles page (same search intent).\n- **Toddler quilt size** (part of item 1): no two reputable sources agreed, so it is not listed; the baby calculator takes any custom size.\n\n## Things I was unsure of\n- Baby sizes come from one quilting retailer guide (Linda's), with the crib size also on the Missouri Star chart. The safe-sleep note cites WebMD's summary of the AAP advice, not the AAP site itself.\n- Thread figures are Superior Threads' own averages \"from experience\"; real use varies with design and stitch length, and the page says so.\n- Kaleidoscope strip widths follow the Creative Grids 45 degree ruler (height + 1/2\"); another ruler or template may differ, and the page says to use its own strip width.\n- The jelly roll race assumes about 40 inches added per strip (40 strips ≈ 1,600\"), as in the sources; the visitor can change it. `site/data/precuts.json` still has no typical jelly roll count, although the Missouri Star race guide says 40.\n- Bargello yardage assumes each fabric appears once in the tube.\n- All sources were read through search results (fetching most sites is blocked in the sandbox), so each was checked against the quoted text only.\n\n## Owner's launch checklist\n1. Check that the Netlify site serves https://quiltcalculators.netlify.app.\n2. Add that address to Google Search Console as a URL-prefix property and submit `/sitemap.xml` (resubmit: it now lists 43 pages).\n3. Buy quiltcalculators.com when there is budget (then add 301 redirects; only the owner changes the canonical host).\n\n## 10 best next pages (no search volumes were measured; ranked by likely demand and weak competition)\n1. Sawtooth / Ohio star block calculator (combines the flying geese, QST and HST libs into whole star blocks)\n2. Snowball block calculator (corner squares sewn and flipped; plain geometry)\n3. Half rectangle triangle calculator (needs one verified cut-size source)\n4. Pillowcase calculator (burrito method; needs a source for the standard cut sizes)\n5. Table runner and placemat calculator (size, backing, binding for small projects)\n6. Longarm quilting cost calculator (price per square inch; needs typical rates from two sources)\n7. Full quilt planner combining the tools (IDEA.md nice-to-have)\n8. Metric-first mode for UK, EU and Australian quilters (IDEA.md nice-to-have; a site-wide option, not a page)\n9. Toddler, twin XL and California king rows on the size chart (each needs two agreeing sources)\n10. Drunkard's path calculator (needs a template or ruler source for the curve sizes)\n",
+ "currentState": [],
+ "decisions": [],
+ "tried": [],
+ "confirmed": [],
+ "pages": [
+  {
+   "url": "/",
+   "title": "Quilt Calculator: Free Quilting Calculators",
+   "h1": "Quilt Calculator: every quilting calculation in one place",
+   "words": 880
+  },
+  {
+   "url": "/baby-quilt-calculator/",
+   "title": "Baby Quilt Calculator: Backing, Batting and Binding by Size",
+   "h1": "Baby Quilt Calculator",
+   "words": 970
+  },
+  {
+   "url": "/bargello-quilt-calculator/",
+   "title": "Bargello Quilt Calculator: Tubes, Columns and Fabric",
+   "h1": "Bargello Quilt Calculator",
+   "words": 947
+  },
+  {
+   "url": "/batting-calculator/",
+   "title": "Batting Calculator: Quilt Batting Sizes",
+   "h1": "Batting Calculator",
+   "words": 596
+  },
+  {
+   "url": "/charm-pack-quilt-size/",
+   "title": "Charm Pack and Layer Cake Quilt Size: How Many Packs?",
+   "h1": "Charm Pack and Layer Cake Quilt Size: How Many Packs?",
+   "words": 1026
+  },
+  {
+   "url": "/courthouse-steps-quilt-calculator/",
+   "title": "Courthouse Steps Quilt Calculator: Log Sizes and Yardage",
+   "h1": "Courthouse Steps Quilt Calculator",
+   "words": 964
+  },
+  {
+   "url": "/disappearing-nine-patch-calculator/",
+   "title": "Disappearing Nine Patch Calculator: Block and Quilt Size",
+   "h1": "Disappearing Nine Patch Calculator",
+   "words": 919
+  },
+  {
+   "url": "/dresden-plate-calculator/",
+   "title": "Dresden Plate Calculator: Wedge Size and Fabric",
+   "h1": "Dresden Plate Calculator",
+   "words": 751
+  },
+  {
+   "url": "/fabric-shrinkage-calculator/",
+   "title": "Fabric Shrinkage Calculator: How Much Extra to Buy",
+   "h1": "Fabric Shrinkage Calculator",
+   "words": 667
+  },
+  {
+   "url": "/fabric-yardage-calculator/",
+   "title": "Fabric Yardage Calculator for Quilts: Top, Backing, Binding",
+   "h1": "Fabric Yardage Calculator for Quilts",
+   "words": 629
+  },
+  {
+   "url": "/fat-quarter-calculator/",
+   "title": "Fat Quarter Calculator: Fat Quarters to Yards",
+   "h1": "Fat Quarter Calculator",
+   "words": 652
+  },
+  {
+   "url": "/flying-geese-calculator/",
+   "title": "Flying Geese Calculator: No-Waste Cut Sizes and Yardage",
+   "h1": "Flying Geese Calculator",
+   "words": 683
+  },
+  {
+   "url": "/half-square-triangle-calculator/",
+   "title": "Half Square Triangle Calculator: HST Cut Sizes and Yardage",
+   "h1": "Half Square Triangle Calculator",
+   "words": 762
+  },
+  {
+   "url": "/hexagon-calculator/",
+   "title": "Hexagon Calculator: EPP Hexagon Sizes and Fabric",
+   "h1": "Hexagon Calculator for Quilting and EPP",
+   "words": 825
+  },
+  {
+   "url": "/hexagon-quilt-size-chart/",
+   "title": "Hexagon Quilt Size Chart: How Many Hexagons for Each Quilt Size",
+   "h1": "Hexagon Quilt Size Chart: How Many Hexagons You Need",
+   "words": 838
+  },
+  {
+   "url": "/hourglass-quilt-calculator/",
+   "title": "Hourglass Quilt Calculator: Quilt Size, Squares, Yardage",
+   "h1": "Hourglass Quilt Calculator",
+   "words": 803
+  },
+  {
+   "url": "/how-much-fabric-for-a-quilt/",
+   "title": "How Much Fabric for a Quilt, by Size",
+   "h1": "How Much Fabric for a Quilt, by Size",
+   "words": 926
+  },
+  {
+   "url": "/jelly-roll-race-calculator/",
+   "title": "Jelly Roll Race Calculator: Quilt Size from Strips and Folds",
+   "h1": "Jelly Roll Race Calculator",
+   "words": 860
+  },
+  {
+   "url": "/kaleidoscope-quilt-calculator/",
+   "title": "Kaleidoscope Quilt Calculator: Wedges, Corners and Yardage",
+   "h1": "Kaleidoscope Quilt Calculator",
+   "words": 892
+  },
+  {
+   "url": "/log-cabin-quilt-calculator/",
+   "title": "Log Cabin Quilt Calculator: Strips and Yardage",
+   "h1": "Log Cabin Quilt Calculator",
+   "words": 767
+  },
+  {
+   "url": "/nine-patch-quilt-calculator/",
+   "title": "Nine Patch Quilt Calculator: Strips, Blocks and Yardage",
+   "h1": "Nine Patch Quilt Calculator",
+   "words": 818
+  },
+  {
+   "url": "/pinwheel-quilt-calculator/",
+   "title": "Pinwheel Quilt Calculator: Quilt Size, Squares and Yardage",
+   "h1": "Pinwheel Quilt Calculator",
+   "words": 654
+  },
+  {
+   "url": "/precut-calculator/",
+   "title": "Precut Calculator: Charm Packs, Layer Cakes, Jelly Rolls",
+   "h1": "Precut Calculator: Charm Packs, Layer Cakes and Jelly Rolls",
+   "words": 814
+  },
+  {
+   "url": "/quarter-square-triangle-calculator/",
+   "title": "Quarter Square Triangle Calculator: QST Cut Sizes",
+   "h1": "Quarter Square Triangle Calculator",
+   "words": 674
+  },
+  {
+   "url": "/quilt-backing-by-size/",
+   "title": "Quilt Backing by Size: Queen, King, Twin Yardage",
+   "h1": "Quilt Backing by Size: Yardage on Regular and Wide-Back Fabric",
+   "words": 991
+  },
+  {
+   "url": "/quilt-backing-calculator/",
+   "title": "Quilt Backing Calculator: Yards of Fabric Needed",
+   "h1": "Quilt Backing Calculator",
+   "words": 742
+  },
+  {
+   "url": "/quilt-batting-by-size/",
+   "title": "Quilt Batting by Size: Package or Roll for Every Quilt",
+   "h1": "Quilt Batting by Size: Which Package or How Many Yards",
+   "words": 834
+  },
+  {
+   "url": "/quilt-batting-types/",
+   "title": "Quilt Batting Types: Cotton, Polyester, Wool and Blends Compared",
+   "h1": "Quilt Batting Types: Cotton, Polyester, Wool and Blends Compared",
+   "words": 565
+  },
+  {
+   "url": "/quilt-binding-by-size/",
+   "title": "Quilt Binding by Size: Strips and Yardage for Every Quilt",
+   "h1": "Quilt Binding by Size: Strips and Yardage",
+   "words": 767
+  },
+  {
+   "url": "/quilt-binding-calculator/",
+   "title": "Quilt Binding Calculator: Strips and Yardage",
+   "h1": "Quilt Binding Calculator",
+   "words": 675
+  },
+  {
+   "url": "/quilt-border-by-size/",
+   "title": "Quilt Border by Size: Strips and Yardage for Every Quilt",
+   "h1": "Quilt Border by Size: Strips and Yardage",
+   "words": 928
+  },
+  {
+   "url": "/quilt-border-calculator/",
+   "title": "Quilt Border Calculator: Strip Lengths and Yardage",
+   "h1": "Quilt Border Calculator",
+   "words": 795
+  },
+  {
+   "url": "/quilt-cost-calculator/",
+   "title": "Quilt Cost Calculator: Total Cost and Cost per Square Foot",
+   "h1": "Quilt Cost Calculator",
+   "words": 718
+  },
+  {
+   "url": "/quilt-layout-calculator/",
+   "title": "Quilt Layout Calculator: Block Size, Sashing and Quilt Size",
+   "h1": "Quilt Layout Calculator",
+   "words": 729
+  },
+  {
+   "url": "/quilt-sashing-by-size/",
+   "title": "Quilt Sashing by Size: Blocks and Yardage for Every Quilt",
+   "h1": "Quilt Sashing by Size: Blocks and Yardage",
+   "words": 1068
+  },
+  {
+   "url": "/quilt-sashing-calculator/",
+   "title": "Quilt Sashing Calculator with Cornerstones",
+   "h1": "Quilt Sashing Calculator with Cornerstones",
+   "words": 689
+  },
+  {
+   "url": "/quilt-size-chart/",
+   "title": "Quilt Size Chart: Standard Quilt Sizes Crib to King",
+   "h1": "Quilt Size Chart: Standard Quilt Sizes",
+   "words": 699
+  },
+  {
+   "url": "/quilting-conversion-chart/",
+   "title": "Quilting Conversion Chart: Inches to cm, Yards to Metres",
+   "h1": "Quilting Conversion Chart and Calculator: Inches, cm, Yards and Metres",
+   "words": 617
+  },
+  {
+   "url": "/quilting-thread-calculator/",
+   "title": "Quilting Thread Calculator: How Much Thread to Quilt a Quilt",
+   "h1": "Quilting Thread Calculator",
+   "words": 829
+  },
+  {
+   "url": "/rail-fence-quilt-calculator/",
+   "title": "Rail Fence Quilt Calculator: Strip Sets, Blocks and Yardage",
+   "h1": "Rail Fence Quilt Calculator",
+   "words": 902
+  },
+  {
+   "url": "/setting-triangles-calculator/",
+   "title": "Setting Triangles Calculator for On-Point Quilts",
+   "h1": "Setting Triangles Calculator for On-Point Quilts",
+   "words": 935
+  },
+  {
+   "url": "/square-in-a-square-calculator/",
+   "title": "Square in a Square Calculator: Cut Sizes",
+   "h1": "Square in a Square Calculator",
+   "words": 695
+  },
+  {
+   "url": "/triangle-quilt-calculator/",
+   "title": "Triangle Quilt Calculator: 60 Degree Triangles and Yardage",
+   "h1": "Triangle Quilt Calculator",
+   "words": 863
+  }
+ ],
+ "planned": [
+  {
+   "keywords": "quilt calculator, quilting calculator",
+   "urls": [
+    "/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "quilt backing calculator, how much fabric for quilt backing",
+   "urls": [
+    "/quilt-backing-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "quilt binding calculator, how much binding do i need",
+   "urls": [
+    "/quilt-binding-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "batting calculator, quilt batting sizes",
+   "urls": [
+    "/batting-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "quilt border calculator",
+   "urls": [
+    "/quilt-border-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "half square triangle calculator, hst calculator",
+   "urls": [
+    "/half-square-triangle-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "quarter square triangle calculator",
+   "urls": [
+    "/quarter-square-triangle-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "flying geese calculator",
+   "urls": [
+    "/flying-geese-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "setting triangles calculator, on point quilt calculator",
+   "urls": [
+    "/setting-triangles-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "fabric yardage calculator quilting, how much fabric do i need for a quilt",
+   "urls": [
+    "/fabric-yardage-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "quilt size chart, standard quilt sizes",
+   "urls": [
+    "/quilt-size-chart/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "jelly roll / charm pack / layer cake / fat quarter calculator",
+   "urls": [
+    "/precut-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "quilt block size calculator, how many blocks for a quilt",
+   "urls": [
+    "/quilt-layout-calculator/"
+   ],
+   "built": true
+  }
+ ],
+ "plannedCount": 13,
+ "builtPlannedCount": 13,
+ "sitemapCount": 43,
+ "libs": [
+  "babyquilt.js",
+  "backing.js",
+  "backingsizes.js",
+  "bargello.js",
+  "batting.js",
+  "battingsizes.js",
+  "binding.js",
+  "bindingsizes.js",
+  "border.js",
+  "bordersizes.js",
+  "convert.js",
+  "cost.js",
+  "courthouse.js",
+  "disappearing9.js",
+  "dresden.js",
+  "fabricsizes.js",
+  "fatquarter.js",
+  "fractions.js",
+  "geese.js",
+  "hexagon.js",
+  "hexagonsizes.js",
+  "hourglass.js",
+  "hst.js",
+  "jellyrollrace.js",
+  "kaleidoscope.js",
+  "layout.js",
+  "logcabin.js",
+  "ninepatch.js",
+  "pinwheel.js",
+  "precut.js",
+  "precutsizes.js",
+  "qst.js",
+  "railfence.js",
+  "sashing.js",
+  "sashingsizes.js",
+  "setting.js",
+  "shrinkage.js",
+  "sizechart.js",
+  "squareinsquare.js",
+  "thread.js",
+  "triangle.js",
+  "yardage.js"
+ ],
+ "unitTestCount": 282,
+ "browserTestCount": 43,
+ "data": [
+  {
+   "file": "baby-quilt-sizes.json",
+   "entries": 3,
+   "searchVerified": 3
+  },
+  {
+   "file": "batting-types.json",
+   "entries": 5,
+   "searchVerified": 5
+  },
+  {
+   "file": "batting.json",
+   "entries": 23,
+   "searchVerified": 24
+  },
+  {
+   "file": "precuts.json",
+   "entries": 7,
+   "searchVerified": 7
+  },
+  {
+   "file": "quilt-sizes.json",
+   "entries": 7,
+   "searchVerified": 7
+  },
+  {
+   "file": "references.json",
+   "entries": 13,
+   "searchVerified": 13
+  },
+  {
+   "file": "thread-use.json",
+   "entries": 4,
+   "searchVerified": 7
+  }
+ ],
+ "commits": [
+  {
+   "sha": "4f17620",
+   "at": "2026-10-06T17:12:15.000Z",
+   "author": "Claude",
+   "msg": "DONE.md: v5 complete; retro log and knowledge; release the session lock"
+  },
+  {
+   "sha": "0876aef",
+   "at": "2026-10-06T17:11:17.000Z",
+   "author": "Claude",
+   "msg": "Setting triangles: rectangular on-point layouts, fix block count"
+  },
+  {
+   "sha": "463209e",
+   "at": "2026-10-06T17:06:23.000Z",
+   "author": "Claude",
+   "msg": "Add kaleidoscope quilt calculator"
+  },
+  {
+   "sha": "a5c6869",
+   "at": "2026-10-06T17:01:26.000Z",
+   "author": "Claude",
+   "msg": "Add triangle quilt calculator"
+  },
+  {
+   "sha": "3f1b7d6",
+   "at": "2026-10-06T16:56:02.000Z",
+   "author": "Claude",
+   "msg": "Add quilting thread calculator"
+  },
+  {
+   "sha": "72ca74e",
+   "at": "2026-10-06T16:52:19.000Z",
+   "author": "Claude",
+   "msg": "Add jelly roll race calculator"
+  },
+  {
+   "sha": "16b6f04",
+   "at": "2026-10-06T16:48:13.000Z",
+   "author": "Claude",
+   "msg": "Add disappearing nine patch calculator"
+  },
+  {
+   "sha": "aa85681",
+   "at": "2026-10-06T16:43:32.000Z",
+   "author": "Claude",
+   "msg": "Add bargello quilt calculator"
+  },
+  {
+   "sha": "609fcce",
+   "at": "2026-10-06T16:39:13.000Z",
+   "author": "Claude",
+   "msg": "Add courthouse steps quilt calculator"
+  },
+  {
+   "sha": "6ce2995",
+   "at": "2026-10-06T16:35:15.000Z",
+   "author": "Claude",
+   "msg": "Add rail fence quilt calculator"
+  },
+  {
+   "sha": "c79aec1",
+   "at": "2026-10-06T16:31:28.000Z",
+   "author": "Claude",
+   "msg": "Add baby quilt calculator"
+  },
+  {
+   "sha": "77fd4bd",
+   "at": "2026-10-06T16:25:37.000Z",
+   "author": "Claude",
+   "msg": "Credit session: take the lock"
+  },
+  {
+   "sha": "c9478df",
+   "at": "2026-10-06T16:23:33.000Z",
+   "author": "Claude",
+   "msg": "Start v5: build the 10 next pages"
+  },
+  {
+   "sha": "dc20987",
+   "at": "2026-10-06T16:03:23.000Z",
+   "author": "Claude",
+   "msg": "DONE.md: v4 complete; retro log; remove task.md"
+  },
+  {
+   "sha": "948d6a3",
+   "at": "2026-10-06T16:03:02.000Z",
+   "author": "Claude",
+   "msg": "Add quilt batting types guide"
+  },
+  {
+   "sha": "50feb41",
+   "at": "2026-10-06T16:00:10.000Z",
+   "author": "Claude",
+   "msg": "Add fabric shrinkage calculator"
+  },
+  {
+   "sha": "9056bea",
+   "at": "2026-10-06T15:56:48.000Z",
+   "author": "Claude",
+   "msg": "Add quilt sashing by size page"
+  },
+  {
+   "sha": "4d106b1",
+   "at": "2026-10-06T15:53:56.000Z",
+   "author": "Claude",
+   "msg": "Add nine patch quilt calculator"
+  },
+  {
+   "sha": "b426412",
+   "at": "2026-10-06T15:50:16.000Z",
+   "author": "Claude",
+   "msg": "Add charm pack and layer cake quilt size page"
+  },
+  {
+   "sha": "c1218b2",
+   "at": "2026-10-06T15:47:17.000Z",
+   "author": "Claude",
+   "msg": "Add quilt border by size page"
+  },
+  {
+   "sha": "d12888f",
+   "at": "2026-10-06T15:37:30.000Z",
+   "author": "Minntooos",
+   "msg": "Add hourglass quilt calculator"
+  },
+  {
+   "sha": "ca54ac3",
+   "at": "2026-10-06T15:30:45.000Z",
+   "author": "Claude",
+   "msg": "Add task for the next round"
+  },
+  {
+   "sha": "a408c67",
+   "at": "2026-10-06T15:30:31.000Z",
+   "author": "Claude",
+   "msg": "Start v4: build the 10 next pages"
+  },
+  {
+   "sha": "e63393d",
+   "at": "2026-10-06T09:57:39.000Z",
+   "author": "Claude",
+   "msg": "DONE.md: v3 complete; retro log; remove task.md"
+  },
+  {
+   "sha": "c253e2e",
+   "at": "2026-10-06T09:56:06.000Z",
+   "author": "Claude",
+   "msg": "Add hexagon quilt size chart"
+  },
+  {
+   "sha": "990a722",
+   "at": "2026-10-06T09:54:50.000Z",
+   "author": "Claude",
+   "msg": "Cost calculator: format yards, clearer price note"
+  },
+  {
+   "sha": "6c5673f",
+   "at": "2026-10-06T09:53:55.000Z",
+   "author": "Claude",
+   "msg": "Add quilt cost calculator"
+  },
+  {
+   "sha": "a9ac5e6",
+   "at": "2026-10-06T09:51:43.000Z",
+   "author": "Claude",
+   "msg": "Add pinwheel quilt calculator"
+  },
+  {
+   "sha": "7f825f9",
+   "at": "2026-10-06T09:50:20.000Z",
+   "author": "Claude",
+   "msg": "Batting by size: soften unsourced wording"
+  },
+  {
+   "sha": "050d8c5",
+   "at": "2026-10-06T09:49:13.000Z",
+   "author": "Claude",
+   "msg": "Add quilt batting by size page"
+  }
+ ],
+ "commitCount": 77,
+ "lastCommitAt": "2026-10-06T17:12:15.000Z",
+ "history": [
+  {
+   "at": "2026-10-05T23:18:03.000Z",
+   "pages": 1,
+   "sha": "854085d"
+  },
+  {
+   "at": "2026-10-05T23:20:15.000Z",
+   "pages": 1,
+   "sha": "23217d8"
+  },
+  {
+   "at": "2026-10-05T23:27:14.000Z",
+   "pages": 2,
+   "sha": "8c46dd9"
+  },
+  {
+   "at": "2026-10-05T23:28:35.000Z",
+   "pages": 3,
+   "sha": "52cdba2"
+  },
+  {
+   "at": "2026-10-05T23:30:51.000Z",
+   "pages": 4,
+   "sha": "05ea951"
+  },
+  {
+   "at": "2026-10-06T00:24:57.000Z",
+   "pages": 4,
+   "sha": "62e6411"
+  },
+  {
+   "at": "2026-10-06T01:57:39.000Z",
+   "pages": 5,
+   "sha": "6626e51"
+  },
+  {
+   "at": "2026-10-06T01:58:15.000Z",
+   "pages": 5,
+   "sha": "82fd024"
+  },
+  {
+   "at": "2026-10-06T03:24:50.000Z",
+   "pages": 5,
+   "sha": "72240af"
+  },
+  {
+   "at": "2026-10-06T03:45:26.000Z",
+   "pages": 6,
+   "sha": "6c48723"
+  },
+  {
+   "at": "2026-10-06T03:46:59.000Z",
+   "pages": 7,
+   "sha": "da936d4"
+  },
+  {
+   "at": "2026-10-06T03:48:22.000Z",
+   "pages": 8,
+   "sha": "4fb1ae5"
+  },
+  {
+   "at": "2026-10-06T03:50:32.000Z",
+   "pages": 9,
+   "sha": "d34db6d"
+  },
+  {
+   "at": "2026-10-06T03:52:23.000Z",
+   "pages": 9,
+   "sha": "e7d408d"
+  },
+  {
+   "at": "2026-10-06T03:54:14.000Z",
+   "pages": 10,
+   "sha": "454a1fc"
+  },
+  {
+   "at": "2026-10-06T03:55:23.000Z",
+   "pages": 10,
+   "sha": "0c0dae8"
+  },
+  {
+   "at": "2026-10-06T03:57:15.000Z",
+   "pages": 11,
+   "sha": "32cdcff"
+  },
+  {
+   "at": "2026-10-06T03:58:08.000Z",
+   "pages": 11,
+   "sha": "e092075"
+  },
+  {
+   "at": "2026-10-06T03:59:26.000Z",
+   "pages": 12,
+   "sha": "a170c4d"
+  },
+  {
+   "at": "2026-10-06T04:00:19.000Z",
+   "pages": 12,
+   "sha": "7f80702"
+  },
+  {
+   "at": "2026-10-06T04:01:33.000Z",
+   "pages": 13,
+   "sha": "3f6f06e"
+  },
+  {
+   "at": "2026-10-06T04:02:26.000Z",
+   "pages": 13,
+   "sha": "3acb55f"
+  },
+  {
+   "at": "2026-10-06T04:02:45.000Z",
+   "pages": 13,
+   "sha": "4752d5e"
+  },
+  {
+   "at": "2026-10-06T04:38:31.000Z",
+   "pages": 13,
+   "sha": "92dc52d"
+  },
+  {
+   "at": "2026-10-06T04:59:32.000Z",
+   "pages": 13,
+   "sha": "2131e0e"
+  },
+  {
+   "at": "2026-10-06T07:47:47.000Z",
+   "pages": 14,
+   "sha": "05017e4"
+  },
+  {
+   "at": "2026-10-06T07:48:42.000Z",
+   "pages": 14,
+   "sha": "5fd87a6"
+  },
+  {
+   "at": "2026-10-06T07:50:54.000Z",
+   "pages": 15,
+   "sha": "f8b8714"
+  },
+  {
+   "at": "2026-10-06T07:52:25.000Z",
+   "pages": 15,
+   "sha": "08732d4"
+  },
+  {
+   "at": "2026-10-06T07:55:35.000Z",
+   "pages": 16,
+   "sha": "4819636"
+  },
+  {
+   "at": "2026-10-06T07:56:37.000Z",
+   "pages": 16,
+   "sha": "6b6d7ed"
+  },
+  {
+   "at": "2026-10-06T07:58:33.000Z",
+   "pages": 17,
+   "sha": "bb9334b"
+  },
+  {
+   "at": "2026-10-06T07:59:33.000Z",
+   "pages": 17,
+   "sha": "73b2747"
+  },
+  {
+   "at": "2026-10-06T08:01:03.000Z",
+   "pages": 18,
+   "sha": "7832e65"
+  },
+  {
+   "at": "2026-10-06T08:01:59.000Z",
+   "pages": 18,
+   "sha": "1fca3f4"
+  },
+  {
+   "at": "2026-10-06T08:03:43.000Z",
+   "pages": 19,
+   "sha": "dce01a0"
+  },
+  {
+   "at": "2026-10-06T08:04:47.000Z",
+   "pages": 19,
+   "sha": "7d9d063"
+  },
+  {
+   "at": "2026-10-06T08:06:28.000Z",
+   "pages": 20,
+   "sha": "30074a3"
+  },
+  {
+   "at": "2026-10-06T08:07:41.000Z",
+   "pages": 20,
+   "sha": "c2296f4"
+  },
+  {
+   "at": "2026-10-06T08:09:26.000Z",
+   "pages": 21,
+   "sha": "e7dab4d"
+  },
+  {
+   "at": "2026-10-06T08:10:08.000Z",
+   "pages": 21,
+   "sha": "a0ba6ab"
+  },
+  {
+   "at": "2026-10-06T08:12:09.000Z",
+   "pages": 22,
+   "sha": "a016d7d"
+  },
+  {
+   "at": "2026-10-06T08:13:35.000Z",
+   "pages": 22,
+   "sha": "196df5c"
+  },
+  {
+   "at": "2026-10-06T08:14:20.000Z",
+   "pages": 22,
+   "sha": "f9cb963"
+  },
+  {
+   "at": "2026-10-06T09:30:14.000Z",
+   "pages": 22,
+   "sha": "9fd0ad5"
+  },
+  {
+   "at": "2026-10-06T09:45:05.000Z",
+   "pages": 23,
+   "sha": "88770dd"
+  },
+  {
+   "at": "2026-10-06T09:46:19.000Z",
+   "pages": 23,
+   "sha": "e585199"
+  },
+  {
+   "at": "2026-10-06T09:49:13.000Z",
+   "pages": 24,
+   "sha": "050d8c5"
+  },
+  {
+   "at": "2026-10-06T09:50:20.000Z",
+   "pages": 24,
+   "sha": "7f825f9"
+  },
+  {
+   "at": "2026-10-06T09:51:43.000Z",
+   "pages": 25,
+   "sha": "a9ac5e6"
+  },
+  {
+   "at": "2026-10-06T09:53:55.000Z",
+   "pages": 26,
+   "sha": "6c5673f"
+  },
+  {
+   "at": "2026-10-06T09:54:50.000Z",
+   "pages": 26,
+   "sha": "990a722"
+  },
+  {
+   "at": "2026-10-06T09:56:06.000Z",
+   "pages": 27,
+   "sha": "c253e2e"
+  },
+  {
+   "at": "2026-10-06T09:57:39.000Z",
+   "pages": 27,
+   "sha": "e63393d"
+  },
+  {
+   "at": "2026-10-06T15:30:31.000Z",
+   "pages": 27,
+   "sha": "a408c67"
+  },
+  {
+   "at": "2026-10-06T15:30:45.000Z",
+   "pages": 27,
+   "sha": "ca54ac3"
+  },
+  {
+   "at": "2026-10-06T15:37:30.000Z",
+   "pages": 28,
+   "sha": "d12888f"
+  },
+  {
+   "at": "2026-10-06T15:47:17.000Z",
+   "pages": 29,
+   "sha": "c1218b2"
+  },
+  {
+   "at": "2026-10-06T15:50:16.000Z",
+   "pages": 30,
+   "sha": "b426412"
+  },
+  {
+   "at": "2026-10-06T15:53:56.000Z",
+   "pages": 31,
+   "sha": "4d106b1"
+  },
+  {
+   "at": "2026-10-06T15:56:48.000Z",
+   "pages": 32,
+   "sha": "9056bea"
+  },
+  {
+   "at": "2026-10-06T16:00:10.000Z",
+   "pages": 33,
+   "sha": "50feb41"
+  },
+  {
+   "at": "2026-10-06T16:03:02.000Z",
+   "pages": 34,
+   "sha": "948d6a3"
+  },
+  {
+   "at": "2026-10-06T16:03:23.000Z",
+   "pages": 34,
+   "sha": "dc20987"
+  },
+  {
+   "at": "2026-10-06T16:23:33.000Z",
+   "pages": 34,
+   "sha": "c9478df"
+  },
+  {
+   "at": "2026-10-06T16:25:37.000Z",
+   "pages": 34,
+   "sha": "77fd4bd"
+  },
+  {
+   "at": "2026-10-06T16:31:28.000Z",
+   "pages": 35,
+   "sha": "c79aec1"
+  },
+  {
+   "at": "2026-10-06T16:35:15.000Z",
+   "pages": 36,
+   "sha": "6ce2995"
+  },
+  {
+   "at": "2026-10-06T16:39:13.000Z",
+   "pages": 37,
+   "sha": "609fcce"
+  },
+  {
+   "at": "2026-10-06T16:43:32.000Z",
+   "pages": 38,
+   "sha": "aa85681"
+  },
+  {
+   "at": "2026-10-06T16:48:13.000Z",
+   "pages": 39,
+   "sha": "16b6f04"
+  },
+  {
+   "at": "2026-10-06T16:52:19.000Z",
+   "pages": 40,
+   "sha": "72ca74e"
+  },
+  {
+   "at": "2026-10-06T16:56:02.000Z",
+   "pages": 41,
+   "sha": "3f1b7d6"
+  },
+  {
+   "at": "2026-10-06T17:01:26.000Z",
+   "pages": 42,
+   "sha": "a5c6869"
+  },
+  {
+   "at": "2026-10-06T17:06:23.000Z",
+   "pages": 43,
+   "sha": "463209e"
+  },
+  {
+   "at": "2026-10-06T17:11:17.000Z",
+   "pages": 43,
+   "sha": "0876aef"
+  },
+  {
+   "at": "2026-10-06T17:12:15.000Z",
+   "pages": 43,
+   "sha": "4f17620"
+  }
+ ],
+ "tests": {
+  "ok": true,
+  "browserPassed": 170,
+  "browserFailed": 0,
+  "browserSkipped": 0,
+  "unitPassed": 282,
+  "unitFailed": 0,
+  "checkProblems": 0,
+  "ranAt": "2026-10-06T21:43:23.963Z"
+ },
+ "gsc": {
+  "checkedAt": "2026-10-06T21:43:23.963Z",
+  "property": "https://quiltcalculators.netlify.app/",
+  "submittedAt": "2026-10-06T04:48:39.463Z",
+  "downloadedAt": "2026-10-06T05:15:22.704Z",
+  "pending": false,
+  "submitted": "13",
+  "errors": "0",
+  "warnings": "0",
+  "clicks": 0,
+  "impressions": 0,
+  "position": null,
+  "pagesSeen": 0,
+  "topQueries": [],
+  "home": {
+   "verdict": "PASS",
+   "coverage": "Submitted and indexed",
+   "lastCrawl": "2026-10-06T06:45:21Z"
+  },
+  "ok": true
+ },
+ "live": {
+  "checkedAt": "2026-10-06T21:43:33.050Z",
+  "live": true,
+  "status": 200,
+  "leaked": []
+ },
+ "collectedAt": "2026-10-06T21:43:33.050Z"
+}

@@ -1,0 +1,47 @@
+# Lane: web
+
+Run: 0 / 30
+Status: not started
+
+## Contract
+**Goal:** the dashboard, "calm mission control" (IDEA.md must-haves 19–24 and the Design section).
+**Done when:**
+- `npm test` passes; Playwright tests in `tests/e2e/` cover each screen on the laptop and phone projects, keyboard use (Ctrl/⌘K, j/k, a), both themes, and no console errors.
+- Fleet: "Needs you" bar first ("Nothing needs you" in green at zero), one card per loop with status word + icon + colour, round X/5, run N/30, next run, tests, live check; sorted by attention. E2E asserts the five-site numbers from the demo data.
+- Loop detail: header + tabs Timeline, Contract, Knowledge, Decisions, Settings.
+- Inbox: every BLOCKED question, best guess pre-filled, Accept guess / write answer (POST; demo shows the read-only message).
+- New-loop wizard: Brief with live linter score (import core's `src/core/brief.ts` via `@core/brief`) → Template → Runner → shows the exact `loop new` command (creation goes through the API only outside demo).
+- Health page; First run ("Try the demo" / "Create your first loop"); Settings (projects folder, `gh` account, default runner, theme).
+- Accessibility: every interactive element reachable by keyboard with visible focus (a test tabs through Fleet), status never colour alone, `prefers-reduced-motion` respected, 375 px with no horizontal scroll (a test asserts `scrollWidth <= innerWidth`). WCAG AA contrast in both themes.
+- `web/public/logo.svg` (a loop arrow opening into a rising spiral) and a favicon.
+**Constraints:** data only through the `.ai/contracts.md` routes (TanStack Query). Until the server ships, use a typed mock in `web/src/api/mock.ts` built from `demo/five-sites.json` if present, else from the shape of `.ai/reference/five-sites/` (copy only numbers and site names; no paths or emails). No `dangerouslySetInnerHTML`: render Markdown with a safe renderer (write a tiny one, or add a dependency with a Decisions entry). Tokens are in `web/src/index.css`; shadcn-style components are copied into `web/src/components/ui/`.
+**When the server ships `startServer`:** switch `playwright.config.ts` webServer to `node bin/loop.js dashboard --demo --no-open --port 4173` (shared file, small edit; say so in your outbox).
+**Out of scope:** server logic, CLI.
+
+## Units, in order
+1. App shell: layout, nav (Fleet, Inbox, Health, Settings), theme toggle, command palette (cmdk), router (hash or a tiny router; decide and record).
+2. Fleet with demo data + e2e numbers.
+3. Loop detail tabs.
+4. Inbox.
+5. Health + First run + Settings.
+6. New-loop wizard.
+7. Polish: motion on change, empty/error/loading states, phone layout, logo.
+
+## Decisions
+(none yet: write "decision · reason · how to reverse")
+
+## Confirmed
+(facts proven by a command or test; cite path:line)
+
+## Guesses
+(unproven beliefs; never treat one as fact in a later run)
+
+## Tried
+(what failed and why, so the next run does not repeat it)
+
+## Don't
+- Edit paths another lane owns (CLAUDE.md lane table), except for the "main stays green" fix.
+- Add a dependency without a Decisions entry.
+
+## Handoff
+(each run ends by writing: where it stopped, the exact next step, anything half-done)

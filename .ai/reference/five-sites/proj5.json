@@ -1,0 +1,1114 @@
+{
+ "id": "proj5",
+ "repo": "https://github.com/Minntooos/proj5",
+ "domain": "mathtank.netlify.app",
+ "futureDomain": "tankmath.app",
+ "oneLiner": "The aquarium keeper's math toolkit: tank volume for any shape, substrate, heater, filter, water changes, CO2, salinity and fertilizer dosing, each verified against published references.",
+ "audience": [
+  "Freshwater hobbyists setting up or upgrading a tank, including planted-tank keepers",
+  "Reef and saltwater keepers (salinity, specific gravity, top-off, water changes)",
+  "US gallons and inches first, with litres and centimetres everywhere"
+ ],
+ "mustHave": [
+  "Volume calculator (home page)",
+  "Standard tank sizes chart in `site/data/tanks.json`",
+  "Substrate calculator",
+  "Heater calculator",
+  "Filter flow calculator",
+  "Water change calculator",
+  "CO2 calculator",
+  "Salinity calculator",
+  "Salt mix calculator",
+  "Fertilizer dosing calculator",
+  "Tank weight calculator",
+  "Fish-welfare and safety notes where they matter"
+ ],
+ "competitors": "Search for these by name: tankmatcher, aquapacity, app-aquatic, aquariumstocking. Typical gaps are volume-only tools, unexplained formulas, no salinity temperature correction, and thin pages. Beat them on breadth, verified chemistry and explanations.",
+ "monetization": "The owner may add ads or affiliate links later. Never add them yourself.",
+ "routine": {
+  "id": "trig_0193CBtYyPVsDmfZ7Zchoioc",
+  "cron": "55 * * * *",
+  "url": "https://claude.ai/code/routines/trig_0193CBtYyPVsDmfZ7Zchoioc"
+ },
+ "status": "finished",
+ "round": 5,
+ "roundsDone": 5,
+ "maxRounds": 5,
+ "rounds": [
+  {
+   "round": 1,
+   "finishedAt": "2026-10-06T04:59:45.000Z"
+  },
+  {
+   "round": 2,
+   "finishedAt": "2026-10-06T09:30:15.000Z"
+  },
+  {
+   "round": 3,
+   "finishedAt": "2026-10-06T15:30:33.000Z"
+  },
+  {
+   "round": 4,
+   "finishedAt": "2026-10-06T16:24:45.000Z"
+  },
+  {
+   "round": 5,
+   "finishedAt": "2026-10-06T17:14:30.000Z"
+  }
+ ],
+ "lock": {
+  "at": "2026-10-06T17:13:07.000Z",
+  "ageMin": 270,
+  "active": false,
+  "expiresAt": "2026-10-06T18:43:07.000Z"
+ },
+ "builder": "routine",
+ "setup": {
+  "netlify": true,
+  "address": true,
+  "gsc": true,
+  "sitemap": true
+ },
+ "run": 0,
+ "runLimit": 30,
+ "blockedText": "",
+ "doneText": "# DONE\n\nSite: https://mathtank.netlify.app (TankMath, an aquarium maths toolkit). v1 (11 pages), v2 (8), v3 (5), v4 (6) and v5 (7 new pages) are built; v5 took 7 runs in one session. Earlier reports: `.ai/done-v1.md` to `.ai/done-v4.md`.\n\n## What was built\nAll 37 pages, each in the sitemap. Every calculating page has a pure lib in `site/js/lib/`, unit tests in `tests/unit/`, a browser spec, a sitemap line, cross-links, and (new in v5) a link in the home page's \"All aquarium calculators\" list.\n\n**v5 (this round)**\n\n| Page | Target keyword cluster | Lib + unit test |\n|---|---|---|\n| `/tds-to-ppm-converter/` | TDS to ppm, EC to ppm, 500 vs 700 scale, TDS meter conversion | `lib/tds.js` |\n| `/aquarium-electricity-cost-calculator/` | aquarium electricity cost, how much does a fish tank cost to run, heater running cost | `lib/electricity.js` |\n| `/ro-di-waste-water-ratio-calculator/` | RO waste water ratio, RO/DI recovery, membrane rejection rate | `lib/rodi.js` |\n| `/dosing-pump-calibration-calculator/` | dosing pump calibration, mL per dose, doser run time | `lib/dosingpump.js` |\n| `/aquarium-salt-dose-calculator/` | aquarium salt per gallon, freshwater aquarium salt calculator, salt bath | `lib/freshsalt.js`, `data/freshsalt.json` |\n| `/conductivity-to-salinity/` | conductivity to salinity, mS/cm to ppt, salinity probe | `lib/conductivity.js` (PSS-78) |\n| `/hexagon-pentagon-aquarium-volume/` | hexagon aquarium volume, flat-back hexagon gallons, pentagon tank volume | `lib/hexagon.js` |\n\nAlso: the home page now ends with a grouped list of every tool (`#all-tools`).\n\n**Earlier rounds:** `/` (tank volume), `/aquarium-sizes/`, `/substrate-calculator/`, `/heater-size-calculator/`, `/filter-flow-calculator/`, `/water-change-calculator/`, `/co2-calculator/`, `/salinity-calculator/`, `/salt-mix-calculator/`, `/fertilizer-calculator/`, `/tank-weight-calculator/` (v1); `/bow-front-aquarium-volume/`, `/cylinder-aquarium-volume/`, `/corner-aquarium-volume/`, `/specific-gravity-to-ppt/`, `/refractometer-calibration/`, `/nitrate-water-change-schedule/`, `/aquarium-evaporation-top-off-calculator/`, `/ei-dosing-calculator/` (v2); `/kh-to-ppm-converter/`, `/fishless-cycle-ammonia-calculator/`, `/sump-volume-calculator/`, `/reef-alkalinity-calcium-dosing-calculator/`, `/dgh-gh-water-hardness-converter/` (v3); `/ro-water-remineralization-calculator/`, `/ammonia-toxicity-calculator/`, `/aquarium-chiller-size-calculator/`, `/drip-acclimation-calculator/`, `/magnesium-dosing-calculator/`, `/kalkwasser-dosing-calculator/` (v4).\n\n## Test results\n`npm test` passes on the last commit: `check` OK (37 pages), 197 unit tests, 236 browser tests (laptop 1366×633 and Pixel 7). A reviewer subagent checked every unit before its push. Blockers it found and fixed: a backwards claim about RO flow restrictors, an electricity price cap that rejected most non-dollar currencies, and a flat-back hexagon model that missed the square end panels (under-read real tanks by about 8%). Minors fixed: unit-switch traps (salt concentration now converts instead of reinterpreting; RO production label shows its unit), clearer out-of-range and unit-mix-up messages, and a dosing example that asked for an unreadably small measurement.\n\n## Unsure or left out (honest list)\n- **Skipped as duplicate:** `/hydrometer-temperature-correction/`; the salinity calculator already corrects hydrometer readings for temperature.\n- **Skipped as unverifiable:** protein skimmer sizing (makers publish only per-model bioload claims) and a PAR lighting guide (sources disagree).\n- **PSS-78 coefficients:** taken from UNESCO 1983 and verified by matching the TEOS-10 GSW Python package to 0.0002 across the range. That package was used only as a dev-time check in a scratchpad, never shipped. Search results confirmed only some of the coefficients directly.\n- **Freshwater salt page:** the reference levels are aquaculture figures (UF/IFAS VM007) plus the API label rate. The page says species differ and that sick fish need a diagnosis; it shows a warning above 3 ppt and a dip warning at 10 ppt and above.\n- **Electricity page:** the heater's on-time is entered by the visitor, not estimated, because the heater sizing rule includes margin.\n- **RO page:** temperature and pressure effects on production are described but not calculated, because published correction factors disagree.\n- **Site-wide:** `num()` reads \"1,500\" as 1.5 (comma as a decimal point). Left alone for visitors who type decimal commas.\n- The `google-site-verification` tag is on the home page and untouched.\n\n## Owner launch checklist\n1. Check that the Netlify site serves https://mathtank.netlify.app.\n2. Add that address to Search Console as a URL-prefix property (the verification meta tag is on `/`) and submit `/sitemap.xml`.\n3. Buy tankmath.app once there is budget, then move over with 301 redirects (only the owner changes the address).\n\n## 10 best next pages (ranked by likely search demand and how weak the current results are)\n1. `/pond-volume-calculator/`: rectangular, round and irregular ponds in gallons and litres (IDEA \"nice to have\"; geometry, verifiable).\n2. `/nitrate-nitrogen-converter/`: NO3 vs NO3-N, PO4 vs PO4-P, total ammonia as N (molar masses; test kits and lab reports disagree on units).\n3. `/aquarium-glass-thickness-calculator/`: only once a published plate formula and safety factor are verified; strong safety note.\n4. `/co2-cylinder-duration-calculator/`: how long a CO2 cylinder lasts from its fill weight and daily use (needs a sourced bubble volume or measured use).\n5. `/return-pump-head-loss-calculator/`: sump return flow after head height and pipe friction (Hazen-Williams; maker flow curves).\n6. `/pond-pump-size-calculator/`: turnover for ponds, once a sourced guideline exists.\n7. `/overflow-drain-size-calculator/`: flow per drain pipe size, once a consistent source exists.\n8. `/aquarium-stocking-guide/`: deliberately left out until species data are researched carefully (IDEA).\n9. `/aquarium-lighting-par-guide/`: once one consistent PAR source exists.\n10. `/protein-skimmer-size-guide/`: once a maker publishes a sizing basis.\n",
+ "currentState": [],
+ "decisions": [],
+ "tried": [],
+ "confirmed": [],
+ "pages": [
+  {
+   "url": "/",
+   "title": "Aquarium Volume Calculator for Any Tank Shape",
+   "h1": "Aquarium Volume Calculator",
+   "words": 782
+  },
+  {
+   "url": "/ammonia-toxicity-calculator/",
+   "title": "Ammonia Toxicity Calculator: Free NH3 from pH and Temperature",
+   "h1": "Ammonia Toxicity Calculator: Free NH3 from pH and Temperature",
+   "words": 752
+  },
+  {
+   "url": "/aquarium-chiller-size-calculator/",
+   "title": "Aquarium Chiller Size Calculator: Cooling Watts Needed",
+   "h1": "Aquarium Chiller Size Calculator",
+   "words": 808
+  },
+  {
+   "url": "/aquarium-electricity-cost-calculator/",
+   "title": "Aquarium Electricity Cost Calculator: Heater, Lights, Pumps",
+   "h1": "Aquarium Electricity Cost Calculator",
+   "words": 826
+  },
+  {
+   "url": "/aquarium-evaporation-top-off-calculator/",
+   "title": "Aquarium Evaporation and Top-Off Calculator",
+   "h1": "Aquarium Evaporation and Top-Off Calculator",
+   "words": 638
+  },
+  {
+   "url": "/aquarium-salt-dose-calculator/",
+   "title": "Aquarium Salt Dose Calculator: Freshwater Salt per Gallon",
+   "h1": "Aquarium Salt Dose Calculator",
+   "words": 876
+  },
+  {
+   "url": "/aquarium-sizes/",
+   "title": "Aquarium Sizes Chart: Standard Fish Tank Dimensions",
+   "h1": "Aquarium Sizes Chart: Standard Fish Tank Dimensions",
+   "words": 716
+  },
+  {
+   "url": "/bow-front-aquarium-volume/",
+   "title": "Bow Front Aquarium Volume Calculator and Gallon Chart",
+   "h1": "Bow Front Aquarium Volume Calculator",
+   "words": 906
+  },
+  {
+   "url": "/co2-calculator/",
+   "title": "Aquarium CO2 Calculator: pH, KH and ppm Chart",
+   "h1": "Aquarium CO2 Calculator",
+   "words": 709
+  },
+  {
+   "url": "/conductivity-to-salinity/",
+   "title": "Conductivity to Salinity Calculator: mS/cm to ppt (PSS-78)",
+   "h1": "Conductivity to Salinity Calculator",
+   "words": 756
+  },
+  {
+   "url": "/corner-aquarium-volume/",
+   "title": "Corner Aquarium Volume Calculator: Quarter-Round and Flat-Front",
+   "h1": "Corner Aquarium Volume Calculator",
+   "words": 918
+  },
+  {
+   "url": "/cylinder-aquarium-volume/",
+   "title": "Cylinder Aquarium Volume Calculator and Gallon Chart",
+   "h1": "Cylinder Aquarium Volume Calculator",
+   "words": 956
+  },
+  {
+   "url": "/dgh-gh-water-hardness-converter/",
+   "title": "dGH to PPM Converter: Water Hardness (GH) Units",
+   "h1": "dGH to PPM Converter: Water Hardness (GH) Units",
+   "words": 716
+  },
+  {
+   "url": "/dosing-pump-calibration-calculator/",
+   "title": "Dosing Pump Calibration Calculator: mL per Dose and Run Time",
+   "h1": "Dosing Pump Calibration Calculator",
+   "words": 855
+  },
+  {
+   "url": "/drip-acclimation-calculator/",
+   "title": "Drip Acclimation Calculator: Drip Rate for New Fish",
+   "h1": "Drip Acclimation Calculator",
+   "words": 672
+  },
+  {
+   "url": "/ei-dosing-calculator/",
+   "title": "EI Dosing Calculator: Weekly Plan in Grams for Planted Tanks",
+   "h1": "EI Dosing Calculator",
+   "words": 848
+  },
+  {
+   "url": "/fertilizer-calculator/",
+   "title": "Aquarium Fertilizer Calculator: Dry Salt Dosing in ppm",
+   "h1": "Aquarium Fertilizer Calculator",
+   "words": 957
+  },
+  {
+   "url": "/filter-flow-calculator/",
+   "title": "Aquarium Filter Flow Calculator: GPH Turnover Rate",
+   "h1": "Aquarium Filter Flow Calculator",
+   "words": 598
+  },
+  {
+   "url": "/fishless-cycle-ammonia-calculator/",
+   "title": "Fishless Cycle Ammonia Calculator",
+   "h1": "Fishless Cycle Ammonia Calculator",
+   "words": 704
+  },
+  {
+   "url": "/heater-size-calculator/",
+   "title": "Aquarium Heater Size Calculator: What Wattage?",
+   "h1": "Aquarium Heater Size Calculator",
+   "words": 699
+  },
+  {
+   "url": "/hexagon-pentagon-aquarium-volume/",
+   "title": "Hexagon Aquarium Volume Calculator: Hex, Pentagon, Flat-Back",
+   "h1": "Hexagon and Pentagon Aquarium Volume Calculator",
+   "words": 1000
+  },
+  {
+   "url": "/kalkwasser-dosing-calculator/",
+   "title": "Kalkwasser Dosing Calculator: Calcium and Alkalinity per Day",
+   "h1": "Kalkwasser Dosing Calculator",
+   "words": 840
+  },
+  {
+   "url": "/kh-to-ppm-converter/",
+   "title": "KH to PPM Converter: dKH, ppm and meq/L",
+   "h1": "KH to PPM Converter: dKH, ppm and meq/L",
+   "words": 655
+  },
+  {
+   "url": "/magnesium-dosing-calculator/",
+   "title": "Magnesium Dosing Calculator for Reef Tanks (Epsom Salt)",
+   "h1": "Magnesium Dosing Calculator for Reef Tanks",
+   "words": 744
+  },
+  {
+   "url": "/nitrate-water-change-schedule/",
+   "title": "Nitrate Water Change Schedule Calculator",
+   "h1": "Nitrate Water Change Schedule Calculator",
+   "words": 752
+  },
+  {
+   "url": "/reef-alkalinity-calcium-dosing-calculator/",
+   "title": "Reef Alkalinity and Calcium Dosing Calculator",
+   "h1": "Reef Alkalinity and Calcium Dosing Calculator",
+   "words": 865
+  },
+  {
+   "url": "/refractometer-calibration/",
+   "title": "Refractometer Calibration Check and Salinity Offset Calculator",
+   "h1": "Refractometer Calibration Check",
+   "words": 858
+  },
+  {
+   "url": "/ro-di-waste-water-ratio-calculator/",
+   "title": "RO/DI Waste Water Ratio Calculator for Aquariums",
+   "h1": "RO/DI Waste Water Ratio Calculator",
+   "words": 956
+  },
+  {
+   "url": "/ro-water-remineralization-calculator/",
+   "title": "RO Water Remineralization Calculator for Aquariums",
+   "h1": "RO Water Remineralization Calculator",
+   "words": 834
+  },
+  {
+   "url": "/salinity-calculator/",
+   "title": "Salinity Calculator: Specific Gravity to ppt for Aquariums",
+   "h1": "Salinity Calculator: Specific Gravity to ppt",
+   "words": 767
+  },
+  {
+   "url": "/salt-mix-calculator/",
+   "title": "Salt Mix Calculator: How Much Salt for a Saltwater Aquarium",
+   "h1": "Salt Mix Calculator for Saltwater Aquariums",
+   "words": 641
+  },
+  {
+   "url": "/specific-gravity-to-ppt/",
+   "title": "Specific Gravity to PPT Chart for Saltwater Tanks",
+   "h1": "Specific Gravity to PPT Chart",
+   "words": 603
+  },
+  {
+   "url": "/substrate-calculator/",
+   "title": "Aquarium Substrate Calculator: Sand and Gravel Needed",
+   "h1": "Aquarium Substrate Calculator",
+   "words": 575
+  },
+  {
+   "url": "/sump-volume-calculator/",
+   "title": "Sump Volume Calculator: Drain-Down and Fill Line",
+   "h1": "Sump Volume Calculator: Drain-Down and Fill Line",
+   "words": 858
+  },
+  {
+   "url": "/tank-weight-calculator/",
+   "title": "Fish Tank Weight Calculator: Filled Aquarium Weight",
+   "h1": "Fish Tank Weight Calculator",
+   "words": 654
+  },
+  {
+   "url": "/tds-to-ppm-converter/",
+   "title": "TDS to ppm Converter: EC, 500, 640 and 700 Scales",
+   "h1": "TDS to ppm Converter",
+   "words": 902
+  },
+  {
+   "url": "/water-change-calculator/",
+   "title": "Water Change Calculator: Nitrate Reduction",
+   "h1": "Water Change Calculator",
+   "words": 800
+  }
+ ],
+ "planned": [
+  {
+   "keywords": "aquarium volume calculator, fish tank volume calculator, how many gallons is my tank",
+   "urls": [
+    "/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "bow front / corner / cylinder / hexagon aquarium volume",
+   "urls": [
+    "sections of the home calculator; give a shape its own page only if it has enough unique content"
+   ],
+   "built": false
+  },
+  {
+   "keywords": "aquarium sizes chart, standard fish tank dimensions",
+   "urls": [
+    "/aquarium-sizes/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "aquarium substrate calculator, how much gravel / sand for aquarium",
+   "urls": [
+    "/substrate-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "aquarium heater size calculator, what size heater for my tank",
+   "urls": [
+    "/heater-size-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "aquarium filter size, gph calculator, turnover rate",
+   "urls": [
+    "/filter-flow-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "water change calculator, nitrate reduction water change",
+   "urls": [
+    "/water-change-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "co2 calculator aquarium, ph kh co2 chart",
+   "urls": [
+    "/co2-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "salinity calculator, specific gravity to ppt, refractometer conversion",
+   "urls": [
+    "/salinity-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "how much salt for saltwater aquarium",
+   "urls": [
+    "/salt-mix-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "aquarium fertilizer calculator, ei dosing calculator",
+   "urls": [
+    "/fertilizer-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "fish tank weight calculator",
+   "urls": [
+    "/tank-weight-calculator/"
+   ],
+   "built": true
+  }
+ ],
+ "plannedCount": 12,
+ "builtPlannedCount": 11,
+ "sitemapCount": 37,
+ "libs": [
+  "acclimation.js",
+  "alkalinity.js",
+  "ammonia.js",
+  "bowfront.js",
+  "chiller.js",
+  "co2.js",
+  "conductivity.js",
+  "corner.js",
+  "cylinder.js",
+  "dosingpump.js",
+  "ei.js",
+  "electricity.js",
+  "evaporation.js",
+  "fertilizer.js",
+  "filter.js",
+  "fishless.js",
+  "freshsalt.js",
+  "hardness.js",
+  "heater.js",
+  "hexagon.js",
+  "kalkwasser.js",
+  "magnesium.js",
+  "nitrate.js",
+  "reefdose.js",
+  "refractometer.js",
+  "remineralize.js",
+  "rodi.js",
+  "salinity.js",
+  "substrate.js",
+  "sump.js",
+  "tanks.js",
+  "tds.js",
+  "units.js",
+  "volume.js",
+  "waterchange.js",
+  "weight.js"
+ ],
+ "unitTestCount": 197,
+ "browserTestCount": 82,
+ "data": [
+  {
+   "file": "co2.json",
+   "entries": 1,
+   "searchVerified": 3
+  },
+  {
+   "file": "ei.json",
+   "entries": 2,
+   "searchVerified": 1
+  },
+  {
+   "file": "filter.json",
+   "entries": 2,
+   "searchVerified": 2
+  },
+  {
+   "file": "freshsalt.json",
+   "entries": 4,
+   "searchVerified": 4
+  },
+  {
+   "file": "heater.json",
+   "entries": 3,
+   "searchVerified": 3
+  },
+  {
+   "file": "salinity.json",
+   "entries": 2,
+   "searchVerified": 2
+  },
+  {
+   "file": "substrate.json",
+   "entries": 2,
+   "searchVerified": 2
+  },
+  {
+   "file": "tanks.json",
+   "entries": 6,
+   "searchVerified": 6
+  }
+ ],
+ "commits": [
+  {
+   "sha": "1afd71d",
+   "at": "2026-10-06T17:14:30.000Z",
+   "author": "Claude",
+   "msg": "v5 complete: DONE.md, log, knowledge note, remove task.md"
+  },
+  {
+   "sha": "0e10051",
+   "at": "2026-10-06T17:12:18.000Z",
+   "author": "Claude",
+   "msg": "Add hexagon and pentagon aquarium volume page; skip unverifiable skimmer and PAR pages"
+  },
+  {
+   "sha": "1a5f4f2",
+   "at": "2026-10-06T17:03:57.000Z",
+   "author": "Claude",
+   "msg": "Add conductivity to salinity calculator page (PSS-78)"
+  },
+  {
+   "sha": "413a942",
+   "at": "2026-10-06T16:57:22.000Z",
+   "author": "Claude",
+   "msg": "Add freshwater aquarium salt dose calculator page"
+  },
+  {
+   "sha": "460d059",
+   "at": "2026-10-06T16:50:52.000Z",
+   "author": "Claude",
+   "msg": "Add dosing pump calibration calculator page; skip duplicate hydrometer page"
+  },
+  {
+   "sha": "1467574",
+   "at": "2026-10-06T16:44:32.000Z",
+   "author": "Claude",
+   "msg": "Add RO/DI waste water ratio calculator page"
+  },
+  {
+   "sha": "fa4bbef",
+   "at": "2026-10-06T16:38:44.000Z",
+   "author": "Claude",
+   "msg": "Add aquarium electricity cost calculator page"
+  },
+  {
+   "sha": "2b67776",
+   "at": "2026-10-06T16:33:30.000Z",
+   "author": "Claude",
+   "msg": "Add TDS to ppm converter page and home tool index"
+  },
+  {
+   "sha": "aef205e",
+   "at": "2026-10-06T16:25:54.000Z",
+   "author": "Claude",
+   "msg": "Credit session: take the lock"
+  },
+  {
+   "sha": "c2c08ea",
+   "at": "2026-10-06T16:24:45.000Z",
+   "author": "Claude",
+   "msg": "Start v5: build the 10 next pages"
+  },
+  {
+   "sha": "5387faf",
+   "at": "2026-10-06T16:18:46.000Z",
+   "author": "Claude",
+   "msg": "v4 complete: DONE.md, log, remove task.md"
+  },
+  {
+   "sha": "f0ab8d4",
+   "at": "2026-10-06T16:18:10.000Z",
+   "author": "Claude",
+   "msg": "Separate label volume unit for liquid fertilizer tool"
+  },
+  {
+   "sha": "62d612d",
+   "at": "2026-10-06T16:15:53.000Z",
+   "author": "Claude",
+   "msg": "Add liquid fertilizer dose tool to fertilizer calculator"
+  },
+  {
+   "sha": "afd03d9",
+   "at": "2026-10-06T16:14:33.000Z",
+   "author": "Claude",
+   "msg": "Kalkwasser page: real-world note, soften balance claim"
+  },
+  {
+   "sha": "570a394",
+   "at": "2026-10-06T16:13:30.000Z",
+   "author": "Claude",
+   "msg": "Add kalkwasser dosing calculator page"
+  },
+  {
+   "sha": "720d41b",
+   "at": "2026-10-06T16:11:23.000Z",
+   "author": "Claude",
+   "msg": "Magnesium page note; update task state"
+  },
+  {
+   "sha": "69cfc0a",
+   "at": "2026-10-06T16:10:17.000Z",
+   "author": "Claude",
+   "msg": "Add magnesium dosing calculator page"
+  },
+  {
+   "sha": "5b746fe",
+   "at": "2026-10-06T16:08:30.000Z",
+   "author": "Claude",
+   "msg": "Tighten acclimation wording and limits"
+  },
+  {
+   "sha": "422bd53",
+   "at": "2026-10-06T16:07:32.000Z",
+   "author": "Claude",
+   "msg": "Add drip acclimation calculator page"
+  },
+  {
+   "sha": "90d67aa",
+   "at": "2026-10-06T16:05:46.000Z",
+   "author": "Claude",
+   "msg": "Fix chiller wording; update task state"
+  },
+  {
+   "sha": "941818b",
+   "at": "2026-10-06T16:04:39.000Z",
+   "author": "Claude",
+   "msg": "Add aquarium chiller size calculator page"
+  },
+  {
+   "sha": "fda057a",
+   "at": "2026-10-06T16:02:55.000Z",
+   "author": "Claude",
+   "msg": "Soften unsourced claim on ammonia page"
+  },
+  {
+   "sha": "76c6ed4",
+   "at": "2026-10-06T16:01:58.000Z",
+   "author": "Claude",
+   "msg": "Add ammonia toxicity calculator page"
+  },
+  {
+   "sha": "bfcf6dc",
+   "at": "2026-10-06T15:59:55.000Z",
+   "author": "Claude",
+   "msg": "Note KH assumption on remineralization page"
+  },
+  {
+   "sha": "8fdfdbb",
+   "at": "2026-10-06T15:58:59.000Z",
+   "author": "Claude",
+   "msg": "Add RO water remineralization calculator page"
+  },
+  {
+   "sha": "65f2954",
+   "at": "2026-10-06T15:30:48.000Z",
+   "author": "Claude",
+   "msg": "Add task for the next round"
+  },
+  {
+   "sha": "54b46d1",
+   "at": "2026-10-06T15:30:33.000Z",
+   "author": "Claude",
+   "msg": "Start v4: build the 10 next pages"
+  },
+  {
+   "sha": "922c585",
+   "at": "2026-10-06T10:14:54.000Z",
+   "author": "Claude",
+   "msg": "v3 complete: DONE.md, log, remove task.md"
+  },
+  {
+   "sha": "f82d988",
+   "at": "2026-10-06T10:13:12.000Z",
+   "author": "Claude",
+   "msg": "Add dGH to ppm water hardness converter page"
+  },
+  {
+   "sha": "68d268c",
+   "at": "2026-10-06T10:11:18.000Z",
+   "author": "Claude",
+   "msg": "Reef dosing: per-mode readings, alkalinity day count, softened sourcing; task notes"
+  }
+ ],
+ "commitCount": 83,
+ "lastCommitAt": "2026-10-06T17:14:30.000Z",
+ "history": [
+  {
+   "at": "2026-10-05T23:18:06.000Z",
+   "pages": 1,
+   "sha": "b416b28"
+  },
+  {
+   "at": "2026-10-05T23:20:18.000Z",
+   "pages": 1,
+   "sha": "8ae749c"
+  },
+  {
+   "at": "2026-10-05T23:35:56.000Z",
+   "pages": 1,
+   "sha": "38da729"
+  },
+  {
+   "at": "2026-10-05T23:36:46.000Z",
+   "pages": 1,
+   "sha": "af32e42"
+  },
+  {
+   "at": "2026-10-06T00:25:05.000Z",
+   "pages": 1,
+   "sha": "c03fe31"
+  },
+  {
+   "at": "2026-10-06T02:33:28.000Z",
+   "pages": 2,
+   "sha": "db2ab45"
+  },
+  {
+   "at": "2026-10-06T02:34:10.000Z",
+   "pages": 2,
+   "sha": "e1b62ec"
+  },
+  {
+   "at": "2026-10-06T03:24:53.000Z",
+   "pages": 2,
+   "sha": "846324b"
+  },
+  {
+   "at": "2026-10-06T03:57:23.000Z",
+   "pages": 3,
+   "sha": "a09dc0b"
+  },
+  {
+   "at": "2026-10-06T03:58:18.000Z",
+   "pages": 3,
+   "sha": "b2952c6"
+  },
+  {
+   "at": "2026-10-06T03:59:48.000Z",
+   "pages": 4,
+   "sha": "1890e28"
+  },
+  {
+   "at": "2026-10-06T04:00:32.000Z",
+   "pages": 4,
+   "sha": "5444867"
+  },
+  {
+   "at": "2026-10-06T04:01:47.000Z",
+   "pages": 5,
+   "sha": "1994ddb"
+  },
+  {
+   "at": "2026-10-06T04:02:27.000Z",
+   "pages": 5,
+   "sha": "2e46986"
+  },
+  {
+   "at": "2026-10-06T04:03:53.000Z",
+   "pages": 6,
+   "sha": "f14b53e"
+  },
+  {
+   "at": "2026-10-06T04:04:48.000Z",
+   "pages": 6,
+   "sha": "cbb0b99"
+  },
+  {
+   "at": "2026-10-06T04:06:19.000Z",
+   "pages": 7,
+   "sha": "39804ed"
+  },
+  {
+   "at": "2026-10-06T04:06:59.000Z",
+   "pages": 7,
+   "sha": "7920e58"
+  },
+  {
+   "at": "2026-10-06T04:08:58.000Z",
+   "pages": 8,
+   "sha": "0d5cd3b"
+  },
+  {
+   "at": "2026-10-06T04:09:49.000Z",
+   "pages": 8,
+   "sha": "98f8c6b"
+  },
+  {
+   "at": "2026-10-06T04:11:55.000Z",
+   "pages": 9,
+   "sha": "405e34d"
+  },
+  {
+   "at": "2026-10-06T04:12:52.000Z",
+   "pages": 9,
+   "sha": "478af76"
+  },
+  {
+   "at": "2026-10-06T04:14:15.000Z",
+   "pages": 10,
+   "sha": "ec9e59d"
+  },
+  {
+   "at": "2026-10-06T04:15:20.000Z",
+   "pages": 10,
+   "sha": "5df5f66"
+  },
+  {
+   "at": "2026-10-06T04:16:49.000Z",
+   "pages": 11,
+   "sha": "5a0cb8b"
+  },
+  {
+   "at": "2026-10-06T04:17:51.000Z",
+   "pages": 11,
+   "sha": "fbc36f9"
+  },
+  {
+   "at": "2026-10-06T04:18:51.000Z",
+   "pages": 11,
+   "sha": "b547fb8"
+  },
+  {
+   "at": "2026-10-06T04:20:00.000Z",
+   "pages": 11,
+   "sha": "c00f65f"
+  },
+  {
+   "at": "2026-10-06T04:38:51.000Z",
+   "pages": 11,
+   "sha": "cbb40ad"
+  },
+  {
+   "at": "2026-10-06T04:59:45.000Z",
+   "pages": 11,
+   "sha": "151171e"
+  },
+  {
+   "at": "2026-10-06T07:58:08.000Z",
+   "pages": 12,
+   "sha": "4c011f7"
+  },
+  {
+   "at": "2026-10-06T07:59:01.000Z",
+   "pages": 12,
+   "sha": "b3980f2"
+  },
+  {
+   "at": "2026-10-06T08:00:03.000Z",
+   "pages": 13,
+   "sha": "794fac8"
+  },
+  {
+   "at": "2026-10-06T08:01:03.000Z",
+   "pages": 13,
+   "sha": "16b8929"
+  },
+  {
+   "at": "2026-10-06T08:02:55.000Z",
+   "pages": 14,
+   "sha": "7ee3852"
+  },
+  {
+   "at": "2026-10-06T08:03:55.000Z",
+   "pages": 14,
+   "sha": "00a8475"
+  },
+  {
+   "at": "2026-10-06T08:04:50.000Z",
+   "pages": 15,
+   "sha": "74007e3"
+  },
+  {
+   "at": "2026-10-06T08:05:47.000Z",
+   "pages": 15,
+   "sha": "3a383b7"
+  },
+  {
+   "at": "2026-10-06T08:57:58.000Z",
+   "pages": 16,
+   "sha": "2c5cd45"
+  },
+  {
+   "at": "2026-10-06T09:00:13.000Z",
+   "pages": 17,
+   "sha": "b9e0550"
+  },
+  {
+   "at": "2026-10-06T09:02:51.000Z",
+   "pages": 18,
+   "sha": "ff9c258"
+  },
+  {
+   "at": "2026-10-06T09:04:05.000Z",
+   "pages": 18,
+   "sha": "608533d"
+  },
+  {
+   "at": "2026-10-06T09:06:53.000Z",
+   "pages": 19,
+   "sha": "b1f5b50"
+  },
+  {
+   "at": "2026-10-06T09:08:06.000Z",
+   "pages": 19,
+   "sha": "6426470"
+  },
+  {
+   "at": "2026-10-06T09:09:11.000Z",
+   "pages": 19,
+   "sha": "49b523c"
+  },
+  {
+   "at": "2026-10-06T09:30:15.000Z",
+   "pages": 19,
+   "sha": "939dbdd"
+  },
+  {
+   "at": "2026-10-06T09:57:43.000Z",
+   "pages": 20,
+   "sha": "1925e9a"
+  },
+  {
+   "at": "2026-10-06T09:58:45.000Z",
+   "pages": 20,
+   "sha": "953cb82"
+  },
+  {
+   "at": "2026-10-06T10:02:14.000Z",
+   "pages": 21,
+   "sha": "1b3c5c2"
+  },
+  {
+   "at": "2026-10-06T10:04:35.000Z",
+   "pages": 22,
+   "sha": "32e6b48"
+  },
+  {
+   "at": "2026-10-06T10:06:07.000Z",
+   "pages": 22,
+   "sha": "5a0a3ea"
+  },
+  {
+   "at": "2026-10-06T10:06:50.000Z",
+   "pages": 22,
+   "sha": "e1a8cc7"
+  },
+  {
+   "at": "2026-10-06T10:08:47.000Z",
+   "pages": 23,
+   "sha": "d5cf0f6"
+  },
+  {
+   "at": "2026-10-06T10:11:18.000Z",
+   "pages": 23,
+   "sha": "68d268c"
+  },
+  {
+   "at": "2026-10-06T10:13:12.000Z",
+   "pages": 24,
+   "sha": "f82d988"
+  },
+  {
+   "at": "2026-10-06T10:14:54.000Z",
+   "pages": 24,
+   "sha": "922c585"
+  },
+  {
+   "at": "2026-10-06T15:30:33.000Z",
+   "pages": 24,
+   "sha": "54b46d1"
+  },
+  {
+   "at": "2026-10-06T15:30:48.000Z",
+   "pages": 24,
+   "sha": "65f2954"
+  },
+  {
+   "at": "2026-10-06T15:58:59.000Z",
+   "pages": 25,
+   "sha": "8fdfdbb"
+  },
+  {
+   "at": "2026-10-06T15:59:55.000Z",
+   "pages": 25,
+   "sha": "bfcf6dc"
+  },
+  {
+   "at": "2026-10-06T16:01:58.000Z",
+   "pages": 26,
+   "sha": "76c6ed4"
+  },
+  {
+   "at": "2026-10-06T16:02:55.000Z",
+   "pages": 26,
+   "sha": "fda057a"
+  },
+  {
+   "at": "2026-10-06T16:04:39.000Z",
+   "pages": 27,
+   "sha": "941818b"
+  },
+  {
+   "at": "2026-10-06T16:05:46.000Z",
+   "pages": 27,
+   "sha": "90d67aa"
+  },
+  {
+   "at": "2026-10-06T16:07:32.000Z",
+   "pages": 28,
+   "sha": "422bd53"
+  },
+  {
+   "at": "2026-10-06T16:08:30.000Z",
+   "pages": 28,
+   "sha": "5b746fe"
+  },
+  {
+   "at": "2026-10-06T16:10:17.000Z",
+   "pages": 29,
+   "sha": "69cfc0a"
+  },
+  {
+   "at": "2026-10-06T16:11:23.000Z",
+   "pages": 29,
+   "sha": "720d41b"
+  },
+  {
+   "at": "2026-10-06T16:13:30.000Z",
+   "pages": 30,
+   "sha": "570a394"
+  },
+  {
+   "at": "2026-10-06T16:14:33.000Z",
+   "pages": 30,
+   "sha": "afd03d9"
+  },
+  {
+   "at": "2026-10-06T16:15:53.000Z",
+   "pages": 30,
+   "sha": "62d612d"
+  },
+  {
+   "at": "2026-10-06T16:18:10.000Z",
+   "pages": 30,
+   "sha": "f0ab8d4"
+  },
+  {
+   "at": "2026-10-06T16:18:46.000Z",
+   "pages": 30,
+   "sha": "5387faf"
+  },
+  {
+   "at": "2026-10-06T16:24:45.000Z",
+   "pages": 30,
+   "sha": "c2c08ea"
+  },
+  {
+   "at": "2026-10-06T16:25:54.000Z",
+   "pages": 30,
+   "sha": "aef205e"
+  },
+  {
+   "at": "2026-10-06T16:33:30.000Z",
+   "pages": 31,
+   "sha": "2b67776"
+  },
+  {
+   "at": "2026-10-06T16:38:44.000Z",
+   "pages": 32,
+   "sha": "fa4bbef"
+  },
+  {
+   "at": "2026-10-06T16:44:32.000Z",
+   "pages": 33,
+   "sha": "1467574"
+  },
+  {
+   "at": "2026-10-06T16:50:52.000Z",
+   "pages": 34,
+   "sha": "460d059"
+  },
+  {
+   "at": "2026-10-06T16:57:22.000Z",
+   "pages": 35,
+   "sha": "413a942"
+  },
+  {
+   "at": "2026-10-06T17:03:57.000Z",
+   "pages": 36,
+   "sha": "1a5f4f2"
+  },
+  {
+   "at": "2026-10-06T17:12:18.000Z",
+   "pages": 37,
+   "sha": "0e10051"
+  },
+  {
+   "at": "2026-10-06T17:14:30.000Z",
+   "pages": 37,
+   "sha": "1afd71d"
+  }
+ ],
+ "tests": {
+  "ok": true,
+  "browserPassed": 236,
+  "browserFailed": 0,
+  "browserSkipped": 0,
+  "unitPassed": 197,
+  "unitFailed": 0,
+  "checkProblems": 0,
+  "ranAt": "2026-10-06T21:44:00.875Z"
+ },
+ "gsc": {
+  "checkedAt": "2026-10-06T21:44:00.875Z",
+  "property": "https://mathtank.netlify.app/",
+  "submittedAt": "2026-10-06T04:48:39.590Z",
+  "downloadedAt": "2026-10-06T04:48:40.555Z",
+  "pending": false,
+  "submitted": "11",
+  "errors": "0",
+  "warnings": "0",
+  "clicks": 0,
+  "impressions": 0,
+  "position": null,
+  "pagesSeen": 0,
+  "topQueries": [],
+  "home": {
+   "verdict": "PASS",
+   "coverage": "Submitted and indexed",
+   "lastCrawl": "2026-10-06T06:44:08Z"
+  },
+  "ok": true
+ },
+ "live": {
+  "checkedAt": "2026-10-06T21:44:10.086Z",
+  "live": true,
+  "status": 200,
+  "leaked": []
+ },
+ "collectedAt": "2026-10-06T21:44:10.086Z"
+}

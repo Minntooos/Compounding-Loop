@@ -1,0 +1,903 @@
+<title>Compounding Loop Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: a control board. Header strip with freshness and next run, then five site lanes,
+   then schedule, growth chart and activity side by side. Tabs split status, owner to-do and context. */
+:root {
+  --bg: #f2f3f5; --surface: #ffffff; --surface-2: #f7f8fa; --ink: #14171c; --muted: #596170; --faint: #8b929d; --line: #dde1e6; --line-strong: #c9ced6;
+  --good: #1b7f45; --good-bg: #e2f3e8; --warn: #9a5c00; --warn-bg: #fbefd9; --bad: #bd2c27; --bad-bg: #fbe4e3; --info: #2c55c9; --info-bg: #e7edfb;
+  --p1: #d4741a; --p2: #11899b; --p3: #bd3a64; --p4: #4e5dd3; --p5: #2b8b52;
+  --shadow: 0 1px 2px rgba(20, 23, 28, .06), 0 4px 14px rgba(20, 23, 28, .05);
+  --font-display: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0d0f13; --surface: #15181e; --surface-2: #1a1e25; --ink: #e6e8ec; --muted: #a2a9b4; --faint: #6e7581; --line: #272c35; --line-strong: #363c47;
+  --good: #4dc486; --good-bg: #12301f; --warn: #e4a63f; --warn-bg: #33260d; --bad: #f2716a; --bad-bg: #3a1816; --info: #85a3f7; --info-bg: #19223d;
+  --p1: #f0943d; --p2: #36b5c8; --p3: #e66990; --p4: #8590f2; --p5: #52bb7a;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4); color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #0d0f13; --surface: #15181e; --surface-2: #1a1e25; --ink: #e6e8ec; --muted: #a2a9b4; --faint: #6e7581; --line: #272c35; --line-strong: #363c47;
+  --good: #4dc486; --good-bg: #12301f; --warn: #e4a63f; --warn-bg: #33260d; --bad: #f2716a; --bad-bg: #3a1816; --info: #85a3f7; --info-bg: #19223d;
+  --p1: #f0943d; --p2: #36b5c8; --p3: #e66990; --p4: #8590f2; --p5: #52bb7a;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--font-body); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 16px; }
+a { color: var(--info); text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code { font: 500 .86em var(--font-mono); background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; overflow-wrap: anywhere; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; border-radius: 4px; }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+.eyebrow { font: 600 11px/1.2 var(--font-body); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+h2 { font-size: 19px; font-weight: 750; font-stretch: 112%; letter-spacing: -.005em; }
+h3 { font-size: 15px; font-weight: 700; font-stretch: 105%; }
+
+/* Header */
+.top { background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; }
+.top-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; padding-block: 14px 10px; }
+.brand { display: flex; align-items: baseline; gap: 10px; margin-right: auto; min-width: 0; }
+.brand h1 { font-size: 22px; font-weight: 800; font-stretch: 122%; letter-spacing: -.01em; }
+.brand .sub { color: var(--muted); font-size: 13px; }
+@media (max-width: 640px) { .top { position: static; } .brand .sub { display: none; } .brand h1 { font-size: 20px; } .top-row { gap: 8px; } }
+.lanes-mark { display: inline-flex; gap: 3px; align-self: center; }
+.lanes-mark i { width: 6px; height: 18px; border-radius: 2px; display: block; }
+.chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 999px; font-size: 13px; background: var(--surface-2); white-space: nowrap; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); flex: none; }
+.dot.good { background: var(--good); } .dot.warn { background: var(--warn); } .dot.bad { background: var(--bad); }
+.tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+.tab { border: 0; background: none; padding: 9px 12px 10px; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+.tab .count { font: 600 11px var(--font-mono); background: var(--warn-bg); color: var(--warn); border-radius: 999px; padding: 1px 6px; margin-left: 4px; }
+
+main { padding-block: 22px 60px; }
+.section-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; margin: 30px 0 12px; }
+.section-head:first-child { margin-top: 0; }
+.section-head p { margin: 0; color: var(--muted); font-size: 13px; }
+.notice { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); margin-bottom: 18px; font-size: 14px; }
+.notice.warn { background: var(--warn-bg); border-color: transparent; }
+.notice.bad { background: var(--bad-bg); border-color: transparent; }
+.notice p { margin: 0; }
+
+/* Summary */
+.summary { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.tile { background: var(--surface); padding: 14px 16px; display: grid; gap: 2px; min-width: 0; }
+.tile .big { font: 600 28px/1.15 var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.tile .big small { font-size: 15px; color: var(--muted); font-weight: 500; letter-spacing: 0; }
+.tile .sub { font-size: 13px; color: var(--muted); }
+@media (max-width: 900px) { .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } .summary .tile:last-child:nth-child(odd) { grid-column: 1 / -1; } }
+.keyfacts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-top: 14px; }
+.keyfacts > div { background: var(--surface); padding: 11px 14px; display: grid; gap: 2px; align-content: start; font-size: 13.5px; min-width: 0; }
+.keyfacts .k { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.keyfacts .v { font-weight: 650; }
+.keyfacts .v.good { color: var(--good); } .keyfacts .v.warn { color: var(--warn); } .keyfacts .v.bad { color: var(--bad); }
+.keyfacts .n { color: var(--muted); font-size: 12.5px; }
+.todo-box { margin-top: 14px; }
+.queries { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 13.5px; }
+.queries li { display: flex; justify-content: space-between; gap: 12px; }
+
+/* Site cards */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 14px 12px; display: grid; gap: 12px; align-content: start; min-width: 0; box-shadow: var(--shadow); }
+.card-head { display: flex; gap: 10px; align-items: flex-start; min-width: 0; }
+.badge { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; color: #fff; font: 700 14px var(--font-mono); flex: none; }
+.card-title { min-width: 0; flex: 1; }
+.card-title .domain { font: 700 15.5px/1.25 var(--font-display); font-stretch: 104%; overflow-wrap: anywhere; }
+.card-title .niche { font-size: 12.5px; color: var(--muted); }
+.sub-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 3px; }
+.lane-a, .lane-b { display: grid; gap: 10px; min-width: 0; }
+@media (min-width: 960px) {
+  .cards { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .card { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1.1fr) minmax(0, 1.2fr) 124px; align-items: center; column-gap: 28px; padding: 14px 18px; }
+}
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 650; padding: 3px 9px; border-radius: 999px; white-space: nowrap; background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
+.pill.info { background: var(--info-bg); color: var(--info); border-color: transparent; }
+.pill.good { background: var(--good-bg); color: var(--good); border-color: transparent; }
+.pill.bad { background: var(--bad-bg); color: var(--bad); border-color: transparent; }
+.pill.warn { background: var(--warn-bg); color: var(--warn); border-color: transparent; }
+.pill.run { background: var(--info-bg); color: var(--info); border-color: transparent; }
+.pill.run::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .pill.run::before { animation: none; } }
+.one-liner { font-size: 13px; color: var(--muted); margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.meter { display: grid; gap: 5px; }
+.meter-row { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+.meter-row b { font-weight: 600; }
+.bar { height: 7px; border-radius: 99px; background: var(--surface-2); border: 1px solid var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; border-radius: 99px; min-width: 2px; }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 13px; margin: 0; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; text-align: right; }
+.ok { color: var(--good); font-weight: 600; } .fail { color: var(--bad); font-weight: 600; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 8px; padding: 7px 12px; font-weight: 600; font-size: 13.5px; cursor: pointer; text-decoration: none; color: var(--ink); }
+.btn:hover { background: var(--surface-2); }
+.card .btn { width: 100%; }
+
+/* Schedule + chart + feed */
+.grid-2 { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; }
+@media (max-width: 880px) { .grid-2 { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; min-width: 0; }
+.panel > .section-head { margin: 0 0 10px; }
+.sched { position: relative; display: grid; gap: 7px; padding-top: 22px; }
+.sched-axis { position: absolute; inset: 0 0 auto 132px; height: 18px; }
+.sched-axis span { position: absolute; transform: translateX(-50%); font: 500 11px var(--font-mono); color: var(--faint); white-space: nowrap; }
+.sched-lane { display: grid; grid-template-columns: 124px minmax(0, 1fr); gap: 8px; align-items: center; }
+.sched-name { font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sched-track { position: relative; height: 22px; background: var(--surface-2); border-radius: 6px; border: 1px solid var(--line); }
+.sched-track .hr { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--line); }
+.sched-track .tick { position: absolute; top: 3px; bottom: 3px; width: 8px; margin-left: -4px; border-radius: 3px; }
+.sched-track .tick.past { opacity: .35; }
+.sched-now { position: absolute; top: 18px; bottom: 0; width: 2px; background: var(--ink); margin-left: -1px; border-radius: 2px; pointer-events: none; }
+.sched-now::before { content: "now"; position: absolute; top: -16px; left: 50%; transform: translateX(-50%); font: 600 10.5px var(--font-mono); background: var(--ink); color: var(--surface); padding: 0 4px; border-radius: 3px; }
+@media (max-width: 520px) { .sched-lane { grid-template-columns: 70px minmax(0, 1fr); } .sched-axis { left: 78px; } }
+.chart-box { width: 100%; min-height: 220px; }
+.chart-box svg { display: block; width: 100%; height: auto; overflow: visible; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; margin-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 3px; border-radius: 2px; display: block; }
+.feed { list-style: none; margin: 0; padding: 0; display: grid; max-height: 340px; overflow-y: auto; }
+.feed li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: baseline; padding: 8px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
+.feed li:first-child { border-top: 0; }
+.mini { width: 20px; height: 20px; border-radius: 5px; display: inline-grid; place-items: center; color: #fff; font: 700 11px var(--font-mono); align-self: start; }
+.feed .msg { min-width: 0; overflow-wrap: anywhere; }
+.feed .when { font: 12px var(--font-mono); color: var(--faint); white-space: nowrap; }
+.feed .who { font-size: 12px; color: var(--muted); }
+
+/* Launch to-do */
+.table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 14px; }
+th, td { text-align: left; padding: 10px 12px; border-top: 1px solid var(--line); vertical-align: middle; }
+thead th { border-top: 0; font: 600 11px var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: var(--surface-2); }
+td.center, th.center { text-align: center; }
+.toggle { width: 34px; height: 34px; border-radius: 9px; border: 1.5px solid var(--line-strong); background: var(--surface); cursor: pointer; display: inline-grid; place-items: center; transition: background .15s, border-color .15s; }
+.toggle svg { width: 16px; height: 16px; opacity: 0; transition: opacity .15s; }
+.toggle[aria-pressed="true"] { background: var(--good); border-color: var(--good); color: #fff; }
+.toggle[aria-pressed="true"] svg { opacity: 1; }
+.toggle:disabled { cursor: default; opacity: .7; }
+.progress-line { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; font-size: 14px; }
+.progress-line .bar { flex: 1; max-width: 320px; }
+.steps { list-style: none; counter-reset: step; margin: 0; padding: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr)); }
+.steps li { counter-increment: step; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.steps li::before { content: counter(step); width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--line-strong); display: grid; place-items: center; font: 600 13px var(--font-mono); }
+.steps h3 { margin-bottom: 3px; }
+.steps p { margin: 0; color: var(--muted); font-size: 14px; max-width: 72ch; }
+.steps p + p { margin-top: 6px; }
+
+/* Context */
+.flow { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); gap: 8px; counter-reset: flow; }
+.flow li { counter-increment: flow; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; font-size: 13px; color: var(--muted); }
+.flow li b { display: block; color: var(--ink); font-size: 14px; margin-bottom: 2px; }
+.flow li b::before { content: counter(flow) " "; font-family: var(--font-mono); color: var(--faint); font-weight: 500; }
+.loop-note { font-size: 13.5px; color: var(--muted); margin: 10px 0 0; }
+.prose { max-width: 74ch; font-size: 15px; }
+.prose p { margin: 0 0 10px; }
+.two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 14px; }
+.list { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 14px; }
+.list li::marker { color: var(--faint); }
+.site-why { display: grid; gap: 10px; }
+.site-why article { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 8px; }
+.site-why .row { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 10px; font-size: 14px; }
+.site-why .row > span:first-child { color: var(--muted); font-size: 12.5px; padding-top: 2px; }
+@media (max-width: 520px) { .site-why .row { grid-template-columns: minmax(0, 1fr); gap: 2px; } }
+dl.gloss { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 8px 16px; margin: 0; font-size: 14px; }
+dl.gloss dt { font-weight: 650; }
+dl.gloss dd { margin: 0; color: var(--muted); }
+@media (max-width: 520px) { dl.gloss { grid-template-columns: minmax(0, 1fr); gap: 2px; } dl.gloss dd { margin-bottom: 8px; } }
+
+/* Detail dialog */
+dialog { border: 0; padding: 0; background: var(--surface); color: var(--ink); border-radius: 14px; width: min(860px, calc(100vw - 24px)); max-height: calc(100vh - 32px); box-shadow: 0 20px 60px rgba(0, 0, 0, .3); }
+dialog::backdrop { background: rgba(10, 12, 16, .5); }
+.dlg-head { position: sticky; top: 0; background: var(--surface); border-bottom: 1px solid var(--line); padding: 14px 18px; display: flex; gap: 12px; align-items: center; z-index: 1; }
+.dlg-head .card-head { flex: 1; min-width: 0; }
+.dlg-head .card-title .domain { font-size: 18px; }
+.close { margin-left: auto; width: 36px; height: 36px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface-2); cursor: pointer; font-size: 20px; line-height: 1; flex: none; }
+.dlg-body { padding: 16px 18px 22px; display: grid; gap: 22px; }
+.quick { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.quick div { background: var(--surface); padding: 10px 12px; }
+.quick b { display: block; font: 600 18px var(--font-mono); font-variant-numeric: tabular-nums; }
+.quick span { font-size: 12px; color: var(--muted); }
+.links { display: flex; flex-wrap: wrap; gap: 8px; }
+.pages { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.pages li { background: var(--surface); display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; padding: 8px 12px; font-size: 13.5px; align-items: baseline; }
+.pages .mark { font-weight: 700; }
+.pages .mark.y { color: var(--good); } .pages .mark.n { color: var(--faint); }
+.pages .kw { color: var(--muted); font-size: 12.5px; }
+.pages .url { font: 12px var(--font-mono); color: var(--muted); white-space: nowrap; }
+.block-text { white-space: pre-wrap; font: 13px/1.5 var(--font-mono); background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 12px; max-height: 320px; overflow: auto; margin: 0; }
+.empty { color: var(--muted); font-size: 14px; padding: 18px; text-align: center; border: 1px dashed var(--line-strong); border-radius: 12px; }
+.skeleton { color: var(--muted); }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="top-row">
+      <div class="brand">
+        <span class="lanes-mark" aria-hidden="true"><i style="background:var(--p1)"></i><i style="background:var(--p2)"></i><i style="background:var(--p3)"></i><i style="background:var(--p4)"></i><i style="background:var(--p5)"></i></span>
+        <h1>Compounding Loop</h1>
+        <span class="sub">Five sites that build themselves</span>
+      </div>
+      <span class="chip" id="fresh"><span class="dot"></span><span>Connecting…</span></span>
+      <span class="chip" id="nextChip"><span class="dot"></span><span>Next run: calculating…</span></span>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button class="tab" role="tab" id="tab-status" aria-controls="status" aria-selected="true">Status</button>
+      <button class="tab" role="tab" id="tab-launch" aria-controls="launch" aria-selected="false">Your to-do <span class="count" id="todoCount" hidden></span></button>
+      <button class="tab" role="tab" id="tab-context" aria-controls="context" aria-selected="false">How it works</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="status" role="tabpanel" aria-labelledby="tab-status">
+    <div id="notices"></div>
+    <div class="summary" id="summary">
+      <div class="tile"><span class="eyebrow">Pages built</span><span class="big skeleton">…</span><span class="sub">Waiting for the first snapshot</span></div>
+      <div class="tile"><span class="eyebrow">Tests</span><span class="big skeleton">…</span><span class="sub">&nbsp;</span></div>
+      <div class="tile"><span class="eyebrow">Rounds done</span><span class="big skeleton">…</span><span class="sub">&nbsp;</span></div>
+      <div class="tile"><span class="eyebrow">Building now</span><span class="big skeleton">…</span><span class="sub">&nbsp;</span></div>
+    </div>
+
+    <div class="keyfacts" id="keyfacts" hidden></div>
+    <div class="panel todo-box" id="todoBox" hidden><div class="section-head" style="margin:0 0 8px"><h2>For you</h2><p id="todoSub"></p></div><ul class="list" id="todoList"></ul></div>
+
+    <div class="section-head"><h2>The five sites</h2><p>Click a site for pages, decisions and problems.</p></div>
+    <div class="cards" id="cards"><div class="empty">Live status appears here once the first snapshot arrives. Ask Claude Code to "refresh the dashboard" if it stays empty.</div></div>
+
+    <div class="section-head"><h2>Run schedule</h2><p>Each site's free routine wakes every hour and builds for up to 40 minutes. While a credit session holds the repo, that hourly run stands down within a minute. Times are in your timezone.</p></div>
+    <div class="panel"><div class="sched" id="sched"></div></div>
+
+    <div class="grid-2" style="margin-top:14px">
+      <div class="panel">
+        <div class="section-head"><h2>Pages over time</h2><p>Published pages after each push</p></div>
+        <div class="chart-box" id="chart"></div>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div class="panel">
+        <div class="section-head"><h2>Latest activity</h2><p>Every push, newest first</p></div>
+        <ul class="feed" id="feed"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="launch" role="tabpanel" aria-labelledby="tab-launch" hidden>
+    <div class="section-head"><h2>Launch checklist</h2><p>Tick a step when you finish it. Ticks are saved for next time.</p></div>
+    <div class="progress-line"><span id="launchCount" class="num">0 of 20 done</span><div class="bar"><i id="launchBar" style="width:0;background:var(--good)"></i></div></div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Site</th><th class="center">On Netlify</th><th class="center">Free address set</th><th class="center">Search Console</th><th class="center">Sitemap sent</th><th class="center">Live now</th></tr></thead>
+        <tbody id="launchRows"><tr><td colspan="6" class="muted">Waiting for live data…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="muted" id="launchNote" style="font-size:13px;margin:8px 2px 0">Steps Claude Code has confirmed are ticked for you. "Live now" is checked on every refresh. Buying the real domains can wait until there's budget.</p>
+
+    <div class="section-head"><h2>How to do each step</h2><p>Launching early is fine. Every push redeploys, and Google starts finding the pages sooner.</p></div>
+    <ol class="steps">
+      <li><div><h3>Connect the repo in Netlify</h3><p>Each site is a Netlify site linked to its GitHub repo (proj1 to proj5). Each repo has a <code>netlify.toml</code> that publishes only the <code>site</code> folder and sends the security headers, so the private notes stay private. Every push from the loop goes live within a minute. Already done for all five.</p></div></li>
+      <li><div><h3>The free address</h3><p>The Netlify site name is the address: <b>powerstationruntime.netlify.app</b>, <b>clearpoolmath.netlify.app</b>, <b>yarnsums.netlify.app</b>, <b>quiltcalculators.netlify.app</b> and <b>mathtank.netlify.app</b> (proj1 to proj5). Every page points Google at that address, so never rename a Netlify site without telling Claude Code first. Already done for all five.</p></div></li>
+      <li><div><h3>Add it to Google Search Console</h3><p>At <a href="https://search.google.com/search-console" target="_blank" rel="noopener">search.google.com/search-console</a>, add a <b>URL prefix</b> property for the free address, such as <code>https://yarnsums.netlify.app/</code>, and choose the <b>HTML tag</b> method. Paste the tag to Claude Code, which adds it to the home page and pushes. Then click Verify. Search Console shows real search numbers, which the build can't measure.</p></div></li>
+      <li><div><h3>Submit the sitemap</h3><p>In the verified property, open Sitemaps and submit <code>sitemap.xml</code>. Claude Code can read the sitemap status (shown on each site card), but its connection can't submit. Done for all five on October 6. Google re-reads the sitemap by itself as the loop adds pages.</p></div></li>
+      <li><div><h3>Later: buy the real domain</h3><p>Not needed to rank. When there's budget, buy the domain of the site with the most Search Console impressions first (a .com is about $10–11 a year at Cloudflare or Porkbun). Claude Code then moves the site over with permanent redirects, so it keeps its rankings.</p></div></li>
+      <li><div><h3>Turn off a routine when its site is finished</h3><p>Each site builds 5 rounds of about 10 pages, and the control room starts each next round by itself. After round 5 the site shows "Finished" and its routine keeps waking up and doing nothing. Turn it off at <a href="https://claude.ai/code/routines" target="_blank" rel="noopener">claude.ai/code/routines</a>. A finished site leaves a DONE.md file with a summary and the 10 best pages to build next.</p></div></li>
+      <li><div><h3>Optional: give the builds full web access</h3><p>The cloud sandbox blocks most websites, so the builds verify facts from search results instead of reading the source pages. In claude.ai/code, set the Default environment's network access to Full so they can read the sources directly.</p></div></li>
+      <li><div><h3>Keep an eye on usage</h3><p>The routines use your plan's five-hour usage limit, the same one Claude Code on your laptop uses. When it is hit, runs fail until it resets, then carry on. Credit sessions use the one-time $100 cloud launch credit instead (expires November 5). Pay-as-you-go is off, so nothing is charged to your card. Check <a href="https://claude.ai/settings/usage" target="_blank" rel="noopener">claude.ai/settings/usage</a> now and then. Pausing a routine is safe: the next run picks up exactly where the last one stopped.</p></div></li>
+    </ol>
+  </section>
+
+  <section id="context" role="tabpanel" aria-labelledby="tab-context" hidden>
+    <div class="section-head"><h2>What happens in every run</h2><p>Each site, every hour, in a fresh cloud session with no memory of the last one</p></div>
+    <ol class="flow">
+      <li><b>Wake up</b>A cloud routine starts Claude with the site's GitHub repo.</li>
+      <li><b>Read the notes</b><code>.ai/task.md</code> says what's done, what's next and what failed before.</li>
+      <li><b>Build one piece</b>A calculator, a page or a sourced data file.</li>
+      <li><b>Test it</b>SEO, content quality, security and math checks, then phone and laptop browser tests.</li>
+      <li><b>Get a review</b>A second AI looks for the three most likely ways it's wrong for a visitor.</li>
+      <li><b>Publish</b>Push to <code>main</code>. Netlify puts it live within a minute.</li>
+      <li><b>Repeat</b>Back to "Build one piece" until 40 minutes have passed.</li>
+      <li><b>Hand off</b>Update the notes for the next run, then stop.</li>
+    </ol>
+    <p class="loop-note">The work is split into <b>5 rounds</b> of about 10 pages. A round ends with DONE.md, which lists the 10 best next pages; every 3 hours the <b>control room</b> routine turns that list into the next round, up to round 5. A round gets at most 30 runs. A <b>credit session</b> (paid from the $100 launch credit) runs the same loop non-stop and puts a lock in the repo, so the hourly routine stands down until the session ends. A run whose tests fail publishes nothing and records what went wrong.</p>
+
+    <div class="section-head"><h2>Why these five sites</h2><p>From the research session on October 6, 2026</p></div>
+    <div class="prose">
+      <p>By 2026, every simple calculator niche already has 5 to 10 AI-built sites. Most have a few thin tools with fixed assumptions and unsourced numbers, and few are updated after launch. Rather than avoid crowded niches, these sites aim to be the most complete and most correct one in each.</p>
+      <p>That comes down to three things: <b>depth</b> (every tool and question in the niche, linked together), <b>verified numbers</b> (each formula unit-tested against a cited source) and <b>honest pages</b> (no fake reviews, real safety notes). Each niche below has steady hobby or home-owner searches, many separate questions that each deserve a page, and weak current results.</p>
+    </div>
+    <div class="site-why" id="siteWhy"></div>
+
+    <div class="two-col" style="margin-top:28px">
+      <div class="panel">
+        <div class="section-head"><h2>What the builds will never do</h2></div>
+        <ul class="list">
+          <li>Spend money, sign up for anything or create accounts</li>
+          <li>Add API keys, ads, analytics or tracking. You add those later.</li>
+          <li>Copy text, images or code from competitor sites</li>
+          <li>Force-push, rewrite git history or touch anything outside the repo</li>
+          <li>Publish the private files (instructions, notes, research). Only the <code>site/</code> folder goes live.</li>
+          <li>Push without passing tests and a review</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="section-head"><h2>Known limits</h2></div>
+        <ul class="list">
+          <li><b>No search volumes.</b> The Semrush connector had 0 API units, so the build order follows usefulness, not measured demand. Search Console will show real numbers after launch.</li>
+          <li><b>Most websites are blocked</b> in the cloud sandbox. A fact is used only if a search result from the source states it or two reputable sources agree. Anything else is left out.</li>
+          <li><b>This dashboard</b> refreshes itself every hour at :50 from your laptop (Windows task <code>CompoundingLoopDashboard</code>) while the laptop is on and you're signed in. The repos are private, so the page can't read GitHub directly. Times, countdowns, locks and the schedule are recalculated in the page every 30 seconds. Ask Claude Code to "refresh the dashboard" for an immediate update.</li>
+          <li><b>Google is slow at first.</b> All five sites are verified in Search Console and their sitemaps are sent. Indexing a new site usually takes days to weeks. Each card shows whether Google has indexed the home page, plus clicks and views for the last 28 days (Search Console data lags 2–3 days).</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="section-head"><h2>Security setup</h2></div>
+        <ul class="list">
+          <li>Strict security headers on every page: same-origin scripts only, no inline scripts or iframes, no framing by other sites</li>
+          <li>A scan for leaked keys and secrets on every test run</li>
+          <li>Netlify publishes only each repo's <code>site</code> folder. The tests fail if that setting changes, and every dashboard refresh checks that the private notes return 404 on the live address.</li>
+          <li>No third-party scripts and no runtime packages, so there's no supply chain to attack</li>
+          <li>GuardVibe and Snyk were considered. GuardVibe targets full-stack apps and Snyk needs an account, so neither adds much for static sites.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="section-head"><h2>Ideas for keyspersecond.com</h2></div>
+        <ul class="list">
+          <li>Stats pages from your PostHog data, such as "what's a good keys-per-second score?" with real percentiles nobody else has</li>
+          <li>Translated versions of the main pages for the biggest non-English audiences</li>
+          <li>Related tools on the same domain (click speed, reaction time, typing tests) to capture neighbouring searches</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section-head"><h2>Words used on this page</h2></div>
+    <div class="panel">
+      <dl class="gloss">
+        <dt>Run</dt><dd>One cloud session that builds, tests, reviews and publishes a few pieces, then stops.</dd>
+        <dt>Run budget</dt><dd>At most 30 runs per round. If it runs out, the site stops with BLOCKED.md and the control room resets it once.</dd>
+        <dt>Round</dt><dd>About 10 new pages. Each site builds 5 rounds; the control room starts each next round from the last DONE.md.</dd>
+        <dt>Credit session</dt><dd>A cloud session paid from the one-time $100 launch credit that builds non-stop. Its lock makes the free hourly routine stand down until 90 minutes after the lock was written.</dd>
+        <dt>Unit tests</dt><dd>Checks that each formula gives the same answer as cited reference values.</dd>
+        <dt>Browser tests</dt><dd>A real Chrome loads each page on a laptop and a phone screen and uses the calculators.</dd>
+        <dt>Reviewer</dt><dd>A second AI that didn't write the change and checks it before publishing.</dd>
+        <dt>Planned pages</dt><dd>One page per group of searches from the research brief (IDEA.md in each repo).</dd>
+        <dt>Sitemap</dt><dd>The list of pages handed to Google. Each site keeps its own at /sitemap.xml.</dd>
+        <dt>DONE / BLOCKED</dt><dd>Files a run writes when a round is finished or needs a decision. Either one pauses the site until the control room (or you) moves it on.</dd>
+      </dl>
+    </div>
+  </section>
+</main>
+
+<dialog id="detail" aria-labelledby="dlgTitle"></dialog>
+
+<script>
+const SITES = {
+  proj1: { label: 'Power stations', color: 'var(--p1)' },
+  proj2: { label: 'Pool & hot tub chemistry', color: 'var(--p2)' },
+  proj3: { label: 'Knitting & crochet', color: 'var(--p3)' },
+  proj4: { label: 'Quilting', color: 'var(--p4)' },
+  proj5: { label: 'Aquariums', color: 'var(--p5)' },
+};
+const IDS = Object.keys(SITES);
+const LAUNCH_STEPS = [['vercel', 'On Netlify'], ['address', 'Free address set'], ['gsc', 'Search Console'], ['sitemap', 'Sitemap sent']];
+const state = { projects: {}, status: null, routines: null, context: null, launch: {}, db: null, canWrite: null, readOnly: false, phase: 'connecting', openId: null, saving: new Set() };
+
+// ---------- helpers ----------
+function el(tag, attrs, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v == null || v === false) continue;
+    if (k === 'class') n.className = v;
+    else if (k === 'style') n.style.cssText = v;
+    else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v === true ? '' : v);
+  }
+  for (const c of kids.flat()) if (c != null && c !== false) n.append(c instanceof Node ? c : document.createTextNode(String(c)));
+  return n;
+}
+const NS = 'http://www.w3.org/2000/svg';
+function s(tag, attrs, text) {
+  const n = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs || {})) n.setAttribute(k, v);
+  if (text != null) n.textContent = text;
+  return n;
+}
+function rich(text) {
+  const f = document.createDocumentFragment();
+  String(text ?? '').split(/(`[^`]+`|\*\*[^*]+\*\*|\*[^*\s][^*]*\*)/).forEach((part) => {
+    if (!part) return;
+    if (part.length > 2 && part.startsWith('`') && part.endsWith('`')) f.append(el('code', {}, part.slice(1, -1)));
+    else if (part.length > 4 && part.startsWith('**') && part.endsWith('**')) f.append(el('strong', {}, part.slice(2, -2)));
+    else if (part.length > 2 && part.startsWith('*') && part.endsWith('*')) f.append(el('em', {}, part.slice(1, -1)));
+    else f.append(part);
+  });
+  return f;
+}
+function dur(ms) {
+  const m = Math.round(Math.abs(ms) / 60000);
+  if (m < 1) return 'under a minute';
+  if (m < 60) return m + ' min';
+  const h = Math.floor(m / 60), r = m % 60;
+  if (h < 24) return r ? `${h} h ${r} min` : `${h} h`;
+  const d = Math.floor(h / 24), rh = h % 24;
+  return rh ? `${d} d ${rh} h` : `${d} d`;
+}
+const ago = (t) => (t ? dur(Date.now() - new Date(t).getTime()) + ' ago' : 'never');
+const inTime = (t) => 'in ' + dur(t - Date.now());
+const clock = (t) => new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const dayTime = (t) => new Date(t).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+const dayOnly = (t) => new Date(t).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+const shortDate = (t) => new Date(t).toLocaleDateString([], { month: 'short', day: 'numeric' });
+const fmt = (n) => Number(n || 0).toLocaleString();
+const color = (id) => SITES[id]?.color ?? 'var(--faint)';
+const badge = (id, cls = 'badge') => el('span', { class: cls, style: `background:${color(id)}`, 'aria-hidden': 'true' }, id.replace('proj', ''));
+const siteName = (p) => p?.domain || p?.id || '';
+
+// ---------- cron (UTC, minute and hour fields; the routines use * for the rest) ----------
+function field(spec, min, max) {
+  const out = new Set();
+  for (const part of spec.split(',')) {
+    const [range, stepS] = part.split('/');
+    const step = stepS ? Number(stepS) : 1;
+    let lo, hi;
+    if (range === '*') { lo = min; hi = max; }
+    else if (range.includes('-')) [lo, hi] = range.split('-').map(Number);
+    else { lo = Number(range); hi = stepS ? max : lo; }
+    for (let v = lo; v <= hi; v += step) out.add(v);
+  }
+  return [...out].sort((a, b) => a - b);
+}
+function fires(cron, from, to) {
+  const [m, h] = String(cron).trim().split(/\s+/);
+  const mins = field(m, 0, 59), hours = field(h, 0, 23), out = [];
+  const d0 = new Date(from);
+  for (let day = Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth(), d0.getUTCDate()); day <= to; day += 86400000)
+    for (const hh of hours) for (const mm of mins) {
+      const t = day + hh * 3600000 + mm * 60000;
+      if (t >= from && t <= to) out.push(t);
+    }
+  return out.sort((a, b) => a - b);
+}
+const nextFire = (cron, now) => fires(cron, now, now + 2 * 86400000)[0] ?? null;
+const prevFire = (cron, now) => fires(cron, now - 2 * 86400000, now).pop() ?? null;
+const nthFire = (cron, now, n) => fires(cron, now, now + (n * 3 + 48) * 3600000)[n - 1] ?? null;
+
+// ---------- derived status ----------
+function derive(p) {
+  const now = Date.now();
+  const cron = p.routine?.cron;
+  const info = state.routines?.items?.[p.id];
+  const enabled = info ? info.enabled !== false : true;
+  const next = cron && enabled ? nextFire(cron, now) : null;
+  const prev = cron ? prevFire(cron, now) : null;
+  const active = p.status === 'building' || p.status === 'waiting';
+  const session = active && !!(p.lock && Date.parse(p.lock.at) + 90 * 60000 > now);
+  const running = active && !session && enabled && prev != null && now - prev < 12 * 60000;
+  const remaining = Math.max(0, (p.runLimit || 30) - (p.run || 0));
+  const finish = active && cron && enabled && remaining ? nthFire(cron, now, remaining) : null;
+  const testsBad = p.tests && !p.tests.ok;
+  let pill = { building: ['Building', 'info'], waiting: ['Round starting', ''], blocked: ['Blocked: needs you', 'bad'], between: [`Round ${p.roundsDone} done, next soon`, 'good'], finished: ['Finished', 'good'], done: ['Done', 'good'] }[p.status] || ['Unknown', ''];
+  if (active && session) pill = ['Credit session building', 'run'];
+  else if (running) pill = ['Routine running now', 'run'];
+  else if (active && !enabled) pill = ['Paused', 'warn'];
+  const lastRun = info?.lastRun;
+  const runFailed = !running && lastRun && /fail|error|cancel|timeout/i.test(lastRun.status || '');
+  if (runFailed && active) pill = ['Last run failed', 'bad'];
+  if (testsBad && p.status !== 'finished') pill = ['Tests failing', 'bad'];
+  const builder = session ? 'Credit session' : p.status === 'finished' ? 'Nobody (finished)' : enabled ? 'Free hourly routine' : 'Nobody (routine paused)';
+  return { next, prev, running, remaining, finish, pill, enabled, active, lastRun, runFailed, session, builder };
+}
+const list = () => IDS.map((id) => state.projects[id]).filter(Boolean);
+
+// ---------- header ----------
+function renderHeader() {
+  const fresh = document.getElementById('fresh');
+  const next = document.getElementById('nextChip');
+  fresh.replaceChildren();
+  if (state.phase === 'no-db') { fresh.append(el('span', { class: 'dot warn' }), 'Live data unavailable in this view'); }
+  else if (!state.status?.updatedAt) { fresh.append(el('span', { class: 'dot' }), state.phase === 'connecting' ? 'Connecting…' : 'No snapshot yet'); }
+  else {
+    const age = Date.now() - new Date(state.status.updatedAt).getTime();
+    const cls = age < 90 * 60000 ? 'good' : age < 6 * 3600000 ? 'warn' : 'bad';
+    fresh.title = 'Snapshot taken ' + dayTime(state.status.updatedAt);
+    fresh.append(el('span', { class: 'dot ' + cls }), 'Data updated ' + ago(state.status.updatedAt));
+    if (state.status.by) fresh.title += ' by ' + state.status.by;
+  }
+  next.replaceChildren();
+  const upcoming = list().map((p) => ({ p, d: derive(p) })).filter((x) => x.d.active);
+  const runningNow = upcoming.filter((x) => x.d.running);
+  if (runningNow.length) {
+    next.append(el('span', { class: 'dot', style: `background:${color(runningNow[0].p.id)}` }), `Running: ${runningNow.map((x) => siteName(x.p)).join(', ')}`);
+  } else {
+    const soon = upcoming.filter((x) => x.d.next).sort((a, b) => a.d.next - b.d.next)[0];
+    if (soon) next.append(el('span', { class: 'dot', style: `background:${color(soon.p.id)}` }), `Next run: ${siteName(soon.p)} ${inTime(soon.d.next)}`);
+    else next.append(el('span', { class: 'dot' }), list().length ? 'No runs scheduled' : 'Next run: waiting for data');
+  }
+  const todo = launchTotals();
+  const tc = document.getElementById('todoCount');
+  tc.hidden = !list().length || todo.left === 0;
+  tc.textContent = todo.left;
+}
+
+// ---------- notices ----------
+function renderNotices() {
+  const box = document.getElementById('notices');
+  box.replaceChildren();
+  if (state.phase === 'no-db') {
+    box.append(el('div', { class: 'notice warn' }, el('p', {}, 'Live data can only load when this page is opened on claude.ai while you are signed in. The sections below fill in once it connects.')));
+    return;
+  }
+  const ps = list();
+  const blocked = ps.filter((p) => p.status === 'blocked');
+  const failing = ps.filter((p) => p.tests && !p.tests.ok);
+  const done = ps.filter((p) => p.status === 'finished');
+  for (const p of blocked) box.append(el('div', { class: 'notice bad' }, el('p', {}, el('b', {}, `${siteName(p)} is blocked. `), 'The run stopped and wrote a question for you. ', el('a', { href: '#', onclick: (e) => { e.preventDefault(); openDetail(p.id); } }, 'Read what it needs'))));
+  for (const p of ps.filter((q) => derive(q).runFailed)) box.append(el('div', { class: 'notice bad' }, el('p', {}, el('b', {}, `${siteName(p)}: the last routine run failed. `), (derive(p).lastRun?.finishedAt && Date.parse(derive(p).lastRun.finishedAt) - Date.parse(derive(p).lastRun.firedAt) < 60000) ? 'It ended within seconds, which almost always means the plan\'s five-hour usage limit was reached. The next run after the limit resets carries on. ' : 'The next run retries automatically. ', el('a', { href: p.routine?.url, target: '_blank', rel: 'noopener' }, 'Open the run log'))));
+  for (const p of ps.filter((q) => q.live?.leaked?.length)) box.append(el('div', { class: 'notice bad' }, el('p', {}, el('b', {}, `${siteName(p)} is publishing private files: `), p.live.leaked.join(', '), '. Ask Claude Code to fix the publish folder in netlify.toml.')));
+  for (const p of failing) box.append(el('div', { class: 'notice bad' }, el('p', {}, el('b', {}, `${siteName(p)}: tests fail on the latest code. `), 'The next run sees the failure and fixes it before building anything new.')));
+  for (const p of done) box.append(el('div', { class: 'notice' }, el('p', {}, el('b', {}, `${siteName(p)} finished all ${p.maxRounds || 5} rounds. `), ...(state.routines?.items?.[p.id]?.enabled === false ? ['Its routine is off. Read its DONE summary in the details.'] : ['You can turn off its routine at ', el('a', { href: 'https://claude.ai/code/routines', target: '_blank', rel: 'noopener' }, 'claude.ai/code/routines'), ' and read its DONE summary in the details.']))));
+  if (state.status?.updatedAt && Date.now() - new Date(state.status.updatedAt).getTime() > 6 * 3600000)
+    box.append(el('div', { class: 'notice warn' }, el('p', {}, el('b', {}, 'This is an old snapshot. '), 'The hourly refresh runs on your laptop, so it pauses while the laptop is off or asleep. The sites keep building in the cloud either way. Ask Claude Code to "refresh the dashboard" for current numbers.')));
+}
+
+// ---------- summary ----------
+function renderSummary() {
+  const ps = list();
+  if (!ps.length) return;
+  const built = ps.reduce((n, p) => n + (p.pages?.length || 0), 0);
+  const planned = ps.reduce((n, p) => n + (p.plannedCount || 0), 0);
+  const live = ps.filter((p) => p.live?.live).length;
+  const tested = ps.filter((p) => p.tests);
+  const unit = tested.reduce((n, p) => n + (p.tests.unitPassed || 0), 0);
+  const browser = tested.reduce((n, p) => n + (p.tests.browserPassed || 0), 0);
+  const failing = tested.filter((p) => !p.tests.ok).length;
+  const rounds = ps.reduce((n, p) => n + (p.roundsDone || 0), 0);
+  const maxRounds = ps.reduce((n, p) => n + (p.maxRounds || 5), 0);
+  const sessions = ps.filter((p) => derive(p).session).length;
+  const routines = ps.filter((p) => !derive(p).session && derive(p).active).length;
+  const allDone = ps.every((p) => p.status === 'finished');
+  const sitemaps = ps.reduce((n, p) => n + (p.sitemapCount || 0), 0);
+  const testedAt = tested.map((p) => p.tests.ranAt).sort().pop();
+  const gs = ps.map((p) => p.gsc).filter((g) => g?.ok);
+  const homes = gs.filter(homeIndexed).length;
+  const clicks = gs.reduce((n, g) => n + (g.clicks || 0), 0), views = gs.reduce((n, g) => n + (g.impressions || 0), 0);
+  const creditNote = state.context?.creditShort || 'Sessions use the $100 launch credit.';
+  const tile = (label, big, unitText, sub) => el('div', { class: 'tile' }, el('span', { class: 'eyebrow' }, label), el('span', { class: 'big' }, big, unitText ? el('small', {}, ' ' + unitText) : null), el('span', { class: 'sub' }, sub));
+  document.getElementById('summary').replaceChildren(
+    tile('Pages built', fmt(built), '', `${live} of ${ps.length} sites live · ${fmt(sitemaps)} URLs in sitemaps`),
+    tile('Tests', tested.length ? fmt(unit + browser) : '–', tested.length ? (failing ? `${failing} site failing` : 'passing') : '',
+      tested.length ? `${fmt(unit)} math + ${fmt(browser)} browser, run on your laptop ${ago(testedAt)}` : 'Not run in this snapshot'),
+    tile('Rounds done', fmt(rounds), `/ ${fmt(maxRounds)}`, 'Each site builds 5 rounds of about 10 pages'),
+    tile('Building now', allDone ? 'All done' : `${sessions}`, allDone ? '' : sessions === 1 ? 'credit session' : 'credit sessions', allDone ? 'Every site finished round 5' : `${routines} on free hourly routines. ${creditNote}`),
+    tile('Google', gs.length ? `${homes}` : '–', gs.length ? `/ ${ps.length} indexed` : '', gs.length ? `home pages in Google · ${fmt(clicks)} clicks, ${fmt(views)} views in 28 days` : 'Search Console not read yet'),
+  );
+}
+
+// ---------- key facts and owner to-dos (meta/context, written by Claude Code) ----------
+function renderContext() {
+  const c = state.context;
+  const kf = document.getElementById('keyfacts'), tb = document.getElementById('todoBox');
+  kf.hidden = !c?.facts?.length; tb.hidden = !c?.todos?.length;
+  if (!c) return;
+  kf.replaceChildren(...(c.facts || []).map((f) => el('div', {}, el('span', { class: 'k' }, f.label), el('span', { class: 'v ' + (f.level || '') }, rich(f.value)), f.note ? el('span', { class: 'n' }, rich(f.note)) : null)));
+  document.getElementById('todoSub').textContent = c.updatedAt ? `Written by Claude Code ${ago(c.updatedAt)}` : '';
+  document.getElementById('todoList').replaceChildren(...(c.todos || []).map((t) => el('li', {}, rich(t))));
+}
+
+// ---------- cards ----------
+function meter(label, value, max, col) {
+  const pct = max ? Math.min(100, (value / max) * 100) : 0;
+  return el('div', { class: 'meter' },
+    el('div', { class: 'meter-row' }, el('span', { class: 'muted' }, label), el('b', { class: 'num' }, `${fmt(value)} / ${fmt(max)}`)),
+    el('div', { class: 'bar', role: 'img', 'aria-label': `${label}: ${value} of ${max}` }, el('i', { style: `width:${pct}%;background:${col}` })));
+}
+function testsText(p) {
+  if (!p.tests) return el('span', { class: 'muted' }, `${p.unitTestCount || 0} math, ${p.browserTestCount || 0} browser written`);
+  const t = p.tests;
+  return t.ok ? el('span', { class: 'ok' }, `✓ ${t.unitPassed + t.browserPassed} passing`) : el('span', { class: 'fail' }, `✕ ${t.unitFailed + t.browserFailed + (t.checkProblems || 0)} failing`);
+}
+const homeIndexed = (g) => /indexed/i.test(g?.home?.coverage || '') && !/not indexed/i.test(g.home.coverage);
+function gscText(p) {
+  const g = p.gsc;
+  if (!g || g.ok === false) return el('span', { class: 'muted', title: g?.error || '' }, g ? 'Search Console unreadable' : 'Sitemap sent');
+  const home = g.home ? (homeIndexed(g) ? 'Home indexed' : 'Home not indexed yet') : null;
+  const traffic = g.impressions != null ? `${fmt(g.clicks)} clicks, ${fmt(g.impressions)} views` : null;
+  return el('span', { class: homeIndexed(g) ? '' : 'muted', title: `Home page: ${g.home?.coverage || 'unknown'}. Sitemap ${g.pending ? 'not read yet' : `last read ${g.downloadedAt ? dayTime(g.downloadedAt) : '?'} (${g.submitted ?? '?'} URLs)`}. Last 28 days: ${g.clicks ?? 0} clicks, ${g.impressions ?? 0} views.` },
+    [home, traffic].filter(Boolean).join(' · '));
+}
+function titleBlock(p, d, idAttr) {
+  return el('div', { class: 'card-head' }, badge(p.id),
+    el('div', { class: 'card-title' }, el('div', { class: 'domain', id: idAttr }, siteName(p)),
+      el('div', { class: 'sub-line' }, el('span', { class: 'niche' }, SITES[p.id].label), el('span', { class: 'pill ' + d.pill[1] }, d.pill[0]))));
+}
+function renderCards() {
+  const ps = list();
+  const box = document.getElementById('cards');
+  if (!ps.length) return;
+  box.replaceChildren(...ps.map((p) => {
+    const d = derive(p);
+    const last = p.commits?.[0];
+    return el('article', { class: 'card' },
+      el('div', { class: 'lane-a' }, titleBlock(p, d),
+        el('p', { class: 'one-liner' }, rich(p.oneLiner))),
+      el('div', { class: 'lane-b' },
+        meter('Rounds done', p.roundsDone || 0, p.maxRounds || 5, color(p.id)),
+        meter(`Runs used in round ${p.round || 1}`, p.run || 0, p.runLimit || 30, 'var(--line-strong)')),
+      el('dl', { class: 'facts' },
+        el('dt', {}, 'Built by'), el('dd', { title: p.lock ? `Lock written ${dayTime(p.lock.at)}` : '' }, d.session ? el('span', { class: 'ok' }, 'Credit session') : d.builder),
+        el('dt', {}, 'Pages'), el('dd', {}, `${fmt((p.pages || []).length)} live · ${fmt(p.sitemapCount || 0)} in sitemap`),
+        el('dt', {}, 'Google'), el('dd', {}, gscText(p)),
+        el('dt', {}, 'Tests'), el('dd', {}, testsText(p)),
+        el('dt', {}, 'Last push'), el('dd', { title: last ? last.msg : '' }, last ? ago(last.at) : 'none yet'),
+        el('dt', {}, d.running ? 'Run started' : 'Next routine run'), el('dd', {}, d.running ? ago(d.prev) : p.status === 'finished' ? 'finished' : d.next ? `${inTime(d.next)} · ${clock(d.next)}${d.session ? ' (stands down)' : ''}` : 'not scheduled'),
+        el('dt', {}, 'Live'), el('dd', {}, p.live?.live ? el('span', { class: 'ok' }, 'Yes') : el('span', { class: 'muted' }, 'Not yet'))),
+      el('button', { class: 'btn', type: 'button', onclick: () => openDetail(p.id) }, 'Open details'));
+  }));
+}
+
+// ---------- schedule ----------
+function renderSchedule() {
+  const ps = list();
+  const box = document.getElementById('sched');
+  if (!ps.length) { box.replaceChildren(el('div', { class: 'empty' }, 'The schedule appears with the first snapshot.')); return; }
+  const now = Date.now(), from = now - 3 * 3600000, to = now + 12 * 3600000, span = to - from;
+  const x = (t) => ((t - from) / span) * 100;
+  const axis = el('div', { class: 'sched-axis', 'aria-hidden': 'true' });
+  const hours = [];
+  for (let t = Math.ceil(from / 3600000) * 3600000; t <= to; t += 3600000) hours.push(t);
+  const every = box.clientWidth < 560 ? 6 : 3;
+  hours.forEach((t, i) => { if (i % every === 0 && Math.abs(x(t) - x(now)) > 7) axis.append(el('span', { style: `left:${x(t)}%` }, clock(t))); });
+  const lanes = ps.map((p) => {
+    const d = derive(p);
+    const track = el('div', { class: 'sched-track' });
+    hours.forEach((t) => track.append(el('span', { class: 'hr', style: `left:${x(t)}%` })));
+    if (p.routine?.cron && d.enabled && d.active && !d.session)
+      fires(p.routine.cron, from, to).forEach((t) => track.append(el('span', { class: 'tick' + (t < now ? ' past' : ''), style: `left:${x(t)}%;background:${color(p.id)}`, title: `${siteName(p)}: ${dayTime(t)}` })));
+    return el('div', { class: 'sched-lane' }, el('span', { class: 'sched-name', title: siteName(p) }, siteName(p).replace(/\.(com|app)$/, '')), track);
+  });
+  const nowLine = el('div', { class: 'sched-now', style: `left:calc(132px + (100% - 132px) * ${x(now) / 100})` });
+  if (window.matchMedia('(max-width: 520px)').matches) nowLine.style.left = `calc(78px + (100% - 78px) * ${x(now) / 100})`;
+  box.replaceChildren(axis, ...lanes, nowLine);
+}
+
+// ---------- chart ----------
+let chartWidth = 0;
+function renderChart() {
+  const ps = list();
+  const box = document.getElementById('chart');
+  const legend = document.getElementById('legend');
+  if (!ps.length) { box.replaceChildren(el('div', { class: 'empty' }, 'The chart appears with the first snapshot.')); legend.replaceChildren(); return; }
+  const W = Math.max(280, box.clientWidth || 600), H = 220, m = { l: 30, r: 14, t: 10, b: 26 };
+  const series = ps.map((p) => ({ p, pts: (p.history || []).map((h) => [new Date(h.at).getTime(), h.pages]) })).filter((sr) => sr.pts.length);
+  const now = Date.now();
+  let x0 = Math.min(...series.map((sr) => sr.pts[0][0]));
+  if (!isFinite(x0)) x0 = now - 3600000;
+  const x1 = Math.max(now, x0 + 3600000);
+  const maxY = Math.max(5, ...series.map((sr) => Math.max(...sr.pts.map((q) => q[1]))));
+  const step = [1, 2, 5, 10, 20, 50].find((st) => maxY / st <= 5) || 100;
+  const yTop = Math.ceil(maxY / step) * step;
+  const X = (t) => m.l + ((t - x0) / (x1 - x0)) * (W - m.l - m.r);
+  const Y = (v) => H - m.b - (v / yTop) * (H - m.t - m.b);
+  const svg = s('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: 'img', 'aria-label': 'Published pages per site over time' });
+  for (let v = 0; v <= yTop; v += step) {
+    svg.append(s('line', { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: 'var(--line)', 'stroke-width': 1 }));
+    svg.append(s('text', { x: m.l - 8, y: Y(v) + 4, 'text-anchor': 'end', 'font-size': 11, 'font-family': 'var(--font-mono)', fill: 'var(--faint)' }, v));
+  }
+  const spanH = (x1 - x0) / 3600000;
+  const ticks = W < 480 ? 2 : 4;
+  for (let i = 0; i <= ticks; i++) {
+    const t = x0 + ((x1 - x0) * i) / ticks;
+    const label = spanH > 30 ? dayOnly(t) : clock(t);
+    svg.append(s('text', { x: X(t), y: H - 6, 'text-anchor': i === 0 ? 'start' : i === ticks ? 'end' : 'middle', 'font-size': 11, 'font-family': 'var(--font-mono)', fill: 'var(--faint)' }, label));
+  }
+  series.forEach((sr, i) => {
+    const off = (i - (series.length - 1) / 2) * 1.6;
+    let d = '';
+    sr.pts.forEach(([t, v], j) => { d += j === 0 ? `M${X(t)},${Y(v) + off}` : `H${X(t)}V${Y(v) + off}`; });
+    d += `H${X(now)}`;
+    const last = sr.pts[sr.pts.length - 1];
+    svg.append(s('path', { d, fill: 'none', stroke: color(sr.p.id), 'stroke-width': 2.2, 'stroke-linejoin': 'round' }));
+    svg.append(s('circle', { cx: X(now), cy: Y(last[1]) + off, r: 4, fill: color(sr.p.id), stroke: 'var(--surface)', 'stroke-width': 2 }));
+  });
+  box.replaceChildren(svg);
+  chartWidth = W;
+  legend.replaceChildren(...series.map((sr) => el('span', {}, el('i', { style: `background:${color(sr.p.id)}` }), siteName(sr.p), el('b', { class: 'num' }, String(sr.pts[sr.pts.length - 1][1])))));
+}
+
+// ---------- feed ----------
+function renderFeed() {
+  const ps = list();
+  const box = document.getElementById('feed');
+  if (!ps.length) { box.replaceChildren(el('li', { class: 'muted', style: 'display:block' }, 'Pushes appear here with the first snapshot.')); return; }
+  const all = ps.flatMap((p) => (p.commits || []).map((c) => ({ ...c, id: p.id, domain: siteName(p) }))).sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 40);
+  box.replaceChildren(...all.map((c) => el('li', {},
+    badge(c.id, 'mini'),
+    el('div', { class: 'msg' }, c.msg, el('div', { class: 'who' }, `${c.domain} · ${c.author === 'Claude' ? 'AI run' : 'setup'}`)),
+    el('span', { class: 'when', title: dayTime(c.at) }, ago(c.at)))));
+}
+
+// ---------- launch ----------
+const SETUP_KEY = { vercel: 'netlify', address: 'address', gsc: 'gsc', sitemap: 'sitemap' };
+const stepDone = (p, k) => !!(state.launch[p.id]?.[k] || p.setup?.[SETUP_KEY[k]]);
+function launchTotals() {
+  const ps = list();
+  let doneCount = 0;
+  for (const p of ps) for (const [k] of LAUNCH_STEPS) if (stepDone(p, k)) doneCount++;
+  const total = ps.length * LAUNCH_STEPS.length;
+  return { done: doneCount, total, left: total - doneCount };
+}
+const CHECK = () => { const svg = s('svg', { viewBox: '0 0 16 16', 'aria-hidden': 'true' }); svg.append(s('path', { d: 'M3 8.5l3.2 3L13 4.5', fill: 'none', stroke: 'currentColor', 'stroke-width': 2.2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' })); return svg; };
+async function toggleStep(id, key) {
+  if (!state.db || state.readOnly || state.saving.has(id)) return;
+  state.saving.add(id);
+  const cur = state.launch[id] || {};
+  const next = { ...cur, [key]: !cur[key], updatedAt: new Date().toISOString() };
+  state.launch = { ...state.launch, [id]: next };
+  renderLaunch(); renderHeader();
+  try { await state.db.doc('launch/' + id).set(next); }
+  catch (e) {
+    state.launch = { ...state.launch, [id]: cur };
+    if (e?.code === 'invalid_argument') state.readOnly = true;
+    document.getElementById('launchNote').textContent = e?.code === 'invalid_argument' ? 'You can view this checklist but not change it.' : 'That tick could not be saved. Check your connection and try again.';
+  } finally { state.saving.delete(id); renderLaunch(); renderHeader(); }
+}
+function renderLaunch() {
+  const ps = list();
+  const body = document.getElementById('launchRows');
+  if (!ps.length) return;
+  const ro = state.readOnly || state.canWrite === false || !state.db;
+  body.replaceChildren(...ps.map((p) => el('tr', {},
+    el('td', {}, el('div', { style: 'display:flex;gap:10px;align-items:center' }, badge(p.id, 'mini'), el('div', {}, el('b', {}, siteName(p)), el('div', { class: 'muted', style: 'font-size:12.5px' }, `Repo ${p.id}`)))),
+    ...LAUNCH_STEPS.map(([k, label]) => {
+      const auto = !!p.setup?.[SETUP_KEY[k]];
+      const on = auto || !!state.launch[p.id]?.[k];
+      return el('td', { class: 'center' }, el('button', { class: 'toggle', type: 'button', 'aria-pressed': on ? 'true' : 'false', 'aria-label': `${label}: ${siteName(p)}`, title: auto ? 'Confirmed by Claude Code' : '', disabled: auto || ro || state.saving.has(p.id), onclick: () => toggleStep(p.id, k) }, CHECK()));
+    }),
+    el('td', { class: 'center' }, p.live?.live ? el('span', { class: 'pill good', title: 'Checked ' + ago(p.live.checkedAt) }, 'Live') : el('span', { class: 'pill', title: p.live ? 'Checked ' + ago(p.live.checkedAt) : '' }, 'Not yet')))));
+  const t = launchTotals();
+  document.getElementById('launchCount').textContent = `${t.done} of ${t.total} steps done`;
+  document.getElementById('launchBar').style.width = (t.total ? (t.done / t.total) * 100 : 0) + '%';
+}
+
+// ---------- context per site ----------
+function renderWhy() {
+  const ps = list();
+  const box = document.getElementById('siteWhy');
+  if (!ps.length) { box.replaceChildren(el('div', { class: 'empty' }, 'Site details appear with the first snapshot.')); return; }
+  const row = (label, content) => content ? el('div', { class: 'row' }, el('span', {}, label), el('span', {}, content)) : null;
+  box.replaceChildren(...ps.map((p) => el('article', {},
+    el('div', { class: 'card-head' }, badge(p.id), el('div', { class: 'card-title' }, el('div', { class: 'domain' }, siteName(p)), el('div', { class: 'niche' }, SITES[p.id].label))),
+    row('The site', rich(p.oneLiner)),
+    row('For', (p.audience || []).slice(0, 3).join('; ')),
+    row('The gap', rich(p.competitors)),
+    row('Money later', p.monetization))));
+}
+
+// ---------- detail dialog ----------
+function openDetail(id) {
+  state.openId = id;
+  renderDetail();
+  const dlg = document.getElementById('detail');
+  if (!dlg.open) { try { dlg.showModal(); } catch { dlg.setAttribute('open', ''); } }
+}
+function bulletList(items, empty) {
+  return items?.length ? el('ul', { class: 'list' }, ...items.map((t) => el('li', {}, rich(t)))) : el('p', { class: 'muted', style: 'margin:0' }, empty);
+}
+function renderDetail() {
+  const dlg = document.getElementById('detail');
+  const p = state.projects[state.openId];
+  if (!p) return;
+  const d = derive(p);
+  const plannedUrls = new Set((p.planned || []).flatMap((r) => r.urls));
+  const extra = (p.pages || []).filter((pg) => !plannedUrls.has(pg.url));
+  const sec = (title, sub, ...kids) => el('section', {}, el('div', { class: 'section-head', style: 'margin:0 0 10px' }, el('h2', {}, title), sub ? el('p', {}, sub) : null), ...kids);
+  dlg.replaceChildren(
+    el('div', { class: 'dlg-head' }, titleBlock(p, d, 'dlgTitle'),
+      el('button', { class: 'close', type: 'button', 'aria-label': 'Close', onclick: () => dlg.close() }, '×')),
+    el('div', { class: 'dlg-body' },
+      p.status === 'blocked' && p.blockedText ? sec('What it needs from you', 'From BLOCKED.md', el('pre', { class: 'block-text' }, p.blockedText)) : null,
+      (p.status === 'finished' || p.status === 'between') && p.doneText ? sec(`Round ${p.roundsDone} summary`, 'From DONE.md', el('pre', { class: 'block-text' }, p.doneText)) : null,
+      el('div', { class: 'quick' },
+        el('div', {}, el('b', {}, `${p.roundsDone || 0}/${p.maxRounds || 5}`), el('span', {}, `rounds done${(p.rounds || []).length ? ', last ' + ago(p.rounds[p.rounds.length - 1].finishedAt) : ''}`)),
+        el('div', {}, el('b', {}, d.session ? 'Session' : 'Routine'), el('span', {}, d.session ? `credit session; routine resumes after ${clock(Date.parse(p.lock.at) + 90 * 60000)} if no newer lock` : d.builder.toLowerCase())),
+        el('div', {}, el('b', {}, `${p.run || 0}/${p.runLimit || 30}`), el('span', {}, `runs used in round ${p.round || 1}`)),
+        el('div', {}, el('b', {}, `${p.builtPlannedCount || 0}/${p.plannedCount || 0}`), el('span', {}, 'planned pages built')),
+        el('div', {}, el('b', {}, fmt((p.pages || []).length)), el('span', {}, 'pages published')),
+        el('div', {}, el('b', {}, p.tests ? (p.tests.ok ? 'Pass' : 'Fail') : '–'), el('span', {}, p.tests ? `${p.tests.unitPassed} math, ${p.tests.browserPassed} browser` : 'not run')),
+        el('div', {}, el('b', {}, fmt((p.data || []).reduce((n, f) => n + f.entries, 0))), el('span', {}, 'sourced data entries')),
+        el('div', {}, el('b', {}, d.next ? clock(d.next) : '–'), el('span', {}, d.next ? 'next run, ' + inTime(d.next) : 'no run scheduled')),
+        el('div', {}, el('b', { class: d.runFailed ? 'fail' : '' }, d.lastRun ? (d.runFailed ? 'Failed' : d.lastRun.finishedAt ? 'OK' : 'Running') : '–'),
+          el('span', {}, d.lastRun ? `last cloud run, ${d.lastRun.finishedAt ? 'ended ' + ago(d.lastRun.finishedAt) + (d.lastRun.firedAt ? `, took ${dur(new Date(d.lastRun.finishedAt) - new Date(d.lastRun.firedAt))}` : '') : 'started ' + ago(d.lastRun.firedAt)}` : 'no run info yet'))),
+      el('div', { class: 'links' },
+        el('a', { class: 'btn', href: p.repo, target: '_blank', rel: 'noopener' }, 'GitHub repo'),
+        el('a', { class: 'btn', href: p.routine?.url, target: '_blank', rel: 'noopener' }, 'Routine and run logs'),
+        p.live?.live ? el('a', { class: 'btn', href: `https://${p.domain}/`, target: '_blank', rel: 'noopener' }, 'Open live site') : null),
+      p.futureDomain ? el('p', { class: 'muted', style: 'font-size:13px;margin:-4px 0 0' }, `Built for the free address ${p.domain}. Domain to buy later: ${p.futureDomain}.`) : null,
+      p.gsc?.ok ? sec('Google', `From Search Console, checked ${ago(p.gsc.checkedAt)}. Clicks and views cover the last 28 days and lag 2–3 days.`,
+        el('div', { class: 'quick' },
+          el('div', {}, el('b', { class: homeIndexed(p.gsc) ? 'ok' : '' }, homeIndexed(p.gsc) ? 'Yes' : 'Not yet'), el('span', {}, `home page indexed${p.gsc.home?.coverage ? ` (${p.gsc.home.coverage})` : ''}`)),
+          el('div', {}, el('b', {}, fmt(p.gsc.pagesSeen || 0)), el('span', {}, 'pages shown in search')),
+          el('div', {}, el('b', {}, fmt(p.gsc.impressions || 0)), el('span', {}, 'views in search')),
+          el('div', {}, el('b', {}, fmt(p.gsc.clicks || 0)), el('span', {}, 'clicks')),
+          el('div', {}, el('b', {}, p.gsc.position ?? '–'), el('span', {}, 'average position')),
+          el('div', {}, el('b', {}, p.gsc.pending ? 'Pending' : (p.gsc.submitted ?? '–')), el('span', {}, p.gsc.pending ? 'sitemap not read yet' : `URLs in the sitemap when Google last read it${p.gsc.downloadedAt ? ', ' + ago(p.gsc.downloadedAt) : ''}`))),
+        p.gsc.topQueries?.length ? el('ul', { class: 'queries', style: 'margin-top:10px' }, ...p.gsc.topQueries.map((q) => el('li', {}, el('span', {}, q.q), el('span', { class: 'num muted' }, `${q.clicks} clicks · ${q.impressions} views`)))) : null) : null,
+      sec('Where it is now', 'From the AI\'s own notes for its next run', bulletList(p.currentState, 'No notes yet. The first run writes them.')),
+      sec('Pages', `${fmt((p.pages || []).length)} published: ${p.builtPlannedCount || 0} of ${p.plannedCount || 0} from the first plan, the rest added in later rounds`,
+        el('ul', { class: 'pages' },
+          ...(p.planned || []).map((r) => el('li', {}, el('span', { class: 'mark ' + (r.built ? 'y' : 'n') }, r.built ? '✓' : '○'), el('div', {}, el('div', {}, r.keywords), el('div', { class: 'kw' }, r.built ? (p.pages.find((pg) => r.urls.includes(pg.url))?.title || '') : 'Not built yet')), el('span', { class: 'url' }, r.urls.join(' ')))),
+          ...extra.map((pg) => el('li', {}, el('span', { class: 'mark y' }, '✓'), el('div', {}, el('div', {}, pg.title), el('div', { class: 'kw' }, `Extra page · ${pg.words} words`)), el('span', { class: 'url' }, pg.url))))),
+      sec('Decisions it made on its own', 'Choices recorded instead of asking you', bulletList(p.decisions, 'None recorded yet.')),
+      sec('Problems and attempts', 'What it tried and what happened', bulletList(p.tried, 'Nothing has gone wrong yet.')),
+      (p.data || []).length ? sec('Sourced data', '"Search-verified" means confirmed from search results that quote the source',
+        el('ul', { class: 'pages' }, ...p.data.map((f) => el('li', {}, el('span', { class: 'mark y' }, '◆'), el('div', {}, el('div', {}, f.file), el('div', { class: 'kw' }, `${f.entries} entries${f.searchVerified ? `, ${f.searchVerified} search-verified values` : ''}`)), el('span', {}, ''))))) : null,
+      sec('Recent pushes', `${p.commitCount || 0} in total`,
+        el('ul', { class: 'feed', style: 'max-height:none' }, ...(p.commits || []).slice(0, 12).map((c) => el('li', {}, el('span', { class: 'num muted', style: 'font-size:11.5px' }, c.sha.slice(0, 4)), el('div', { class: 'msg' }, c.msg), el('span', { class: 'when', title: dayTime(c.at) }, ago(c.at)))))),
+      sec('Features it must have', 'From the research brief', bulletList(p.mustHave, 'See IDEA.md in the repo.'))));
+}
+document.getElementById('detail').addEventListener('click', (e) => { if (e.target.id === 'detail') e.target.close(); });
+document.getElementById('detail').addEventListener('close', () => { state.openId = null; });
+
+// ---------- tabs ----------
+const TABS = ['status', 'launch', 'context'];
+function showTab(name, focus) {
+  if (!TABS.includes(name)) name = 'status';
+  for (const t of TABS) {
+    document.getElementById(t).hidden = t !== name;
+    const b = document.getElementById('tab-' + t);
+    b.setAttribute('aria-selected', String(t === name));
+    b.tabIndex = t === name ? 0 : -1;
+  }
+  if (focus) document.getElementById('tab-' + name).focus();
+  try { localStorage.setItem('cl-tab', name); } catch {}
+  if (name === 'status') renderChart();
+}
+TABS.forEach((t, i) => {
+  const b = document.getElementById('tab-' + t);
+  b.addEventListener('click', () => { showTab(t); history.replaceState(null, '', '#' + t); });
+  b.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); showTab(TABS[(i + (e.key === 'ArrowRight' ? 1 : TABS.length - 1)) % TABS.length], true); }
+  });
+});
+let startTab = location.hash.slice(1);
+if (!TABS.includes(startTab)) { try { startTab = localStorage.getItem('cl-tab') || 'status'; } catch { startTab = 'status'; } }
+showTab(startTab);
+
+// ---------- render loop ----------
+function renderAll() {
+  renderHeader(); renderNotices(); renderContext(); renderSummary(); renderCards(); renderSchedule(); renderChart(); renderFeed(); renderLaunch(); renderWhy();
+  if (state.openId) renderDetail();
+}
+setInterval(() => { renderHeader(); renderNotices(); renderContext(); renderSummary(); renderCards(); renderSchedule(); renderFeed(); }, 30000);
+if ('ResizeObserver' in window) new ResizeObserver(() => { const w = document.getElementById('chart').clientWidth; if (Math.abs(w - chartWidth) > 4) renderChart(); }).observe(document.getElementById('chart'));
+window.addEventListener('resize', () => renderSchedule());
+renderAll();
+
+// ---------- live data ----------
+(async () => {
+  const use = window.claude?.use;
+  const [db, user] = use ? await Promise.all([window.claude.use('db'), window.claude.use('user')]) : [null, null];
+  if (!db) { state.phase = 'no-db'; renderAll(); return; }
+  state.db = db;
+  state.phase = 'live';
+  if (user) user.can('data.write').then((v) => { state.canWrite = v; renderLaunch(); }).catch(() => {});
+  const onErr = (e) => { if (e?.code === 'revoked') { state.phase = 'no-db'; renderAll(); } };
+  db.collection('projects').onSnapshot((snap) => {
+    const o = {};
+    snap.docs.forEach((d) => { if (d.exists) o[d.id] = { ...d.data(), id: d.id }; });
+    state.projects = o; renderAll();
+  }, onErr);
+  db.doc('meta/status').onSnapshot((snap) => { state.status = snap.exists ? snap.data() : null; renderHeader(); renderNotices(); }, onErr);
+  db.doc('meta/context').onSnapshot((snap) => { state.context = snap.exists ? snap.data() : null; renderContext(); renderSummary(); }, onErr);
+  db.doc('meta/routines').onSnapshot((snap) => { state.routines = snap.exists ? snap.data() : null; renderAll(); }, onErr);
+  db.collection('launch').onSnapshot((snap) => {
+    const o = {};
+    snap.docs.forEach((d) => { if (d.exists) o[d.id] = d.data(); });
+    for (const id of state.saving) if (state.launch[id]) o[id] = state.launch[id];
+    state.launch = o; renderLaunch(); renderHeader();
+  }, onErr);
+})();
+</script>

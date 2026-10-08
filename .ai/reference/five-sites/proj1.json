@@ -1,0 +1,1342 @@
+{
+ "id": "proj1",
+ "repo": "https://github.com/Minntooos/proj1",
+ "domain": "powerstationruntime.netlify.app",
+ "futureDomain": "powerstationruntime.com",
+ "oneLiner": "The most accurate free answers to \"how long will my portable power station run this?\" and \"what size power station do I need?\", with calculators, per-appliance pages and verified specs for popular models.",
+ "audience": [
+  "Campers, van-lifers and RV owners sizing a battery for a trip",
+  "Homeowners preparing for power outages (fridge, sump pump, CPAP, internet)",
+  "People about to buy a power station who want to know which capacity they need",
+  "US first (120 V, watts and watt-hours). Mention 230 V where it changes the answer."
+ ],
+ "mustHave": [
+  "Runtime calculator (home page)",
+  "Appliance data in `site/data/appliances.json`",
+  "Size calculator (the reverse)",
+  "Solar charging time calculator",
+  "Watt-hours converter",
+  "Appliance pages (the clusters above)",
+  "Model pages",
+  "Models comparison page",
+  "How we calculate",
+  "Safety notes where they matter"
+ ],
+ "competitors": "Search results are crowded with thin AI-built calculators and affiliate review posts. Search for these by name: shopsavvy's runtime tool, backuppowerhub, solarbackuplab, batteryskills, portablepowerstationreview. Most offer one calculator with fixed assumptions, unsourced wattage numbers and no per-appliance or per-model depth. Beat them on depth, sourced numbers and honest caveats.",
+ "monetization": "High buyer intent: the owner may add affiliate links or ads after launch. Never add them yourself. Keep model pages neutral and factual.",
+ "routine": {
+  "id": "trig_01H4XjfhSgT9L7WyJuVE13jr",
+  "cron": "7 * * * *",
+  "url": "https://claude.ai/code/routines/trig_01H4XjfhSgT9L7WyJuVE13jr"
+ },
+ "status": "finished",
+ "round": 5,
+ "roundsDone": 5,
+ "maxRounds": 5,
+ "rounds": [
+  {
+   "round": 1,
+   "finishedAt": "2026-10-06T15:36:05.000Z"
+  },
+  {
+   "round": 2,
+   "finishedAt": "2026-10-06T16:20:02.000Z"
+  },
+  {
+   "round": 3,
+   "finishedAt": "2026-10-06T17:03:55.000Z"
+  },
+  {
+   "round": 4,
+   "finishedAt": "2026-10-06T20:44:26.000Z"
+  },
+  {
+   "round": 5,
+   "finishedAt": "2026-10-06T21:24:58.000Z"
+  }
+ ],
+ "lock": null,
+ "builder": "routine",
+ "setup": {
+  "netlify": true,
+  "address": true,
+  "gsc": true,
+  "sitemap": true
+ },
+ "run": 0,
+ "runLimit": 30,
+ "blockedText": "",
+ "doneText": "# DONE: v5 of powerstationruntime.netlify.app (the 10 best next pages from v4)\n\nFinished 2026-10-06 in 1 run (budget 30). Every unit passed `npm test` and a reviewer subagent before being pushed to `main`. Origin `main` had been force-rewritten by the owner; the local copy was reset to it at the start of the run.\n\n## What was built (page → target keyword)\n| Page | Target keyword |\n|---|---|\n| `/gas-furnace/` | power station for a gas furnace blower |\n| `/air-fryer/` | can a power station run an air fryer |\n| `/rice-cooker/` | power station for a rice cooker |\n| `/induction-cooktop/` | can a power station run an induction cooktop |\n| `/projector/` | power station for a projector / outdoor movie |\n| `/blender/` | power station for a blender |\n\n55 URLs in the sitemap (v1 to v4 pages: see `.ai/done-v1.md` to `.ai/done-v4.md`). No new lib code, so no new unit tests (43 unit tests still pass).\n\n## Decisions / skipped\n- `/garage-door-opener/` skipped: Chamberlain says its amp/watt ratings are measured idle with lights off and gives no load figure.\n- `/portable-ice-maker/` skipped: Frigidaire pages gave no watts; NewAir lists 200 W for one variant but 2.7 A for a sibling, GE Opal gives amps only, Euhomy's 170 W only came from retailers.\n- `/phone-charges/` still skipped (K-0007: mAh without volts).\n- C800 Plus and Jackery 300 Plus model pages still skipped (surge / cycle-life specs ambiguous).\n- Instant Pot Vortex Plus 4 qt watts were not returned by search, so the air fryer page uses the Vortex Mini 4 qt (1,500 W).\n- Gas furnace figures are U.S. DOE material (180 W total, 382 W, about 500 to 650 W blower), not one maker's furnace. The page says to use a licensed electrician for hard-wired furnaces.\n- Vitamix 5200 (about 1,380 W) and the Optoma/Epson projector ratings include a derived or secondary figure; the pages label them.\n\n## Test results\n`npm test`: check OK (55 pages), 43 unit tests pass, 235 browser tests pass (1 skipped).\n\n## Unsure of\n- All values come from WebSearch snippets of makers' and DOE pages (WebFetch blocked); spot-check the Nuwave settings (600/900/1,300 and 900/1,500/1,800 W), Aroma 350 W, Instant Pot Zest 450 W, Zojirushi NS-ZCC10 680 W, Ninja AF101 1,550 W and Optoma HD28HDR 295/215 W.\n- No `site/data/*.json` entries back these new pages' figures; sources are linked on each page.\n- Reviewers could not open the cited pages; links came from search results.\n\n## Owner's launch checklist\n1. Check that the Netlify site serves https://powerstationruntime.netlify.app/.\n2. Add that address to Google Search Console as a URL-prefix property (verification tag is on the home page).\n3. Submit `/sitemap.xml` (55 URLs).\n4. Buy powerstationruntime.com when there's budget, then move with 301 redirects.\n\n## 10 best next pages (ranked by judgement of search demand and weakness of results; not checked in Semrush)\n1. `/dishwasher/`: can a power station run a dishwasher (ENERGY STAR / maker watts).\n2. `/toaster-oven/`: power station for a toaster oven (maker watts).\n3. `/slow-cooker/`: power station for a slow cooker / Crock-Pot (maker watts).\n4. `/mini-fridge/`: power station for a mini fridge / dorm fridge (ENERGY STAR kWh/yr).\n5. `/mini-split/`: power station for a ductless mini split (maker watts, inverter caveat).\n6. `/pellet-stove/`: power station for a pellet stove (maker watts).\n7. `/3d-printer/`: power station for a 3D printer (maker watts).\n8. `/portable-ice-maker/`: once a maker gives one consistent watts figure.\n9. `/garage-door-opener/`: once a maker gives a load figure.\n10. `/phone-charges/` and the C800 Plus / Jackery 300 Plus model pages, once specs are unambiguous.\n",
+ "currentState": [],
+ "decisions": [],
+ "tried": [],
+ "confirmed": [],
+ "pages": [
+  {
+   "url": "/",
+   "title": "Power Station Runtime Calculator: How Long Will It Last?",
+   "h1": "Power Station Runtime Calculator",
+   "words": 698
+  },
+  {
+   "url": "/12v-fridge/",
+   "title": "Power Station for a 12V Fridge: How Many Days Will It Run?",
+   "h1": "Power Station for a 12V Fridge",
+   "words": 925
+  },
+  {
+   "url": "/air-conditioner/",
+   "title": "Power Station for a Window Air Conditioner: Runtime and Fit",
+   "h1": "Power Station for a Window Air Conditioner",
+   "words": 1082
+  },
+  {
+   "url": "/air-fryer/",
+   "title": "Can a Power Station Run an Air Fryer? Runtime per Charge",
+   "h1": "Can a Power Station Run an Air Fryer?",
+   "words": 706
+  },
+  {
+   "url": "/blender/",
+   "title": "Power Station for a Blender: How Long Can It Run?",
+   "h1": "Can a Power Station Run a Blender?",
+   "words": 687
+  },
+  {
+   "url": "/charging-time-calculator/",
+   "title": "Power Station Charging Time Calculator: Wall and Car",
+   "h1": "Power Station Charging Time Calculator",
+   "words": 774
+  },
+  {
+   "url": "/chest-freezer/",
+   "title": "Power Station for a Chest Freezer: How Long Will It Run?",
+   "h1": "Power Station for a Chest Freezer",
+   "words": 806
+  },
+  {
+   "url": "/coffee-maker/",
+   "title": "Power Station for Coffee Maker: How Many Pots?",
+   "h1": "Power Station for Coffee Maker: How Many Pots?",
+   "words": 477
+  },
+  {
+   "url": "/cpap/",
+   "title": "Power Station for CPAP: How Long Will It Run?",
+   "h1": "Power Station for CPAP: How Long Will It Run?",
+   "words": 737
+  },
+  {
+   "url": "/dehumidifier/",
+   "title": "Power Station for a Dehumidifier: Runtime and Pints per Charge",
+   "h1": "Power Station for a Dehumidifier",
+   "words": 753
+  },
+  {
+   "url": "/desktop-computer/",
+   "title": "Power Station for a Desktop Computer: How Long Will It Run?",
+   "h1": "Power Station for a Desktop Computer",
+   "words": 768
+  },
+  {
+   "url": "/ebike/",
+   "title": "How Many Times Can a Power Station Charge an E-Bike?",
+   "h1": "How Many Times Can a Power Station Charge an E-Bike?",
+   "words": 714
+  },
+  {
+   "url": "/electric-blanket/",
+   "title": "Power Station for an Electric Blanket: How Long Will It Run?",
+   "h1": "Power Station for an Electric Blanket",
+   "words": 725
+  },
+  {
+   "url": "/electric-car/",
+   "title": "Can a Power Station Charge an Electric Car? Miles per Charge",
+   "h1": "Can a Power Station Charge an Electric Car?",
+   "words": 712
+  },
+  {
+   "url": "/electric-kettle/",
+   "title": "Power Station for Electric Kettle: How Many Boils?",
+   "h1": "Power Station for Electric Kettle: How Many Boils?",
+   "words": 675
+  },
+  {
+   "url": "/expansion-battery-calculator/",
+   "title": "Expansion Battery Calculator for Power Stations",
+   "h1": "Expansion Battery Calculator",
+   "words": 674
+  },
+  {
+   "url": "/fan/",
+   "title": "How Long Will a Power Station Run a Fan? Box, Window and Ceiling",
+   "h1": "How Long Will a Power Station Run a Fan?",
+   "words": 659
+  },
+  {
+   "url": "/gaming-console/",
+   "title": "Power Station for PS5 or Xbox: How Long Will It Run?",
+   "h1": "Power Station for PS5 or Xbox: How Long Will It Run?",
+   "words": 683
+  },
+  {
+   "url": "/gas-furnace/",
+   "title": "Power Station for a Gas Furnace: Blower Runtime",
+   "h1": "Can a Power Station Run a Gas Furnace?",
+   "words": 806
+  },
+  {
+   "url": "/hair-dryer/",
+   "title": "Can a Power Station Run a Hair Dryer? Watts, Minutes and Fit",
+   "h1": "Can a Power Station Run a Hair Dryer?",
+   "words": 797
+  },
+  {
+   "url": "/how-we-calculate/",
+   "title": "How We Calculate Power Station Runtime, Size and Solar Charging",
+   "h1": "How We Calculate Power Station Runtime, Size and Solar Charging",
+   "words": 1072
+  },
+  {
+   "url": "/induction-cooktop/",
+   "title": "Power Station for an Induction Cooktop: Runtime",
+   "h1": "Can a Power Station Run an Induction Cooktop?",
+   "words": 661
+  },
+  {
+   "url": "/instant-pot/",
+   "title": "Can a Power Station Run an Instant Pot? Watts and Meals",
+   "h1": "Can a Power Station Run an Instant Pot?",
+   "words": 711
+  },
+  {
+   "url": "/laptop/",
+   "title": "How Many Times Can a Power Station Charge a Laptop?",
+   "h1": "How Many Times Can a Power Station Charge a Laptop?",
+   "words": 829
+  },
+  {
+   "url": "/lifepo4-vs-nmc/",
+   "title": "LiFePO4 vs NMC Power Stations: Cycles, Weight and Years",
+   "h1": "LiFePO4 vs NMC Power Stations",
+   "words": 850
+  },
+  {
+   "url": "/microwave/",
+   "title": "Power Station for Microwave: Runtime and Size",
+   "h1": "Power Station for Microwave: Runtime and Size",
+   "words": 559
+  },
+  {
+   "url": "/models/",
+   "title": "Portable Power Station Comparison: Specs and Runtime",
+   "h1": "Portable Power Station Comparison: Specs and Runtime",
+   "words": 1148
+  },
+  {
+   "url": "/models/anker-solix-c1000-runtime/",
+   "title": "Anker SOLIX C1000 Runtime: What Can It Power?",
+   "h1": "Anker SOLIX C1000 Runtime: What Can It Power?",
+   "words": 411
+  },
+  {
+   "url": "/models/anker-solix-f2000-runtime/",
+   "title": "Anker SOLIX F2000 Runtime: What Can It Power?",
+   "h1": "Anker SOLIX F2000 Runtime: What Can It Power?",
+   "words": 624
+  },
+  {
+   "url": "/models/bluetti-ac180-runtime/",
+   "title": "BLUETTI AC180 Runtime: What Can It Power?",
+   "h1": "BLUETTI AC180 Runtime: What Can It Power?",
+   "words": 443
+  },
+  {
+   "url": "/models/bluetti-eb3a-runtime/",
+   "title": "BLUETTI EB3A Runtime: What Can It Power?",
+   "h1": "BLUETTI EB3A Runtime: What Can It Power?",
+   "words": 456
+  },
+  {
+   "url": "/models/ecoflow-delta-2-max-runtime/",
+   "title": "EcoFlow DELTA 2 Max Runtime: What Can It Power?",
+   "h1": "EcoFlow DELTA 2 Max Runtime: What Can It Power?",
+   "words": 641
+  },
+  {
+   "url": "/models/ecoflow-delta-2-runtime/",
+   "title": "EcoFlow DELTA 2 Runtime: What Can It Power?",
+   "h1": "EcoFlow DELTA 2 Runtime: What Can It Power?",
+   "words": 433
+  },
+  {
+   "url": "/models/ecoflow-delta-3-plus-runtime/",
+   "title": "EcoFlow DELTA 3 Plus Runtime: What Can It Power?",
+   "h1": "EcoFlow DELTA 3 Plus Runtime: What Can It Power?",
+   "words": 540
+  },
+  {
+   "url": "/models/ecoflow-river-3-plus-runtime/",
+   "title": "EcoFlow RIVER 3 Plus Runtime: What Can It Power?",
+   "h1": "EcoFlow RIVER 3 Plus Runtime: What Can It Power?",
+   "words": 474
+  },
+  {
+   "url": "/models/jackery-explorer-1000-plus-runtime/",
+   "title": "Jackery Explorer 1000 Plus Runtime: What Can It Power?",
+   "h1": "Jackery Explorer 1000 Plus Runtime: What Can It Power?",
+   "words": 495
+  },
+  {
+   "url": "/models/jackery-explorer-1000-v2-runtime/",
+   "title": "Jackery Explorer 1000 v2 Runtime: What Can It Power?",
+   "h1": "Jackery Explorer 1000 v2 Runtime: What Can It Power?",
+   "words": 452
+  },
+  {
+   "url": "/models/jackery-explorer-2000-plus-runtime/",
+   "title": "Jackery Explorer 2000 Plus Runtime: What Can It Power?",
+   "h1": "Jackery Explorer 2000 Plus Runtime: What Can It Power?",
+   "words": 620
+  },
+  {
+   "url": "/outage-planner/",
+   "title": "Power Outage Planner: Power Station Size for 24, 48 and 72 Hours",
+   "h1": "Power Outage Planner",
+   "words": 1119
+  },
+  {
+   "url": "/oxygen-concentrator/",
+   "title": "Power Station for an Oxygen Concentrator: Runtime and Safety",
+   "h1": "Power Station for an Oxygen Concentrator",
+   "words": 800
+  },
+  {
+   "url": "/power-tools/",
+   "title": "Power Station for Power Tools: What Size and How Long?",
+   "h1": "Power Station for Power Tools: What Size and How Long?",
+   "words": 774
+  },
+  {
+   "url": "/projector/",
+   "title": "Power Station for a Projector: Movie Night Runtime",
+   "h1": "Can a Power Station Run a Projector?",
+   "words": 628
+  },
+  {
+   "url": "/refrigerator/",
+   "title": "Power Station for Refrigerator: How Long Will It Run?",
+   "h1": "Power Station for Refrigerator: How Long Will It Run?",
+   "words": 579
+  },
+  {
+   "url": "/rice-cooker/",
+   "title": "Power Station for Rice Cooker: Runtime per Charge",
+   "h1": "Can a Power Station Run a Rice Cooker?",
+   "words": 661
+  },
+  {
+   "url": "/size-calculator/",
+   "title": "What Size Power Station Do I Need? Size Calculator",
+   "h1": "What Size Power Station Do I Need?",
+   "words": 673
+  },
+  {
+   "url": "/solar-charging-time-calculator/",
+   "title": "Solar Generator Charging Time Calculator",
+   "h1": "Solar Generator Charging Time Calculator",
+   "words": 783
+  },
+  {
+   "url": "/solar-panel-size-calculator/",
+   "title": "What Size Solar Panel Do I Need for My Power Station?",
+   "h1": "Solar Panel Size Calculator for Power Stations",
+   "words": 913
+  },
+  {
+   "url": "/space-heater/",
+   "title": "Power Station for Space Heater: How Long?",
+   "h1": "Power Station for Space Heater: How Long?",
+   "words": 749
+  },
+  {
+   "url": "/starlink/",
+   "title": "Power Station for Starlink: How Long Will It Run?",
+   "h1": "Power Station for Starlink: How Long Will It Run?",
+   "words": 456
+  },
+  {
+   "url": "/sump-pump/",
+   "title": "Power Station for Sump Pump: How Long Will It Run?",
+   "h1": "Power Station for Sump Pump: How Long Will It Run?",
+   "words": 525
+  },
+  {
+   "url": "/tv/",
+   "title": "Power Station for TV: How Long Will It Run?",
+   "h1": "Power Station for TV: How Long Will It Run?",
+   "words": 422
+  },
+  {
+   "url": "/washing-machine/",
+   "title": "Power Station for Washing Machine: How Many Loads?",
+   "h1": "Power Station for Washing Machine: How Many Loads?",
+   "words": 671
+  },
+  {
+   "url": "/watt-hours-calculator/",
+   "title": "Watt Hours Calculator: Wh, Ah, mAh and Volts",
+   "h1": "Watt Hours Calculator (Wh, Ah, mAh and V)",
+   "words": 445
+  },
+  {
+   "url": "/well-pump/",
+   "title": "Power Station for a Well Pump: Can It Run One in an Outage?",
+   "h1": "Power Station for a Well Pump",
+   "words": 1090
+  },
+  {
+   "url": "/wifi-router/",
+   "title": "Power Station for Wi-Fi Router: How Long Will It Run?",
+   "h1": "Power Station for Wi-Fi Router: How Long Will It Run?",
+   "words": 668
+  }
+ ],
+ "planned": [
+  {
+   "keywords": "power station runtime calculator, how long will a power station last",
+   "urls": [
+    "/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "what size power station do i need, power station size calculator",
+   "urls": [
+    "/size-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "solar generator charging time, how long to charge power station with solar panel",
+   "urls": [
+    "/solar-charging-time-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "watt hours calculator, wh to mah, amp hours to watt hours",
+   "urls": [
+    "/watt-hours-calculator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "how long will a power station run a refrigerator / mini fridge",
+   "urls": [
+    "/refrigerator/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "power station for cpap, how long will a power station run a cpap",
+   "urls": [
+    "/cpap/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "how long will a power station run a space heater",
+   "urls": [
+    "/space-heater/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "power station for window ac / air conditioner",
+   "urls": [
+    "/air-conditioner/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "power station for sump pump",
+   "urls": [
+    "/sump-pump/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "how long will a power station run a tv",
+   "urls": [
+    "/tv/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "can a power station run a microwave / coffee maker",
+   "urls": [
+    "/microwave/",
+    "/coffee-maker/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "power station for starlink",
+   "urls": [
+    "/starlink/"
+   ],
+   "built": true
+  },
+  {
+   "keywords": "<model> runtime (e.g. EcoFlow Delta 2, Jackery Explorer 1000, Bluetti AC180, Anker Solix C1000)",
+   "urls": [
+    "/models/<model-slug>/"
+   ],
+   "built": false
+  },
+  {
+   "keywords": "portable power station comparison, power station specs",
+   "urls": [
+    "/models/"
+   ],
+   "built": true
+  }
+ ],
+ "plannedCount": 14,
+ "builtPlannedCount": 14,
+ "sitemapCount": 55,
+ "libs": [
+  "charging.js",
+  "energy.js",
+  "expansion.js",
+  "runtime.js",
+  "sizing.js",
+  "solar.js",
+  "water.js"
+ ],
+ "unitTestCount": 37,
+ "browserTestCount": 27,
+ "data": [
+  {
+   "file": "appliances.json",
+   "entries": 57,
+   "searchVerified": 57
+  },
+  {
+   "file": "chemistry.json",
+   "entries": 2,
+   "searchVerified": 2
+  },
+  {
+   "file": "ebikes.json",
+   "entries": 6,
+   "searchVerified": 6
+  },
+  {
+   "file": "evs.json",
+   "entries": 3,
+   "searchVerified": 3
+  },
+  {
+   "file": "expansion.json",
+   "entries": 4,
+   "searchVerified": 4
+  },
+  {
+   "file": "laptops.json",
+   "entries": 6,
+   "searchVerified": 6
+  },
+  {
+   "file": "models.json",
+   "entries": 11,
+   "searchVerified": 11
+  }
+ ],
+ "commits": [
+  {
+   "sha": "11d2403",
+   "at": "2026-10-06T21:24:58.000Z",
+   "author": "Claude",
+   "msg": "v5 done: DONE.md, retro log; remove task.md"
+  },
+  {
+   "sha": "561566f",
+   "at": "2026-10-06T21:24:25.000Z",
+   "author": "Claude",
+   "msg": "Add /projector/ page from Optoma and Epson specs"
+  },
+  {
+   "sha": "2d58697",
+   "at": "2026-10-06T21:22:01.000Z",
+   "author": "Claude",
+   "msg": "Add /induction-cooktop/ page from Nuwave wattage settings"
+  },
+  {
+   "sha": "781ed79",
+   "at": "2026-10-06T21:19:40.000Z",
+   "author": "Claude",
+   "msg": "Add /gas-furnace/ page from DOE furnace figures; record skipped pages"
+  },
+  {
+   "sha": "4c15528",
+   "at": "2026-10-06T21:16:46.000Z",
+   "author": "Claude",
+   "msg": "Add /blender/ page with sourced maker wattages"
+  },
+  {
+   "sha": "e8045cf",
+   "at": "2026-10-06T21:14:21.000Z",
+   "author": "Claude",
+   "msg": "Add /rice-cooker/ page with sourced maker wattages"
+  },
+  {
+   "sha": "cc9c0e4",
+   "at": "2026-10-06T21:12:01.000Z",
+   "author": "Claude",
+   "msg": "Add /air-fryer/ page with sourced maker wattages; update handoff"
+  },
+  {
+   "sha": "dffc25a",
+   "at": "2026-10-06T20:44:26.000Z",
+   "author": "Minntooos",
+   "msg": "Start v5: move v4 DONE.md to .ai/done-v4.md, new task file"
+  },
+  {
+   "sha": "fb3f354",
+   "at": "2026-10-06T18:25:07.000Z",
+   "author": "Claude",
+   "msg": "v4 done: DONE.md, retro log, K-0007; remove task.md"
+  },
+  {
+   "sha": "106b59f",
+   "at": "2026-10-06T18:23:21.000Z",
+   "author": "Claude",
+   "msg": "Kettle review fixes; update handoff"
+  },
+  {
+   "sha": "2d6f91a",
+   "at": "2026-10-06T18:22:02.000Z",
+   "author": "Claude",
+   "msg": "Add /electric-kettle/ page and lib/water.js heatWaterWh with unit tests"
+  },
+  {
+   "sha": "f72e483",
+   "at": "2026-10-06T18:20:22.000Z",
+   "author": "Claude",
+   "msg": "Washing machine review fixes; update handoff"
+  },
+  {
+   "sha": "86ba6f7",
+   "at": "2026-10-06T18:19:12.000Z",
+   "author": "Claude",
+   "msg": "Add /washing-machine/ page (VT/DOE watts, ENERGY STAR criteria)"
+  },
+  {
+   "sha": "78c13f2",
+   "at": "2026-10-06T18:17:39.000Z",
+   "author": "Claude",
+   "msg": "Power tools review fixes; update handoff"
+  },
+  {
+   "sha": "eeeda6e",
+   "at": "2026-10-06T18:16:28.000Z",
+   "author": "Claude",
+   "msg": "Add /power-tools/ page (DEWALT 15 A tools, Milwaukee M18 charger input)"
+  },
+  {
+   "sha": "ae73837",
+   "at": "2026-10-06T18:14:55.000Z",
+   "author": "Claude",
+   "msg": "Wi-Fi router review fixes; update handoff"
+  },
+  {
+   "sha": "4b13234",
+   "at": "2026-10-06T18:13:48.000Z",
+   "author": "Claude",
+   "msg": "Add /wifi-router/ page (eero and NETGEAR power figures)"
+  },
+  {
+   "sha": "79b9fcf",
+   "at": "2026-10-06T18:12:18.000Z",
+   "author": "Claude",
+   "msg": "Gaming console review fixes; update task handoff"
+  },
+  {
+   "sha": "ce3b792",
+   "at": "2026-10-06T18:11:05.000Z",
+   "author": "Claude",
+   "msg": "Add /gaming-console/ page (Microsoft and PlayStation power figures); drop stale session lock"
+  },
+  {
+   "sha": "082d8ba",
+   "at": "2026-10-06T17:13:40.000Z",
+   "author": "Claude",
+   "msg": "Electric car review fixes: support caveat, safer example, evMiles() with tests, exact EPA sources"
+  },
+  {
+   "sha": "32716fc",
+   "at": "2026-10-06T17:11:17.000Z",
+   "author": "Claude",
+   "msg": "Add /electric-car/ page (EPA kWh/100 mi, miles per station charge), evs.json"
+  },
+  {
+   "sha": "c784668",
+   "at": "2026-10-06T17:09:26.000Z",
+   "author": "Claude",
+   "msg": "E-bike review fixes: per-page device limit (keeps laptop mAh check), CPSC charging safety, Ah hint, solar daily use"
+  },
+  {
+   "sha": "a56961c",
+   "at": "2026-10-06T17:06:25.000Z",
+   "author": "Claude",
+   "msg": "Add /ebike/ charges page (Bosch and Rad Power Bikes battery Wh), ebikes.json"
+  },
+  {
+   "sha": "cf49f6d",
+   "at": "2026-10-06T17:03:55.000Z",
+   "author": "Claude",
+   "msg": "Start v4 round: archive DONE.md as .ai/done-v3.md, new task.md"
+  },
+  {
+   "sha": "bf25e48",
+   "at": "2026-10-06T17:03:47.000Z",
+   "author": "Claude",
+   "msg": "v3 done: retro, knowledge entries, DONE.md"
+  },
+  {
+   "sha": "53cd375",
+   "at": "2026-10-06T17:03:47.000Z",
+   "author": "Claude",
+   "msg": "Test that hand-written model tables list every model in models.json"
+  },
+  {
+   "sha": "fa5ccf6",
+   "at": "2026-10-06T17:01:39.000Z",
+   "author": "Claude",
+   "msg": "Desktop page review fixes: DOE estimate wording, calculation section, worked example"
+  },
+  {
+   "sha": "3b07313",
+   "at": "2026-10-06T17:00:03.000Z",
+   "author": "Claude",
+   "msg": "Add /desktop-computer/ page (Apple Mac mini measured watts, Dell monitor, DOE figures)"
+  },
+  {
+   "sha": "fd0c1ee",
+   "at": "2026-10-06T16:58:21.000Z",
+   "author": "Claude",
+   "msg": "Instant Pot review fixes: drop unsourced comparison, clearer worked example, trademark note"
+  },
+  {
+   "sha": "b532331",
+   "at": "2026-10-06T16:56:36.000Z",
+   "author": "Claude",
+   "msg": "Add /instant-pot/ page (Instant Pot Duo 700/1,000/1,200 W)"
+  }
+ ],
+ "commitCount": 112,
+ "lastCommitAt": "2026-10-06T21:24:58.000Z",
+ "history": [
+  {
+   "at": "2026-10-05T23:17:56.000Z",
+   "pages": 1,
+   "sha": "8a2bba7"
+  },
+  {
+   "at": "2026-10-05T23:21:59.000Z",
+   "pages": 2,
+   "sha": "edfe39e"
+  },
+  {
+   "at": "2026-10-05T23:22:37.000Z",
+   "pages": 2,
+   "sha": "b5ce28c"
+  },
+  {
+   "at": "2026-10-05T23:25:06.000Z",
+   "pages": 2,
+   "sha": "e36275c"
+  },
+  {
+   "at": "2026-10-06T00:10:09.000Z",
+   "pages": 3,
+   "sha": "89d4adc"
+  },
+  {
+   "at": "2026-10-06T00:11:08.000Z",
+   "pages": 3,
+   "sha": "552a7a3"
+  },
+  {
+   "at": "2026-10-06T00:24:40.000Z",
+   "pages": 3,
+   "sha": "123f1c7"
+  },
+  {
+   "at": "2026-10-06T03:09:56.000Z",
+   "pages": 4,
+   "sha": "1849427"
+  },
+  {
+   "at": "2026-10-06T03:10:41.000Z",
+   "pages": 4,
+   "sha": "bc74850"
+  },
+  {
+   "at": "2026-10-06T03:23:59.000Z",
+   "pages": 4,
+   "sha": "8c22b9d"
+  },
+  {
+   "at": "2026-10-06T03:55:43.000Z",
+   "pages": 4,
+   "sha": "736ef74"
+  },
+  {
+   "at": "2026-10-06T04:09:57.000Z",
+   "pages": 5,
+   "sha": "7d9247e"
+  },
+  {
+   "at": "2026-10-06T04:10:42.000Z",
+   "pages": 5,
+   "sha": "e689250"
+  },
+  {
+   "at": "2026-10-06T04:11:27.000Z",
+   "pages": 5,
+   "sha": "2c616a3"
+  },
+  {
+   "at": "2026-10-06T08:10:28.000Z",
+   "pages": 5,
+   "sha": "b7949bd"
+  },
+  {
+   "at": "2026-10-06T08:10:56.000Z",
+   "pages": 5,
+   "sha": "aecd635"
+  },
+  {
+   "at": "2026-10-06T08:11:25.000Z",
+   "pages": 5,
+   "sha": "11551f2"
+  },
+  {
+   "at": "2026-10-06T09:09:16.000Z",
+   "pages": 5,
+   "sha": "ac5f89a"
+  },
+  {
+   "at": "2026-10-06T10:08:58.000Z",
+   "pages": 5,
+   "sha": "5268a19"
+  },
+  {
+   "at": "2026-10-06T13:09:34.000Z",
+   "pages": 6,
+   "sha": "5a37a69"
+  },
+  {
+   "at": "2026-10-06T13:10:25.000Z",
+   "pages": 6,
+   "sha": "43cea56"
+  },
+  {
+   "at": "2026-10-06T13:11:11.000Z",
+   "pages": 7,
+   "sha": "7985d68"
+  },
+  {
+   "at": "2026-10-06T13:11:49.000Z",
+   "pages": 7,
+   "sha": "27b9e4a"
+  },
+  {
+   "at": "2026-10-06T13:12:56.000Z",
+   "pages": 11,
+   "sha": "b6c30a8"
+  },
+  {
+   "at": "2026-10-06T13:13:45.000Z",
+   "pages": 11,
+   "sha": "ae7e127"
+  },
+  {
+   "at": "2026-10-06T13:14:50.000Z",
+   "pages": 13,
+   "sha": "e70ad90"
+  },
+  {
+   "at": "2026-10-06T13:15:32.000Z",
+   "pages": 13,
+   "sha": "c1263d3"
+  },
+  {
+   "at": "2026-10-06T13:15:53.000Z",
+   "pages": 13,
+   "sha": "ecaeac2"
+  },
+  {
+   "at": "2026-10-06T14:11:33.000Z",
+   "pages": 14,
+   "sha": "ba96a5c"
+  },
+  {
+   "at": "2026-10-06T14:12:38.000Z",
+   "pages": 14,
+   "sha": "5ab02ff"
+  },
+  {
+   "at": "2026-10-06T14:13:10.000Z",
+   "pages": 14,
+   "sha": "26c67e2"
+  },
+  {
+   "at": "2026-10-06T14:14:21.000Z",
+   "pages": 18,
+   "sha": "ae8c7a0"
+  },
+  {
+   "at": "2026-10-06T14:15:41.000Z",
+   "pages": 18,
+   "sha": "e07cda0"
+  },
+  {
+   "at": "2026-10-06T14:17:26.000Z",
+   "pages": 20,
+   "sha": "ca46fe3"
+  },
+  {
+   "at": "2026-10-06T14:18:51.000Z",
+   "pages": 20,
+   "sha": "ee89353"
+  },
+  {
+   "at": "2026-10-06T14:19:36.000Z",
+   "pages": 20,
+   "sha": "0c3b9a6"
+  },
+  {
+   "at": "2026-10-06T14:21:05.000Z",
+   "pages": 20,
+   "sha": "31b8e9d"
+  },
+  {
+   "at": "2026-10-06T15:12:06.000Z",
+   "pages": 21,
+   "sha": "6bd2fd5"
+  },
+  {
+   "at": "2026-10-06T15:12:22.000Z",
+   "pages": 21,
+   "sha": "27701f9"
+  },
+  {
+   "at": "2026-10-06T15:33:16.000Z",
+   "pages": 22,
+   "sha": "f368351"
+  },
+  {
+   "at": "2026-10-06T15:35:05.000Z",
+   "pages": 22,
+   "sha": "6a67882"
+  },
+  {
+   "at": "2026-10-06T15:35:55.000Z",
+   "pages": 22,
+   "sha": "e734880"
+  },
+  {
+   "at": "2026-10-06T15:36:05.000Z",
+   "pages": 22,
+   "sha": "07ae724"
+  },
+  {
+   "at": "2026-10-06T15:38:42.000Z",
+   "pages": 23,
+   "sha": "f6c0657"
+  },
+  {
+   "at": "2026-10-06T15:40:23.000Z",
+   "pages": 23,
+   "sha": "c0d35fd"
+  },
+  {
+   "at": "2026-10-06T15:44:05.000Z",
+   "pages": 24,
+   "sha": "8571a2a"
+  },
+  {
+   "at": "2026-10-06T15:46:25.000Z",
+   "pages": 24,
+   "sha": "5f6dab5"
+  },
+  {
+   "at": "2026-10-06T15:48:38.000Z",
+   "pages": 25,
+   "sha": "c3a7e27"
+  },
+  {
+   "at": "2026-10-06T15:51:04.000Z",
+   "pages": 25,
+   "sha": "3748553"
+  },
+  {
+   "at": "2026-10-06T15:53:04.000Z",
+   "pages": 26,
+   "sha": "ce9e77e"
+  },
+  {
+   "at": "2026-10-06T15:55:34.000Z",
+   "pages": 26,
+   "sha": "a85d04b"
+  },
+  {
+   "at": "2026-10-06T15:57:10.000Z",
+   "pages": 27,
+   "sha": "c393651"
+  },
+  {
+   "at": "2026-10-06T15:58:41.000Z",
+   "pages": 27,
+   "sha": "b1a8f8f"
+  },
+  {
+   "at": "2026-10-06T16:00:39.000Z",
+   "pages": 28,
+   "sha": "8eda161"
+  },
+  {
+   "at": "2026-10-06T16:03:38.000Z",
+   "pages": 28,
+   "sha": "b861f9d"
+  },
+  {
+   "at": "2026-10-06T16:05:47.000Z",
+   "pages": 29,
+   "sha": "90b75a5"
+  },
+  {
+   "at": "2026-10-06T16:07:26.000Z",
+   "pages": 29,
+   "sha": "8301955"
+  },
+  {
+   "at": "2026-10-06T16:09:36.000Z",
+   "pages": 30,
+   "sha": "a1112c0"
+  },
+  {
+   "at": "2026-10-06T16:11:47.000Z",
+   "pages": 30,
+   "sha": "8774f4a"
+  },
+  {
+   "at": "2026-10-06T16:14:26.000Z",
+   "pages": 30,
+   "sha": "a542067"
+  },
+  {
+   "at": "2026-10-06T16:14:02.000Z",
+   "pages": 31,
+   "sha": "1cd4afc"
+  },
+  {
+   "at": "2026-10-06T16:16:02.000Z",
+   "pages": 31,
+   "sha": "af7c011"
+  },
+  {
+   "at": "2026-10-06T16:17:27.000Z",
+   "pages": 32,
+   "sha": "380921c"
+  },
+  {
+   "at": "2026-10-06T16:19:10.000Z",
+   "pages": 32,
+   "sha": "4d53d4c"
+  },
+  {
+   "at": "2026-10-06T16:19:53.000Z",
+   "pages": 32,
+   "sha": "cc4c8a0"
+  },
+  {
+   "at": "2026-10-06T16:20:02.000Z",
+   "pages": 32,
+   "sha": "3c08a71"
+  },
+  {
+   "at": "2026-10-06T16:22:14.000Z",
+   "pages": 33,
+   "sha": "c8ffa64"
+  },
+  {
+   "at": "2026-10-06T16:25:14.000Z",
+   "pages": 33,
+   "sha": "ac044f9"
+  },
+  {
+   "at": "2026-10-06T16:27:04.000Z",
+   "pages": 34,
+   "sha": "0581977"
+  },
+  {
+   "at": "2026-10-06T16:29:24.000Z",
+   "pages": 34,
+   "sha": "d08fd40"
+  },
+  {
+   "at": "2026-10-06T16:31:10.000Z",
+   "pages": 35,
+   "sha": "458af22"
+  },
+  {
+   "at": "2026-10-06T16:34:02.000Z",
+   "pages": 35,
+   "sha": "f47dc44"
+  },
+  {
+   "at": "2026-10-06T16:36:07.000Z",
+   "pages": 36,
+   "sha": "a0c7874"
+  },
+  {
+   "at": "2026-10-06T16:38:11.000Z",
+   "pages": 36,
+   "sha": "c416840"
+  },
+  {
+   "at": "2026-10-06T16:40:09.000Z",
+   "pages": 37,
+   "sha": "1463e03"
+  },
+  {
+   "at": "2026-10-06T16:41:25.000Z",
+   "pages": 37,
+   "sha": "82eefcc"
+  },
+  {
+   "at": "2026-10-06T16:43:07.000Z",
+   "pages": 38,
+   "sha": "342bf5e"
+  },
+  {
+   "at": "2026-10-06T16:46:35.000Z",
+   "pages": 38,
+   "sha": "94280a1"
+  },
+  {
+   "at": "2026-10-06T16:48:39.000Z",
+   "pages": 39,
+   "sha": "6839cc5"
+  },
+  {
+   "at": "2026-10-06T16:50:59.000Z",
+   "pages": 39,
+   "sha": "9eef07a"
+  },
+  {
+   "at": "2026-10-06T16:53:17.000Z",
+   "pages": 40,
+   "sha": "337ad91"
+  },
+  {
+   "at": "2026-10-06T16:55:04.000Z",
+   "pages": 40,
+   "sha": "6431d6a"
+  },
+  {
+   "at": "2026-10-06T16:56:36.000Z",
+   "pages": 41,
+   "sha": "b532331"
+  },
+  {
+   "at": "2026-10-06T16:58:21.000Z",
+   "pages": 41,
+   "sha": "fd0c1ee"
+  },
+  {
+   "at": "2026-10-06T17:00:03.000Z",
+   "pages": 42,
+   "sha": "3b07313"
+  },
+  {
+   "at": "2026-10-06T17:01:39.000Z",
+   "pages": 42,
+   "sha": "fa5ccf6"
+  },
+  {
+   "at": "2026-10-06T17:03:47.000Z",
+   "pages": 42,
+   "sha": "53cd375"
+  },
+  {
+   "at": "2026-10-06T17:03:47.000Z",
+   "pages": 42,
+   "sha": "bf25e48"
+  },
+  {
+   "at": "2026-10-06T17:03:55.000Z",
+   "pages": 42,
+   "sha": "cf49f6d"
+  },
+  {
+   "at": "2026-10-06T17:06:25.000Z",
+   "pages": 43,
+   "sha": "a56961c"
+  },
+  {
+   "at": "2026-10-06T17:09:26.000Z",
+   "pages": 43,
+   "sha": "c784668"
+  },
+  {
+   "at": "2026-10-06T17:11:17.000Z",
+   "pages": 44,
+   "sha": "32716fc"
+  },
+  {
+   "at": "2026-10-06T17:13:40.000Z",
+   "pages": 44,
+   "sha": "082d8ba"
+  },
+  {
+   "at": "2026-10-06T18:11:05.000Z",
+   "pages": 45,
+   "sha": "ce3b792"
+  },
+  {
+   "at": "2026-10-06T18:12:18.000Z",
+   "pages": 45,
+   "sha": "79b9fcf"
+  },
+  {
+   "at": "2026-10-06T18:13:48.000Z",
+   "pages": 46,
+   "sha": "4b13234"
+  },
+  {
+   "at": "2026-10-06T18:14:55.000Z",
+   "pages": 46,
+   "sha": "ae73837"
+  },
+  {
+   "at": "2026-10-06T18:16:28.000Z",
+   "pages": 47,
+   "sha": "eeeda6e"
+  },
+  {
+   "at": "2026-10-06T18:17:39.000Z",
+   "pages": 47,
+   "sha": "78c13f2"
+  },
+  {
+   "at": "2026-10-06T18:19:12.000Z",
+   "pages": 48,
+   "sha": "86ba6f7"
+  },
+  {
+   "at": "2026-10-06T18:20:22.000Z",
+   "pages": 48,
+   "sha": "f72e483"
+  },
+  {
+   "at": "2026-10-06T18:22:02.000Z",
+   "pages": 49,
+   "sha": "2d6f91a"
+  },
+  {
+   "at": "2026-10-06T18:23:21.000Z",
+   "pages": 49,
+   "sha": "106b59f"
+  },
+  {
+   "at": "2026-10-06T18:25:07.000Z",
+   "pages": 49,
+   "sha": "fb3f354"
+  },
+  {
+   "at": "2026-10-06T20:44:26.000Z",
+   "pages": 49,
+   "sha": "dffc25a"
+  },
+  {
+   "at": "2026-10-06T21:12:01.000Z",
+   "pages": 50,
+   "sha": "cc9c0e4"
+  },
+  {
+   "at": "2026-10-06T21:14:21.000Z",
+   "pages": 51,
+   "sha": "e8045cf"
+  },
+  {
+   "at": "2026-10-06T21:16:46.000Z",
+   "pages": 52,
+   "sha": "4c15528"
+  },
+  {
+   "at": "2026-10-06T21:19:40.000Z",
+   "pages": 53,
+   "sha": "781ed79"
+  },
+  {
+   "at": "2026-10-06T21:22:01.000Z",
+   "pages": 54,
+   "sha": "2d58697"
+  },
+  {
+   "at": "2026-10-06T21:24:25.000Z",
+   "pages": 55,
+   "sha": "561566f"
+  },
+  {
+   "at": "2026-10-06T21:24:58.000Z",
+   "pages": 55,
+   "sha": "11d2403"
+  }
+ ],
+ "tests": {
+  "ok": true,
+  "browserPassed": 235,
+  "browserFailed": 0,
+  "browserSkipped": 1,
+  "unitPassed": 43,
+  "unitFailed": 0,
+  "checkProblems": 0,
+  "ranAt": "2026-10-06T21:41:53.269Z"
+ },
+ "gsc": {
+  "checkedAt": "2026-10-06T21:41:53.270Z",
+  "property": "https://powerstationruntime.netlify.app/",
+  "submittedAt": "2026-10-06T04:48:38.932Z",
+  "downloadedAt": "2026-10-06T04:48:40.327Z",
+  "pending": false,
+  "submitted": "5",
+  "errors": "0",
+  "warnings": "0",
+  "clicks": 0,
+  "impressions": 0,
+  "position": null,
+  "pagesSeen": 0,
+  "topQueries": [],
+  "home": {
+   "verdict": "NEUTRAL",
+   "coverage": "Crawled - currently not indexed",
+   "lastCrawl": "2026-10-06T06:43:53Z"
+  },
+  "ok": true
+ },
+ "live": {
+  "checkedAt": "2026-10-06T21:42:03.026Z",
+  "live": true,
+  "status": 200,
+  "leaked": []
+ },
+ "collectedAt": "2026-10-06T21:42:03.026Z"
+}
