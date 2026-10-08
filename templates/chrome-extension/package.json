@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "check": "node scripts/check.mjs",
-    "test": "npm run check && playwright test"
+    "test": "node scripts/test.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0"

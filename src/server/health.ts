@@ -69,7 +69,7 @@ export function parseRunLog(text: string): RunRecord[] {
 
 /** Short runs: the last few runs all ended within seconds, the signature of a rate-limited account. */
 export function shortRunsCheck(runs: readonly RunRecord[]): Check {
-  if (runs.length === 0) return { kind: 'short-runs', ok: true, reason: 'no run log yet', proof: '.ai/runs.jsonl not found or empty' };
+  if (runs.length === 0) return { kind: 'short-runs', ok: true, reason: 'no run log yet', proof: '.ai/runs.jsonl not found or empty (`loop run` writes it)' };
   const recent = runs.slice(-SHORT_RUN_STREAK);
   const seconds = recent.map((r) => (r.endedAt.getTime() - r.startedAt.getTime()) / 1000);
   const failing = recent.length === SHORT_RUN_STREAK && seconds.every((s) => s < SHORT_RUN_SECONDS);
@@ -97,7 +97,7 @@ export function parseTestRecord(text: string): TestRecord | undefined {
 }
 
 export function failingTestsCheck(record: TestRecord | undefined): Check {
-  if (!record) return { kind: 'failing-tests', ok: true, reason: 'no test result recorded yet', proof: '.ai/last-test.json not found' };
+  if (!record) return { kind: 'failing-tests', ok: true, reason: 'no test result recorded yet', proof: '.ai/last-test.json not found (the template `npm test` writes it; commit it)' };
   return {
     kind: 'failing-tests',
     ok: record.failed === 0,

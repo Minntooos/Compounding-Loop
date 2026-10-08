@@ -40,6 +40,21 @@ test('settings changes the theme', async ({ page }) => {
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 });
 
+test('settings shows the server settings; the demo reveals no local folder or account', async ({ page }) => {
+  const errors = trackErrors(page);
+  await page.goto('/#/settings');
+  const list = page.getByRole('list', { name: 'Server settings' }).or(page.getByLabel('Server settings'));
+  await expect(list).toContainText('Claude Code routine');
+  await expect(list).toContainText('none (demo)');
+
+  await page.route('**/api/settings', (r) => r.fulfill({ json: { demo: false, projectsDir: '/home/ana/loops', ghAccount: 'ana', defaultRunner: 'local' } }));
+  await page.reload();
+  await expect(list).toContainText('/home/ana/loops');
+  await expect(list).toContainText('ana');
+  await expect(list).toContainText('Local loop');
+  expect(errors).toEqual([]);
+});
+
 test('inbox: empty state in demo; a question can be accepted with j/k/a and the demo refuses writes', async ({ page, isMobile }) => {
   await page.goto('/#/inbox');
   await expect(page.getByText('Inbox empty')).toBeVisible();

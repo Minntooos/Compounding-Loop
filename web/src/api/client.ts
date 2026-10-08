@@ -1,4 +1,4 @@
-import type { HealthCheck, InboxItem, LoopDetail, LoopSummary } from '@core/types';
+import type { DashboardSettings, HealthCheck, InboxItem, LoopDetail, LoopSummary } from '@core/types';
 import { mockSnapshot } from './mock';
 
 async function fetchJson(path: string): Promise<Response | undefined> {
@@ -59,4 +59,5 @@ export const api = {
   loop: (id: string) => getJson<LoopDetail | null>(`/loops/${encodeURIComponent(id)}`, () => mockSnapshot.loops.find((l) => l.id === id) ?? null, null),
   inbox: () => getJson<InboxItem[]>('/inbox', () => mockSnapshot.inbox),
   checks: () => getJson<HealthCheck[]>('/checks', () => mockSnapshot.checks),
+  settings: () => getJson<DashboardSettings>('/settings', (): DashboardSettings => ({ demo: true, defaultRunner: 'routine' })),
 };

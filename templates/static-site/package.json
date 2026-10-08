@@ -6,7 +6,7 @@
     "start": "node scripts/serve.mjs",
     "check": "node scripts/check.mjs",
     "unit": "node --test \"tests/unit/**/*.test.mjs\"",
-    "test": "npm run check && npm run unit && playwright test"
+    "test": "node scripts/test.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0"

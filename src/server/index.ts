@@ -8,6 +8,7 @@ import { DEFAULT_WATCH, EventBus, watchProjects, type WatchOptions } from './eve
 import { projectsSource } from './loops.js';
 import { SECURITY_HEADERS, staticHandler } from './static.js';
 import { loadDemoSnapshot, snapshotSource, type DataSource } from './data.js';
+import { dashboardSettings, ghLogin } from './settings.js';
 
 export interface AppOptions {
   /** Serve the bundled demo snapshot and refuse writes. */
@@ -20,6 +21,8 @@ export interface AppOptions {
   bus?: EventBus;
   /** Folder with the built dashboard; defaults to `dist/web` next to the compiled server. */
   webDir?: string;
+  /** Looks up the `gh` account for `/api/settings`; tests pass a fake. */
+  ghAccount?: () => Promise<string | undefined>;
 }
 
 const pkg = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')) as { version: string };
@@ -92,6 +95,9 @@ export async function createApp(options: AppOptions): Promise<Hono> {
   });
   app.get('/api/inbox', async (c) => c.json(await source.inbox()));
   app.get('/api/checks', async (c) => c.json(await source.checks()));
+  // `gh` is asked once per server, on first use: the account rarely changes and the call takes about a second.
+  let settings: ReturnType<typeof dashboardSettings> | undefined;
+  app.get('/api/settings', async (c) => c.json(await (settings ??= dashboardSettings(options, options.ghAccount ?? ghLogin))));
   app.get('/api/events', (c) =>
     streamSSE(c, async (stream) => {
       const unsubscribe = bus.subscribe((event) => {
@@ -139,12 +145,14 @@ export async function startServer(options: StartOptions): Promise<{ url: string;
   const { port } = server.address() as AddressInfo;
   return {
     url: `http://127.0.0.1:${port}`,
-    close: () =>
-      new Promise((resolve, reject) => {
-        stopWatching?.();
+    close: async () => {
+      const watcherStopped = stopWatching?.();
+      await new Promise<void>((resolve, reject) => {
         server.close((e) => (e ? reject(e) : resolve()));
         // Open SSE connections would keep close() waiting forever.
         if ('closeAllConnections' in server) server.closeAllConnections();
-      }),
+      });
+      await watcherStopped;
+    },
   };
 }

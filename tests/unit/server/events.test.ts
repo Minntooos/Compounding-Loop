@@ -92,7 +92,7 @@ describe('watchProjects', () => {
       await until(() => got.some((e) => e.type === 'inbox-changed'));
       expect(got).toContainEqual({ type: 'loop-updated', id: 'a' });
     } finally {
-      stop();
+      await stop();
     }
   });
 });

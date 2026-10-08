@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import type { LoopDetail, LoopSummary } from '../../../src/core/types.js';
 import { sortByAttention, toSummary } from '../../../src/server/data.js';
@@ -89,5 +90,23 @@ describe('host and origin guard', () => {
     expect((await app.request('http://evil.example/api/health')).status).toBe(403);
     expect((await app.request('http://127.0.0.1:1/api/health', { headers: { origin: 'https://evil.example' } })).status).toBe(403);
     expect((await app.request('http://localhost:1/api/health', { headers: { origin: 'http://localhost:5173' } })).status).toBe(200);
+  });
+});
+
+describe('GET /api/settings', () => {
+  it('demo mode reveals no folder and never calls gh', async () => {
+    let asked = false;
+    const app = await createApp({ demo: true, ghAccount: async () => { asked = true; return 'someone'; } });
+    expect(await (await app.request('/api/settings')).json()).toEqual({ demo: true, defaultRunner: 'routine' });
+    expect(asked).toBe(false);
+  });
+
+  it('real mode returns the absolute projects folder and the gh account, asking gh once', async () => {
+    let calls = 0;
+    const app = await createApp({ demo: false, projectsDir: 'loops', source: { loops: async () => [], loop: async () => undefined, inbox: async () => [], checks: async () => [] }, ghAccount: async () => { calls += 1; return 'ana'; } });
+    const first = await (await app.request('/api/settings')).json();
+    await app.request('/api/settings');
+    expect(first).toEqual({ demo: false, projectsDir: path.resolve('loops'), ghAccount: 'ana', defaultRunner: 'routine' });
+    expect(calls).toBe(1);
   });
 });

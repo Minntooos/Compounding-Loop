@@ -74,47 +74,53 @@ async function fetchAll(projectsDir: string): Promise<void> {
 
 /**
  * Polls every clone in `projectsDir` and emits events on change. Polling (not fs.watch) keeps it
- * identical on Windows, macOS and Linux and also sees commits made by `git pull`. Returns a stop function.
+ * identical on Windows, macOS and Linux and also sees commits made by `git pull`. Returns a stop function
+ * that resolves once any poll already running has finished (on Windows a running `git` keeps the clone folder open).
  */
-export function watchProjects(projectsDir: string, bus: EventBus, options: WatchOptions = DEFAULT_WATCH): () => void {
+export function watchProjects(projectsDir: string, bus: EventBus, options: WatchOptions = DEFAULT_WATCH): () => Promise<void> {
   const seen = new Map<string, string>();
   const blocked = new Set<string>();
   let first = true;
-  let busy = false;
+  let running: Promise<void> | undefined;
+  let stopped = false;
 
-  const tick = async (): Promise<void> => {
-    if (busy) return;
-    busy = true;
-    try {
-      const dirs = await findLoopDirs(projectsDir);
-      const nowBlocked = new Set<string>();
-      for (const dir of dirs) {
-        const id = path.basename(dir);
-        // One unreadable clone must not stop the others from being checked.
-        const print = await fingerprint(dir).catch(() => seen.get(id) ?? 'unreadable');
-        if (!print.includes('BLOCKED.md:-')) nowBlocked.add(id);
-        if (!first && seen.get(id) !== print) bus.emit({ type: 'loop-updated', id });
-        seen.set(id, print);
-      }
-      for (const id of [...seen.keys()]) if (!dirs.some((d) => path.basename(d) === id)) seen.delete(id);
-      const inboxChanged = nowBlocked.size !== blocked.size || [...nowBlocked].some((id) => !blocked.has(id));
-      blocked.clear();
-      for (const id of nowBlocked) blocked.add(id);
-      if (!first && inboxChanged) bus.emit({ type: 'inbox-changed' });
-      first = false;
-    } finally {
-      busy = false;
-    }
+  const tick = (): Promise<void> => {
+    if (running || stopped) return running ?? Promise.resolve();
+    running = poll().finally(() => {
+      running = undefined;
+    });
+    return running;
   };
 
-  const poll = setInterval(() => void tick().catch(() => undefined), options.intervalMs);
+  const poll = async (): Promise<void> => {
+    const dirs = await findLoopDirs(projectsDir);
+    const nowBlocked = new Set<string>();
+    for (const dir of dirs) {
+      const id = path.basename(dir);
+      // One unreadable clone must not stop the others from being checked.
+      const print = await fingerprint(dir).catch(() => seen.get(id) ?? 'unreadable');
+      if (!print.includes('BLOCKED.md:-')) nowBlocked.add(id);
+      if (!first && seen.get(id) !== print) bus.emit({ type: 'loop-updated', id });
+      seen.set(id, print);
+    }
+    for (const id of [...seen.keys()]) if (!dirs.some((d) => path.basename(d) === id)) seen.delete(id);
+    const inboxChanged = nowBlocked.size !== blocked.size || [...nowBlocked].some((id) => !blocked.has(id));
+    blocked.clear();
+    for (const id of nowBlocked) blocked.add(id);
+    if (!first && inboxChanged) bus.emit({ type: 'inbox-changed' });
+    first = false;
+  };
+
+  const timer = setInterval(() => void tick().catch(() => undefined), options.intervalMs);
   const fetcher =
     options.fetchIntervalMs > 0
       ? setInterval(() => void fetchAll(projectsDir).catch(() => undefined), options.fetchIntervalMs)
       : undefined;
   void tick().catch(() => undefined);
-  return () => {
-    clearInterval(poll);
+  return async () => {
+    stopped = true;
+    clearInterval(timer);
     if (fetcher) clearInterval(fetcher);
+    await running?.catch(() => undefined);
   };
 }

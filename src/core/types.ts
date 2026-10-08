@@ -104,3 +104,14 @@ export interface DemoSnapshot {
   inbox: InboxItem[];
   checks: HealthCheck[];
 }
+
+/** `GET /api/settings`: what the dashboard server is pointed at. Read-only; set with `loop dashboard` flags. */
+export interface DashboardSettings {
+  demo: boolean;
+  /** Absolute folder whose subfolders are loop clones; absent in demo mode. */
+  projectsDir?: string;
+  /** `gh` login, when `gh` is installed and signed in; absent in demo mode. */
+  ghAccount?: string;
+  /** The runner the new-loop wizard picks first. */
+  defaultRunner: 'routine' | 'github-actions' | 'local';
+}
