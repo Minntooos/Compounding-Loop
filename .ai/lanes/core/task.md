@@ -1,7 +1,7 @@
 # Lane: core
 
 Run: 1 / 30
-Status: units 1-4 done (new has no @clack brief prompts yet) (init installs .ai/* + AGENTS.md; card waits on kit)
+Status: units 1-5 done (new has no @clack brief prompts yet) (init installs .ai/* + AGENTS.md; card waits on kit)
 
 ## Contract
 **Goal:** the `loop` CLI and the pure logic in `src/core` that every other lane builds on (IDEA.md must-haves 1–7).
@@ -43,4 +43,4 @@ loop new skips the brief gate and @clack/prompts walkthrough for now · the brie
 - Add a dependency without a Decisions entry.
 
 ## Handoff
-Run 1: fixed red main (favicon), shipped unit 1 (src/core/repo.ts). Unit 2 shipped (src/core/brief.ts, exports lintBrief/briefPasses/MIN_BRIEF_SCORE). Unit 3 shipped: src/core/init.ts, src/cli/init.ts (loadKit reads method/operating-card.md, task-template.md, knowledge-index.md, COMPOUNDING_LOOP.md -> .ai/method.md; missing ones warn). Still to add to init once kit ships: check script/tests/runner config install. Next: unit 5 (next-round, status, answer). Nothing half-done.
+Run 1: fixed red main (favicon), shipped unit 1 (src/core/repo.ts). Unit 2 shipped (src/core/brief.ts, exports lintBrief/briefPasses/MIN_BRIEF_SCORE). Unit 3 shipped: src/core/init.ts, src/cli/init.ts (loadKit reads method/operating-card.md, task-template.md, knowledge-index.md, COMPOUNDING_LOOP.md -> .ai/method.md; missing ones warn). Still to add to init once kit ships: check script/tests/runner config install. Unit 5 shipped (src/cli/loops.ts: runStatus/runNextRound/runAnswer; core: rounds.ts, blocked.ts, table.ts). answer commits only task.md+BLOCKED.md, does not push; budget blocks raise the limit by 30. Next: unit 6, `loop run` prompt builder (needs kit's runners/routine/prompt.md; check outbox/kit first). Nothing half-done.

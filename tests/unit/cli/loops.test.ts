@@ -54,6 +54,27 @@ describe('loop status / next-round / answer', () => {
     expect(execFileSync('git', ['log', '--format=%s'], { cwd: dir, encoding: 'utf8' })).toContain('Answer BLOCKED.md');
   });
 
+  it('answering a run-budget block raises the limit and leaves unrelated staged files out', async () => {
+    const g = (...a: string[]) => execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@e.x', ...a], { cwd: dir, encoding: 'utf8' });
+    await writeFile(path.join(dir, '.ai', 'task.md'), '# T\n\nRun: 30 / 30\n\n## Decisions\n');
+    await writeFile(path.join(dir, 'BLOCKED.md'), 'Run budget reached');
+    g('init', '-q');
+    g('add', '-A');
+    g('commit', '-qm', 'base');
+    await writeFile(path.join(dir, 'other.txt'), 'wip');
+    g('add', 'other.txt');
+    await runAnswer(dir, 'accept', { dryRun: false });
+    expect(await readFile(path.join(dir, '.ai', 'task.md'), 'utf8')).toContain('Run: 30 / 60');
+    expect(g('show', '--name-only', '--format=', 'HEAD')).not.toContain('other.txt');
+    expect(g('status', '--short')).toContain('A  other.txt');
+  });
+
+  it('answer refuses outside a git repo before changing anything', async () => {
+    await writeFile(path.join(dir, 'BLOCKED.md'), '## Best guess\nMIT');
+    await expect(runAnswer(dir, 'accept', { dryRun: false })).rejects.toThrow(/not a git repository/);
+    expect(await readFile(path.join(dir, 'BLOCKED.md'), 'utf8')).toBeTruthy();
+  });
+
   it('answer fails clearly without BLOCKED.md or a guess to accept', async () => {
     await expect(runAnswer(dir, 'x', { dryRun: false })).rejects.toThrow(/No BLOCKED.md/);
     await writeFile(path.join(dir, 'BLOCKED.md'), 'stuck');

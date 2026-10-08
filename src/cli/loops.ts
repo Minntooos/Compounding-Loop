@@ -2,7 +2,7 @@ import { execFile } from 'node:child_process';
 import { readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
-import { addAnswerToTask, formatAnswer, parseBlocked } from '../core/blocked.js';
+import { addAnswerToTask, BUDGET_EXTENSION, extendRunBudget, formatAnswer, isBudgetBlock, parseBlocked } from '../core/blocked.js';
 import { readLoopFacts, readRunCounter } from '../core/repo.js';
 import { buildNextRoundTask, extractNextItems, nextDoneFileName } from '../core/rounds.js';
 import { formatFleet, type FleetRow } from '../core/table.js';
@@ -61,16 +61,27 @@ export async function runAnswer(
   const text = await readFile(blockedPath, 'utf8').catch(() => undefined);
   if (text === undefined) throw new Error('No BLOCKED.md here: nothing to answer.');
   const note = parseBlocked(text);
-  const finalAnswer = answer === 'accept' ? note.bestGuess : answer;
+  const budget = isBudgetBlock(text);
+  const acceptedGuess = note.bestGuess || (budget ? `Continue: ${BUDGET_EXTENSION} more runs.` : '');
+  const finalAnswer = answer === 'accept' ? acceptedGuess : answer;
   if (!finalAnswer.trim()) throw new Error('BLOCKED.md has no best guess to accept; pass an answer instead.');
   if (!options.dryRun) {
+    // Fail before changing any file when this is not a git repo.
+    await git(dir, 'rev-parse', '--git-dir').catch(() => {
+      throw new Error('This folder is not a git repository, so the answer cannot be committed.');
+    });
     const taskPath = path.join(dir, '.ai', 'task.md');
     const task = await readFile(taskPath, 'utf8').catch(() => '');
     const date = (options.now ?? new Date()).toISOString().slice(0, 10);
-    await writeFile(taskPath, addAnswerToTask(task, formatAnswer(note, finalAnswer, date)));
+    const withAnswer = addAnswerToTask(task, formatAnswer(note, finalAnswer, date));
+    // Without a higher limit the next run would hit the budget and block again at once.
+    await writeFile(taskPath, budget ? extendRunBudget(withAnswer) : withAnswer);
     await rm(blockedPath);
-    await git(dir, 'add', '-A');
-    await git(dir, '-c', 'user.name=Compounding Loop', '-c', 'user.email=loop@users.noreply.github.com', 'commit', '-qm', 'Answer BLOCKED.md and restart the loop');
+    // Only our two files: the user's other staged or unstaged work stays out of this commit.
+    const blockedTracked = (await git(dir, 'ls-files', '--', 'BLOCKED.md')).stdout.trim() !== '';
+    const paths = ['.ai/task.md', ...(blockedTracked ? ['BLOCKED.md'] : [])];
+    await git(dir, 'add', '-A', '--', ...paths);
+    await git(dir, '-c', 'user.name=Compounding Loop', '-c', 'user.email=loop@users.noreply.github.com', 'commit', '-qm', 'Answer BLOCKED.md and restart the loop', '--', ...paths);
   }
   return { question: note.question, bestGuess: note.bestGuess, answer: finalAnswer };
 }

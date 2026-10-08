@@ -3,14 +3,11 @@ import { listItems } from './brief.js';
 /** Items under the "next 10 improvements" heading of a DONE.md; empty when the section is missing. */
 export function extractNextItems(doneText: string): string[] {
   const lines = doneText.split(/\r?\n/);
-  const start = lines.findIndex((line) => /^#{1,6}\s+.*\b(next\s+(10|ten|\d+|improvements|round)|\d+\s+best\s+next)\b/i.test(line));
+  // Any heading about what comes next ("Next 10 improvements", "Ten best next pages", "Next steps").
+  const start = lines.findIndex((line) => /^#{1,6}\s+.*\b(next|ten best)\b/i.test(line));
   if (start === -1) return [];
-  const level = /^#+/.exec(lines[start] ?? '')?.[0].length ?? 1;
   const rest = lines.slice(start + 1);
-  const end = rest.findIndex((line) => {
-    const heading = /^(#+)\s/.exec(line);
-    return heading !== undefined && heading !== null && (heading[1]?.length ?? 7) <= level;
-  });
+  const end = rest.findIndex((line) => /^#{1,6}\s/.test(line));
   return listItems((end === -1 ? rest : rest.slice(0, end)).join('\n'));
 }
 

@@ -40,3 +40,13 @@ export function addAnswerToTask(taskText: string, block: string): string {
   const at = match.index + match[0].length;
   return `${taskText.slice(0, at)}${block}\n${taskText.slice(at)}`;
 }
+
+export const BUDGET_EXTENSION = 30;
+
+/** True when BLOCKED.md was written because the run budget ran out (it has no real question). */
+export const isBudgetBlock = (text: string): boolean => /run budget/i.test(text);
+
+/** Raises the limit of `Run: N / LIMIT` to N + BUDGET_EXTENSION; leaves other text alone. */
+export function extendRunBudget(taskText: string, extra: number = BUDGET_EXTENSION): string {
+  return taskText.replace(/^Run:\s*(\d+)\s*\/\s*\d+/m, (_whole, run: string) => `Run: ${run} / ${Number(run) + extra}`);
+}

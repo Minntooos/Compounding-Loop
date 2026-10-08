@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addAnswerToTask, formatAnswer, parseBlocked } from '../../../src/core/blocked.js';
+import { addAnswerToTask, extendRunBudget, isBudgetBlock, formatAnswer, parseBlocked } from '../../../src/core/blocked.js';
 
 const headed = '# BLOCKED\n\n## What I tried\nthings\n\n## Specific question\nShould the site use .com or .org?\n\n## Best guess\nUse .com.\n';
 const bold = '**Tried:** a\n**Question:** Which licence?\n**Best guess:** MIT\n';
@@ -25,5 +25,14 @@ describe('addAnswerToTask', () => {
   });
   it('adds a Decisions section when missing', () => {
     expect(addAnswerToTask('# T\n', block)).toMatch(/## Decisions\n### Owner answer/);
+  });
+});
+
+describe('run budget blocks', () => {
+  it('detects them and raises the limit from the current run', () => {
+    expect(isBudgetBlock('Run budget reached')).toBe(true);
+    expect(isBudgetBlock(headed)).toBe(false);
+    expect(extendRunBudget('x\nRun: 30 / 30\ny')).toBe('x\nRun: 30 / 60\ny');
+    expect(extendRunBudget('no counter')).toBe('no counter');
   });
 });

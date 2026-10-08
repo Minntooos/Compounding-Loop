@@ -22,6 +22,10 @@ describe('extractNextItems', () => {
   it('finds "Next 10 improvements"', () => {
     expect(extractNextItems(done.replace('The 10 best next improvements, ranked', 'Next 10 improvements'))).toEqual(['Add search', 'Faster build', 'Dark mode']);
   });
+  it('accepts other "next" headings and stops at a sub-heading', () => {
+    expect(extractNextItems('## Ten best next pages\n- A\n- B\n### Notes\n- x\n')).toEqual(['A', 'B']);
+    expect(extractNextItems('## Next steps\n1. Do it\n')).toEqual(['Do it']);
+  });
   it('returns [] without such a heading', () => {
     expect(extractNextItems('# DONE\n- x')).toEqual([]);
   });
