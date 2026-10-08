@@ -4,6 +4,7 @@ import type { LoopSummary } from '@core/types';
 import { api } from '../api/client';
 import { relativeTime } from '../lib/format';
 import { StatusBadge } from './StatusBadge';
+import { LoadError, Loading } from './QueryState';
 
 function NeedsYou({ loops, inbox }: { loops: LoopSummary[]; inbox: number }) {
   const failing = loops.filter((l) => l.state === 'failing').length;
@@ -46,8 +47,8 @@ function LoopCard({ loop }: { loop: LoopSummary }) {
 export function Fleet() {
   const loops = useQuery({ queryKey: ['loops'], queryFn: api.loops });
   const inbox = useQuery({ queryKey: ['inbox'], queryFn: api.inbox });
-  if (loops.isPending || inbox.isPending) return <p role="status" style={{ color: 'var(--muted)' }}>Loading the fleet…</p>;
-  if (loops.isError || inbox.isError) return <p role="alert" style={{ color: 'var(--failing)' }}>Could not load the fleet.</p>;
+  if (loops.isPending || inbox.isPending) return <Loading what="Loading the fleet…" />;
+  if (loops.isError || inbox.isError) return <LoadError what="the fleet" onRetry={() => { void loops.refetch(); void inbox.refetch(); }} />;
   if (loops.data.length === 0) {
     return (
       <section className="space-y-3">

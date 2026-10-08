@@ -5,6 +5,7 @@ import type { LoopDetail as Detail } from '@core/types';
 import { api } from '../api/client';
 import { relativeTime } from '../lib/format';
 import { StatusBadge } from './StatusBadge';
+import { LoadError, Loading } from './QueryState';
 
 const TABS = ['Timeline', 'Contract', 'Knowledge', 'Decisions', 'Settings'] as const;
 type Tab = (typeof TABS)[number];
@@ -60,8 +61,8 @@ function onTabKey(e: React.KeyboardEvent, tab: Tab, setTab: (t: Tab) => void) {
 export function LoopDetail({ id }: { id: string }) {
   const [tab, setTab] = useState<Tab>('Timeline');
   const q = useQuery({ queryKey: ['loop', id], queryFn: () => api.loop(id) });
-  if (q.isPending) return <p role="status" style={{ color: 'var(--muted)' }}>Loading…</p>;
-  if (q.isError) return <p role="alert" style={{ color: 'var(--failing)' }}>Could not load this loop.</p>;
+  if (q.isPending) return <Loading />;
+  if (q.isError) return <LoadError what="this loop" onRetry={() => void q.refetch()} />;
   if (!q.data) return <p role="alert">No loop called “{id}”. <a href="#/" className="underline">Back to the fleet</a></p>;
   const loop = q.data;
   return (

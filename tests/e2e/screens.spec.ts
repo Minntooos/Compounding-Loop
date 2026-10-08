@@ -126,3 +126,15 @@ test('loop tabs move with the arrow keys', async ({ page }) => {
   await expect(page.getByRole('tab', { name: 'Contract' })).toBeFocused();
   await expect(page.getByRole('tab', { name: 'Contract' })).toHaveAttribute('aria-selected', 'true');
 });
+
+test('a failed load shows an error with a working retry', async ({ page }) => {
+  let fail = true;
+  await page.route('**/api/loops', (route) => (fail ? route.fulfill({ status: 500, body: 'boom' }) : route.continue()));
+  await page.goto('/');
+  const alert = page.getByRole('alert').filter({ hasText: 'Could not load the fleet' });
+  await expect(alert).toBeVisible();
+  fail = false;
+  await alert.getByRole('button', { name: 'Try again' }).click();
+  await expect(page.getByText('Could not load the fleet')).toHaveCount(0);
+  await expect(page.getByText('Nothing needs you')).toBeVisible();
+});

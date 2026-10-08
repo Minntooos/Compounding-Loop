@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { CheckCircle2, OctagonAlert } from 'lucide-react';
 import { api } from '../api/client';
+import { LoadError, Loading } from './QueryState';
 
 const KIND: Record<string, string> = {
   leak: 'Leaked text on the live site', 'stale-lock': 'Stale session lock', 'short-runs': 'Runs ending too fast',
@@ -9,8 +10,8 @@ const KIND: Record<string, string> = {
 
 export function Health() {
   const q = useQuery({ queryKey: ['checks'], queryFn: api.checks });
-  if (q.isPending) return <p role="status" style={{ color: 'var(--muted)' }}>Loading…</p>;
-  if (q.isError) return <p role="alert" style={{ color: 'var(--failing)' }}>Could not load the checks.</p>;
+  if (q.isPending) return <Loading />;
+  if (q.isError) return <LoadError what="the checks" onRetry={() => void q.refetch()} />;
   if (q.data.length === 0) return <p style={{ color: 'var(--muted)' }}>No checks yet. Add a loop to see them.</p>;
   return (
     <ul className="space-y-2" aria-label="Health checks">

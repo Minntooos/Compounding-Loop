@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import type { InboxItem } from '@core/types';
 import { api, hasServer, postAnswer } from '../api/client';
 import { relativeTime } from '../lib/format';
+import { LoadError, Loading } from './QueryState';
 
 function Item({ item, selected, answer, onAnswer, onDone, readOnly }: { item: InboxItem; selected: boolean; answer: string; onAnswer: (v: string) => void; onDone: (msg: string) => void; readOnly: boolean }) {
   const qc = useQueryClient();
@@ -50,8 +51,8 @@ export function Inbox() {
     window.addEventListener('keydown', on);
     return () => window.removeEventListener('keydown', on);
   }, [items.length]);
-  if (q.isPending) return <p role="status" style={{ color: 'var(--muted)' }}>Loading…</p>;
-  if (q.isError) return <p role="alert" style={{ color: 'var(--failing)' }}>Could not load the inbox.</p>;
+  if (q.isPending) return <Loading />;
+  if (q.isError) return <LoadError what="the inbox" onRetry={() => void q.refetch()} />;
   if (items.length === 0) return <p role="status" style={{ color: 'var(--done)' }}>{notice} Inbox empty: no loop is waiting on you.</p>;
   return (
     <>
