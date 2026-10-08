@@ -118,8 +118,11 @@ export async function runRound(
   if (options.dryRun) return { prompt, source };
   console.error(`Running one round in ${dir}${lane ? ` as lane ${lane}` : ''} (prompt: ${source})`);
   const startedAt = new Date();
-  const exitCode = await withSessionLock(lockFile, () =>
-    spawner('claude', buildClaudeArgs(prompt, { skipPermissions: options.skipPermissions, ...(options.model && { model: options.model }) }), dir));
-  await recordRun(dir, startedAt, new Date());
-  return { prompt, source, exitCode };
+  try {
+    const exitCode = await withSessionLock(lockFile, () =>
+      spawner('claude', buildClaudeArgs(prompt, { skipPermissions: options.skipPermissions, ...(options.model && { model: options.model }) }), dir));
+    return { prompt, source, exitCode };
+  } finally {
+    await recordRun(dir, startedAt, new Date()); // a failed round still counts for the dashboard's fast-failure check
+  }
 }

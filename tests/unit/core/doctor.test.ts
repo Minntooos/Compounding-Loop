@@ -30,6 +30,11 @@ describe('doctor', () => {
     }
   });
 
+  it('passes on the .cmd explanation instead of a generic install hint', () => {
+    const claude = evaluateDoctor({ ...healthy, claude: { ok: false, output: 'Found claude.cmd but Node cannot start it safely.' } }).find((c) => c.id === 'claude')!;
+    expect(claude.fix).toMatch(/claude\.cmd/);
+  });
+
   it('treats gh, gh sign-in and Chromium as recommended, not required', () => {
     const checks = evaluateDoctor({ ...healthy, gh: bad, ghAuth: bad, chromium: undefined });
     expect(doctorPassed(checks)).toBe(true);

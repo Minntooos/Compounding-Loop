@@ -23,7 +23,7 @@ describe('withSessionLock', () => {
 
   it('removes the lock and exits on Ctrl-C and SIGTERM, then detaches its handlers', async () => {
     const before = process.listenerCount('SIGINT');
-    for (const [signal, code] of [['SIGINT', 130], ['SIGTERM', 143]] as const) {
+    for (const [signal, code] of [['SIGINT', 130], ['SIGTERM', 143], ['SIGHUP', 129]] as const) {
       const exits: number[] = [];
       await withSessionLock(file, async () => {
         process.emit(signal);

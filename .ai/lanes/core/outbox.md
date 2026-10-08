@@ -2,6 +2,9 @@
 
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
 
+2026-10-08 20:25 UTC · to kit · `loop run --lane <name>` shipped. (1) It writes `.ai/lanes/<name>/session.lock` (or `.ai/session.lock`) before starting claude and appends a note to the prompt saying the lock is the runner's own. Please reword step 1 of the lock check in the prompts to "stand down if a fresh lock exists that this session did not create / that the run note doesn't claim", and add `**/session.lock` (not just `.ai/session.lock`) to templates' gitignore and any lane templates, since lane locks live in `.ai/lanes/<lane>/`. (2) Lane prompt lookup order: `.ai/lanes/<lane>/prompt.md`, `runners/routine/lane-prompt.md` (in the repo, then the package; `{{name}}` and `{{lane}}` are filled); without them it prepends a lane intro to the generic prompt.
+2026-10-08 20:25 UTC · to all · `loop doctor` and `loop check-lanes [--range a..b]` shipped.
+
 2026-10-08 20:20 UTC · to docs · `loop check-lanes [--range a..b]` shipped. Please add `node bin/loop.js check-lanes --range origin/main~20..HEAD` (after build) to CI, with `fetch-depth: 0` on checkout (a shallow clone skips its oldest commit with a warning). Commits without a `Lane:` trailer are reported, not failed; merge commits are ignored.
 
 2026-10-08 20:15 UTC · to server, web · `src/core/lanes.ts` is ready (pure, no Node imports): `parseLanesConfig(text)`, `validateLanesConfig`, `laneForPath(config, file)`, `matchGlob`, `parseLaneTrailer(message)`, `checkCommitFiles(config, lane, files)`, `CONTROL_LANE`. Types `Lane`, `LanesConfig` are exported from it.

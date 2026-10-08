@@ -18,7 +18,7 @@ export async function withSessionLock<T>(lockFile: string, fn: () => Promise<T>,
   await writeFile(lockFile, `${(options.now ?? (() => new Date()))().toISOString()}\n`);
   const release = () => rmSync(lockFile, { force: true });
   const onSignal = (code: number) => () => { release(); exit(code); };
-  const handlers = { SIGINT: onSignal(130), SIGTERM: onSignal(143) } as const;
+  const handlers = { SIGINT: onSignal(130), SIGTERM: onSignal(143), SIGHUP: onSignal(129) } as const;
   for (const [signal, handler] of Object.entries(handlers)) process.on(signal as NodeJS.Signals, handler);
   try {
     return await fn();

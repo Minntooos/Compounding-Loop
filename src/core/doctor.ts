@@ -49,7 +49,7 @@ export function evaluateDoctor(input: DoctorInput): Check[] {
     },
     {
       id: 'claude', label: 'Claude Code (claude)', required: true, ok: input.claude.ok, detail: input.claude.ok ? firstLine(input.claude.output) : firstLine(input.claude.output) || 'not found',
-      fix: input.claude.ok ? '' : 'Install Claude Code (https://docs.claude.com/en/docs/claude-code), then run `claude` once to sign in.',
+      fix: input.claude.ok ? '' : input.claude.output.includes('.cmd') ? input.claude.output : 'Install Claude Code (https://docs.claude.com/en/docs/claude-code), then run `claude` once to sign in.',
     },
     {
       id: 'gh', label: 'GitHub CLI (gh), needed by `loop new` and for pushing', required: false, ok: input.gh.ok, detail: input.gh.ok ? firstLine(input.gh.output) : 'not found',

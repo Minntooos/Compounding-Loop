@@ -7,3 +7,4 @@ playwright-report/
 .env
 .env.*
 demo/static/
+session.lock
