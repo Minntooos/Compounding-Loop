@@ -19,3 +19,11 @@ describe('buildClaudeArgs', () => {
     expect(buildClaudeArgs('p', { skipPermissions: true, model: 'm' })).toEqual(['-p', 'p', '--model', 'm', '--dangerously-skip-permissions']);
   });
 });
+
+describe('DEFAULT_PROMPT', () => {
+  it('matches the routine prompt the kit ships', async () => {
+    const { readFile } = await import('node:fs/promises');
+    const shipped = await readFile('runners/routine/prompt.md', 'utf8');
+    expect(DEFAULT_PROMPT).toBe(shipped.trim());
+  });
+});

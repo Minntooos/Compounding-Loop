@@ -24,3 +24,13 @@ export function fillPlaceholders(text: string, vars: Readonly<Record<string, str
 
 /** Names never copied out of a template. */
 export const TEMPLATE_IGNORED = new Set(['node_modules', '.git', 'test-results', 'playwright-report']);
+
+/** npm drops `.gitignore` from tarballs, so templates ship it as `gitignore`; this is the name it gets in a new repo. */
+export function templateTargetName(fileName: string): string {
+  return fileName === 'gitignore' ? '.gitignore' : fileName;
+}
+
+/** Hostname-safe form of a project name (`_` becomes `-`, no leading/trailing `-`, at most 63 characters) for `{{host}}`. */
+export function hostLabel(name: string): string {
+  return name.replace(/_/g, '-').slice(0, 63).replace(/^-+|-+$/g, '');
+}

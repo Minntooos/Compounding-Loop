@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fillPlaceholders, isTextFile, validateProjectName } from '../../../src/core/template.js';
+import { fillPlaceholders, hostLabel, isTextFile, templateTargetName, validateProjectName } from '../../../src/core/template.js';
 
 describe('validateProjectName', () => {
   it('accepts simple names', () => {
@@ -22,5 +22,21 @@ describe('isTextFile', () => {
     expect(isTextFile('.gitignore')).toBe(true);
     expect(isTextFile('logo.png')).toBe(false);
     expect(isTextFile('Makefile')).toBe(false);
+  });
+});
+
+describe('templateTargetName', () => {
+  it('turns the shipped `gitignore` into `.gitignore` and leaves other names alone', () => {
+    expect(templateTargetName('gitignore')).toBe('.gitignore');
+    expect(templateTargetName('package.json')).toBe('package.json');
+  });
+});
+
+describe('hostLabel', () => {
+  it('makes names hostname-safe', () => {
+    expect(hostLabel('my_site')).toBe('my-site');
+    expect(hostLabel('site-')).toBe('site');
+    expect(hostLabel('a'.repeat(100))).toHaveLength(63);
+    expect(hostLabel('a'.repeat(62) + '_b')).toBe('a'.repeat(62));
   });
 });

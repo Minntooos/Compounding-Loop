@@ -1,7 +1,7 @@
 import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { Gh } from '../core/gh.js';
-import { fillPlaceholders, isTextFile, TEMPLATE_IGNORED, validateProjectName } from '../core/template.js';
+import { fillPlaceholders, hostLabel, isTextFile, TEMPLATE_IGNORED, templateTargetName, validateProjectName } from '../core/template.js';
 import { packageRoot, runInit } from './init.js';
 
 export interface NewOptions {
@@ -31,9 +31,9 @@ async function copyTemplate(source: string, dest: string, vars: Record<string, s
   for (const entry of await readdir(source, { withFileTypes: true })) {
     if (TEMPLATE_IGNORED.has(entry.name)) continue;
     const from = path.join(source, entry.name);
-    const to = path.join(dest, entry.name);
+    const to = path.join(dest, templateTargetName(entry.name));
     if (entry.isDirectory()) await copyTemplate(from, to, vars);
-    else if (isTextFile(entry.name)) await writeFile(to, fillPlaceholders(await readFile(from, 'utf8'), vars));
+    else if (isTextFile(templateTargetName(entry.name))) await writeFile(to, fillPlaceholders(await readFile(from, 'utf8'), vars));
     else await cp(from, to);
   }
 }
@@ -49,7 +49,7 @@ export async function runNew(template: string, name: string, options: NewOptions
   const dir = path.join(options.parentDir, name);
   if (await stat(dir).then(() => true, () => false)) throw new Error(`${dir} already exists; pick another name.`);
 
-  await copyTemplate(path.join(root, 'templates', template), dir, { name, template });
+  await copyTemplate(path.join(root, 'templates', template), dir, { name, template, host: hostLabel(name) });
   // The brief is written after creation (dashboard wizard or by hand), so the brief gate is skipped here.
   const init = await runInit(dir, { force: true, dryRun: false });
   if (init.refused) throw new Error(init.refused);

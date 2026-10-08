@@ -1,9 +1,9 @@
 import { execFileSync } from 'node:child_process';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { loadPromptText, resolveExecutable, runRound, type Spawner } from '../../../src/cli/run.js';
+import { loadPromptText, lockMinutesLeft, resolveExecutable, runRound, type Spawner } from '../../../src/cli/run.js';
 
 const tsx = path.resolve('node_modules/.bin/tsx');
 const cli = path.resolve('src/cli/index.ts');
@@ -36,6 +36,29 @@ describe('loop run', () => {
     await rm(path.join(dir, 'BLOCKED.md'));
     await runRound(dir, { dryRun: true, skipPermissions: false }, fake);
     expect(calls).toEqual([]);
+  });
+
+  it('stands down while a fresh session.lock is held and ignores a stale one', async () => {
+    await mkdir(path.join(dir, '.ai'));
+    await writeFile(path.join(dir, '.ai', 'session.lock'), new Date().toISOString());
+    expect((await runRound(dir, { dryRun: false, skipPermissions: false }, fake)).skipped).toMatch(/session\.lock/);
+    await writeFile(path.join(dir, '.ai', 'session.lock'), new Date(Date.now() - 3 * 3_600_000).toISOString());
+    expect((await runRound(dir, { dryRun: false, skipPermissions: false }, fake)).exitCode).toBe(0);
+    expect(calls).toHaveLength(1);
+  });
+
+  it('computes the lock window', () => {
+    const now = new Date('2026-10-08T06:00:00Z');
+    expect(lockMinutesLeft('2026-10-08T05:30:00Z', now)).toBe(60);
+    expect(lockMinutesLeft('2026-10-08T04:00:00Z', now)).toBeUndefined();
+    expect(lockMinutesLeft('garbage', now)).toBeUndefined();
+    expect(lockMinutesLeft(undefined, now)).toBeUndefined();
+  });
+
+  it('appends one line to .ai/runs.jsonl per round', async () => {
+    await runRound(dir, { dryRun: false, skipPermissions: false }, fake);
+    const [line] = (await readFile(path.join(dir, '.ai', 'runs.jsonl'), 'utf8')).trim().split('\n');
+    expect(Object.keys(JSON.parse(line ?? '{}'))).toEqual(['startedAt', 'endedAt']);
   });
 
   it('resolves claude per platform without a shell', async () => {

@@ -1,16 +1,19 @@
 import { fillPlaceholders } from './template.js';
 
-/** Used only when neither the repo nor the package ships a prompt file. Mirrors templates/static-site/.ai/loop-prompt.md. */
-export const DEFAULT_PROMPT = `You are one run of an unattended build loop for this repository. Nobody is watching. Follow CLAUDE.md exactly, especially "Unattended mode".
+/** Used only when neither the repo nor the package ships a prompt file. A copy of runners/routine/prompt.md; a test keeps them equal. */
+export const DEFAULT_PROMPT = `You are one scheduled run of the build loop for this repository ({{name}}). Nobody is watching; the owner reads the results later. Read CLAUDE.md and follow it exactly, especially "Unattended mode". IDEA.md is the brief. Your task file is \`.ai/task.md\`.
 
-0. Run \`git checkout main && git pull --ff-only\`. Commit to \`main\` and push with \`git push origin main\`. Never push to a \`claude/\` branch.
-1. If \`DONE.md\` or \`BLOCKED.md\` exists, reply "Nothing to do" and stop.
-2. Run the install commands in CLAUDE.md "Commands".
-3. If \`.ai/task.md\` exists, run the resume protocol (.ai/method.md section 9.2) and add 1 to its run counter. If the counter has reached its limit, follow "Run budget" in CLAUDE.md. Otherwise start the task from IDEA.md.
-4. Do one unit of work, then run \`npm test\`.
-5. Green: commit, have a reviewer subagent check the diff, fix any blockers, run \`npm test\` again, then push to \`main\`. Red: write the attempt and the reason under Tried in \`.ai/task.md\`, then discard the unit's uncommitted changes.
-6. Repeat 4-5 with the next unit while your context is under ~50% full.
-7. Then run the handoff (.ai/method.md section 9.1), commit it, push it to \`main\`, and stop.`;
+0. Run \`date -u\` and note it as this run's start time. Run \`git checkout main && git pull --ff-only\`. Every commit goes to \`main\` and is pushed with \`git push origin main\`. Never create or push a \`claude/\` branch: the next run starts from \`main\` and would never see it. If a push is rejected, run \`git pull --rebase\`, re-run the checks if incoming commits touched code, and push again.
+1. Session lock: if \`.ai/session.lock\` holds a UTC time less than 90 minutes old, another session owns the repo. Reply "Nothing to do" and stop. If the file is older than that, it is stale: ignore it.
+2. If \`DONE.md\` or \`BLOCKED.md\` exists, reply "Nothing to do" and stop.
+3. Run the install command from CLAUDE.md (\`npm install\` unless it says otherwise). If it fails, write \`BLOCKED.md\` with the error and stop.
+4. If \`.ai/task.md\` exists, run the resume protocol (.ai/method.md §9.2) and add 1 to its \`Run: N / 30\` counter. When the counter reaches 30, write \`BLOCKED.md\` saying "run budget reached", push, and stop. If there is no task file, write one from IDEA.md first.
+5. Run the test command from CLAUDE.md (\`npm test\` unless it says otherwise) on the fresh pull. If it fails, fixing it is your first unit ("main stays green"). Otherwise take the next unit from the task file. Do one unit at a time.
+6. After each unit run the test command from CLAUDE.md (\`npm test\` unless it says otherwise). Green: commit, have a reviewer subagent that did not write the code check the diff against IDEA.md ("find the three most likely ways this is wrong for a real user, and check each"), fix any blockers, run the tests again, pull, then push to \`main\`. Red: write the attempt and the reason under Tried in the task file, then discard the unit's uncommitted changes. The same failure twice means the stuck protocol (§9.3); its last step is \`BLOCKED.md\`.
+7. A pushed unit does not end the run. Keep taking units until one of these is true: 40 minutes have passed since the start time (check \`date -u\` after each push), your context is about 60% full, or no unit is left.
+8. Run the handoff (§9.1) in the task file so a fresh run with zero memory can continue at full quality. Commit it, push to \`main\`, and stop. If every done-when in the contract passes and the reviewer finds no blockers, run the retro (§12), write \`DONE.md\` (what was built, test results, anything unsure, the 10 best next improvements ranked by value) and push instead.
+
+Never spend money, sign up for anything, create accounts, publish anything, add API keys, secrets, ads, analytics or tracking, copy other projects' content without a compatible licence, force-push, rewrite history, or touch anything outside this repository.`;
 
 /** Fills `{{name}}`-style placeholders and normalises the ending. */
 export function buildRunPrompt(promptText: string, vars: Readonly<Record<string, string>>): string {

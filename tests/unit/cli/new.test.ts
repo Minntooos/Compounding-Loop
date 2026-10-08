@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -26,6 +26,16 @@ describe('loop new', () => {
     expect(calls).toEqual([]);
     expect(await readFile(path.join(result.dir, 'AGENTS.md'), 'utf8')).toContain('CLAUDE.md');
     expect(await readFile(path.join(result.dir, 'IDEA.md'), 'utf8')).toBeTruthy();
+  });
+
+  it('writes a shipped `gitignore` as .gitignore and fills {{host}}', async () => {
+    const root = path.join(parent, 'pkg');
+    await mkdir(path.join(root, 'templates', 't'), { recursive: true });
+    await writeFile(path.join(root, 'templates', 't', 'gitignore'), 'node_modules\n');
+    await writeFile(path.join(root, 'templates', 't', 'netlify.toml'), 'site = "{{host}}.netlify.app"\n');
+    const result = await runNew('t', 'my_site', { parentDir: parent, dryRun: true, publicRepo: false, gh: fakeGh, root });
+    expect(await readFile(path.join(result.dir, '.gitignore'), 'utf8')).toBe('node_modules\n');
+    expect(await readFile(path.join(result.dir, 'netlify.toml'), 'utf8')).toBe('site = "my-site.netlify.app"\n');
   });
 
   it('creates a private repo through the Gh interface by default', async () => {

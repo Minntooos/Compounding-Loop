@@ -1,6 +1,6 @@
 # Lane: core
 
-Run: 1 / 30
+Run: 2 / 30
 Status: units 1-7 built; waiting on server's startServer for the real /api/health test (new has no @clack brief prompts yet) (init installs .ai/* + AGENTS.md; card waits on kit)
 
 ## Contract
