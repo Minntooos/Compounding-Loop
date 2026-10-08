@@ -1,7 +1,7 @@
 # Lane: server — round 2 (0.2.0 "Lanes")
 
 Run: 1 / 20
-Status: in progress
+Status: in progress (units 1-4 done; next: 5 demo loop + scrub test, 6)
 Round 1 record: `.ai/lanes/server/done-v1.md` (`git show 3385cdf:.ai/lanes/server/task.md` for its Decisions).
 
 ## Contract
@@ -32,6 +32,8 @@ Round 1 record: `.ai/lanes/server/done-v1.md` (`git show 3385cdf:.ai/lanes/serve
 6. Majors from your audit, then the round 1 leftovers above.
 
 ## Decisions
+- Lane health lives in `laneChecks` (src/server/health.ts) and relies on core's `deriveLaneState` for `stalled`; a failing lane check makes the loop `failing`. Easy to downgrade later.
+- Open: stall threshold ignores lane cron (core's STALL_MINUTES); told core in outbox 20:50.
 
 ## Confirmed
 
