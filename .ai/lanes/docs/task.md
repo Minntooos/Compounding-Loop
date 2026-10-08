@@ -1,7 +1,7 @@
 # Lane: docs
 
 Run: 1 / 30
-Status: in progress (units 1-5 done)
+Status: in progress (units 1-6 done)
 
 ## Contract
 **Goal:** everything that makes a stranger understand, trust and star the project in 30 seconds, plus the launch drafts (IDEA.md must-haves 25–27).
@@ -41,4 +41,4 @@ Status: in progress (units 1-5 done)
 - Add a dependency without a Decisions entry.
 
 ## Handoff
-Run 1 stopped after unit 5 (launch/social-preview.svg/.png, render with node launch/render-social-preview.mjs). Next: unit 6 (dashboard screenshot into docs/assets/ and replace README TODO), 7 (README/docs vs CLI --help; docs omit --public, --skip-permissions, --model, --accept; install command needs the package published, noted in show-hn.md).
+Run 1 stopped after unit 5 (launch/social-preview.svg/.png, render with node launch/render-social-preview.mjs). Units 6 and 7 done. All docs units complete; remaining: Lane finished protocol (reviewer pass, DONE.md with 10 next improvements). Note: install command needs the package published (noted in show-hn.md); re-check docs vs --help when CLI changes.

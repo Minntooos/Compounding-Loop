@@ -6,8 +6,7 @@
 npx compounding-loop init
 ```
 
-<!-- TODO(docs): replace with a dashboard screenshot generated from `loop dashboard --demo` (docs/assets/dashboard.png) once the Fleet screen is final. -->
-> *Dashboard screenshot: coming soon. Try it now with `npx compounding-loop dashboard --demo`.*
+![The Compounding Loop dashboard showing five finished loops](docs/assets/dashboard.png)
 
 Most agent tools show a demo. This one ships with proof: the method in this repo built five live sites, 215 pages in all, with nobody watching, and made **verification** the product. A round only counts when the repo's own tests pass and a reviewer that did not write the code has checked the diff.
 

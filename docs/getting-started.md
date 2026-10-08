@@ -45,3 +45,12 @@ npx compounding-loop next-round      # after DONE.md, start the next round
 ```
 
 Run `npx compounding-loop dashboard --demo` to explore with the five real builds before you set anything up.
+
+## Command options
+
+| Command | Options |
+|---|---|
+| `new` | `--dry-run` (local only, no GitHub), `--public` (default is a private repo) |
+| `run` | `--dry-run` (print the prompt), `--model <model>`, `--skip-permissions` (passes `--dangerously-skip-permissions` to Claude Code; you accept the risk) |
+| `answer` | `--accept` (take the best guess in `BLOCKED.md`), `--dir <dir>`, `--dry-run` |
+| `dashboard` | `--demo`, `--port N`, `--no-open`, `--projects dir` |
