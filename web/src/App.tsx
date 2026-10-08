@@ -7,13 +7,14 @@ import { Fleet } from './components/Fleet';
 import { Health } from './components/Health';
 import { Inbox } from './components/Inbox';
 import { LoopDetail } from './components/LoopDetail';
+import { NewLoop } from './components/NewLoop';
 import { Settings } from './components/Settings';
 import { href, useRoute, type Route } from './lib/route';
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 5_000, retry: false } } });
 const NAV: { label: string; route: Route }[] = [
   { label: 'Fleet', route: { name: 'fleet' } }, { label: 'Inbox', route: { name: 'inbox' } },
-  { label: 'Health', route: { name: 'health' } }, { label: 'Settings', route: { name: 'settings' } },
+  { label: 'Health', route: { name: 'health' } }, { label: 'New loop', route: { name: 'new' } }, { label: 'Settings', route: { name: 'settings' } },
 ];
 
 type Theme = 'dark' | 'light';
@@ -28,6 +29,7 @@ function Page({ route, theme, setTheme }: { route: Route; theme: Theme; setTheme
     case 'loop': return <LoopDetail id={route.id} />;
     case 'inbox': return <Inbox />;
     case 'health': return <Health />;
+    case 'new': return <NewLoop />;
     case 'settings': return <Settings theme={theme} setTheme={setTheme} />;
   }
 }

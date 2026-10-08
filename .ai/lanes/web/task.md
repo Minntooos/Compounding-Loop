@@ -1,7 +1,7 @@
 # Lane: web
 
 Run: 1 / 30
-Status: units 1-5 done
+Status: units 1-6 done
 
 ## Contract
 **Goal:** the dashboard, "calm mission control" (IDEA.md must-haves 19–24 and the Design section).
@@ -47,4 +47,4 @@ Status: units 1-5 done
 - Add a dependency without a Decisions entry.
 
 ## Handoff
-Run 1: shipped shell, Fleet, Loop detail tabs, Inbox (j/k/a), Health, Settings; e2e in tests/e2e/{fleet,screens}.spec.ts. Next: unit 6 new-loop wizard (lintBrief via @core/brief; show `loop new` command), First run screen, then unit 7 polish (loading/error states, contrast test, logo check, Settings projects folder/gh account/default runner once server exposes them). Reviewer notes unaddressed: tabs lack arrow-key navigation; static mode still shows the answer form.
+Run 1: shipped shell, Fleet, Loop detail, Inbox (j/k/a), Health, Settings, wizard (#/new, shows `npx compounding-loop new <template> <slug>`), first-run empty state; e2e in tests/e2e/{fleet,screens}.spec.ts. Next: unit 7 polish: tabs arrow-key nav, a contrast check in both themes, loading skeleton/error retry, motion on change, Settings projects folder/gh account/default runner once the server exposes them, static mode should hide the answer form. If all pass and a reviewer finds no blockers, write DONE.md.

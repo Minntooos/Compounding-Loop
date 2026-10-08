@@ -48,6 +48,15 @@ export function Fleet() {
   const inbox = useQuery({ queryKey: ['inbox'], queryFn: api.inbox });
   if (loops.isPending || inbox.isPending) return <p role="status" style={{ color: 'var(--muted)' }}>Loading the fleet…</p>;
   if (loops.isError || inbox.isError) return <p role="alert" style={{ color: 'var(--failing)' }}>Could not load the fleet.</p>;
+  if (loops.data.length === 0) {
+    return (
+      <section className="space-y-3">
+        <h2 className="text-[20px] font-semibold">No loops yet</h2>
+        <p style={{ color: 'var(--muted)' }}>Write a brief, start a loop, and check back tomorrow.</p>
+        <a href="#/new" className="inline-block rounded px-3 py-1.5 font-medium" style={{ background: 'var(--accent)', color: '#fff' }}>Create your first loop</a>
+      </section>
+    );
+  }
   return (
     <div className="space-y-5">
       <NeedsYou loops={loops.data} inbox={inbox.data.length} />

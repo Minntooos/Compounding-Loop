@@ -64,3 +64,30 @@ test('fleet shows "needs you" when the inbox has questions', async ({ page }) =>
   await page.goto('/');
   await expect(page.getByRole('link', { name: /1 thing needs you/ })).toBeVisible();
 });
+
+test('wizard: live brief score, template, runner and the exact command', async ({ page }) => {
+  const errors = trackErrors(page);
+  await page.goto('/#/new');
+  await expect(page.getByTestId('brief-score')).toContainText('Brief score 0/100');
+  await page.getByLabel(/^Brief/).fill([
+    '# Quilt calculators', 'A one-line pitch: calculators for quilters.', '## Audience', 'Hobby quilters who plan fabric purchases.',
+    '## Must have', '- Backing fabric calculator', '- Binding length calculator', '- Batting size chooser',
+    '## Done when', '- npm test passes and every calculator has a worked example', '## Out of scope', '- Accounts, payments, analytics',
+  ].join('\n'));
+  const score = await page.getByTestId('brief-score').textContent();
+  expect(Number(/score (\d+)/.exec(score ?? '')?.[1])).toBeGreaterThan(0);
+  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByLabel('Chrome extension').check();
+  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByLabel('GitHub Actions').check();
+  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByLabel('Name').fill('My Quilt Site!');
+  await expect(page.getByTestId('new-command')).toHaveText('npx compounding-loop new chrome-extension my-quilt-site');
+  expect(errors).toEqual([]);
+});
+
+test('empty fleet offers to create the first loop', async ({ page }) => {
+  await page.route('**/api/loops', (r) => r.fulfill({ json: [] }));
+  await page.goto('/');
+  await expect(page.getByRole('link', { name: 'Create your first loop' })).toBeVisible();
+});
