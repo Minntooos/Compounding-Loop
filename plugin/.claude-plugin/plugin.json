@@ -1,0 +1,7 @@
+{
+  "name": "compounding-loop",
+  "version": "0.1.0",
+  "description": "Run unattended, verified Claude Code build loops: set up a repo, hand off between windows, run retros and escape stuck loops.",
+  "license": "MIT",
+  "keywords": ["loop", "unattended", "verification", "handoff", "retro"]
+}

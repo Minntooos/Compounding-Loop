@@ -92,3 +92,17 @@ class XMLValidatorLite {
     this.balanced = ok && stack.length === 0;
   }
 }
+
+describe('plugin/', () => {
+  it('has a valid plugin.json', () => {
+    const manifest = JSON.parse(read('plugin', '.claude-plugin', 'plugin.json')) as Record<string, unknown>;
+    expect(manifest.name).toBe('compounding-loop');
+    expect(manifest.version).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(typeof manifest.description).toBe('string');
+  });
+
+  it.each(['loop-init', 'handoff', 'retro', 'stuck'])('command %s has frontmatter with a description', (name) => {
+    const text = read('plugin', 'commands', `${name}.md`);
+    expect(text).toMatch(/^---\ndescription: .{10,}\n---\n/);
+  });
+});
