@@ -67,12 +67,12 @@ for (const f of textFiles.filter((f) => /^(demo|templates|runners|plugin)\//.tes
   }
 }
 
-// 7. Every `loop <cmd> --flag` in README, docs and launch drafts must exist in `node bin/loop.js <cmd> --help`.
+// 7. Every `loop <cmd> --flag` in README, docs and launch drafts must exist in `loop <cmd> --help` (run from source, so check works before build).
 {
   const helpCache = new Map();
   const helpFor = (cmd) => {
     if (!helpCache.has(cmd)) {
-      try { helpCache.set(cmd, execFileSync('node', ['bin/loop.js', cmd, '--help'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })); }
+      try { helpCache.set(cmd, execFileSync(process.execPath, ['--import', 'tsx', 'src/cli/index.ts', cmd, '--help'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })); }
       catch { helpCache.set(cmd, null); }
     }
     return helpCache.get(cmd);

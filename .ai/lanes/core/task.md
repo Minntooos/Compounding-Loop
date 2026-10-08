@@ -1,7 +1,7 @@
 # Lane: core — round 2 (0.2.0 "Lanes")
 
-Run: 0 / 20
-Status: not started
+Run: 1 / 20
+Status: in progress
 Round 1 record: `.ai/lanes/core/done-v1.md`; its Decisions still hold (`git show 3385cdf:.ai/lanes/core/task.md`).
 
 ## Contract
