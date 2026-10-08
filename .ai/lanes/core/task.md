@@ -1,6 +1,6 @@
 # Lane: core — round 2 (0.2.0 "Lanes")
 
-Run: 1 / 20
+Run: 2 / 20
 Status: in progress (units 2,3,4,5,6,7 done; next: finish audit majors = unit 8: stray dot in status, keep folder on gh failure, answer --push, last-test.json; then DONE if reviewer clean)
 Round 1 record: `.ai/lanes/core/done-v1.md`; its Decisions still hold (`git show 3385cdf:.ai/lanes/core/task.md`).
 
@@ -45,6 +45,7 @@ Round 1 record: `.ai/lanes/core/done-v1.md`; its Decisions still hold (`git show
 ## Guesses
 
 ## Tried
+- Run 2: demo-self.test.ts (server) fails on this sandbox's shallow clone, not touched; reported in outbox.
 
 ## Don't
 - Edit paths another lane owns (`.ai/lanes.json`), except for the "main stays green" fix.

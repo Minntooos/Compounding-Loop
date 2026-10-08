@@ -5,11 +5,36 @@ import type { LaneState, LaneUnanswered } from './types.js';
 /** A lane with neither a commit nor a lock for this long is stalled (same rule as the dashboard's health check). */
 export const STALL_MINUTES = 120;
 
+/** Rough minutes between runs of a 5-field cron expression; undefined when it cannot be read. */
+export function cronPeriodMinutes(cron: string): number | undefined {
+  const fields = cron.trim().split(/\s+/);
+  if (fields.length !== 5) return undefined;
+  const [minute, hour, , , weekday] = fields as [string, string, string, string, string];
+  const step = (field: string) => /^\*\/(\d+)$/.exec(field)?.[1];
+  const count = (field: string) => field.split(',').length;
+  const minuteStep = step(minute);
+  if (minuteStep) return Number(minuteStep) || undefined;
+  if (minute === '*') return 1;
+  const hourStep = step(hour);
+  if (hourStep) return Number(hourStep) * 60 || undefined;
+  if (hour === '*') return 60;
+  const perDay = 1440 / count(hour);
+  return weekday === '*' ? perDay : 10_080 / count(weekday) / count(hour);
+}
+
+/** A lane is stalled after missing two scheduled runs; `STALL_MINUTES` when it has no readable cron. */
+export function stallMinutesFor(cron?: string): number {
+  const period = cron === undefined ? undefined : cronPeriodMinutes(cron);
+  return period === undefined ? STALL_MINUTES : period * 2;
+}
+
 export interface LaneFacts {
   hasDone: boolean;
   hasBlocked: boolean;
   lockAt?: Date;
   lastCommitAt?: Date;
+  /** Minutes of silence before the lane counts as stalled; defaults to STALL_MINUTES. */
+  stallMinutes?: number;
 }
 
 const minutesSince = (now: Date, then: Date) => (now.getTime() - then.getTime()) / 60_000;
@@ -19,7 +44,7 @@ export function deriveLaneState(facts: LaneFacts, now: Date = new Date()): LaneS
   if (facts.hasDone) return 'done';
   if (facts.lockAt && minutesSince(now, facts.lockAt) < LOCK_MINUTES) return 'building';
   const latest = [facts.lockAt, facts.lastCommitAt].filter((d): d is Date => d !== undefined).map((d) => d.getTime());
-  if (latest.length > 0 && minutesSince(now, new Date(Math.max(...latest))) > STALL_MINUTES) return 'stalled';
+  if (latest.length > 0 && minutesSince(now, new Date(Math.max(...latest))) > (facts.stallMinutes ?? STALL_MINUTES)) return 'stalled';
   return 'waiting';
 }
 

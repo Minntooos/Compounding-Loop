@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { deriveLaneState, parseOutbox, summarizeOutboxes } from '../../../src/core/laneStatus.js';
+import { cronPeriodMinutes, deriveLaneState, stallMinutesFor, parseOutbox, summarizeOutboxes } from '../../../src/core/laneStatus.js';
 import { formatLanes } from '../../../src/core/table.js';
 
 const now = new Date('2026-10-08T12:00:00Z');
@@ -54,5 +54,25 @@ describe('formatLanes', () => {
     expect(out.split('\n')).toHaveLength(3);
     expect(out).toMatch(/core\s+~ building\s+run 3\/20\s+5m ago: core: doctor/);
     expect(out).toMatch(/web\s+- waiting\s+run -\s+no lane commits yet\s+waits on server/);
+  });
+});
+
+describe('cron-aware stall threshold', () => {
+  it('reads common periods', () => {
+    expect(cronPeriodMinutes('7 * * * *')).toBe(60);
+    expect(cronPeriodMinutes('0 */6 * * *')).toBe(360);
+    expect(cronPeriodMinutes('0 9 * * *')).toBe(1440);
+    expect(cronPeriodMinutes('0 9 * * 1,3')).toBe(5040);
+    expect(cronPeriodMinutes('*/15 * * * *')).toBe(15);
+    expect(cronPeriodMinutes('nonsense')).toBeUndefined();
+  });
+  it('doubles the period and falls back to 120', () => {
+    expect(stallMinutesFor('0 */6 * * *')).toBe(720);
+    expect(stallMinutesFor()).toBe(120);
+    expect(stallMinutesFor('bad')).toBe(120);
+  });
+  it('keeps a daily lane waiting 5 hours after its run', () => {
+    const facts = { hasBlocked: false, hasDone: false, lastCommitAt: ago(300), stallMinutes: stallMinutesFor('0 9 * * *') };
+    expect(deriveLaneState(facts, now)).toBe('waiting');
   });
 });

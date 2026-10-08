@@ -2,7 +2,7 @@ import { execFile } from 'node:child_process';
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
-import { deriveLaneState, parseOutbox, summarizeOutboxes, type OutboxMessage } from '../core/laneStatus.js';
+import { deriveLaneState, stallMinutesFor, parseOutbox, summarizeOutboxes, type OutboxMessage } from '../core/laneStatus.js';
 import { parseLanesConfig } from '../core/lanes.js';
 import { parseLockTime, parseRunCounter } from '../core/repo.js';
 import type { LaneStatus } from '../core/types.js';
@@ -31,7 +31,7 @@ export async function readLaneStatuses(dir: string, now: Date = new Date()): Pro
   const config = text === undefined ? undefined : parseLanesConfig(text).config;
   if (!config) return undefined;
   const outboxes = new Map<string, OutboxMessage[]>();
-  const partial = await Promise.all(config.lanes.map(async ({ name }) => {
+  const partial = await Promise.all(config.lanes.map(async ({ name, cron }) => {
     const laneDir = path.join(dir, '.ai', 'lanes', name);
     outboxes.set(name, parseOutbox(name, (await read(path.join(laneDir, 'outbox.md'))) ?? ''));
     const lockText = await read(path.join(laneDir, 'session.lock'));
@@ -41,6 +41,7 @@ export async function readLaneStatuses(dir: string, now: Date = new Date()): Pro
     const state = deriveLaneState({
       hasDone: (await exists(path.join(laneDir, 'DONE.md'))) || (await exists(path.join(dir, 'DONE.md'))),
       hasBlocked: (await exists(path.join(laneDir, 'BLOCKED.md'))) || (await exists(path.join(dir, 'BLOCKED.md'))),
+      stallMinutes: stallMinutesFor(cron),
       ...(lockAt && { lockAt }),
       ...(lastCommit && { lastCommitAt: new Date(lastCommit.at) }),
     }, now);

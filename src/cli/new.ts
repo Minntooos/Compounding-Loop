@@ -20,9 +20,10 @@ export interface NewResult {
   repoUrl?: string;
 }
 
+/** Project templates for `loop new`; `lanes` holds the files `loop init --lanes` writes, not a template. */
 export async function listTemplates(root: string = packageRoot): Promise<string[]> {
   const entries = await readdir(path.join(root, 'templates'), { withFileTypes: true }).catch(() => []);
-  return entries.filter((e) => e.isDirectory()).map((e) => e.name).sort();
+  return entries.filter((e) => e.isDirectory() && e.name !== 'lanes').map((e) => e.name).sort();
 }
 
 /** Copies `source` to `dest`, filling `{{placeholders}}` in text files. */

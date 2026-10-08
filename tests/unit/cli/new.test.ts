@@ -19,6 +19,7 @@ describe('loop new', () => {
 
   it('lists the shipped templates', async () => {
     expect(await listTemplates()).toContain('static-site');
+    expect(await listTemplates()).not.toContain('lanes');
   });
 
   it('--dry-run copies the template and installs the method without calling GitHub', async () => {
