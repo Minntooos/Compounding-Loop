@@ -1,6 +1,6 @@
 # Lane: web
 
-Run: 4 / 30
+Run: 5 / 30
 Status: units 1-7 done (polish partial)
 
 ## Contract
@@ -41,6 +41,7 @@ Status: units 1-7 done (polish partial)
 
 ## Tried
 - Run 4: e2e for the busy state (gate the refetch with a route promise, expect 'Retrying…' disabled). Failed twice (fleet route, then loop detail route): the button never showed 'Retrying…'; with the fleet route the page fell back to 'Loading the fleet…' during the gated refetch. Cause not found (suspect the query goes back to pending, or the route fulfils before the click). Reverted. Next: debug with a headed trace before retrying, or unit-test LoadError with busy=true in Vitest instead.
+- Run 5: motion-on-change (useFlash hook + .card-flash glow on Fleet cards) with an e2e that routes /api/loops to return run=7 on the second call and triggers a refetch via visibilitychange (also with page.clock.runFor(6000) past the 5 s staleTime). The glow never appeared, twice. Same root symptom as the run 4 busy-state test: forced refetches in e2e don't behave as expected; suspect the app's EventSource/query setup or route interception order. Reverted. Next: instead emit a real SSE `loop-updated` event (needs a non-demo server) or add jsdom + @testing-library as a dev dependency (with a Decisions entry) to unit-test hooks/components.
 (what failed and why, so the next run does not repeat it)
 
 ## Don't
@@ -55,3 +56,5 @@ Run 2: added shared Loading/LoadError (retry button) in web/src/components/Query
 Run 3: LoadError takes `busy` (Try again disabled while refetching); e2e error+retry for Health, Inbox, loop detail. Remaining polish: Settings projects folder/gh account/default runner (needs server route), motion on change, a test for the busy state, consider aria-disabled to keep focus.
 
 Run 4: origin/main had unrelated history to the local clone; reset local main to origin/main (old commits on branch backup-local-main). Tests green (38 pass). Busy-state e2e attempt failed, see Tried. Remaining polish: that test, Settings projects folder/gh account/default runner (needs server route), motion on change.
+
+Run 5: origin/main history had been rewritten again; reset local main to origin/main (no unique local work). Tests green (38 pass). Motion-on-change attempt failed, see Tried. Remaining polish: motion on change, busy-state test, Settings projects folder/gh account/default runner (needs a server route that does not exist in .ai/contracts.md; request it under Requested). Suggest adding jsdom + @testing-library/react to unblock component tests.
