@@ -48,6 +48,15 @@ function TabBody({ tab, loop }: { tab: Tab; loop: Detail }) {
   }
 }
 
+function onTabKey(e: React.KeyboardEvent, tab: Tab, setTab: (t: Tab) => void) {
+  const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+  if (!step) return;
+  e.preventDefault();
+  const next = TABS[(TABS.indexOf(tab) + step + TABS.length) % TABS.length] ?? tab;
+  setTab(next);
+  document.getElementById(`tab-${next}`)?.focus();
+}
+
 export function LoopDetail({ id }: { id: string }) {
   const [tab, setTab] = useState<Tab>('Timeline');
   const q = useQuery({ queryKey: ['loop', id], queryFn: () => api.loop(id) });
@@ -63,7 +72,7 @@ export function LoopDetail({ id }: { id: string }) {
       </div>
       <div role="tablist" aria-label="Loop sections" className="flex flex-wrap gap-1 border-b" style={{ borderColor: 'var(--border)' }}>
         {TABS.map((t) => (
-          <button key={t} type="button" role="tab" id={`tab-${t}`} aria-controls="loop-panel" aria-selected={tab === t} onClick={() => setTab(t)} className="rounded-t px-3 py-2 aria-selected:border-b-2 aria-selected:font-semibold" style={{ borderColor: 'var(--accent)' }}>{t}</button>
+          <button key={t} type="button" role="tab" tabIndex={tab === t ? 0 : -1} onKeyDown={(e) => onTabKey(e, tab, setTab)} id={`tab-${t}`} aria-controls="loop-panel" aria-selected={tab === t} onClick={() => setTab(t)} className="rounded-t px-3 py-2 aria-selected:border-b-2 aria-selected:font-semibold" style={{ borderColor: 'var(--accent)' }}>{t}</button>
         ))}
       </div>
       <div role="tabpanel" id="loop-panel" aria-labelledby={`tab-${tab}`}><TabBody tab={tab} loop={loop} /></div>

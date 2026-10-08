@@ -91,3 +91,38 @@ test('empty fleet offers to create the first loop', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('link', { name: 'Create your first loop' })).toBeVisible();
 });
+
+function luminance([r, g, b]: number[]): number {
+  const f = (c: number) => { const v = c / 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+  return 0.2126 * f(r!) + 0.7152 * f(g!) + 0.0722 * f(b!);
+}
+
+for (const theme of ['dark', 'light']) {
+  test(`WCAG AA contrast of status and muted text in the ${theme} theme`, async ({ page }) => {
+    await page.addInitScript((t) => localStorage.setItem('theme', t), theme);
+    await page.goto('/');
+    await expect(page.getByTestId('loop-card').first()).toBeVisible();
+    const pairs = await page.evaluate(() => {
+      const probe = document.createElement('span');
+      document.body.append(probe);
+      const rgb = (v: string) => { probe.style.color = v; return getComputedStyle(probe).color.match(/\d+/g)!.slice(0, 3).map(Number); };
+      const cs = getComputedStyle(document.documentElement);
+      const tokens = ['--text', '--muted', '--done', '--blocked', '--failing', '--building'];
+      return { bg: rgb(cs.getPropertyValue('--bg')), surface: rgb(cs.getPropertyValue('--surface')), fg: tokens.map((t) => [t, rgb(cs.getPropertyValue(t))] as const) };
+    });
+    for (const [token, color] of pairs.fg) {
+      for (const bg of [pairs.bg, pairs.surface]) {
+        const [hi, lo] = [luminance(color), luminance(bg)].sort((a, b) => b - a);
+        expect((hi! + 0.05) / (lo! + 0.05), `${token} on ${bg} in ${theme}`).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+}
+
+test('loop tabs move with the arrow keys', async ({ page }) => {
+  await page.goto('/#/loop/proj1');
+  await page.getByRole('tab', { name: 'Timeline' }).focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByRole('tab', { name: 'Contract' })).toBeFocused();
+  await expect(page.getByRole('tab', { name: 'Contract' })).toHaveAttribute('aria-selected', 'true');
+});

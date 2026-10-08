@@ -52,7 +52,7 @@ export function NewLoop() {
       )}
       <div className="flex gap-3">
         <button type="button" disabled={step === 0} onClick={() => setStep(step - 1)} className="rounded border px-3 py-1.5 disabled:opacity-50" style={{ borderColor: 'var(--border)' }}>Back</button>
-        {step < STEPS.length - 1 && <button type="button" onClick={() => setStep(step + 1)} className="rounded px-3 py-1.5 font-medium" style={{ background: 'var(--accent)', color: '#fff' }}>Next</button>}
+        {step < STEPS.length - 1 && <button type="button" onClick={() => setStep(step + 1)} className="rounded px-3 py-1.5 font-medium" style={{ background: 'var(--accent)', color: 'var(--bg)' }}>Next</button>}
       </div>
     </div>
   );

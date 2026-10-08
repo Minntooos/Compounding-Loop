@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import type { InboxItem } from '@core/types';
-import { api, postAnswer } from '../api/client';
+import { api, hasServer, postAnswer } from '../api/client';
 import { relativeTime } from '../lib/format';
 
-function Item({ item, selected, answer, onAnswer, onDone }: { item: InboxItem; selected: boolean; answer: string; onAnswer: (v: string) => void; onDone: (msg: string) => void }) {
+function Item({ item, selected, answer, onAnswer, onDone, readOnly }: { item: InboxItem; selected: boolean; answer: string; onAnswer: (v: string) => void; onDone: (msg: string) => void; readOnly: boolean }) {
   const qc = useQueryClient();
   const send = useMutation({
     mutationFn: (text: string) => postAnswer(item.loopId, item.file, text),
@@ -17,14 +17,15 @@ function Item({ item, selected, answer, onAnswer, onDone }: { item: InboxItem; s
     <li data-selected={selected} aria-current={selected ? 'true' : undefined} className="space-y-3 rounded-lg border p-4 data-[selected=true]:border-[var(--accent)]" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
       <div className="flex justify-between gap-2"><a href={`#/loop/${encodeURIComponent(item.loopId)}`} className="font-semibold underline">{item.loopId}</a><span style={{ color: 'var(--muted)' }}>{relativeTime(item.since)}</span></div>
       <p className="whitespace-pre-wrap">{item.question}</p>
+      {readOnly ? <p style={{ color: 'var(--muted)' }}>Read-only demo: answer with <code>loop answer</code> in the loop’s folder.</p> : <>
       <label className="block text-[13px]" style={{ color: 'var(--muted)' }}>Your answer (best guess pre-filled)
         <textarea value={answer} onChange={(e) => onAnswer(e.target.value)} rows={3} className="mt-1 w-full rounded border p-2 font-mono" style={{ background: 'var(--bg)', borderColor: 'var(--border)', color: 'var(--text)' }} />
       </label>
       <div className="flex flex-wrap items-center gap-3">
-        <button type="button" data-action="accept" onClick={() => send.mutate(item.bestGuess)} disabled={send.isPending} className="rounded px-3 py-1.5 font-medium" style={{ background: 'var(--accent)', color: '#fff' }}>Accept guess (a)</button>
+        <button type="button" data-action="accept" onClick={() => send.mutate(item.bestGuess)} disabled={send.isPending} className="rounded px-3 py-1.5 font-medium" style={{ background: 'var(--accent)', color: 'var(--bg)' }}>Accept guess (a)</button>
         <button type="button" onClick={() => send.mutate(answer)} disabled={send.isPending || !answer.trim()} className="rounded border px-3 py-1.5" style={{ borderColor: 'var(--border)' }}>Send my answer</button>
         {send.isError && <span role="alert" style={{ color: 'var(--blocked)' }}>{send.error.message}</span>}
-      </div>
+      </div></>}
     </li>
   );
 }
@@ -33,6 +34,7 @@ export function Inbox() {
   const q = useQuery({ queryKey: ['inbox'], queryFn: api.inbox });
   const [sel, setSel] = useState(0);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const server = useQuery({ queryKey: ['server'], queryFn: hasServer });
   const [notice, setNotice] = useState('');
   const items = q.data ?? [];
   const cur = Math.min(sel, items.length - 1);
@@ -57,7 +59,7 @@ export function Inbox() {
     <ul className="space-y-3" aria-label="Questions">
       {items.map((it, i) => {
         const key = `${it.loopId}/${it.file}`;
-        return <Item key={key} item={it} selected={i === cur} answer={drafts[key] ?? it.bestGuess} onAnswer={(v) => setDrafts((d) => ({ ...d, [key]: v }))} onDone={setNotice} />;
+        return <Item key={key} item={it} selected={i === cur} answer={drafts[key] ?? it.bestGuess} onAnswer={(v) => setDrafts((d) => ({ ...d, [key]: v }))} onDone={setNotice} readOnly={server.data === false} />;
       })}
     </ul>
     </>

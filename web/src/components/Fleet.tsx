@@ -53,7 +53,7 @@ export function Fleet() {
       <section className="space-y-3">
         <h2 className="text-[20px] font-semibold">No loops yet</h2>
         <p style={{ color: 'var(--muted)' }}>Write a brief, start a loop, and check back tomorrow.</p>
-        <a href="#/new" className="inline-block rounded px-3 py-1.5 font-medium" style={{ background: 'var(--accent)', color: '#fff' }}>Create your first loop</a>
+        <a href="#/new" className="inline-block rounded px-3 py-1.5 font-medium" style={{ background: 'var(--accent)', color: 'var(--bg)' }}>Create your first loop</a>
       </section>
     );
   }
