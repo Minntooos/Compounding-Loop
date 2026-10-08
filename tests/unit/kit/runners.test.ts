@@ -49,6 +49,8 @@ describe('runners/github-actions/loop.yml', () => {
     const step = wf.jobs.run.steps.find((s) => s.uses?.startsWith('anthropics/claude-code-action'));
     expect(step?.with?.anthropic_api_key).toBe('${{ secrets.ANTHROPIC_API_KEY }}');
     expect(step?.with?.claude_code_oauth_token).toBe('${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}');
+    expect(step?.with?.github_token).toBe('${{ secrets.GITHUB_TOKEN }}');
+    expect(step?.with?.claude_args).toContain('--allowedTools');
     expect(text).not.toMatch(/sk-ant-|sk-[A-Za-z0-9]{20,}/);
   });
 
@@ -70,6 +72,7 @@ describe('runners/local', () => {
     const xml = read('runners', 'local', 'task-scheduler.xml');
     const parsed = new XMLValidatorLite(xml);
     expect(parsed.balanced).toBe(true);
+    expect(xml).not.toContain('UTF-16'); // the file is saved as UTF-8
     expect(xml).toContain('<Arguments>run</Arguments>');
     expect(xml).toContain('PT1H');
   });

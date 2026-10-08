@@ -36,6 +36,7 @@ jobs:
           node-version: 22
       - uses: anthropics/claude-code-action@v1
         with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
@@ -45,4 +46,6 @@ jobs:
             Add 1 to the Run counter in .ai/task.md (Run: N / 30); at 30 write BLOCKED.md ("run budget reached") and stop.
             Do units of work, run the tests after each, and push to main only when they pass.
             Finish with the handoff in .ai/task.md. Never publish, spend money, or add secrets or tracking.
-          claude_args: "--max-turns 200"
+          claude_args: >-
+            --max-turns 200
+            --allowedTools "Bash,Edit,Write,Read,Glob,Grep,Task"

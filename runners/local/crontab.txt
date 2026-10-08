@@ -1,4 +1,6 @@
 # Compounding Loop on macOS or Linux: run one round at minute 17 of every hour.
 # Install with `crontab -e` and paste the line below, replacing /path/to/repo.
-# `loop run` skips the round when the session lock is fresh or DONE.md / BLOCKED.md exists.
+# `loop run` skips the round when DONE.md / BLOCKED.md exists; the prompt itself checks the session lock.
+# Cron has a minimal PATH: if `loop` or `claude` is not found, use their full paths. For unattended
+# edits add `--skip-permissions` (see `loop run --help`) only in a repository you trust.
 17 * * * * cd /path/to/repo && loop run >> .ai/loop-cron.log 2>&1

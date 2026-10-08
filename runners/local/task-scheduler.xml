@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-16"?>
+<?xml version="1.0"?>
 <Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
     <Description>Compounding Loop: run one round of the build loop every hour.</Description>
