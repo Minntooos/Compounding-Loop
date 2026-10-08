@@ -134,8 +134,9 @@ const origins = new Set(canonicals.map((c) => new URL(c).origin));
 if (origins.size > 1) fail('site/', `canonicals use ${origins.size} different domains (${[...origins].join(', ')}). Use the one domain from IDEA.md everywhere.`);
 // ...and it is the address in IDEA.md's Domain section (the first word under the heading).
 const ideaPath = join(ROOT, 'IDEA.md');
-const host = existsSync(ideaPath) ? readFileSync(ideaPath, 'utf8').match(/^## Domain[^\n]*\n+([a-z0-9-]+(?:\.[a-z0-9-]+)+)/im)?.[1].toLowerCase() : null;
+const host = existsSync(ideaPath) ? readFileSync(ideaPath, 'utf8').match(/^## Domain[^\n]*\n+([a-z0-9_-]+(?:\.[a-z0-9_-]+)+)/im)?.[1].toLowerCase() : null;
 if (host) {
+  if (!host.split('.').every((l) => /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/.test(l))) fail('IDEA.md', `the Domain "${host}" is not a valid hostname (letters, digits and hyphens only, no leading or trailing hyphen, 63 characters per part). Fix it here and in every canonical.`);
   for (const o of origins) if (o !== `https://${host}`) fail('site/', `canonicals use ${o}, but IDEA.md's Domain section says https://${host}. Use that address in every canonical, sitemap.xml and robots.txt.`);
   const robots = existsSync(join(SITE, 'robots.txt')) ? readFileSync(join(SITE, 'robots.txt'), 'utf8') : '';
   if (robots && !robots.includes(`Sitemap: https://${host}/sitemap.xml`)) fail('robots.txt', `its Sitemap line must be "Sitemap: https://${host}/sitemap.xml".`);

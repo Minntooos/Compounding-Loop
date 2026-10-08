@@ -56,6 +56,11 @@ describe('templates/static-site', () => {
     expect(out).toContain('check: OK');
   });
 
+  it('rejects a Domain that is not a valid hostname (underscore project names)', () => {
+    const dir = freshCopy('my_site');
+    expect(() => execFileSync(process.execPath, ['scripts/check.mjs'], { cwd: dir, encoding: 'utf8', stdio: 'pipe' })).toThrow(/not a valid hostname/);
+  });
+
   it.skipIf(!process.env.LOOP_SLOW)('passes its full npm test (slow)', () => {
     const dir = freshCopy('demo-site');
     const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
