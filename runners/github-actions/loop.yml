@@ -1,0 +1,48 @@
+# Compounding Loop: scheduled build run on GitHub Actions.
+#
+# Setup (once):
+#   1. Add ONE repository secret under Settings > Secrets and variables > Actions:
+#        ANTHROPIC_API_KEY        (API billing), or
+#        CLAUDE_CODE_OAUTH_TOKEN  (a Claude subscription; create it with `claude setup-token`).
+#      Never write a key into this file or the repository.
+#   2. Copy this file to .github/workflows/loop.yml.
+#   3. Pick a staggered minute in `cron` below (avoid minute 0).
+name: compounding-loop
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch: {}
+
+# Two runs on one branch would fight; queue instead of cancelling a run mid-push.
+concurrency:
+  group: compounding-loop
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            You are one scheduled run of the build loop for this repository. Nobody is watching.
+            Read CLAUDE.md and follow "Unattended mode" exactly. IDEA.md is the brief.
+            If .ai/session.lock is less than 90 minutes old, or DONE.md or BLOCKED.md exists, reply "Nothing to do" and stop.
+            Add 1 to the Run counter in .ai/task.md (Run: N / 30); at 30 write BLOCKED.md ("run budget reached") and stop.
+            Do units of work, run the tests after each, and push to main only when they pass.
+            Finish with the handoff in .ai/task.md. Never publish, spend money, or add secrets or tracking.
+          claude_args: "--max-turns 200"

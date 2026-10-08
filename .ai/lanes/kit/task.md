@@ -1,7 +1,7 @@
 # Lane: kit
 
 Run: 1 / 30
-Status: units 1, 2 done (+ knowledge-index, example entry, unattended section from unit 7)
+Status: units 1-4 done (+ knowledge-index, example entry, unattended section from unit 7)
 
 ## Contract
 **Goal:** the method, templates, runners and Claude Code plugin that `loop init`/`loop new` install (IDEA.md must-haves 8–16).
@@ -29,6 +29,9 @@ Status: units 1, 2 done (+ knowledge-index, example entry, unattended section fr
 - Put the 90-min lock / 30-run budget / DONE-BLOCKED rules in the card ("Unattended runs") and a new section at the end of method/COMPOUNDING_LOOP.md · generic repos need them identical in all places · delete the sections.
 - Example knowledge entry lives in method/example/K-0001.md (not at method/ root) · so core's init can ignore it · move it.
 
+- Added devDependency `yaml` · tests/unit/kit/runners.test.ts must parse loop.yml (contract says a test parses the YAML) · `npm rm yaml` and drop that test.
+- Routine prompt has only the `{{name}}` placeholder; install/test commands are read from CLAUDE.md · `loop run` only fills name · add placeholders later if core fills them.
+
 ## Confirmed
 - `npm test` green on fresh pull 2026-10-08; tests/unit/kit/method.test.ts covers card (<60 lines), task template, numbers.
 
@@ -43,4 +46,4 @@ Status: units 1, 2 done (+ knowledge-index, example entry, unattended section fr
 - Add a dependency without a Decisions entry.
 
 ## Handoff
-Run 1 finished units 1, 2 (static-site fresh copy passes check and its own npm test, LOOP_SLOW) and most of 7 (knowledge-index + example; reviewer prompt and retro still to do). Next: unit 3 (runners/routine).
+Run 1 finished units 1, 2 (static-site fresh copy passes check and its own npm test, LOOP_SLOW) and most of 7 (knowledge-index + example; reviewer prompt and retro still to do). Next: unit 5 (plugin/).
