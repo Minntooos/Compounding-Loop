@@ -1,0 +1,102 @@
+# Compounding Loop: one scheduled job per lane on GitHub Actions.
+#
+# Setup (once):
+#   1. Add ONE repository secret under Settings > Secrets and variables > Actions:
+#        ANTHROPIC_API_KEY        (API billing), or
+#        CLAUDE_CODE_OAUTH_TOKEN  (a Claude subscription; create it with `claude setup-token`).
+#      Secrets are referenced by name only. Never write a key into this file or the repository.
+#   2. Copy this file to .github/workflows/lanes.yml.
+#   3. Edit the `lane` and `cron` pairs in the matrix to match .ai/lanes.json, and keep the same
+#      cron strings in `on.schedule` (see runners/routine/README.md for staggering N lanes).
+#
+# How it runs: every cron line starts the whole matrix, and each job does real work only when
+# the schedule that fired is its own (or when started by hand), so one lane runs per trigger.
+name: compounding-loop-lanes
+
+on:
+  schedule:
+    - cron: "7 * * * *"
+    - cron: "19 * * * *"
+    - cron: "31 * * * *"
+  workflow_dispatch: {}
+
+# Workflow-level default: read only. The lane job raises it, because the lane pushes to main.
+permissions:
+  contents: read
+
+jobs:
+  lane:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write # the lane commits and pushes to main
+    strategy:
+      fail-fast: false
+      max-parallel: 1 # lanes never run at the same time, so two pushes cannot race
+      matrix:
+        include:
+          - { lane: api, cron: "7 * * * *" }
+          - { lane: web, cron: "19 * * * *" }
+          - { lane: docs, cron: "31 * * * *" }
+    # A lane never overlaps its own previous run; queue instead of cancelling one mid-push.
+    concurrency:
+      group: loop-lane-${{ matrix.lane }}
+      cancel-in-progress: false
+    steps:
+      - name: Is this lane's turn?
+        id: gate
+        env:
+          EVENT: ${{ github.event_name }}
+          FIRED: ${{ github.event.schedule }}
+          MINE: ${{ matrix.cron }}
+        run: |
+          if [ "$EVENT" = "workflow_dispatch" ] || [ "$FIRED" = "$MINE" ]; then echo "go=true" >> "$GITHUB_OUTPUT"; else echo "go=false" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.go == 'true'
+        with:
+          ref: main
+          fetch-depth: 0
+          # The lane pushes, so the checkout token must stay in git's config (persist-credentials: true,
+          # the default). A job that only reads, like `verify` below, sets it to false.
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        if: steps.gate.outputs.go == 'true'
+        with:
+          node-version: 22
+      - uses: anthropics/claude-code-action@v1
+        if: steps.gate.outputs.go == 'true'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Paste runners/routine/lane-prompt.md here with {{name}} and {{lane}} filled
+          # ("${{ matrix.lane }}" works for the lane). Short form shown:
+          prompt: |
+            You are one scheduled run of the ${{ matrix.lane }} lane of an unattended build loop.
+            Read CLAUDE.md and follow it exactly. Your task file is .ai/lanes/${{ matrix.lane }}/task.md.
+            Every commit ends with the trailer line "Lane: ${{ matrix.lane }}". Push to main, never to a claude/ branch.
+            Stop if DONE.md or BLOCKED.md exists at the root or in .ai/lanes/${{ matrix.lane }}/.
+            Never publish, spend money, or add secrets or tracking.
+          claude_args: >-
+            --max-turns 200
+            --allowedTools "Bash,Edit,Write,Read,Glob,Grep,Task"
+
+  verify:
+    # Read-only: reports any commit that crossed a lane boundary.
+    needs: lane
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false # nothing here pushes, so the token is not left in the checkout
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check lane ownership
+        run: |
+          BASE=$(git rev-parse --verify -q "origin/main~20" || git rev-list --max-parents=0 HEAD | tail -1) # a young repo has fewer than 20 commits
+          npx --yes compounding-loop check-lanes --range "$BASE..HEAD"

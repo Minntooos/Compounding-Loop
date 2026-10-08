@@ -132,7 +132,7 @@ describe('runners/routine lane prompts', () => {
   });
 
   it('carry nothing specific to the repository that built them', () => {
-    for (const text of [lane, control]) expect(text).not.toMatch(/Minntooos|Compounding[_ -]Loop|trig_|gmail/i);
+    for (const text of [lane, control]) expect(text).not.toMatch(/Minntooos|Compounding[_ ]Loop|trig_|gmail/i);
   });
 
   it('README staggers cron for 3 and 5 lanes without minute 0', () => {
@@ -142,5 +142,37 @@ describe('runners/routine lane prompts', () => {
     expect(rows.every((m) => m > 0 && m < 60)).toBe(true);
     expect(readme).toContain('3 lanes');
     expect(readme).toContain('5 lanes');
+  });
+});
+
+describe('runners/github-actions/lanes.yml', () => {
+  type Job = { permissions?: Record<string, string>; strategy?: { 'max-parallel'?: number; matrix: { include: Array<{ lane: string; cron: string }> } }; concurrency?: { group: string; 'cancel-in-progress': boolean }; 'timeout-minutes'?: number; steps: Array<{ uses?: string; with?: Record<string, unknown>; run?: string }> };
+  const text = read('runners', 'github-actions', 'lanes.yml');
+  const wf = parse(text) as { on: { schedule: Array<{ cron: string }> }; permissions: Record<string, string>; jobs: Record<string, Job> };
+  const lane = wf.jobs.lane as Job;
+
+  it('runs one lane at a time, one queue per lane, with a timeout', () => {
+    expect(lane.strategy?.['max-parallel']).toBe(1);
+    expect(lane.concurrency?.group).toBe('loop-lane-${{ matrix.lane }}');
+    expect(lane.concurrency?.['cancel-in-progress']).toBe(false);
+    expect(lane['timeout-minutes']).toBeGreaterThan(0);
+  });
+
+  it('has a schedule line for every matrix lane', () => {
+    const crons = wf.on.schedule.map((s) => s.cron);
+    for (const entry of lane.strategy?.matrix.include ?? []) expect(crons).toContain(entry.cron);
+    expect(crons).not.toContain(expect.stringMatching(/^0 /));
+  });
+
+  it('keeps credentials in the checkout only for the job that pushes', () => {
+    expect(wf.permissions).toEqual({ contents: 'read' });
+    expect(lane.permissions).toEqual({ contents: 'write' });
+    expect(lane.steps.find((s) => s.uses?.startsWith('actions/checkout'))?.with?.['persist-credentials']).toBe(true);
+    expect(wf.jobs.verify?.steps.find((s) => s.uses?.startsWith('actions/checkout'))?.with?.['persist-credentials']).toBe(false);
+  });
+
+  it('names secrets only through the secrets context', () => {
+    expect(text).toContain('${{ secrets.ANTHROPIC_API_KEY }}');
+    expect(text).not.toMatch(/sk-ant-|ghp_|oauth-[a-z0-9]{8}/i);
   });
 });

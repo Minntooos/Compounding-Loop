@@ -1,7 +1,7 @@
 # Lane: kit — round 2 (0.2.0 "Lanes")
 
 Run: 1 / 20
-Status: in progress (units 1-3 done; 4 next: lanes.yml)
+Status: in progress (units 1-4 done; 5 next: Lanes chapter in method)
 Round 1 record: `.ai/lanes/kit/done-v1.md` (`git show 3385cdf:.ai/lanes/kit/task.md` for its Decisions).
 
 ## Contract
