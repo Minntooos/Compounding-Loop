@@ -1,7 +1,7 @@
 # Lane: docs
 
-Run: 0 / 30
-Status: not started
+Run: 1 / 30
+Status: in progress
 
 ## Contract
 **Goal:** everything that makes a stranger understand, trust and star the project in 30 seconds, plus the launch drafts (IDEA.md must-haves 25–27).
