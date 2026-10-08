@@ -5,7 +5,8 @@ import { promisify } from 'node:util';
 import { addAnswerToTask, BUDGET_EXTENSION, extendRunBudget, formatAnswer, isBudgetBlock, parseBlocked } from '../core/blocked.js';
 import { readLoopFacts, readRunCounter } from '../core/repo.js';
 import { buildNextRoundTask, extractNextItems, nextDoneFileName } from '../core/rounds.js';
-import { formatFleet, type FleetRow } from '../core/table.js';
+import { formatFleet, formatLanes, type FleetRow } from '../core/table.js';
+import { readLaneStatuses } from './laneStatus.js';
 
 const execFileAsync = promisify(execFile);
 const git = (cwd: string, ...args: string[]) => execFileAsync('git', args, { cwd });
@@ -17,7 +18,12 @@ export async function runStatus(dirs: string[], now: Date = new Date()): Promise
     const run = await readRunCounter(dir);
     rows.push({ name: path.basename(path.resolve(dir)), facts: await readLoopFacts(dir), ...(run && { run }) });
   }
-  return formatFleet(rows, now);
+  const blocks = [formatFleet(rows, now)];
+  for (const dir of dirs) {
+    const lanes = await readLaneStatuses(dir, now);
+    if (lanes) blocks.push(`Lanes in ${path.basename(path.resolve(dir))}:\n${formatLanes(lanes, now)}`);
+  }
+  return blocks.join('\n\n');
 }
 
 export interface NextRoundResult {

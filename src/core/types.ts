@@ -115,3 +115,28 @@ export interface DashboardSettings {
   /** The runner the new-loop wizard picks first. */
   defaultRunner: 'routine' | 'github-actions' | 'local';
 }
+
+// ---- Added by the core lane: per-lane state for laned loops (see .ai/contracts.md "Requested") ----
+
+export type LaneState = 'building' | 'waiting' | 'blocked' | 'done' | 'stalled';
+
+export interface LaneUnanswered {
+  from: string;
+  to: string;
+  /** ISO 8601 UTC. */
+  at: string;
+  text: string;
+}
+
+export interface LaneStatus {
+  name: string;
+  state: LaneState;
+  run: number;
+  limit: number;
+  lastCommit?: { sha: string; subject: string; /** ISO 8601 UTC. */ at: string };
+  locked: boolean;
+  /** Lanes this lane has asked something of and not heard back from. */
+  waitingOn?: string[];
+  /** Messages other lanes sent to this lane that it has not answered yet. */
+  unanswered: LaneUnanswered[];
+}
