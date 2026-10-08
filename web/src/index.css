@@ -25,3 +25,7 @@
   --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
 }
 body { background: var(--bg); color: var(--text); font-family: var(--font-sans); font-size: 14px; }
+
+a, button, input, [role='option'] { outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--accent); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } }
