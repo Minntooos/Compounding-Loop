@@ -4,6 +4,8 @@ All notable changes are listed here. Format follows [Keep a Changelog](https://k
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-08
+
 ### Added
 - `loop` CLI: `init`, `new`, `run`, `status`, `next-round`, `answer`, `dashboard`.
 - Local dashboard with a demo mode built from five real unattended builds.
