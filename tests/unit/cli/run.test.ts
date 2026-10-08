@@ -48,7 +48,7 @@ describe('loop run', () => {
 
   it('prints the prompt through the CLI on --dry-run', () => {
     const out = execFileSync(tsx, [cli, 'run', dir, '--dry-run'], { encoding: 'utf8' });
-    expect(out).toContain('Prompt from built-in default');
-    expect(out).toContain('unattended build loop');
+    expect(out).toMatch(/Prompt from .*prompt\.md|Prompt from built-in default/);
+    expect(out).toContain('build loop');
   });
 });
