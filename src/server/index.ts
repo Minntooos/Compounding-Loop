@@ -2,6 +2,8 @@ import { readFileSync } from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
+import { streamSSE } from 'hono/streaming';
+import { DEFAULT_WATCH, EventBus, watchProjects, type WatchOptions } from './events.js';
 import { projectsSource } from './loops.js';
 import { loadDemoSnapshot, snapshotSource, type DataSource } from './data.js';
 
@@ -12,6 +14,8 @@ export interface AppOptions {
   projectsDir?: string;
   /** Overrides the data source; tests use this. */
   source?: DataSource;
+  /** Where `/api/events` gets its events; `startServer` feeds it from the watcher. */
+  bus?: EventBus;
 }
 
 const pkg = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')) as { version: string };
@@ -36,6 +40,7 @@ export function isAllowedOrigin(origin: string | undefined): boolean {
 /** Builds the HTTP app without opening a port, so tests can call `app.request()`. */
 export async function createApp(options: AppOptions): Promise<Hono> {
   const source = options.source ?? (options.demo ? snapshotSource(await loadDemoSnapshot()) : projectsSource(options.projectsDir ?? process.cwd()));
+  const bus = options.bus ?? new EventBus();
   const app = new Hono();
 
   // Defence against DNS rebinding and cross-site requests: this server only answers its own pages.
@@ -72,17 +77,43 @@ export async function createApp(options: AppOptions): Promise<Hono> {
   });
   app.get('/api/inbox', async (c) => c.json(await source.inbox()));
   app.get('/api/checks', async (c) => c.json(await source.checks()));
+  app.get('/api/events', (c) =>
+    streamSSE(c, async (stream) => {
+      const unsubscribe = bus.subscribe((event) => {
+        const { type, ...data } = event;
+        void stream.writeSSE({ event: type, data: JSON.stringify(data) }).catch(() => undefined);
+      });
+      let wake: () => void = () => undefined;
+      let timer: NodeJS.Timeout | undefined;
+      stream.onAbort(() => wake());
+      await stream.writeSSE({ event: 'ready', data: '{}' });
+      // A comment line every 25 s keeps proxies and browsers from dropping an idle connection.
+      while (!stream.aborted) {
+        await new Promise<void>((resolve) => {
+          wake = resolve;
+          timer = setTimeout(resolve, 25_000);
+        });
+        clearTimeout(timer);
+        if (!stream.aborted) await stream.write(': keep-alive\n\n');
+      }
+      unsubscribe();
+    }),
+  );
   app.notFound((c) => c.json({ error: 'not found' }, 404));
   return app;
 }
 
 export interface StartOptions extends AppOptions {
   port: number;
+  /** Watcher timing; tests pass a short interval and `fetchIntervalMs: 0`. */
+  watch?: Partial<WatchOptions>;
 }
 
 /** Listens on 127.0.0.1 only; `url` carries the port actually bound (port 0 picks a free one). */
 export async function startServer(options: StartOptions): Promise<{ url: string; close: () => Promise<void> }> {
-  const app = await createApp(options);
+  const bus = options.bus ?? new EventBus();
+  const app = await createApp({ ...options, bus });
+  const stopWatching = options.demo ? undefined : watchProjects(options.projectsDir ?? process.cwd(), bus, { ...DEFAULT_WATCH, ...options.watch });
   const server = await new Promise<ReturnType<typeof serve>>((resolve, reject) => {
     const s = serve({ fetch: app.fetch, port: options.port, hostname: '127.0.0.1' }, () => resolve(s));
     s.once('error', reject);
@@ -90,6 +121,12 @@ export async function startServer(options: StartOptions): Promise<{ url: string;
   const { port } = server.address() as AddressInfo;
   return {
     url: `http://127.0.0.1:${port}`,
-    close: () => new Promise((resolve, reject) => server.close((e) => (e ? reject(e) : resolve()))),
+    close: () =>
+      new Promise((resolve, reject) => {
+        stopWatching?.();
+        server.close((e) => (e ? reject(e) : resolve()));
+        // Open SSE connections would keep close() waiting forever.
+        if ('closeAllConnections' in server) server.closeAllConnections();
+      }),
   };
 }
