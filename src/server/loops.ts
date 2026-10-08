@@ -3,6 +3,7 @@ import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { runAnswer } from '../cli/loops.js';
+import { readLaneStatuses } from '../cli/laneStatus.js';
 import { parseBlocked } from '../core/blocked.js';
 import { readLoopFacts, readRunCounter } from '../core/repo.js';
 import { deriveStatus } from '../core/status.js';
@@ -57,14 +58,15 @@ export function contractFromTask(taskText: string, finished: boolean): ContractI
 
 /** Reads one clone into the API's LoopDetail. `now` is a parameter so tests are deterministic. */
 export async function readLoop(dir: string, now: Date = new Date()): Promise<LoopDetail> {
-  const [baseFacts, counter, timeline, taskText] = await Promise.all([
+  const [baseFacts, counter, timeline, taskText, lanes] = await Promise.all([
     readLoopFacts(dir),
     readRunCounter(dir),
     readTimeline(dir),
     readOptional(path.join(dir, '.ai', 'task.md')),
+    readLaneStatuses(dir, now),
   ]);
   // Any failing health check turns the loop "failing" with that check's reason (IDEA.md status rule 5).
-  const checks = await checkLoop(dir, baseFacts, now);
+  const checks = await checkLoop(dir, baseFacts, now, undefined, lanes);
   const facts = { ...baseFacts, healthFailures: checks.filter((c) => !c.ok).map((c) => c.reason) };
   const status = deriveStatus(facts, now);
   const round = facts.roundsDone + 1;
@@ -80,6 +82,7 @@ export async function readLoop(dir: string, now: Date = new Date()): Promise<Loo
     run: counter?.run ?? 0,
     runLimit: counter?.limit ?? 0,
     ...(timeline[0] && { lastCommit: timeline[0] }),
+    ...(lanes && { lanes }),
     timeline,
     contract: contractFromTask(task, facts.hasDone),
     knowledge: bulletsUnder(task, /^confirmed/i),
@@ -135,7 +138,7 @@ export function projectsSource(projectsDir: string, now: () => Date = () => new 
     },
     checks: async () => {
       const dirs = await findLoopDirs(projectsDir);
-      const perLoop = await Promise.all(dirs.map(async (dir) => checkLoop(dir, await readLoopFacts(dir), now())));
+      const perLoop = await Promise.all(dirs.map(async (dir) => checkLoop(dir, await readLoopFacts(dir), now(), undefined, await readLaneStatuses(dir, now()))));
       return perLoop.flat();
     },
   };

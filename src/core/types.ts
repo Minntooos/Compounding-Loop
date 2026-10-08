@@ -62,6 +62,8 @@ export interface LoopSummary {
   live?: LoopLiveCheck;
   pages?: number;
   lastCommit?: LoopCommit;
+  /** Present only for loops with `.ai/lanes.json` (added by the server lane). */
+  lanes?: LaneStatus[];
 }
 
 export interface ContractItem {
@@ -91,7 +93,7 @@ export interface InboxItem {
 
 export interface HealthCheck {
   loopId: string;
-  kind: 'leak' | 'stale-lock' | 'short-runs' | 'failing-tests' | 'runner-silent';
+  kind: 'leak' | 'stale-lock' | 'short-runs' | 'failing-tests' | 'runner-silent' | 'lane-stalled' | 'lane-waiting-on-finished';
   ok: boolean;
   reason: string;
   proof: string;
