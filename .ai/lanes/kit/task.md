@@ -1,53 +1,45 @@
-# Lane: kit
+# Lane: kit — round 2 (0.2.0 "Lanes")
 
-Run: 2 / 30
-Status: units 1-7 done; gitignore rename shipped; marketplace.json exists; closing out lane
+Run: 0 / 20
+Status: not started
+Round 1 record: `.ai/lanes/kit/done-v1.md` (`git show 3385cdf:.ai/lanes/kit/task.md` for its Decisions).
 
 ## Contract
-**Goal:** the method, templates, runners and Claude Code plugin that `loop init`/`loop new` install (IDEA.md must-haves 8–16).
+**Goal:** everything a user's repo needs to run lanes unattended: templates, runner prompts and the method chapter. It must be as good as what built this repo, made generic (IDEA.md "Round 2", must-haves 2 (templates) and 4).
 **Done when:**
-- `npm test` passes; `tests/unit/kit/*.test.ts` check every rule below with a file-level assertion.
-- `method/` holds the generic method: `COMPOUNDING_LOOP.md`, `operating-card.md` (under 60 lines; a test counts them), `task-template.md` (goal, done-when, Confirmed vs Guess, Tried, Decisions, `Run: N / 30`), `knowledge-index.md` plus an example triggered entry, reviewer prompt, stuck protocol, retro.
-- `templates/static-site/`: the proven starter made generic (no niche words; placeholders like `{{name}}`, `{{domain}}`). A test copies it to a temp dir, fills the placeholders and runs its `check` (its full `npm test` as a slow test).
-- `templates/chrome-extension/`: MV3 manifest, a popup page, a check script and a Playwright extension test; its own tests pass in a temp copy (skip with a clear message only when Chromium is unavailable).
-- `runners/github-actions/loop.yml` (scheduled, `anthropics/claude-code-action`, documents the `ANTHROPIC_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN` secret and never stores one; a test parses the YAML), `runners/routine/prompt.md` with placeholders plus `runners/routine/README.md` (staggered cron), `runners/local/` (crontab line plus a Windows Task Scheduler XML).
-- `plugin/`: a valid Claude Code plugin (`.claude-plugin/plugin.json`, `commands/loop-init.md`, `handoff.md`, `retro.md`, `stuck.md`). A test parses the JSON and checks every command file has frontmatter with a description. The repo-root `.claude-plugin/marketplace.json` is owned by docs: ask in your outbox.
-- Session lock (90 min), run budget (30) and DONE/BLOCKED rules are stated identically in method, routine prompt and template (a test greps for the same numbers).
-**Constraints:** original text; the method may be adapted from `method/COMPOUNDING_LOOP.md` (same author). No secrets. Cross-platform paths.
-**Out of scope:** CLI code (core), dashboard (web).
+- `npm test` passes, and `.ai/audit/kit.md` exists with no open blocker.
+- `templates/lanes/`: lane `task.md`, `outbox.md`, `control-room.md`, a `CLAUDE.md` lanes section (lane table + talking-to-other-lanes + `Lane:` trailer rule + per-lane unattended rules), and a CI snippet that runs `loop check-lanes`. Placeholders are documented and tested (`tests/unit/kit/`), so a template never ships an unfilled `{{x}}`.
+- `runners/routine/lane-prompt.md` and `runners/routine/control-room-prompt.md`, generalised from the real prompts in `.ai/reference/routines/`. Keep what made them work: the multi-unit 40-minute run, the reviewer before every push, pull/rebase rules, the stop files and the never-list. Drop everything specific to this repo. The README explains staggered cron for N lanes with an example for 3 and for 5.
+- `runners/github-actions/lanes.yml`: a matrix with one job per lane, `max-parallel: 1`, `concurrency: loop-lane-${{ matrix.lane }}`, `timeout-minutes`, `persist-credentials: false` unless the job pushes (document why it does), and secrets only by name. Tested by a unit test that parses the YAML.
+- `method/COMPOUNDING_LOOP.md` gets a "Lanes" chapter in Part B (when to split into lanes and when not, ownership, outboxes, control room, the trailer check, and failure modes seen here: stale sandbox clones, rate-limit starvation, a lane waiting on a finished lane). **Do not change Part A (the Operating Card).**
+**Constraints:** templates stay agent-neutral where possible (`AGENTS.md` mirrors `CLAUDE.md`). Never copy this repo's owner-specific text (names, repo URLs, routine IDs) into templates.
+**Out of scope:** CLI code (core), new site templates.
 
 ## Units, in order
-1. `method/operating-card.md` + `method/task-template.md` + tests. Core needs these for `loop init`: post in your outbox when shipped.
-2. Generalise `templates/static-site/` (remove niche specifics, add placeholders, keep its tests working).
-3. `runners/routine/prompt.md` (generalised from this repo's lane prompt, which the control room can show you in `.ai/reference/` if added) + README.
-4. `runners/github-actions/loop.yml` + `runners/local/`.
-5. `plugin/` commands.
-6. `templates/chrome-extension/`.
-7. Knowledge/trigger example, reviewer prompt and retro in `method/`.
+1. **Audit** (`.ai/audit/kit.md`):
+   - Run `loop new static-site x --dry-run` and `loop new chrome-extension y --dry-run`, then their own `npm install && npm test`.
+   - Read every template file as a first-time user would.
+   - Check the routine prompt against what actually worked in `.ai/reference/routines/`.
+   - Check that plugin commands load: run `/plugin marketplace add` against the repo layout, or verify the manifest schema.
+   - Missing icons (chrome-extension), stale wording, Windows runner XML.
+   Fix blockers.
+2. `templates/lanes/` + placeholder tests. Tell core in your outbox (it writes them in `loop init --lanes`).
+3. `runners/routine/lane-prompt.md` + `control-room-prompt.md` + README.
+4. `runners/github-actions/lanes.yml` + test.
+5. Method chapter "Lanes".
+6. Majors from your audit, then round 1 leftovers by value: chrome-extension icons, a macOS launchd plist, and more example knowledge entries.
 
 ## Decisions
-- Put the 90-min lock / 30-run budget / DONE-BLOCKED rules in the card ("Unattended runs") and a new section at the end of method/COMPOUNDING_LOOP.md · generic repos need them identical in all places · delete the sections.
-- Example knowledge entry lives in method/example/K-0001.md (not at method/ root) · so core's init can ignore it · move it.
-
-- Added devDependency `yaml` · tests/unit/kit/runners.test.ts must parse loop.yml (contract says a test parses the YAML) · `npm rm yaml` and drop that test.
-- Routine prompt has only the `{{name}}` placeholder; install/test commands are read from CLAUDE.md · `loop run` only fills name · add placeholders later if core fills them.
-
-- chrome-extension Playwright test runs from a temp copy with node_modules symlinked to the repo's · avoids network npm install · n/a.
 
 ## Confirmed
-- `npm test` green on fresh pull 2026-10-08; tests/unit/kit/method.test.ts covers card (<60 lines), task template, numbers.
 
 ## Guesses
-(unproven beliefs; never treat one as fact in a later run)
 
 ## Tried
-- Reviewer: npm strips .gitignore from tarballs; fix needs core's copyTemplate (outbox). Marketplace.json needs docs (outbox).
-
-(what failed and why, so the next run does not repeat it)
 
 ## Don't
-- Edit paths another lane owns (CLAUDE.md lane table), except for the "main stays green" fix.
-- Add a dependency without a Decisions entry.
+- Edit paths another lane owns, except for the "main stays green" fix.
+- Change the Operating Card (Part A), `version`, or publish.
 
 ## Handoff
-Run 1 finished units 1, 2 (static-site fresh copy passes check and its own npm test, LOOP_SLOW) and most of 7 (knowledge-index + example; reviewer prompt and retro still to do). Next: read core/docs outboxes; when core ships the gitignore rename, rename templates/*/.gitignore to gitignore and add a test; when marketplace.json exists, run the lane-finish checks and write DONE.md (with 10 next improvements: icons for the extension, more templates, etc.).
+Round 2 starts here. Commits carry a `Lane: kit` trailer (CLAUDE.md).

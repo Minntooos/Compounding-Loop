@@ -1,50 +1,51 @@
-# Lane: core
+# Lane: core — round 2 (0.2.0 "Lanes")
 
-Run: 3 / 30
-Status: DONE (run 3); see DONE.md
+Run: 0 / 20
+Status: not started
+Round 1 record: `.ai/lanes/core/done-v1.md`; its Decisions still hold (`git show 3385cdf:.ai/lanes/core/task.md`).
 
 ## Contract
-**Goal:** the `loop` CLI and the pure logic in `src/core` that every other lane builds on (IDEA.md must-haves 1–7).
-**Done when (every line is a command or test):**
-- `npm test` passes.
-- `tests/unit/core/*.test.ts` cover: status rules (done), brief linter, `.ai/` readers (task.md run counter, DONE/BLOCKED, done-vN count, session.lock), next-round rewriter, template copier.
-- `tests/unit/cli/*.test.ts` run the built CLI (`node bin/loop.js …`) in temp dirs: `--help`, `init` (idempotent, `--force`), `new static-site demo-x --dry-run` (then that folder's own `npm test` passes; mark it as a slow test), `next-round`, `status`, `answer --dry-run`, `dashboard --demo --no-open` starts and `/api/health` answers.
-- `loop run` builds the same prompt the routine uses (unit test on the prompt builder; tests never actually call `claude`).
-**Constraints:** strict TS, pure functions in `src/core`, IO at the edges (`src/cli`). `execFile`/`spawn` with argument arrays only. No network or GitHub login in tests: `gh` calls go behind an interface with a fake.
-**Out of scope:** HTTP server internals (server lane), template contents (kit lane).
+**Goal:** the CLI that makes lanes a one-command feature, plus a first-run experience with no rough edges (IDEA.md "Round 2", must-haves 1, 2, 3, 5, 6 (status part), 7).
+**Done when:**
+- `npm test` passes, and `.ai/audit/core.md` exists with no open blocker.
+- `src/core/lanes.ts` (pure, no Node-only imports so web can use it): parse + validate `.ai/lanes.json`, match a path to its lane, and validate a commit's files against its `Lane:` trailer. Unit tests cover overlap rejection, shared globs, the lane's own `.ai/lanes/<name>/**`, and Windows-style paths.
+- `loop init --lanes a,b,c` and `loop lanes add <name> --owns <glob>…` write the files listed in IDEA.md must-have 2 using kit's templates (`templates/lanes/`). Tests run in temp dirs: idempotent, and `--force` never clobbers task/outbox state (same rule as round 1's state files).
+- `loop check-lanes [--range a..b]` uses `git log --format` + `git diff-tree --name-only` via `execFile`. A test repo built in a temp dir passes for good commits and fails, with a fix-it message, for a commit that crosses lanes.
+- `loop run --lane <name>` uses kit's lane prompt and writes/clears `.ai/lanes/<name>/session.lock` (`.ai/session.lock` for single loops), including on failure and Ctrl-C. Tested without calling `claude` (inject the runner).
+- `loop status` shows one row per lane for laned loops.
+- `loop doctor`: node ≥ 20, git, gh + `gh auth status`, claude, Playwright Chromium. Each failure prints how to fix it, and the exit code is non-zero if anything required is missing. Tested with fake probes.
+**Constraints:** round 1 rules (strict TS, pure core, `execFile` arrays, no network in tests). Glob matching: prefer a tiny dependency that's already installed (check `node_modules` for picomatch). If you add one, write it under Decisions. `path.matchesGlob` is not available on Node 20.
+**Out of scope:** templates' contents (kit), server/web display (they read your `lanes.ts`).
 
 ## Units, in order
-1. `src/core/repo.ts`: read a loop's facts from a folder (`LoopFacts` in types.ts) + tests with fixture folders made in a temp dir.
-2. `src/core/brief.ts`: brief linter, score 0–100 with named gaps (IDEA.md #3) + tests with a good and a bad brief. The web lane imports it for the wizard, so keep it free of Node-only imports.
-3. `loop init` (#1) with `--force`; installs kit's `method/` files and the Operating Card. If kit hasn't shipped the generic files yet, copy what exists and note it in your outbox.
-4. `loop new <template> [name] --dry-run` (#2), and the real path through a `Gh` interface (`gh repo create --private`).
-5. `loop next-round` (#5), `loop status` (#6), `loop answer` (#6).
-6. `loop run` (#4): prompt builder that fills `runners/routine/prompt.md` placeholders.
-7. `loop dashboard [--demo] [--port] [--no-open]` (#7): imports `startServer` from `src/server` (server lane exposes it; ask in your outbox if missing).
+1. **Audit** (`.ai/audit/core.md`). Checklist:
+   - every command's `--help` is accurate and consistent;
+   - error messages say how to fix the problem;
+   - exit codes;
+   - `npx compounding-loop@0.1.0` cold start time;
+   - Windows quoting and paths;
+   - what happens without gh, without claude, offline, or with a dirty repo;
+   - round 1's known gaps: the stray dot in status, a folder deleted when gh fails, `answer` not pushing.
+   Fix blockers.
+2. `src/core/lanes.ts` + tests. Tell server and web in your outbox (they display lanes).
+3. `loop check-lanes` + tests. Ask docs (outbox) to add `node bin/loop.js check-lanes --range <base>..HEAD` to CI.
+4. `loop init --lanes` / `loop lanes add` (needs kit's `templates/lanes/`; if it isn't there yet, do unit 5 first).
+5. `loop doctor`.
+6. `loop run --lane` + session lock writing.
+7. `loop status` lanes rows.
+8. Majors from your audit, then round 1 leftovers by value: `answer --push`, keep the folder on gh failure with a resume hint, `.ai/last-test.json` (coordinate with server).
 
 ## Decisions
-roundsDone = count of .ai/done-vN.md only (not +1 for DONE.md) · matches IDEA.md and deriveStatus's "Round roundsDone+1" · change readLoopFacts + status.ts together.
-state files (.ai/task|log|index) are create-only even with --force · reviewer found --force clobbered loop state · drop `keep` in loadKit.
-
-loop new skips the brief gate and @clack/prompts walkthrough for now · the brief is written after creation (dashboard wizard or by hand); core can add prompts later without changing runNew · add a prompts step in src/cli/index.ts before runNew.
-`loop new` removes the folder when gh fails · retry would otherwise fail "already exists" · drop the rm in new.ts.
-
-loop run passes --allowedTools (Bash,Edit,...) + acceptEdits by default · headless claude -p cannot run git/npm without them · --skip-permissions stays opt-in.
 
 ## Confirmed
-- repo.ts readers pass tests/unit/core/repo.test.ts; DONE.md/BLOCKED.md live at repo root, session.lock/task.md/done-vN in .ai/.
 
 ## Guesses
-(unproven beliefs; never treat one as fact in a later run)
-- GUESS: loop run should write .ai/session.lock so the dashboard shows Building and a scheduled run stands down; not done, not in the contract.
 
 ## Tried
-(what failed and why, so the next run does not repeat it)
 
 ## Don't
-- Edit paths another lane owns (CLAUDE.md lane table), except for the "main stays green" fix.
-- Add a dependency without a Decisions entry.
+- Edit paths another lane owns (`.ai/lanes.json`), except for the "main stays green" fix.
+- Change `version` in package.json or publish.
 
 ## Handoff
-Run 2: shipped gitignore rename + {{host}} (needs kit to rename files), session.lock check + runs.jsonl in loop run, DEFAULT_PROMPT drift test. NOT done: last-test.json (written by the claude round, not the CLI), lock is only read, never written by loop run (the round's prompt owns it). Remaining before DONE: verify `loop new static-site demo-x --dry-run` repo passes its own npm test, @clack brief prompts in loop new (optional), final reviewer, DONE.md.
-Run 1: fixed red main (favicon), shipped unit 1 (src/core/repo.ts). Unit 2 shipped (src/core/brief.ts, exports lintBrief/briefPasses/MIN_BRIEF_SCORE). Unit 3 shipped: src/core/init.ts, src/cli/init.ts (loadKit reads method/operating-card.md, task-template.md, knowledge-index.md, COMPOUNDING_LOOP.md -> .ai/method.md; missing ones warn). Still to add to init once kit ships: check script/tests/runner config install. Unit 5 shipped (src/cli/loops.ts: runStatus/runNextRound/runAnswer; core: rounds.ts, blocked.ts, table.ts). answer commits only task.md+BLOCKED.md, does not push; budget blocks raise the limit by 30. Unit 6 shipped (src/cli/run.ts, src/core/runPrompt.ts): prompt = repo .ai/loop-prompt.md > repo runners/routine/prompt.md > package runners/routine/prompt.md > built-in. Unit 7 shipped (src/cli/dashboard.ts; lazy import of ../server/index.js; the real-server test in tests/unit/cli/dashboard.test.ts auto-enables when src/server/index.ts exists). NEXT RUN: 1) pull, confirm that test passes against the real server (`--port 0` needs server.url to use the bound port); 2) when kit ships method/operating-card.md etc., check `loop init` end to end and add a drift test DEFAULT_PROMPT vs runners/routine/prompt.md; 3) ensure `loop new static-site demo-x --dry-run` repo passes its own npm test (kit); 4) write DONE.md only after those and a final reviewer pass; list 10 best next improvements (e.g. @clack brief walkthrough in loop new, session.lock in loop run, push after answer, init installs check script/runners). Later: add a drift test between DEFAULT_PROMPT and kit's runners/routine/prompt.md once it exists. Nothing half-done.
+Round 2 starts here. Commits carry a `Lane: core` trailer (CLAUDE.md).

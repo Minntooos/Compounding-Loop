@@ -1,0 +1,10 @@
+{
+  "lanes": [
+    { "name": "core", "owns": ["src/core/**", "src/cli/**", "bin/**", "tests/unit/core/**", "tests/unit/cli/**"], "cron": "7 * * * *" },
+    { "name": "kit", "owns": ["method/**", "templates/**", "runners/**", "plugin/**", "tests/unit/kit/**"], "cron": "19 * * * *" },
+    { "name": "server", "owns": ["src/server/**", "demo/**", "tests/unit/server/**"], "cron": "31 * * * *" },
+    { "name": "web", "owns": ["web/**", "tests/e2e/**"], "cron": "43 * * * *" },
+    { "name": "docs", "owns": ["README.md", "docs/**", "launch/**", ".github/**", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "CHANGELOG.md", "SECURITY.md"], "cron": "55 * * * *" }
+  ],
+  "shared": ["package.json", "package-lock.json", "tsconfig*.json", "vite.config.ts", "playwright.config.ts", "vitest.config.ts", "scripts/check.mjs", ".gitignore", "src/core/types.ts", ".ai/audit/**", ".ai/index.md", ".ai/knowledge/**", ".ai/contracts.md", "docs/assets/screens/**"]
+}

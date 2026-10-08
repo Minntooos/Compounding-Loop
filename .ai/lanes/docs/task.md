@@ -1,44 +1,54 @@
-# Lane: docs
+# Lane: docs — round 2 (0.2.0 "Lanes" + launch)
 
-Run: 1 / 30
-Status: in progress (units 1-6 done)
+Run: 0 / 20
+Status: not started
+Round 1 record: `.ai/lanes/docs/done-v1.md` (`git show 3385cdf:.ai/lanes/docs/task.md` for its Decisions).
 
 ## Contract
-**Goal:** everything that makes a stranger understand, trust and star the project in 30 seconds, plus the launch drafts (IDEA.md must-haves 25–27).
+**Goal:** a stranger from Hacker News understands, trusts and tries Compounding Loop in 30 seconds, and the first five minutes of using it work exactly as written (IDEA.md "Round 2", must-have 8 and the fresh-install test).
 **Done when:**
-- `npm test` passes; add checks to `scripts/check.mjs` (shared file, small edit) that README has the install command and proof table, and that every relative link in README and `docs/*.md` resolves.
-- `README.md`: one-line pitch, screenshot (generated from the demo dashboard with Playwright into `docs/assets/`; until web has a Fleet screen, leave a clearly marked placeholder and come back), `npx compounding-loop init`, proof table (five live sites with their real `*.netlify.app` URLs, pages, tests, hours, from `.ai/reference/five-sites/`), how it works (Mermaid or SVG diagram), honest comparison with "just loop the agent", FAQ (cost, safety, what it won't do).
-- `docs/`: getting started, concepts (Operating Card, task contract, knowledge, reviewer gate, session lock, budgets), runners (routine, GitHub Actions, local), dashboard tour, templates, FAQ, troubleshooting (the five-hour limit, stale sandbox clones, blocked pushes).
-- `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant, attributed), `SECURITY.md`, `CHANGELOG.md`, `.github/ISSUE_TEMPLATE/*`, `.github/pull_request_template.md`, `.github/workflows/ci.yml` (runs `npm test` on push and PR; needs no secrets), and `.claude-plugin/marketplace.json` when kit asks.
-- `launch/`: `show-hn.md`, `x-thread.md`, `reddit-claudeai.md`, `devto-article.md` ("What I learned letting Claude Code build 215 pages unattended": real failures: rate-limit starvation, stale sandbox clones, the session lock, the reviewer gate), `linkedin.md`, `good-first-issues.md` (5), `social-preview.svg` + a 1280×640 PNG rendered with Playwright.
-**Constraints:** honest claims only, each backed by a number from the reference data or the repo. No posting, no publishing. The repo is currently `Minntooos/Compounding_Loop`; write links as `https://github.com/Minntooos/compounding-loop` (the owner renames it before launch) and record that under Decisions.
-**Out of scope:** product code.
+- `npm test` passes, and `.ai/audit/docs.md` exists with no open blocker.
+- **Fresh-install test**, recorded in `.ai/audit/docs.md` with the exact commands and output: `npm pack`, then install the tarball in an empty temp dir, then follow the README quick start word for word. Do it once at the start (audit) and once at the end. Send every failure in another lane's area to its outbox; fix every docs failure.
+- README: lanes are in the first screen ("several unattended lanes, one repo, no merge conflicts", with this repo as the proof), `npx compounding-loop` quick start, the proof table, an honest comparison table (Claude Squad, Parallel Code, Agent Orchestrator, Vibe Kanban, Claude Code agent teams/worktrees: what each is for, and where we differ). Use only claims you can source; link the source. Add a FAQ with these questions:
+  - Isn't this cron + `claude -p`?
+  - What does it cost (plan usage vs API)?
+  - Why not agent teams?
+  - What happens when it goes wrong?
+  - Is my code sent anywhere?
+- `docs/lanes.md` (setup with `loop init --lanes`, ownership, outboxes, control room, `check-lanes` in CI, staggered cron, troubleshooting). `docs/getting-started.md` is updated. Plugin commands are documented. A check in `scripts/check.mjs` fails if a `loop <cmd> --flag` in README/docs does not exist in `node bin/loop.js <cmd> --help` (round 1 next-improvement #6).
+- `launch/` is rewritten for the 0.2.0 story. Show HN: a title under 80 characters with no hype words, a first comment with the honest backstory and numbers. Also Reddit, X, LinkedIn and dev.to. Each draft has a "Likely objections + answers" section for the owner.
+- CI runs `node bin/loop.js check-lanes --range <base>..HEAD` on PRs and pushes, once core ships it.
+- `CHANGELOG.md` `[Unreleased]` lists everything in 0.2.0. The version stays 0.1.0 (the owner's Claude does the release).
+**Constraints:** honest claims only, each backed by the repo, the reference data or a linked source. No posting, no publishing. The repo URL is `https://github.com/Minntooos/Compounding-Loop`. The demo is https://minntooos.github.io/Compounding-Loop/.
+**Out of scope:** product code. Report product failures to the owning lane.
 
 ## Units, in order
-1. `.github/workflows/ci.yml`, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CHANGELOG, issue/PR templates.
-2. README first draft with the proof table from the reference data.
-3. `docs/` concepts + getting started.
-4. `launch/` drafts.
-5. Social preview SVG + PNG.
-6. Dashboard screenshot/GIF once web's Fleet ships (watch web's outbox).
-7. README/docs pass against the real CLI `--help` output; fix every mismatch.
+1. **Audit** (`.ai/audit/docs.md`):
+   - The fresh-install test.
+   - Read the README as a skeptical HN reader (what makes them close the tab, which claim lacks proof, what's unclear in 30 seconds).
+   - Check every link.
+   - Check the docs against `--help`.
+   - Read `launch/` for hype words and unsupported claims.
+   - Check the demo link and the screenshots (are they current?).
+   Fix blockers.
+2. The docs-vs-help check in `scripts/check.mjs`.
+3. README rework + comparison table + FAQ.
+4. `docs/lanes.md` + getting started + plugin docs (follow core/kit outboxes for the real flags; write placeholders marked TODO only while waiting, and remove them before DONE).
+5. CI `check-lanes` step (after core ships it). Screenshots from web (`docs/assets/screens/`) go into README/docs.
+6. `launch/` rewrite with objections sections.
+7. CHANGELOG, final fresh-install test, majors from the audit.
 
 ## Decisions
-- Repo links use https://github.com/Minntooos/compounding-loop (owner renames before launch) · matches package.json and brief · sed the URL later.
-- README proof table: elapsed hours = history[0] to last commit; tests = unit+browser passed · numbers from reference JSON.
 
 ## Confirmed
-(facts proven by a command or test; cite path:line)
 
 ## Guesses
-(unproven beliefs; never treat one as fact in a later run)
 
 ## Tried
-(what failed and why, so the next run does not repeat it)
 
 ## Don't
-- Edit paths another lane owns (CLAUDE.md lane table), except for the "main stays green" fix.
-- Add a dependency without a Decisions entry.
+- Edit paths another lane owns, except for the "main stays green" fix.
+- Describe a feature in the README before its lane has shipped and tested it.
 
 ## Handoff
-Run 1 stopped after unit 5 (launch/social-preview.svg/.png, render with node launch/render-social-preview.mjs). Units 6 and 7 done. All docs units complete; remaining: Lane finished protocol (reviewer pass, DONE.md with 10 next improvements). Note: install command needs the package published (noted in show-hn.md); re-check docs vs --help when CLI changes.
+Round 2 starts here. Commits carry a `Lane: docs` trailer (CLAUDE.md).

@@ -1,5 +1,40 @@
 # IDEA: Compounding Loop
 
+## Round 2 (current): 0.2.0 "Lanes" + launch readiness — started 2026-10-08 19:40 UTC
+
+0.1.0 is published on npm and the demo is live (https://minntooos.github.io/Compounding-Loop/). It has not been announced yet. The launch is a single Show HN; it happens after this round, so this round decides the first impression. Round 1's report is `.ai/done-v1.md`.
+
+**The new headline:** *Several unattended lanes, one repo, no merge conflicts.* This repo was built that way (five lanes + a control room, in parallel, on `main`). 0.2.0 lets any user do the same with one command. Parallel-agent tools already exist (Claude Squad, Parallel Code, Agent Orchestrator, Vibe Kanban, Conductor, Claude Code's own worktrees and agent teams). They are interactive and worktree-based, and they leave merging to the human. Our niche is the **unattended, multi-day** version: path ownership instead of merges, outboxes instead of chat, a control room instead of a human, and a check that enforces it all. Claim only what we ship and test.
+
+### Step 1 for every lane: the audit (first unit, before any feature)
+Review your own area as a demanding senior specialist would, and write `.ai/audit/<lane>.md`: the checklist in your task file with pass/fail, then findings ranked **blocker** (a first-time user fails, is misled, or leaves) / **major** (looks unfinished to a careful reader) / **minor**. Every finding has evidence (command + output, or `path:line`) and a one-line fix. Findings in another lane's area go to that lane's outbox, not into its files. Fix your blockers before 0.2.0 features. Fit majors in between features, in order of user value. List the minor findings you didn't fix in your DONE.md.
+
+### 0.2.0 must-haves (each needs a test before it counts)
+1. **Lane config** `.ai/lanes.json`: `{ "lanes": [{ "name", "owns": [globs], "cron"? }], "shared": [globs] }`. It is the single source of truth. This repo has one; read it as the example. Pure parser + validator in `src/core/lanes.ts` (no overlapping `owns` between lanes, valid names, at least one lane).
+2. **`loop init --lanes <a,b,c>`** (and `loop lanes add <name> --owns <glob>…`): writes `.ai/lanes.json`, `.ai/lanes/<lane>/task.md` + `outbox.md` from templates, `.ai/control-room.md`, and the lane section of `CLAUDE.md`/`AGENTS.md`. Idempotent; never overwrites without `--force`.
+3. **Ownership check** `loop check-lanes [--range <a..b>]`: each commit with a `Lane: <name>` trailer may only touch that lane's `owns` + `shared` (+ `.ai/lanes/<name>/**`). Exits non-zero with a message that names the file, the lane, and how to fix it. Commits without a trailer are reported, not failed (humans commit too). Wired into this repo's CI and into the templates' CI.
+4. **Runners for lanes:** a lane prompt and a control-room prompt in `runners/routine/` (generalised from this repo's real ones in `.ai/reference/routines/`), staggered cron generated per lane, and a GitHub Actions matrix workflow (one job per lane, `max-parallel: 1`, `concurrency` per lane).
+5. **`loop run --lane <name>`**, which also writes `.ai/session.lock` (per lane: `.ai/lanes/<name>/session.lock`) and clears it. This closes the known gap where nothing writes the lock.
+6. **Lanes in `loop status` and the dashboard:** per loop, each lane's state (building/waiting/blocked/done), run N/LIMIT, last commit, and unanswered outbox messages ("web waits on server"). Demo mode gets a sixth demo loop: **this repo building itself**, from a scrubbed snapshot of its own lane files and commit history.
+7. **`loop doctor`:** checks node ≥ 20, git, gh (+ auth), claude, and a Playwright browser, and says how to fix each failure.
+8. **Docs + launch for the new headline:** `docs/lanes.md`, a README rework (lanes in the first screen, honest comparison table with the tools above, FAQ for "isn't this cron + `claude -p`?", "what does it cost?", "why not agent teams?"), rewritten `launch/` drafts, and `CHANGELOG.md` `[Unreleased]` listing everything in 0.2.0.
+
+### Round 2 done when
+- `npm test` passes on a clean clone, on CI's three jobs (ubuntu Node 20 and 24, windows Node 24).
+- Every lane has written `.ai/audit/<lane>.md`, and no blocker in it is still open.
+- Each 0.2.0 must-have has a test. `node bin/loop.js init --lanes a,b --dry-run`, or the same in a temp dir, produces a repo whose `loop check-lanes` passes. A commit that breaks ownership makes it fail.
+- **Fresh-install test** (docs lane runs it, the control room re-runs it): `npm pack`, then install the tarball in an empty temp dir, then follow the README quick start word for word. Every step works with no step that isn't written down. Record it in `.ai/audit/docs.md`.
+- `npm pack --dry-run`: same rules as round 1 (no `.ai/`, root `IDEA.md`/`CLAUDE.md`, tests or reference data).
+- **Do not change `version` in package.json and do not publish.** The release (0.2.0 bump, tag, `npm publish`) is done locally by the owner's Claude Code after the control room writes root `DONE.md`.
+
+**Deadline:** 2026-10-11 18:00 UTC. After that, start no new should-level unit: finish what's open, write DONE. A good launch on time beats a perfect one later.
+
+**Out of scope this round:** non-Claude agents, a hosted version, new site templates (Astro/Python), npm publish, posting the launch, repo settings changes.
+
+---
+
+# Round 1 brief (0.1.0, finished 2026-10-08; kept as the product's foundation)
+
 ## One line
 An open-source kit plus a local dashboard: you write a one-page brief, and Claude Code builds the project in scheduled, unattended runs until checks prove it is finished. Every run is tested and reviewed, remembers what it learned, and stops by itself when it finishes or gets stuck.
 

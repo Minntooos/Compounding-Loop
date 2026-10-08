@@ -1,68 +1,46 @@
-# Lane: web
+# Lane: web — round 2 (0.2.0 "Lanes")
 
-Run: 8 / 30
-Status: DONE (see DONE.md)
+Run: 0 / 20
+Status: not started
+Round 1 record: `.ai/lanes/web/done-v1.md` (`git show 3385cdf:.ai/lanes/web/task.md` for its Decisions).
 
 ## Contract
-**Goal:** the dashboard, "calm mission control" (IDEA.md must-haves 19–24 and the Design section).
+**Goal:** the dashboard looks and feels like a product a senior designer shipped, and it shows lanes clearly. It is the screenshot every launch post leads with (IDEA.md "Round 2", must-have 6, UI side; IDEA.md "Design").
 **Done when:**
-- `npm test` passes; Playwright tests in `tests/e2e/` cover each screen on the laptop and phone projects, keyboard use (Ctrl/⌘K, j/k, a), both themes, and no console errors.
-- Fleet: "Needs you" bar first ("Nothing needs you" in green at zero), one card per loop with status word + icon + colour, round X/5, run N/30, next run, tests, live check; sorted by attention. E2E asserts the five-site numbers from the demo data.
-- Loop detail: header + tabs Timeline, Contract, Knowledge, Decisions, Settings.
-- Inbox: every BLOCKED question, best guess pre-filled, Accept guess / write answer (POST; demo shows the read-only message).
-- New-loop wizard: Brief with live linter score (import core's `src/core/brief.ts` via `@core/brief`) → Template → Runner → shows the exact `loop new` command (creation goes through the API only outside demo).
-- Health page; First run ("Try the demo" / "Create your first loop"); Settings (projects folder, `gh` account, default runner, theme).
-- Accessibility: every interactive element reachable by keyboard with visible focus (a test tabs through Fleet), status never colour alone, `prefers-reduced-motion` respected, 375 px with no horizontal scroll (a test asserts `scrollWidth <= innerWidth`). WCAG AA contrast in both themes.
-- `web/public/logo.svg` (a loop arrow opening into a rising spiral) and a favicon.
-**Constraints:** data only through the `.ai/contracts.md` routes (TanStack Query). Until the server ships, use a typed mock in `web/src/api/mock.ts` built from `demo/five-sites.json` if present, else from the shape of `.ai/reference/five-sites/` (copy only numbers and site names; no paths or emails). No `dangerouslySetInnerHTML`: render Markdown with a safe renderer (write a tiny one, or add a dependency with a Decisions entry). Tokens are in `web/src/index.css`; shadcn-style components are copied into `web/src/components/ui/`.
-**When the server ships `startServer`:** switch `playwright.config.ts` webServer to `node bin/loop.js dashboard --demo --no-open --port 4173` (shared file, small edit; say so in your outbox).
-**Out of scope:** server logic, CLI.
+- `npm test` passes, and `.ai/audit/web.md` exists with no open blocker.
+- Accessibility is automated: an axe check (`@axe-core/playwright`; add it under Decisions) on every screen in both themes, at laptop and phone width, with zero serious or critical violations. Keyboard: every action is reachable, focus is visible, and the palette, `j/k` and `a` still work.
+- **Lanes UI:** Loop detail gets a Lanes tab (one row per lane: state word + icon, run N/LIMIT, last commit, lock, unanswered messages "web → server"). The Fleet card for a laned loop shows a compact lane strip. The "Needs you" bar counts stalled lanes and lanes waiting on a finished lane. E2E asserts these against the demo's sixth loop (server lane).
+- Settings is wired to `GET /api/settings` (round 1 gap) with an e2e.
+- Visual polish pass, judged against the Design section of IDEA.md and recorded in the audit: spacing on the 4 px grid, type scale, empty states, loading states, long names and paths, 375 px width, both themes, and reduced motion. Playwright screenshots of every screen in both themes go to `docs/assets/screens/` for docs (tell docs in your outbox).
+**Constraints:** round 1 rules (no runtime CDN, no `innerHTML` with repo text, tokens from IDEA.md). There is no new UI library. A new dev dependency needs a Decisions line.
+**Out of scope:** API shape (ask server via `.ai/contracts.md` "Requested").
 
 ## Units, in order
-1. App shell: layout, nav (Fleet, Inbox, Health, Settings), theme toggle, command palette (cmdk), router (hash or a tiny router; decide and record).
-2. Fleet with demo data + e2e numbers.
-3. Loop detail tabs.
-4. Inbox.
-5. Health + First run + Settings.
-6. New-loop wizard.
-7. Polish: motion on change, empty/error/loading states, phone layout, logo.
+1. **Audit** (`.ai/audit/web.md`). Run the demo and judge each screen as a senior product designer and as an accessibility reviewer would:
+   - the 2-second "does anything need me?" test;
+   - contrast in both themes;
+   - focus order;
+   - phone width;
+   - console errors;
+   - bundle size (`npm run build` output; flag anything over 300 kB gzip);
+   - the 2 skipped e2e tests from round 1: why are they skipped?
+   Fix blockers.
+2. The axe check on all screens + fixes.
+3. Settings wired.
+4. The Lanes tab + the Fleet lane strip + Needs-you counts (start with the demo shape in `.ai/contracts.md`; if server's data isn't live yet, build against a fixture).
+5. Polish pass + screenshots for docs.
+6. Majors from your audit, then round 1 leftovers by value: toasts for SSE events, Fleet filter by status.
 
 ## Decisions
-- Hash router (`#/loop/:id`) · works under vite preview and any static server without fallback rules · swap `web/src/lib/route.ts`.
-- API client falls back to the demo snapshot only when `/api/health` is not JSON (no server), with a visible "Sample data" banner; with a server, errors surface · avoids showing fake data as real · `web/src/api/client.ts`.
-- Playwright now runs `loop dashboard --demo` (server serves dist/web); previewApi removed.
-- Live updates via EventSource in App.tsx; invalidate query keys by name.
-
-- Component unit tests use react-dom/server renderToStaticMarkup in Vitest node env (no new dependency); added `jsx: react-jsx` to root tsconfig so tests/unit/web can import web .tsx · tests/unit/web/query-state.test.ts.
 
 ## Confirmed
-(facts proven by a command or test; cite path:line)
 
 ## Guesses
-(unproven beliefs; never treat one as fact in a later run)
 
 ## Tried
-- Run 4: e2e for the busy state (gate the refetch with a route promise, expect 'Retrying…' disabled). Failed twice (fleet route, then loop detail route): the button never showed 'Retrying…'; with the fleet route the page fell back to 'Loading the fleet…' during the gated refetch. Cause not found (suspect the query goes back to pending, or the route fulfils before the click). Reverted. Next: debug with a headed trace before retrying, or unit-test LoadError with busy=true in Vitest instead.
-- Run 5: motion-on-change (useFlash hook + .card-flash glow on Fleet cards) with an e2e that routes /api/loops to return run=7 on the second call and triggers a refetch via visibilitychange (also with page.clock.runFor(6000) past the 5 s staleTime). The glow never appeared, twice. Same root symptom as the run 4 busy-state test: forced refetches in e2e don't behave as expected; suspect the app's EventSource/query setup or route interception order. Reverted. Next: instead emit a real SSE `loop-updated` event (needs a non-demo server) or add jsdom + @testing-library as a dev dependency (with a Decisions entry) to unit-test hooks/components.
-(what failed and why, so the next run does not repeat it)
 
 ## Don't
-- Edit paths another lane owns (CLAUDE.md lane table), except for the "main stays green" fix.
-- Add a dependency without a Decisions entry.
+- Edit paths another lane owns, except for the "main stays green" fix. (`docs/assets/screens/**` is listed as shared in `.ai/lanes.json`, so web may write screenshots there.)
 
 ## Handoff
-Run 1: shipped shell, Fleet, Loop detail, Inbox (j/k/a), Health, Settings, wizard (#/new, shows `npx compounding-loop new <template> <slug>`), first-run empty state; e2e in tests/e2e/{fleet,screens}.spec.ts. Unit 7 so far: tab arrow keys, contrast test (text tokens, both themes), read-only inbox in static mode; accent buttons use var(--bg) text (white on #8b7cff is 3.3:1). Remaining: loading skeleton/error retry, motion on change, Settings projects folder/gh account/default runner once the server exposes them, If all pass and a reviewer finds no blockers, write DONE.md.
-
-Run 2: added shared Loading/LoadError (retry button) in web/src/components/QueryState.tsx, used by Fleet/Health/Inbox/LoopDetail; e2e for fleet error+retry. Remaining polish: Settings projects folder/gh account/default runner (needs server route), motion on change, disable Try again while fetching, error tests for other screens.
-
-Run 3: LoadError takes `busy` (Try again disabled while refetching); e2e error+retry for Health, Inbox, loop detail. Remaining polish: Settings projects folder/gh account/default runner (needs server route), motion on change, a test for the busy state, consider aria-disabled to keep focus.
-
-Run 4: origin/main had unrelated history to the local clone; reset local main to origin/main (old commits on branch backup-local-main). Tests green (38 pass). Busy-state e2e attempt failed, see Tried. Remaining polish: that test, Settings projects folder/gh account/default runner (needs server route), motion on change.
-
-Run 5: origin/main history had been rewritten again; reset local main to origin/main (no unique local work). Tests green (38 pass). Motion-on-change attempt failed, see Tried. Remaining polish: motion on change, busy-state test, Settings projects folder/gh account/default runner (needs a server route that does not exist in .ai/contracts.md; request it under Requested). Suggest adding jsdom + @testing-library/react to unblock component tests.
-
-Run 6: origin/main history rewritten again; reset local main to origin/main. Added tests/unit/web/query-state.test.ts (busy LoadError covered at unit level, closes the run 4 gap). Remaining: motion on change (needs a real SSE event or hook tests), Settings projects folder/gh account/default runner (needs server route).
-
-Run 7: origin/main history rewritten again; reset local main to origin/main (old commits on branch backup-old-root). Tests green (38 pass, 2 skipped). No unit taken: the two remaining items are blocked (Settings projects folder/gh account/default runner needs a server route, now requested in .ai/contracts.md; motion on change needs jsdom + @testing-library or a real SSE server, see Tried). Everything else in the contract passes. Next run: if the server lane added GET /api/settings, wire it into Settings.tsx with an e2e; otherwise write DONE.md noting those two gaps.
-
-Run 8: origin/main history rewritten again; reset local main to origin/main. Tests green (38 pass, 2 skipped). Server lane is DONE without GET /api/settings, so per the control room (12:35 UTC) wrote DONE.md.
+Round 2 starts here. Commits carry a `Lane: web` trailer (CLAUDE.md).
