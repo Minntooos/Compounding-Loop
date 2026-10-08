@@ -1,10 +1,13 @@
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Moon, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { api, hasServer } from './api/client';
 import { CommandPalette } from './components/CommandPalette';
 import { Fleet } from './components/Fleet';
-import { Placeholder } from './components/Placeholder';
+import { Health } from './components/Health';
+import { Inbox } from './components/Inbox';
+import { LoopDetail } from './components/LoopDetail';
+import { Settings } from './components/Settings';
 import { href, useRoute, type Route } from './lib/route';
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 5_000, retry: false } } });
@@ -19,14 +22,28 @@ function initialTheme(): Theme {
   return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 }
 
-function Page({ route }: { route: Route }) {
+function Page({ route, theme, setTheme }: { route: Route; theme: Theme; setTheme: (t: Theme) => void }) {
   switch (route.name) {
     case 'fleet': return <Fleet />;
-    case 'loop': return <Placeholder title={`Loop ${route.id}`} />;
-    case 'inbox': return <Placeholder title="Inbox" />;
-    case 'health': return <Placeholder title="Health" />;
-    case 'settings': return <Placeholder title="Settings" />;
+    case 'loop': return <LoopDetail id={route.id} />;
+    case 'inbox': return <Inbox />;
+    case 'health': return <Health />;
+    case 'settings': return <Settings theme={theme} setTheme={setTheme} />;
   }
+}
+
+/** Server-sent events (.ai/contracts.md): refetch what changed. No server, no stream. */
+function useLiveUpdates(connected: boolean | undefined) {
+  const qc = useQueryClient();
+  useEffect(() => {
+    if (!connected) return;
+    const es = new EventSource('/api/events');
+    const refetch = (...keys: string[]) => keys.forEach((k) => void qc.invalidateQueries({ queryKey: [k] }));
+    es.addEventListener('loop-updated', () => refetch('loops', 'loop'));
+    es.addEventListener('inbox-changed', () => refetch('inbox', 'loops'));
+    es.addEventListener('checks-changed', () => refetch('checks'));
+    return () => es.close();
+  }, [connected, qc]);
 }
 
 function Shell() {
@@ -34,6 +51,7 @@ function Shell() {
   const [theme, setTheme] = useState<Theme>(initialTheme);
   const inbox = useQuery({ queryKey: ['inbox'], queryFn: api.inbox });
   const server = useQuery({ queryKey: ['server'], queryFn: hasServer });
+  useLiveUpdates(server.data);
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     try { localStorage.setItem('theme', theme); } catch { /* storage blocked */ }
@@ -65,7 +83,7 @@ function Shell() {
       {server.data === false && <p role="status" className="px-4 py-2 text-center text-[13px]" style={{ background: 'var(--surface)', color: 'var(--muted)' }}>Sample data: no dashboard server is running, so this shows the five-site demo.</p>}
       <main className="mx-auto max-w-6xl px-4 py-6">
         <h1 className="mb-5 text-[28px] font-semibold">{route.name === 'fleet' ? 'Compounding Loop' : route.name === 'loop' ? route.id : NAV.find((n) => n.route.name === route.name)?.label}</h1>
-        <Page route={route} />
+        <Page route={route} theme={theme} setTheme={setTheme} />
       </main>
       <CommandPalette items={palette} />
     </>

@@ -15,12 +15,12 @@ const systemChrome = [process.env.CHROME_PATH, ...preinstalled, '/usr/bin/google
 const launchOptions = bundled && existsSync(bundled) ? {} : systemChrome ? { executablePath: systemChrome } : {};
 
 
-// Until the server lane ships `loop dashboard --demo`, e2e runs against the built dashboard via `vite preview`.
+// e2e runs against the real demo server, which serves the built dashboard from dist/web.
 export default defineConfig({
   testDir: 'tests/e2e',
   timeout: 20_000,
   use: { baseURL: 'http://localhost:4173', launchOptions },
-  webServer: { command: 'npm run preview', url: 'http://localhost:4173', reuseExistingServer: !process.env.CI },
+  webServer: { command: 'node bin/loop.js dashboard --demo --no-open --port 4173', url: 'http://localhost:4173', reuseExistingServer: !process.env.CI },
   projects: [
     { name: 'laptop', use: { ...devices['Desktop Chrome'], viewport: { width: 1366, height: 633 } } },
     { name: 'phone', use: { ...devices['Pixel 7'] } },

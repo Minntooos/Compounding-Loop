@@ -1,7 +1,7 @@
 # Lane: web
 
 Run: 1 / 30
-Status: units 1-2 done
+Status: units 1-5 done
 
 ## Contract
 **Goal:** the dashboard, "calm mission control" (IDEA.md must-haves 19–24 and the Design section).
@@ -30,7 +30,8 @@ Status: units 1-2 done
 ## Decisions
 - Hash router (`#/loop/:id`) · works under vite preview and any static server without fallback rules · swap `web/src/lib/route.ts`.
 - API client falls back to the demo snapshot only when `/api/health` is not JSON (no server), with a visible "Sample data" banner; with a server, errors surface · avoids showing fake data as real · `web/src/api/client.ts`.
-- `web/previewApi.ts` (plugin in vite.config.ts) serves the read routes from the snapshot under `vite preview` · server doesn't serve dist/web yet, and /api 404s fail the console-error tests · delete it once playwright uses `loop dashboard --demo`.
+- Playwright now runs `loop dashboard --demo` (server serves dist/web); previewApi removed.
+- Live updates via EventSource in App.tsx; invalidate query keys by name.
 
 ## Confirmed
 (facts proven by a command or test; cite path:line)
@@ -46,4 +47,4 @@ Status: units 1-2 done
 - Add a dependency without a Decisions entry.
 
 ## Handoff
-Run 1: shell (nav, theme, cmdk palette, hash router) and Fleet shipped with e2e (numbers, 375px, theme, keyboard). Next: unit 3 loop detail tabs (web/src/components, route `loop` currently Placeholder). Still Placeholder: Inbox, Health, Settings. Pending: switch playwright webServer once the server serves dist/web. Add tests/e2e for j/k and `a` shortcuts with Inbox.
+Run 1: shipped shell, Fleet, Loop detail tabs, Inbox (j/k/a), Health, Settings; e2e in tests/e2e/{fleet,screens}.spec.ts. Next: unit 6 new-loop wizard (lintBrief via @core/brief; show `loop new` command), First run screen, then unit 7 polish (loading/error states, contrast test, logo check, Settings projects folder/gh account/default runner once server exposes them). Reviewer notes unaddressed: tabs lack arrow-key navigation; static mode still shows the answer form.
