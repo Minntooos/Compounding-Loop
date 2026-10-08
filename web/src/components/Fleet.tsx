@@ -48,7 +48,7 @@ export function Fleet() {
   const loops = useQuery({ queryKey: ['loops'], queryFn: api.loops });
   const inbox = useQuery({ queryKey: ['inbox'], queryFn: api.inbox });
   if (loops.isPending || inbox.isPending) return <Loading what="Loading the fleet…" />;
-  if (loops.isError || inbox.isError) return <LoadError what="the fleet" onRetry={() => { void loops.refetch(); void inbox.refetch(); }} />;
+  if (loops.isError || inbox.isError) return <LoadError what="the fleet" onRetry={() => { void loops.refetch(); void inbox.refetch(); }} busy={loops.isFetching || inbox.isFetching} />;
   if (loops.data.length === 0) {
     return (
       <section className="space-y-3">

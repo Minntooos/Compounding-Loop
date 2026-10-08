@@ -1,6 +1,6 @@
 # Lane: web
 
-Run: 2 / 30
+Run: 3 / 30
 Status: units 1-7 done (polish partial)
 
 ## Contract
@@ -50,3 +50,5 @@ Status: units 1-7 done (polish partial)
 Run 1: shipped shell, Fleet, Loop detail, Inbox (j/k/a), Health, Settings, wizard (#/new, shows `npx compounding-loop new <template> <slug>`), first-run empty state; e2e in tests/e2e/{fleet,screens}.spec.ts. Unit 7 so far: tab arrow keys, contrast test (text tokens, both themes), read-only inbox in static mode; accent buttons use var(--bg) text (white on #8b7cff is 3.3:1). Remaining: loading skeleton/error retry, motion on change, Settings projects folder/gh account/default runner once the server exposes them, If all pass and a reviewer finds no blockers, write DONE.md.
 
 Run 2: added shared Loading/LoadError (retry button) in web/src/components/QueryState.tsx, used by Fleet/Health/Inbox/LoopDetail; e2e for fleet error+retry. Remaining polish: Settings projects folder/gh account/default runner (needs server route), motion on change, disable Try again while fetching, error tests for other screens.
+
+Run 3: LoadError takes `busy` (Try again disabled while refetching); e2e error+retry for Health, Inbox, loop detail. Remaining polish: Settings projects folder/gh account/default runner (needs server route), motion on change, a test for the busy state, consider aria-disabled to keep focus.

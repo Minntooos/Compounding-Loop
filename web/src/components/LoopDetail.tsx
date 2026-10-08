@@ -62,7 +62,7 @@ export function LoopDetail({ id }: { id: string }) {
   const [tab, setTab] = useState<Tab>('Timeline');
   const q = useQuery({ queryKey: ['loop', id], queryFn: () => api.loop(id) });
   if (q.isPending) return <Loading />;
-  if (q.isError) return <LoadError what="this loop" onRetry={() => void q.refetch()} />;
+  if (q.isError) return <LoadError what="this loop" onRetry={() => void q.refetch()} busy={q.isFetching} />;
   if (!q.data) return <p role="alert">No loop called “{id}”. <a href="#/" className="underline">Back to the fleet</a></p>;
   const loop = q.data;
   return (

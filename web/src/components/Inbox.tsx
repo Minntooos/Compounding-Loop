@@ -52,7 +52,7 @@ export function Inbox() {
     return () => window.removeEventListener('keydown', on);
   }, [items.length]);
   if (q.isPending) return <Loading />;
-  if (q.isError) return <LoadError what="the inbox" onRetry={() => void q.refetch()} />;
+  if (q.isError) return <LoadError what="the inbox" onRetry={() => void q.refetch()} busy={q.isFetching} />;
   if (items.length === 0) return <p role="status" style={{ color: 'var(--done)' }}>{notice} Inbox empty: no loop is waiting on you.</p>;
   return (
     <>

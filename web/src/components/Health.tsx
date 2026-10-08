@@ -11,7 +11,7 @@ const KIND: Record<string, string> = {
 export function Health() {
   const q = useQuery({ queryKey: ['checks'], queryFn: api.checks });
   if (q.isPending) return <Loading />;
-  if (q.isError) return <LoadError what="the checks" onRetry={() => void q.refetch()} />;
+  if (q.isError) return <LoadError what="the checks" onRetry={() => void q.refetch()} busy={q.isFetching} />;
   if (q.data.length === 0) return <p style={{ color: 'var(--muted)' }}>No checks yet. Add a loop to see them.</p>;
   return (
     <ul className="space-y-2" aria-label="Health checks">

@@ -138,3 +138,20 @@ test('a failed load shows an error with a working retry', async ({ page }) => {
   await expect(page.getByText('Could not load the fleet')).toHaveCount(0);
   await expect(page.getByText('Nothing needs you')).toBeVisible();
 });
+
+for (const [route, hash, what] of [
+  ['**/api/checks', '/#/health', 'the checks'],
+  ['**/api/inbox', '/#/inbox', 'the inbox'],
+  ['**/api/loops/proj1', '/#/loop/proj1', 'this loop'],
+] as const) {
+  test(`a failed load of ${what} shows an error with a working retry`, async ({ page }) => {
+    let fail = true;
+    await page.route(route, (r) => (fail ? r.fulfill({ status: 500, body: 'boom' }) : r.continue()));
+    await page.goto(hash);
+    const alert = page.getByRole('alert').filter({ hasText: `Could not load ${what}` });
+    await expect(alert).toBeVisible();
+    fail = false;
+    await alert.getByRole('button', { name: 'Try again' }).click();
+    await expect(page.getByText(`Could not load ${what}`)).toHaveCount(0);
+  });
+}
