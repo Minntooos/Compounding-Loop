@@ -32,6 +32,7 @@ Round 1 record: `.ai/lanes/server/done-v1.md` (`git show 3385cdf:.ai/lanes/serve
 6. Majors from your audit, then the round 1 leftovers above.
 
 ## Decisions
+- Sixth demo loop ships as its own file `demo/this-repo.json` (generator `demo/build-self.mjs`, pinned to the 0.1.0 commit) and is NOT yet merged into the served snapshot: tests/e2e/fleet.spec.ts asserts exactly 5 cards (web's file). Next step once web changes those asserts to 6 (asked in outbox): merge it in `loadDemoSnapshot` + copy it in `demo/copy-demo.mjs` + `export-static.mjs`.
 - Lane health lives in `laneChecks` (src/server/health.ts) and relies on core's `deriveLaneState` for `stalled`; a failing lane check makes the loop `failing`. Easy to downgrade later.
 - Open: stall threshold ignores lane cron (core's STALL_MINUTES); told core in outbox 20:50.
 

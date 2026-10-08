@@ -1,0 +1,256 @@
+{
+  "loop": {
+    "id": "compounding-loop",
+    "name": "compounding-loop (this repo)",
+    "url": "https://github.com/Minntooos/Compounding-Loop",
+    "state": "done",
+    "reason": "round 1 built unattended: all five lanes done",
+    "round": 1,
+    "roundsTotal": 2,
+    "run": 15,
+    "runLimit": 150,
+    "lastCommit": {
+      "sha": "3385cdf",
+      "at": "2026-10-08T17:58:34.000Z",
+      "message": "Release 0.1.0"
+    },
+    "lanes": [
+      {
+        "name": "core",
+        "state": "done",
+        "run": 3,
+        "limit": 30,
+        "lastCommit": {
+          "sha": "01d2526",
+          "subject": "core: DONE, handoff, outbox",
+          "at": "2026-10-08T07:10:35.000Z"
+        },
+        "locked": false,
+        "unanswered": []
+      },
+      {
+        "name": "kit",
+        "state": "done",
+        "run": 2,
+        "limit": 30,
+        "lastCommit": {
+          "sha": "cbf9e96",
+          "subject": "kit: outbox",
+          "at": "2026-10-08T06:22:28.000Z"
+        },
+        "locked": false,
+        "unanswered": []
+      },
+      {
+        "name": "server",
+        "state": "done",
+        "run": 1,
+        "limit": 30,
+        "locked": false,
+        "unanswered": []
+      },
+      {
+        "name": "web",
+        "state": "done",
+        "run": 8,
+        "limit": 30,
+        "lastCommit": {
+          "sha": "7555d39",
+          "subject": "web: run 8, lane DONE",
+          "at": "2026-10-08T12:45:28.000Z"
+        },
+        "locked": false,
+        "unanswered": []
+      },
+      {
+        "name": "docs",
+        "state": "done",
+        "run": 1,
+        "limit": 30,
+        "lastCommit": {
+          "sha": "a3b6e4c",
+          "subject": "docs: demo pages workflow, DONE",
+          "at": "2026-10-08T06:02:45.000Z"
+        },
+        "locked": false,
+        "unanswered": []
+      }
+    ],
+    "timeline": [
+      {
+        "sha": "3385cdf",
+        "at": "2026-10-08T17:58:34.000Z",
+        "message": "Release 0.1.0"
+      },
+      {
+        "sha": "36953a0",
+        "at": "2026-10-08T15:29:55.000Z",
+        "message": "control room: product DONE"
+      },
+      {
+        "sha": "b85e7d3",
+        "at": "2026-10-08T14:30:53.000Z",
+        "message": "Close three launch gaps: settings route, recorded test results, full Code of Conduct"
+      },
+      {
+        "sha": "6bfd42b",
+        "at": "2026-10-08T14:20:51.000Z",
+        "message": "Fix tests on Windows: run tsx through node, use an absolute missing-file URL"
+      },
+      {
+        "sha": "7555d39",
+        "at": "2026-10-08T12:45:28.000Z",
+        "message": "web: run 8, lane DONE"
+      },
+      {
+        "sha": "346d25d",
+        "at": "2026-10-08T12:31:01.000Z",
+        "message": "control room: tell web to finish with DONE"
+      },
+      {
+        "sha": "e874baa",
+        "at": "2026-10-08T11:45:26.000Z",
+        "message": "web: record run 7, request GET /api/settings"
+      },
+      {
+        "sha": "3e123ef",
+        "at": "2026-10-08T10:46:01.000Z",
+        "message": "web: unit tests for Loading and LoadError (busy state), jsx in root tsconfig"
+      },
+      {
+        "sha": "11c7e75",
+        "at": "2026-10-08T09:47:21.000Z",
+        "message": "web: record run 5 attempt and handoff"
+      },
+      {
+        "sha": "04a32c2",
+        "at": "2026-10-08T08:48:05.000Z",
+        "message": "web: record run 4 attempt and handoff"
+      },
+      {
+        "sha": "1fa8db2",
+        "at": "2026-10-08T07:46:38.000Z",
+        "message": "web: disable retry while refetching, error tests for health, inbox, loop detail"
+      },
+      {
+        "sha": "01d2526",
+        "at": "2026-10-08T07:10:35.000Z",
+        "message": "core: DONE, handoff, outbox"
+      },
+      {
+        "sha": "0f037ac",
+        "at": "2026-10-08T06:46:26.000Z",
+        "message": "web: shared loading and error states with retry"
+      },
+      {
+        "sha": "cbf9e96",
+        "at": "2026-10-08T06:22:28.000Z",
+        "message": "kit: outbox"
+      },
+      {
+        "sha": "f3d3f4b",
+        "at": "2026-10-08T06:22:20.000Z",
+        "message": "kit: ship template gitignore as gitignore, ignore loop runtime files, DONE"
+      },
+      {
+        "sha": "9ee6e75",
+        "at": "2026-10-08T06:11:23.000Z",
+        "message": "core: handoff, outbox"
+      },
+      {
+        "sha": "6ac5aff",
+        "at": "2026-10-08T06:11:14.000Z",
+        "message": "core: loop new writes gitignore as .gitignore and {{host}}; loop run honours session.lock and records runs.jsonl; DEFAULT_PROMPT mirrors routine prompt"
+      },
+      {
+        "sha": "a3b6e4c",
+        "at": "2026-10-08T06:02:45.000Z",
+        "message": "docs: demo pages workflow, DONE"
+      },
+      {
+        "sha": "8ff8c26",
+        "at": "2026-10-08T06:02:04.000Z",
+        "message": "docs: dashboard screenshot, command options"
+      },
+      {
+        "sha": "72dab42",
+        "at": "2026-10-08T06:01:11.000Z",
+        "message": "docs: social preview image"
+      },
+      {
+        "sha": "6f4d759",
+        "at": "2026-10-08T06:00:18.000Z",
+        "message": "docs: handoff"
+      },
+      {
+        "sha": "a7d2cdd",
+        "at": "2026-10-08T06:00:18.000Z",
+        "message": "docs: launch drafts"
+      },
+      {
+        "sha": "5456d6d",
+        "at": "2026-10-08T05:59:32.000Z",
+        "message": "docs: README with proof table, docs pages, README/link checks"
+      },
+      {
+        "sha": "926133b",
+        "at": "2026-10-08T05:57:27.000Z",
+        "message": "docs: CI workflow, contributing, conduct, security, changelog, templates, marketplace"
+      },
+      {
+        "sha": "73bafcb",
+        "at": "2026-10-08T05:53:24.000Z",
+        "message": "web: tab arrow keys, contrast test, read-only inbox without a server, AA-safe accent buttons"
+      },
+      {
+        "sha": "c4520a5",
+        "at": "2026-10-08T05:52:21.000Z",
+        "message": "web: new-loop wizard with live brief score and first-run state"
+      },
+      {
+        "sha": "185bff3",
+        "at": "2026-10-08T05:51:29.000Z",
+        "message": "web: loop detail, inbox, health, settings, live updates; e2e on the demo server"
+      },
+      {
+        "sha": "360ae18",
+        "at": "2026-10-08T05:48:00.000Z",
+        "message": "web: app shell, command palette, theme, hash router and Fleet with e2e"
+      }
+    ],
+    "contract": [
+      {
+        "text": "core lane: every done-when passes",
+        "pass": true
+      },
+      {
+        "text": "kit lane: every done-when passes",
+        "pass": true
+      },
+      {
+        "text": "server lane: every done-when passes",
+        "pass": true
+      },
+      {
+        "text": "web lane: every done-when passes",
+        "pass": true
+      },
+      {
+        "text": "docs lane: every done-when passes",
+        "pass": true
+      }
+    ],
+    "knowledge": [],
+    "decisions": [],
+    "history": []
+  },
+  "checks": [
+    {
+      "loopId": "compounding-loop",
+      "kind": "failing-tests",
+      "ok": true,
+      "reason": "all tests pass",
+      "proof": "npm test was green at 3385cdf"
+    }
+  ]
+}
