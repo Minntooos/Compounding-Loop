@@ -46,6 +46,11 @@
         "state": "done",
         "run": 1,
         "limit": 30,
+        "lastCommit": {
+          "sha": "bcc83ca",
+          "subject": "server: lane DONE, retro, knowledge entry",
+          "at": "2026-10-08T05:46:45.000Z"
+        },
         "locked": false,
         "unanswered": []
       },
@@ -216,6 +221,56 @@
         "sha": "360ae18",
         "at": "2026-10-08T05:48:00.000Z",
         "message": "web: app shell, command palette, theme, hash router and Fleet with e2e"
+      },
+      {
+        "sha": "bcc83ca",
+        "at": "2026-10-08T05:46:45.000Z",
+        "message": "server: lane DONE, retro, knowledge entry"
+      },
+      {
+        "sha": "bee870d",
+        "at": "2026-10-08T05:45:20.000Z",
+        "message": "server: serve the built dashboard with a strict CSP; static demo API export"
+      },
+      {
+        "sha": "c6faf17",
+        "at": "2026-10-08T05:43:30.000Z",
+        "message": "server: health checks (leak, stale lock, short runs, failing tests, runner silent) feed status and /api/checks"
+      },
+      {
+        "sha": "55749c0",
+        "at": "2026-10-08T05:41:10.000Z",
+        "message": "server: SSE /api/events with a polling clone watcher and periodic git fetch"
+      },
+      {
+        "sha": "a75365c",
+        "at": "2026-10-08T05:39:19.000Z",
+        "message": "server: answer endpoint with host/origin/content-type guard"
+      },
+      {
+        "sha": "8955f5c",
+        "at": "2026-10-08T05:37:30.000Z",
+        "message": "server: read real loops, inbox and detail from a projects folder"
+      },
+      {
+        "sha": "803d0db",
+        "at": "2026-10-08T05:35:49.000Z",
+        "message": "server: createApp, startServer and read routes from the demo snapshot"
+      },
+      {
+        "sha": "88eeea0",
+        "at": "2026-10-08T05:34:46.000Z",
+        "message": "server: demo snapshot builder, scrubbed five-sites.json, shared API types"
+      },
+      {
+        "sha": "1abf8d9",
+        "at": "2026-10-08T05:31:46.000Z",
+        "message": "kit: method protocol files, lock rule in static-site loop prompt, stricter consistency tests"
+      },
+      {
+        "sha": "d48aab3",
+        "at": "2026-10-08T05:29:55.000Z",
+        "message": "kit: outbox requests for core (gitignore in tarball) and docs (marketplace.json)"
       }
     ],
     "contract": [
