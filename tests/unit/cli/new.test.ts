@@ -34,6 +34,13 @@ describe('loop new', () => {
     expect(calls).toEqual([['demo-y', 'true']]);
   });
 
+  it('removes the folder and explains when GitHub fails, so a retry works', async () => {
+    const failing: Gh = { createRepoFromFolder: async () => { throw new Error('not logged in'); } };
+    const options = { parentDir: parent, dryRun: false, publicRepo: false };
+    await expect(runNew('static-site', 'demo-z', { ...options, gh: failing })).rejects.toThrow(/folder was removed[\s\S]*not logged in/);
+    await expect(runNew('static-site', 'demo-z', { ...options, gh: fakeGh })).resolves.toMatchObject({ repoUrl: 'https://github.com/me/demo-z' });
+  });
+
   it('rejects bad names, unknown templates and existing folders', async () => {
     const base = { parentDir: parent, dryRun: true, publicRepo: false, gh: fakeGh };
     await expect(runNew('static-site', '../evil', base)).rejects.toThrow(/not a valid name/);

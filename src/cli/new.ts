@@ -1,4 +1,4 @@
-import { cp, mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { Gh } from '../core/gh.js';
 import { fillPlaceholders, isTextFile, TEMPLATE_IGNORED, validateProjectName } from '../core/template.js';
@@ -54,6 +54,12 @@ export async function runNew(template: string, name: string, options: NewOptions
   const init = await runInit(dir, { force: true, dryRun: false });
   if (init.refused) throw new Error(init.refused);
   if (options.dryRun) return { dir };
-  const repoUrl = await options.gh.createRepoFromFolder(dir, name, { private: !options.publicRepo });
-  return { dir, repoUrl };
+  try {
+    const repoUrl = await options.gh.createRepoFromFolder(dir, name, { private: !options.publicRepo });
+    return { dir, repoUrl };
+  } catch (error) {
+    // The folder is regenerable from the template; leaving it would make a retry fail with "already exists".
+    await rm(dir, { recursive: true, force: true });
+    throw new Error(`Could not create the GitHub repo (is \`gh auth login\` done, and is the name free?). The folder was removed.\n${error instanceof Error ? error.message : String(error)}`);
+  }
 }
