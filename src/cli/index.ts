@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import { DEFAULT_PORT, runDashboard } from './dashboard.js';
 import { realGh } from './gh.js';
 import { runInit } from './init.js';
 import { runAnswer, runNextRound, runStatus } from './loops.js';
@@ -114,6 +115,22 @@ program
       if (result.skipped) console.log(result.skipped);
       else if (options.dryRun) console.log(`Prompt from ${result.source}:\n\n${result.prompt}`);
       if (result.exitCode) process.exitCode = result.exitCode;
+    } catch (error) {
+      fail(error);
+    }
+  });
+
+program
+  .command('dashboard')
+  .description('Start the local dashboard and open it in your browser')
+  .option('--demo', 'show the built-in snapshot of five real loops')
+  .option('--port <port>', 'port to listen on', String(DEFAULT_PORT))
+  .option('--no-open', 'do not open the browser')
+  .option('--projects <dir>', 'folder that holds your loops', '.')
+  .action(async (options: { demo?: boolean; port: string; open: boolean; projects: string }) => {
+    try {
+      await runDashboard({ demo: Boolean(options.demo), port: Number(options.port), open: options.open, projectsDir: options.projects });
+      // The server keeps the process alive; Ctrl+C stops it.
     } catch (error) {
       fail(error);
     }
