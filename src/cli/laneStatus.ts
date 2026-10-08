@@ -13,8 +13,8 @@ const exists = (file: string) => stat(file).then(() => true, () => false);
 
 async function lastCommitOf(dir: string, lane: string): Promise<LaneStatus['lastCommit']> {
   try {
-    // Lane names are validated to [a-z0-9-], so they are safe inside the regex.
-    const { stdout } = await execFileAsync('git', ['log', '-1', `--grep=^Lane: ${lane}$`, '--format=%H%x1f%s%x1f%cI'], {
+    // Lane names are validated to [a-z0-9-], so they are safe inside the regex. Round 1 commits have only the `<lane>: ` subject prefix.
+    const { stdout } = await execFileAsync('git', ['log', '-1', `--grep=^Lane: ${lane}$`, `--grep=^${lane}: `, '--format=%H%x1f%s%x1f%cI'], {
       cwd: dir,
       env: { ...process.env, GIT_CEILING_DIRECTORIES: path.dirname(path.resolve(dir)) },
     });
@@ -46,6 +46,7 @@ export async function readLaneStatuses(dir: string, now: Date = new Date()): Pro
     }, now);
     return { name, state, run: counter?.run ?? 0, limit: counter?.limit ?? 0, ...(lastCommit && { lastCommit }), locked: lockAt !== undefined && state === 'building' };
   }));
-  const { unanswered, waitingOn } = summarizeOutboxes(outboxes);
+  const commitTimes = new Map(partial.flatMap((l) => (l.lastCommit ? [[l.name, l.lastCommit.at.slice(0, 16) + ':00.000Z'] as const] : [])));
+  const { unanswered, waitingOn } = summarizeOutboxes(outboxes, commitTimes);
   return partial.map((lane) => ({ ...lane, ...(waitingOn.has(lane.name) && { waitingOn: waitingOn.get(lane.name) as string[] }), unanswered: unanswered.get(lane.name) ?? [] }));
 }

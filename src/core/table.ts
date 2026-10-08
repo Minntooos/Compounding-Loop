@@ -43,7 +43,7 @@ export function formatLanes(lanes: readonly LaneStatus[], now: Date = new Date()
     l.name,
     `${LANE_ICON[l.state]} ${l.state}`,
     l.limit > 0 ? `run ${l.run}/${l.limit}` : 'run -',
-    l.lastCommit ? `${ago(l.lastCommit.at)}: ${l.lastCommit.subject.slice(0, 48)}` : 'no commits yet',
+    l.lastCommit ? `${ago(l.lastCommit.at)}: ${l.lastCommit.subject.slice(0, 48)}` : 'no lane commits yet',
     l.waitingOn?.length ? `waits on ${l.waitingOn.join(', ')}` : l.unanswered.length ? `${l.unanswered.length} unanswered` : '',
   ]);
   const header = ['LANE', 'STATUS', 'RUN', 'LAST COMMIT', 'MESSAGES'];

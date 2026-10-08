@@ -54,11 +54,12 @@ export interface OutboxSummary {
 
 /**
  * A message to a named lane counts as unanswered until that lane writes any later outbox entry.
- * This is a heuristic (a lane may reply by shipping, not writing), so it only ever informs; it never fails anything.
+ * A later commit by that lane (`lastCommitAt`, ISO) also counts as a reply, since a lane often answers by shipping.
+ * This is a heuristic, so it only ever informs; it never fails anything.
  */
-export function summarizeOutboxes(outboxes: ReadonlyMap<string, readonly OutboxMessage[]>): OutboxSummary {
+export function summarizeOutboxes(outboxes: ReadonlyMap<string, readonly OutboxMessage[]>, lastCommitAt: ReadonlyMap<string, string> = new Map()): OutboxSummary {
   const lastWrite = new Map<string, string>();
-  for (const [lane, messages] of outboxes) lastWrite.set(lane, messages.map((m) => m.at).sort().at(-1) ?? '');
+  for (const [lane, messages] of outboxes) lastWrite.set(lane, [...messages.map((m) => m.at), lastCommitAt.get(lane) ?? ''].sort().at(-1) ?? '');
   const unanswered = new Map<string, LaneUnanswered[]>();
   const waitingOn = new Map<string, string[]>();
   for (const [from, messages] of outboxes) {

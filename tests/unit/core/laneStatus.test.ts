@@ -36,6 +36,15 @@ describe('outboxes', () => {
   });
 });
 
+describe('commits count as replies', () => {
+  it('a later commit by the recipient answers a message', () => {
+    const msg = parseOutbox('web', '2026-10-08 10:00 UTC · to server · please');
+    const outboxes = new Map([['web', msg], ['server', []]]);
+    expect(summarizeOutboxes(outboxes).unanswered.get('server')).toHaveLength(1);
+    expect(summarizeOutboxes(outboxes, new Map([['server', '2026-10-08T11:00:00.000Z']])).unanswered.get('server')).toBeUndefined();
+  });
+});
+
 describe('formatLanes', () => {
   it('prints one row per lane', () => {
     const out = formatLanes([
@@ -44,6 +53,6 @@ describe('formatLanes', () => {
     ], now);
     expect(out.split('\n')).toHaveLength(3);
     expect(out).toMatch(/core\s+~ building\s+run 3\/20\s+5m ago: core: doctor/);
-    expect(out).toMatch(/web\s+\. waiting\s+run -\s+no commits yet\s+waits on server/);
+    expect(out).toMatch(/web\s+\. waiting\s+run -\s+no lane commits yet\s+waits on server/);
   });
 });
