@@ -22,7 +22,7 @@
 | docs | `README.md`, `docs/**`, `launch/**`, `.github/**`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `CHANGELOG.md`, `SECURITY.md` | `.ai/lanes/docs/task.md` |
 - **Shared files** (any lane, smallest possible edit): `package.json`, `package-lock.json`, `tsconfig*.json`, `vite.config.ts`, `playwright.config.ts`, `vitest.config.ts`, `scripts/check.mjs`, `.gitignore`.
 - **Shared types** live in `src/core/types.ts` (owned by core). Other lanes may **add** fields or types there, never rename or remove; say so in your outbox.
-- **Talking to other lanes:** write only to your own `.ai/lanes/<you>/outbox.md` (newest first, `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`). At the start of each run read every other lane's outbox for messages to you or `all`, and act on them or note why not in your task.md.
+- **Talking to other lanes:** write only to your own `.ai/lanes/<you>/outbox.md` (newest first, `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`). At the start of each run read every other lane's outbox and `.ai/control-room.md` (the supervising routine's notes) for messages to you or `all`, and act on them or note why not in your task.md.
 - `.ai/contracts.md` describes the HTTP API between server and web. server owns it; web may append requests under "Requested".
 
 **Hard rules**
