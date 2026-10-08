@@ -52,5 +52,6 @@ Round 1 record: `.ai/lanes/docs/done-v1.md` (`git show 3385cdf:.ai/lanes/docs/ta
 - Describe a feature in the README before its lane has shipped and tested it.
 
 ## Handoff
+Run 2 done: units 3 (README lanes story, sourced comparison table, FAQ), 4 (docs/lanes.md, getting-started, plugin commands), CI check-lanes step (advisory, see outbox), check 7 extended to subcommands. Next: README screenshots from docs/assets/screens (unit 5), unit 6 launch/ rewrite with objections, unit 7 CHANGELOG + final fresh-install test + make CI step blocking once lane violations are fixed. Known: demo-self unit test fails on shallow clones only.
 Run 1 done: units 1 (audit) and 2 (check) shipped. Next: unit 3 (README rework, comparison table w/ sourced claims, FAQ with 5 questions, fix repo URL casing in badges), then unit 4 once `init --lanes`/`check-lanes` appear in `loop --help` (they did not at 2026-10-08 20:00 UTC). Use docs/assets/screens/*.png from web. No lane-feature text until shipped.
 Round 2 starts here. Commits carry a `Lane: docs` trailer (CLAUDE.md).
