@@ -78,6 +78,25 @@ describe('runners/local', () => {
   });
 });
 
+describe('runners/local launchd.plist', () => {
+  const plist = read('runners', 'local', 'launchd.plist');
+  const body = plist.replace(/<!--[\s\S]*?-->/g, '').replace(/<\?xml[^>]*\?>|<!DOCTYPE[^>]*>/g, '');
+
+  it('is balanced and runs `loop run` once an hour at a non-zero minute', () => {
+    expect(new XMLValidatorLite(body).balanced).toBe(true);
+    expect(body).toMatch(/<string>loop<\/string>|<string>[^<]*\/loop<\/string>\s*<string>run<\/string>/);
+    const minute = Number(/<key>Minute<\/key>\s*<integer>(\d+)<\/integer>/.exec(body)?.[1]);
+    expect(minute).toBeGreaterThan(0);
+    expect(body).not.toMatch(/<key>Hour<\/key>/);
+  });
+
+  it('documents install and removal and carries no personal path', () => {
+    expect(plist).toContain('launchctl bootstrap');
+    expect(plist).toContain('launchctl bootout');
+    expect(plist).not.toMatch(/\/Users\/[A-Za-z]/);
+  });
+});
+
 /** Minimal tag-balance check; avoids adding an XML parser for one file. */
 class XMLValidatorLite {
   readonly balanced: boolean;

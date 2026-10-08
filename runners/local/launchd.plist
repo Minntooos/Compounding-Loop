@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Compounding Loop on macOS: run one round at minute 17 of every hour.
+     Install:   cp launchd.plist ~/Library/LaunchAgents/com.example.compounding-loop.plist
+                (edit the paths below first), then
+                launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.example.compounding-loop.plist
+     Remove:    launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.example.compounding-loop.plist
+     launchd has a minimal PATH, so PATH below must contain the folders of `node`, `loop` and `claude`. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.example.compounding-loop</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/bin/loop</string>
+    <string>run</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>/path/to/repo</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin</string>
+  </dict>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Minute</key>
+    <integer>17</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>/path/to/repo/.ai/loop-cron.log</string>
+  <key>StandardErrorPath</key>
+  <string>/path/to/repo/.ai/loop-cron.log</string>
+</dict>
+</plist>

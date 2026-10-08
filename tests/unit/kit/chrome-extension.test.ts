@@ -84,3 +84,21 @@ describe('templates/chrome-extension', () => {
     execFileSync(process.execPath, [bin, 'test'], { cwd: dir, stdio: 'inherit' });
   }, 120_000);
 });
+
+describe('templates/chrome-extension icons', () => {
+  const manifest = JSON.parse(readFileSync(join(template, 'extension', 'manifest.json'), 'utf8')) as { icons: Record<string, string>; action: { default_icon: Record<string, string> } };
+
+  it('declares 16, 48 and 128 px icons that are real PNGs of that size', () => {
+    expect(Object.keys(manifest.icons).sort()).toEqual(['128', '16', '48']);
+    for (const [size, file] of Object.entries(manifest.icons)) {
+      const bytes = readFileSync(join(template, 'extension', file));
+      expect(bytes.subarray(1, 4).toString('ascii'), file).toBe('PNG');
+      expect(bytes.readUInt32BE(16), `${file} width`).toBe(Number(size));
+      expect(bytes.readUInt32BE(20), `${file} height`).toBe(Number(size));
+    }
+  });
+
+  it('uses existing files for the toolbar icon', () => {
+    for (const file of Object.values(manifest.action.default_icon)) expect(existsSync(join(template, 'extension', file)), file).toBe(true);
+  });
+});
