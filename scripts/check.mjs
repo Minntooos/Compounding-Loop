@@ -1,6 +1,7 @@
 // Repo invariants that tests can't see: what ships, what must never be committed, and the safety rules in CLAUDE.md.
 // Lanes add checks here when a lesson is worth automating (method §11: promote lessons into checks).
 import { execFileSync } from 'node:child_process';
+import { resolve } from 'node:path';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 
 const failures = [];
@@ -49,6 +50,21 @@ for (const f of textFiles.filter((f) => /^(demo|templates|runners|plugin)\//.tes
   const text = read(f);
   if (/[A-Za-z]:\\\\?Users\\|\/Users\/[A-Za-z]|\/home\/[a-z]/.test(text)) fail(`${f}: contains a local user path`);
   if (/[\w.+-]+@(gmail|yahoo|outlook|hotmail|proton)\.\w+/i.test(text)) fail(`${f}: contains a personal email address`);
+}
+
+// 6. README converts: install command and proof table; every relative link in README and docs/*.md resolves.
+{
+  const readme = read('README.md');
+  if (!readme.includes('npx compounding-loop init')) fail('README.md: missing the install command `npx compounding-loop init`');
+  if (!/\|\s*Site\s*\|/.test(readme)) fail('README.md: missing the proof table');
+  for (const f of files.filter((f) => f === 'README.md' || /^docs\/[^/]+\.md$/.test(f))) {
+    const dir = f.includes('/') ? f.slice(0, f.lastIndexOf('/')) : '.';
+    for (const [, target] of read(f).matchAll(/\]\(([^)\s]+)\)/g)) {
+      if (/^(https?:|mailto:|#)/.test(target)) continue;
+      const path = resolve(dir, decodeURIComponent(target.split('#')[0]));
+      if (!existsSync(path)) fail(`${f}: broken relative link ${target}`);
+    }
+  }
 }
 
 if (failures.length) {

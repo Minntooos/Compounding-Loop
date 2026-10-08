@@ -24,7 +24,8 @@ Status: in progress
 7. README/docs pass against the real CLI `--help` output; fix every mismatch.
 
 ## Decisions
-(none yet: write "decision · reason · how to reverse")
+- Repo links use https://github.com/Minntooos/compounding-loop (owner renames before launch) · matches package.json and brief · sed the URL later.
+- README proof table: elapsed hours = history[0] to last commit; tests = unit+browser passed · numbers from reference JSON.
 
 ## Confirmed
 (facts proven by a command or test; cite path:line)
