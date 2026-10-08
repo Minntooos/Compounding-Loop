@@ -13,7 +13,7 @@ describe.each(['static-site', 'chrome-extension'])('templates/%s gitignore', (na
 
   it('ignores the files the loop writes at runtime', () => {
     const lines = readFileSync(join(dir, 'gitignore'), 'utf8').split('\n');
-    for (const entry of ['node_modules/', '.env*', '.ai/runs.jsonl', '.ai/session.lock']) {
+    for (const entry of ['node_modules/', '.env*', '.ai/runs.jsonl', '**/session.lock']) {
       expect(lines).toContain(entry);
     }
   });

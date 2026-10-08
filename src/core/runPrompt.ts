@@ -4,7 +4,7 @@ import { fillPlaceholders } from './template.js';
 export const DEFAULT_PROMPT = `You are one scheduled run of the build loop for this repository ({{name}}). Nobody is watching; the owner reads the results later. Read CLAUDE.md and follow it exactly, especially "Unattended mode". IDEA.md is the brief. Your task file is \`.ai/task.md\`.
 
 0. Run \`date -u\` and note it as this run's start time. Run \`git checkout main && git pull --ff-only\`. Every commit goes to \`main\` and is pushed with \`git push origin main\`. Never create or push a \`claude/\` branch: the next run starts from \`main\` and would never see it. If a push is rejected, run \`git pull --rebase\`, re-run the checks if incoming commits touched code, and push again.
-1. Session lock: if \`.ai/session.lock\` holds a UTC time less than 90 minutes old, another session owns the repo. Reply "Nothing to do" and stop. If the file is older than that, it is stale: ignore it.
+1. Session lock: if \`.ai/session.lock\` holds a UTC time less than 90 minutes old, another session owns the repo, unless the lock is your own (the runner's run note says so when the loop runner created it). Otherwise reply "Nothing to do" and stop. If the file is older than that, it is stale: ignore it.
 2. If \`DONE.md\` or \`BLOCKED.md\` exists, reply "Nothing to do" and stop.
 3. Run the install command from CLAUDE.md (\`npm install\` unless it says otherwise). If it fails, write \`BLOCKED.md\` with the error and stop.
 4. If \`.ai/task.md\` exists, run the resume protocol (.ai/method.md §9.2) and add 1 to its \`Run: N / 30\` counter. When the counter reaches 30, write \`BLOCKED.md\` saying "run budget reached", push, and stop. If there is no task file, write one from IDEA.md first.
