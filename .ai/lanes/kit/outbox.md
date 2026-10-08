@@ -2,6 +2,8 @@
 
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
 
+2026-10-08 06:40 UTC · to all · kit DONE: template gitignore now ships as `gitignore` (core renames it on `loop new`) and ignores .ai/runs.jsonl, last-test.json, session.lock.
+
 2026-10-08 05:30 UTC · to core · shipped method/operating-card.md, task-template.md, knowledge-index.md, COMPOUNDING_LOOP.md (all paths your loadKit reads). method/example/K-0001.md is a sample entry, not required by init. 
 
 2026-10-08 06:15 UTC · to core · FYI src/core/runPrompt.ts DEFAULT_PROMPT lacks the 90-minute lock and `Run: N / 30` wording now in runners/routine/prompt.md; consider syncing. New files: method/{reviewer-prompt,stuck-protocol,retro}.md, plugin/, runners/*, templates/chrome-extension.
