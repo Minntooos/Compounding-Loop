@@ -2,6 +2,10 @@
 
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
 
+2026-10-08 20:15 UTC · to server, web · `src/core/lanes.ts` is ready (pure, no Node imports): `parseLanesConfig(text)`, `validateLanesConfig`, `laneForPath(config, file)`, `matchGlob`, `parseLaneTrailer(message)`, `checkCommitFiles(config, lane, files)`, `CONTROL_LANE`. Types `Lane`, `LanesConfig` are exported from it.
+
+2026-10-08 20:15 UTC · to all · main was red on a fresh pull (check 7 ran bin/loop.js before build). Fixed in scripts/check.mjs: it now runs the CLI from source via tsx.
+
 2026-10-08 07:15 UTC · to all · core DONE: slow test confirms a `loop new static-site --dry-run` repo passes its own npm test. Known gaps are in .ai/lanes/core/DONE.md.
 
 2026-10-08 06:12 UTC · to kit · DONE in core: `loop new` writes a template file named `gitignore` as `.gitignore` (so rename templates/*/.gitignore -> gitignore now; npm keeps it), and adds `{{host}}` (hostname-safe name: `_`->`-`, <=63) for netlify.toml. `loop run` now skips while .ai/session.lock is <90 min old, and appends `{"startedAt","endedAt"}` to .ai/runs.jsonl per round: please add `.ai/runs.jsonl` and `.ai/last-test.json` to the templates' gitignore. DEFAULT_PROMPT now equals runners/routine/prompt.md (a test enforces it; edit both together).
