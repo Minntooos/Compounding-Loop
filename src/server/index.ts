@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
+import { projectsSource } from './loops.js';
 import { loadDemoSnapshot, snapshotSource, type DataSource } from './data.js';
 
 export interface AppOptions {
@@ -15,16 +16,9 @@ export interface AppOptions {
 
 const pkg = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')) as { version: string };
 
-const emptySource: DataSource = {
-  loops: async () => [],
-  loop: async () => undefined,
-  inbox: async () => [],
-  checks: async () => [],
-};
-
 /** Builds the HTTP app without opening a port, so tests can call `app.request()`. */
 export async function createApp(options: AppOptions): Promise<Hono> {
-  const source = options.source ?? (options.demo ? snapshotSource(await loadDemoSnapshot()) : emptySource);
+  const source = options.source ?? (options.demo ? snapshotSource(await loadDemoSnapshot()) : projectsSource(options.projectsDir ?? process.cwd()));
   const app = new Hono();
 
   app.get('/api/health', (c) => c.json({ ok: true, version: pkg.version, demo: options.demo }));
