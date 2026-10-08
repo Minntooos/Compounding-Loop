@@ -1,7 +1,7 @@
 # Lane: kit
 
-Run: 0 / 30
-Status: not started
+Run: 1 / 30
+Status: unit 1 done (+ knowledge-index, example entry, unattended section from unit 7)
 
 ## Contract
 **Goal:** the method, templates, runners and Claude Code plugin that `loop init`/`loop new` install (IDEA.md must-haves 8–16).
@@ -26,10 +26,11 @@ Status: not started
 7. Knowledge/trigger example, reviewer prompt and retro in `method/`.
 
 ## Decisions
-(none yet: write "decision · reason · how to reverse")
+- Put the 90-min lock / 30-run budget / DONE-BLOCKED rules in the card ("Unattended runs") and a new section at the end of method/COMPOUNDING_LOOP.md · generic repos need them identical in all places · delete the sections.
+- Example knowledge entry lives in method/example/K-0001.md (not at method/ root) · so core's init can ignore it · move it.
 
 ## Confirmed
-(facts proven by a command or test; cite path:line)
+- `npm test` green on fresh pull 2026-10-08; tests/unit/kit/method.test.ts covers card (<60 lines), task template, numbers.
 
 ## Guesses
 (unproven beliefs; never treat one as fact in a later run)
@@ -42,4 +43,4 @@ Status: not started
 - Add a dependency without a Decisions entry.
 
 ## Handoff
-(each run ends by writing: where it stopped, the exact next step, anything half-done)
+Run 1 finished units 1 and most of 7 (knowledge-index + example; reviewer prompt and retro still to do). Next: unit 2 (generalise templates/static-site; core asks that a fresh copy passes its own check).

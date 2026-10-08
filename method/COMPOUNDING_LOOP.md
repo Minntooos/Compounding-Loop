@@ -557,3 +557,13 @@ Don't set up everything at once. Each step is useful by itself:
 - **Cheap-model-first cascades and routers:** FrugalGPT and RouteLLM.
 - **A civilization of simple specialists:** Marvin Minsky, *The Society of Mind* (1986).
 - **New in this combination, as far as I know:** error-message triggers, the promotion ladder ending in automated checks, cross-project memory keyed by library and version, confirmed/guess labels with cleanup based on how often entries fire, routing learned from your own log, and the repeat-error rate as the core metric.
+
+---
+
+## Unattended runs
+
+When no human is watching (scheduled runs), these rules replace "ask the human":
+
+- **Session lock:** if another run started less than 90 minutes ago, do nothing and stop.
+- **Run budget:** the task file holds `Run: N / 30`. Add 1 at the start of every run; at 30, write `BLOCKED.md` ("run budget reached") and stop.
+- **DONE / BLOCKED:** if `DONE.md` or `BLOCKED.md` exists, do nothing and stop. Write `DONE.md` only when every done-when passes; write `BLOCKED.md` (what you tried, the specific question, your best guess) when the stuck protocol is exhausted.
