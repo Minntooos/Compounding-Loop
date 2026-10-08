@@ -24,6 +24,10 @@
     "type": "git",
     "url": "git+https://github.com/Minntooos/compounding-loop.git"
   },
+  "homepage": "https://github.com/Minntooos/compounding-loop#readme",
+  "bugs": {
+    "url": "https://github.com/Minntooos/compounding-loop/issues"
+  },
   "keywords": [
     "claude-code",
     "ai-agents",

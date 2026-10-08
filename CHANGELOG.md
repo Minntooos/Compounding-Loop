@@ -4,6 +4,12 @@ All notable changes are listed here. Format follows [Keep a Changelog](https://k
 
 ## [Unreleased]
 
+### Fixed
+- The dashboard build uses relative asset paths, so the GitHub Pages demo works under `/Compounding-Loop/`.
+
+### Added
+- Dependabot config (npm weekly, grouped; GitHub Actions monthly) and `homepage`/`bugs` in package.json.
+
 ## [0.1.0] - 2026-10-08
 
 ### Added

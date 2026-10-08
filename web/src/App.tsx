@@ -68,7 +68,7 @@ function Shell() {
     <>
       <header className="border-b" style={{ borderColor: 'var(--border)' }}>
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
-          <a href="#/" className="flex items-center gap-2 text-[15px] font-semibold"><img src="/logo.svg" alt="" width={22} height={22} />Compounding Loop</a>
+          <a href="#/" className="flex items-center gap-2 text-[15px] font-semibold"><img src={`${import.meta.env.BASE_URL}logo.svg`} alt="" width={22} height={22} />Compounding Loop</a>
           <nav aria-label="Main" className="flex flex-1 gap-1">
             {NAV.map((n) => (
               <a key={n.label} href={href(n.route)} aria-current={current === n.route.name ? 'page' : undefined}

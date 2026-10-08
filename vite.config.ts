@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url';
 // The dashboard lives in web/ and is built into dist/web, which the CLI's server serves.
 export default defineConfig({
   root: 'web',
+  // Relative asset URLs, so the same build works at / (loop dashboard) and under /Compounding-Loop/ (GitHub Pages demo).
+  base: './',
   plugins: [react(), tailwindcss()],
   resolve: { alias: { '@core': fileURLToPath(new URL('./src/core', import.meta.url)) } },
   build: { outDir: '../dist/web', emptyOutDir: true },
