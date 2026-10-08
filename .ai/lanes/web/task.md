@@ -34,16 +34,18 @@ Round 1 record: `.ai/lanes/web/done-v1.md` (`git show 3385cdf:.ai/lanes/web/task
 ## Decisions
 - 2026-10-08: added dev dependency `@axe-core/playwright` (the contract names it) for the a11y e2e.
 
+- 2026-10-08: Needs-you counts stalled + blocked + waiting-on-finished lanes (computed client-side from `lanes`); a blocked lane is skipped when its loop already has a root inbox item. Reviewer found the server inbox reads only root BLOCKED.md.
+- 2026-10-08: lanes e2e uses page.route fixtures (lanes.spec.ts) so it doesn't depend on the demo; fleet.spec.ts counts only netlify.app cards so server can merge the sixth loop.
+
 ## Confirmed
+- e2e serves dist/web: run `npm run build` before `npx playwright test` alone.
 
 ## Guesses
 
 ## Tried
-- Unit 4 (Lanes UI) not started: demo has no laned loop and types have no lane fields yet; need server/core data first (check their outboxes next run, else build against a fixture).
 
 ## Don't
 - Edit paths another lane owns, except for the "main stays green" fix. (`docs/assets/screens/**` is listed as shared in `.ai/lanes.json`, so web may write screenshots there.)
 
 ## Handoff
-Run 1 done: unit 1 (audit, .ai/audit/web.md), unit 2 (axe e2e, 0 violations), unit 3 (Settings already wired). Also shipped: first screenshot set + generator (tests/e2e/screenshots.spec.ts, SCREENS=1) and the LaneStatus request in contracts.md. Next: unit 4 Lanes UI (check src/core/types.ts and .ai/contracts.md for lane shapes; else fixture), then unit 5 polish + screenshots in docs/assets/screens/.
-Round 2 starts here. Commits carry a `Lane: web` trailer (CLAUDE.md).
+Run 2 done: main-green fix (stale demo/this-repo.json), fleet counts tolerant of 6 loops, unit 4 Lanes UI (LanesTab, LaneStrip, lib/lanes.ts, fixture e2e + unit tests). Next: when server merges the sixth loop into the served demo, add demo-based assertions (lane-row x5, all Done) to lanes.spec.ts; then unit 5 polish + refreshed screenshots (`SCREENS=1 npx playwright test screenshots`), then unit 6 (toasts for SSE, Fleet filter). Update .ai/audit/web.md with the lanes decisions.

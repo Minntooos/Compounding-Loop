@@ -10,20 +10,24 @@ export function waitingOnFinished(lanes: LaneStatus[]): LaneStatus[] {
   return lanes.filter((l) => l.state !== 'done' && (l.waitingOn ?? []).some((w) => done.has(w)));
 }
 
-/** Lanes that need the owner: stalled, or waiting on a finished lane. Blocked lanes are counted by the inbox (their BLOCKED.md). */
+/** Lanes that need the owner: stalled, blocked, or waiting on a finished lane. */
 export function lanesNeedingYou(lanes: LaneStatus[] | undefined): LaneStatus[] {
   if (!lanes) return [];
-  const stalled = lanes.filter((l) => l.state === 'stalled');
-  const orphaned = waitingOnFinished(lanes).filter((l) => l.state !== 'stalled');
+  const stalled = lanes.filter((l) => l.state === 'stalled' || l.state === 'blocked');
+  const orphaned = waitingOnFinished(lanes).filter((l) => l.state !== 'stalled' && l.state !== 'blocked');
   return [...stalled, ...orphaned];
 }
 
-/** The "Needs you" total: inbox items, plus per loop its lane problems, or 1 for a failing loop that has none. */
-export function needsYouCount(loops: LoopSummary[], inboxCount: number): number {
+/**
+ * The "Needs you" total: inbox items, plus per loop its lane problems, or 1 for a failing loop that has none.
+ * The inbox only lists a root BLOCKED.md, so a blocked lane is counted here, unless that loop already has an inbox item.
+ */
+export function needsYouCount(loops: LoopSummary[], inbox: { loopId: string }[]): number {
   return loops.reduce((sum, l) => {
-    const lanes = lanesNeedingYou(l.lanes).length;
+    const inInbox = inbox.some((i) => i.loopId === l.id);
+    const lanes = lanesNeedingYou(l.lanes).filter((x) => !(inInbox && x.state === 'blocked')).length;
     return sum + (lanes > 0 ? lanes : l.state === 'failing' ? 1 : 0);
-  }, inboxCount);
+  }, inbox.length);
 }
 
 /** "web → server: …" for one unanswered message. */

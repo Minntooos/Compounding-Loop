@@ -11,16 +11,23 @@ describe('lane attention', () => {
     expect(waitingOnFinished(lanes).map((l) => l.name)).toEqual(['web']);
   });
 
-  it('lanesNeedingYou counts stalled once and orphaned lanes, not blocked ones (the inbox has those)', () => {
+  it('lanesNeedingYou counts stalled, blocked and orphaned lanes', () => {
     const lanes = [lane('core', 'done'), lane('web', 'stalled', ['core']), lane('kit', 'waiting', ['core']), lane('server', 'blocked')];
-    expect(lanesNeedingYou(lanes).map((l) => l.name)).toEqual(['web', 'kit']);
+    expect(lanesNeedingYou(lanes).map((l) => l.name)).toEqual(['web', 'server', 'kit']);
     expect(lanesNeedingYou(undefined)).toEqual([]);
   });
 
   it('needsYouCount adds inbox, lane problems, and failing loops without lane problems', () => {
     const loops = [loop('done'), loop('failing'), loop('failing', [lane('a', 'stalled'), lane('b', 'stalled')]), loop('building', [lane('c', 'building')])];
-    expect(needsYouCount(loops, 1)).toBe(1 + 1 + 2);
-    expect(needsYouCount([], 0)).toBe(0);
+    const inbox = [{ loopId: 'other' }];
+    expect(needsYouCount(loops, inbox)).toBe(1 + 1 + 2);
+    expect(needsYouCount([], [])).toBe(0);
+  });
+
+  it('a blocked lane is not counted twice when its loop already has an inbox item', () => {
+    const blocked = { ...loop('blocked', [lane('a', 'blocked')]), id: 'L' };
+    expect(needsYouCount([blocked], [])).toBe(1);
+    expect(needsYouCount([blocked], [{ loopId: 'L' }])).toBe(1);
   });
 
   it('describeUnanswered reads "web → server: text"', () => {

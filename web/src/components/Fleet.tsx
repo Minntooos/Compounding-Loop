@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { CheckCircle2, Inbox as InboxIcon } from 'lucide-react';
-import type { LoopSummary } from '@core/types';
+import type { InboxItem, LoopSummary } from '@core/types';
 import { api } from '../api/client';
 import { relativeTime } from '../lib/format';
 import { lanesNeedingYou, needsYouCount } from '../lib/lanes';
@@ -8,11 +8,11 @@ import { LaneStrip } from './LaneStrip';
 import { StatusBadge } from './StatusBadge';
 import { LoadError, Loading } from './QueryState';
 
-function NeedsYou({ loops, inbox }: { loops: LoopSummary[]; inbox: number }) {
+function NeedsYou({ loops, inbox }: { loops: LoopSummary[]; inbox: InboxItem[] }) {
   const count = needsYouCount(loops, inbox);
   // Inbox items open the inbox; otherwise the problem is a lane or a failing loop, so open that loop.
   const trouble = loops.find((l) => lanesNeedingYou(l.lanes).length > 0 || l.state === 'failing');
-  const href = inbox === 0 && trouble ? `#/loop/${encodeURIComponent(trouble.id)}` : '#/inbox';
+  const href = inbox.length === 0 && trouble ? `#/loop/${encodeURIComponent(trouble.id)}` : '#/inbox';
   if (count === 0) {
     return (
       <p role="status" className="flex items-center gap-2 rounded-lg border px-4 py-3 font-medium" style={{ borderColor: 'var(--done)', color: 'var(--done)' }}>
@@ -65,7 +65,7 @@ export function Fleet() {
   }
   return (
     <div className="space-y-5">
-      <NeedsYou loops={loops.data} inbox={inbox.data.length} />
+      <NeedsYou loops={loops.data} inbox={inbox.data} />
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loops">
         {loops.data.map((l) => <LoopCard key={l.id} loop={l} />)}
       </ul>
