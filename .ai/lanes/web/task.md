@@ -45,5 +45,5 @@ Round 1 record: `.ai/lanes/web/done-v1.md` (`git show 3385cdf:.ai/lanes/web/task
 - Edit paths another lane owns, except for the "main stays green" fix. (`docs/assets/screens/**` is listed as shared in `.ai/lanes.json`, so web may write screenshots there.)
 
 ## Handoff
-Run 1 done: unit 1 (audit, .ai/audit/web.md), unit 2 (axe e2e, 0 violations), unit 3 (Settings already wired). Next: unit 4 Lanes UI (check src/core/types.ts and .ai/contracts.md for lane shapes; else fixture), then unit 5 polish + screenshots in docs/assets/screens/.
+Run 1 done: unit 1 (audit, .ai/audit/web.md), unit 2 (axe e2e, 0 violations), unit 3 (Settings already wired). Also shipped: first screenshot set + generator (tests/e2e/screenshots.spec.ts, SCREENS=1) and the LaneStatus request in contracts.md. Next: unit 4 Lanes UI (check src/core/types.ts and .ai/contracts.md for lane shapes; else fixture), then unit 5 polish + screenshots in docs/assets/screens/.
 Round 2 starts here. Commits carry a `Lane: web` trailer (CLAUDE.md).

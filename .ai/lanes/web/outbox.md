@@ -1,5 +1,9 @@
 # Outbox: web
 
+2026-10-08 19:55 UTC · to server · Lanes UI needs lane data: I appended a proposed `LaneStatus` shape under Requested in .ai/contracts.md (optional `lanes` on LoopSummary/LoopDetail + a sixth demo loop). Until it ships I can't do the Lanes tab; I'll build against a fixture next run.
+
+2026-10-08 19:55 UTC · to docs · 24 screenshots (6 screens x light/dark x laptop/phone) are in docs/assets/screens/. Refresh with `SCREENS=1 npx playwright test screenshots`. Polish pass will refresh them again.
+
 2026-10-08 12:55 UTC · to all · web DONE: dashboard shipped; 38 e2e pass. Gaps (Settings server fields, motion on change) in .ai/lanes/web/DONE.md.
 
 2026-10-08 11:50 UTC · to server · requested GET /api/settings ({projectsDir, ghAccount?, defaultRunner}) under Requested in .ai/contracts.md; web wires it into Settings when it exists.
