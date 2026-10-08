@@ -4,22 +4,42 @@ import path from 'node:path';
 import { parseLockTime } from '../core/repo.js';
 import { LOCK_MINUTES } from '../core/status.js';
 import { buildClaudeArgs, buildRunPrompt, DEFAULT_PROMPT } from '../core/runPrompt.js';
+import { parseLanesConfig } from '../core/lanes.js';
 import { packageRoot } from './init.js';
+import { withSessionLock } from './lock.js';
 
 const exists = (file: string) => stat(file).then(() => true, () => false);
 
 /** First readable prompt: the repo's own, then the routine prompt in the repo, then the package's, then the built-in. */
-export async function loadPromptText(dir: string, root: string = packageRoot): Promise<{ text: string; source: string }> {
+export async function loadPromptText(dir: string, root: string = packageRoot, lane?: string): Promise<{ text: string; source: string }> {
   const candidates = [
+    ...(lane ? [path.join(dir, '.ai', 'lanes', lane, 'prompt.md'), path.join(dir, 'runners', 'routine', 'lane-prompt.md'), path.join(root, 'runners', 'routine', 'lane-prompt.md')] : []),
     path.join(dir, '.ai', 'loop-prompt.md'),
     path.join(dir, 'runners', 'routine', 'prompt.md'),
     path.join(root, 'runners', 'routine', 'prompt.md'),
   ];
-  for (const file of candidates) {
+  for (const [index, file] of candidates.entries()) {
     const text = await readFile(file, 'utf8').catch(() => undefined);
-    if (text !== undefined) return { text, source: file };
+    if (text === undefined) continue;
+    // The first three candidates are written for a lane; any other prompt is generic and needs the intro.
+    const forLane = lane !== undefined && index < 3;
+    return { text: lane && !forLane ? `${laneIntro(lane)}\n\n${text}` : text, source: file };
   }
-  return { text: DEFAULT_PROMPT, source: 'built-in default' };
+  return { text: lane ? `${laneIntro(lane)}\n\n${DEFAULT_PROMPT}` : DEFAULT_PROMPT, source: 'built-in default' };
+}
+
+/** Used when no lane prompt file exists: points the generic round prompt at this lane's files. */
+export function laneIntro(lane: string): string {
+  return `You are the **${lane}** lane of a multi-lane loop. Your lane's task file is \`.ai/lanes/${lane}/task.md\` (wherever this prompt says \`.ai/task.md\`, use it), your outbox is \`.ai/lanes/${lane}/outbox.md\`, your lock is \`.ai/lanes/${lane}/session.lock\`, and your stop files are \`.ai/lanes/${lane}/DONE.md\` and \`BLOCKED.md\`. Edit only the paths \`${lane}\` owns in \`.ai/lanes.json\` (plus shared ones), and end every commit message with the trailer line \`Lane: ${lane}\`.`;
+}
+
+/** Fails early, with the valid names, when `--lane` is not in `.ai/lanes.json`. */
+export async function assertKnownLane(dir: string, lane: string): Promise<void> {
+  const text = await readFile(path.join(dir, '.ai', 'lanes.json'), 'utf8').catch(() => undefined);
+  if (text === undefined) throw new Error('No .ai/lanes.json here, so --lane has nothing to refer to. Run `loop init --lanes a,b,c` first, or drop --lane.');
+  const { config, errors } = parseLanesConfig(text);
+  if (!config) throw new Error(`.ai/lanes.json is invalid:\n- ${errors.join('\n- ')}`);
+  if (!config.lanes.some((l) => l.name === lane)) throw new Error(`Unknown lane "${lane}". Lanes in .ai/lanes.json: ${config.lanes.map((l) => l.name).join(', ')}.`);
 }
 
 export type Spawner = (command: string, args: string[], cwd: string) => Promise<number>;
@@ -79,20 +99,27 @@ export interface RunResult {
 /** `loop run`: one build round now, using the same prompt the scheduler uses. */
 export async function runRound(
   dir: string,
-  options: { dryRun: boolean; skipPermissions: boolean; model?: string },
+  options: { dryRun: boolean; skipPermissions: boolean; model?: string; lane?: string },
   spawner: Spawner = realSpawn,
 ): Promise<RunResult> {
-  const { text, source } = await loadPromptText(dir);
-  const prompt = buildRunPrompt(text, { name: path.basename(path.resolve(dir)) });
-  for (const stop of ['DONE.md', 'BLOCKED.md']) {
+  const { lane } = options;
+  if (lane) await assertKnownLane(dir, lane);
+  const laneDir = lane ? path.join('.ai', 'lanes', lane) : '.ai';
+  const { text, source } = await loadPromptText(dir, packageRoot, lane);
+  const lockFile = path.join(dir, laneDir, 'session.lock');
+  const lockNote = `Note from \`loop run\`: it created \`${path.posix.join(...laneDir.split(path.sep), 'session.lock')}\` for this very session. That lock is yours, not another session's: ignore it in the lock step and do not delete it.`;
+  const prompt = `${buildRunPrompt(text, { name: path.basename(path.resolve(dir)), lane: lane ?? '' })}\n${lockNote}\n`;
+  const stopFiles = [...(lane ? [path.join(laneDir, 'DONE.md'), path.join(laneDir, 'BLOCKED.md')] : []), 'DONE.md', 'BLOCKED.md'];
+  for (const stop of stopFiles) {
     if (await exists(path.join(dir, stop))) return { skipped: `${stop} exists: nothing to do`, prompt, source };
   }
-  const lockLeft = lockMinutesLeft(await readFile(path.join(dir, '.ai', 'session.lock'), 'utf8').catch(() => undefined), new Date());
-  if (lockLeft !== undefined) return { skipped: `another session holds .ai/session.lock (about ${lockLeft} min left): nothing to do`, prompt, source };
+  const lockLeft = lockMinutesLeft(await readFile(lockFile, 'utf8').catch(() => undefined), new Date());
+  if (lockLeft !== undefined) return { skipped: `another session holds ${path.join(laneDir, 'session.lock')} (about ${lockLeft} min left): nothing to do`, prompt, source };
   if (options.dryRun) return { prompt, source };
-  console.error(`Running one round in ${dir} (prompt: ${source})`);
+  console.error(`Running one round in ${dir}${lane ? ` as lane ${lane}` : ''} (prompt: ${source})`);
   const startedAt = new Date();
-  const exitCode = await spawner('claude', buildClaudeArgs(prompt, { skipPermissions: options.skipPermissions, ...(options.model && { model: options.model }) }), dir);
+  const exitCode = await withSessionLock(lockFile, () =>
+    spawner('claude', buildClaudeArgs(prompt, { skipPermissions: options.skipPermissions, ...(options.model && { model: options.model }) }), dir));
   await recordRun(dir, startedAt, new Date());
   return { prompt, source, exitCode };
 }

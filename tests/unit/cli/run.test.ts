@@ -28,7 +28,55 @@ describe('loop run', () => {
     await writeFile(path.join(dir, '.ai', 'loop-prompt.md'), 'Build {{name}}');
     const result = await runRound(dir, { dryRun: false, skipPermissions: false }, fake);
     expect(result.exitCode).toBe(0);
-    expect(calls).toEqual([{ command: 'claude', args: ['-p', `Build ${path.basename(dir)}\n`, '--permission-mode', 'acceptEdits', '--allowedTools', 'Bash,Edit,Write,Read,Glob,Grep,Agent,WebSearch'], cwd: dir }]);
+    expect(calls).toEqual([{ command: 'claude', args: ['-p', expect.stringMatching(new RegExp(`^Build ${path.basename(dir)}\\n\\nNote from `)), '--permission-mode', 'acceptEdits', '--allowedTools', 'Bash,Edit,Write,Read,Glob,Grep,Agent,WebSearch'], cwd: dir }]);
+  });
+
+  describe('--lane', () => {
+    const lanesJson = JSON.stringify({ lanes: [{ name: 'api', owns: ['src/api/**'] }, { name: 'ui', owns: ['src/ui/**'] }], shared: [] });
+    const lockFile = () => path.join(dir, '.ai', 'lanes', 'api', 'session.lock');
+    beforeEach(async () => {
+      await mkdir(path.join(dir, '.ai', 'lanes', 'api'), { recursive: true });
+      await writeFile(path.join(dir, '.ai', 'lanes.json'), lanesJson);
+    });
+
+    it('writes the lane lock while claude runs and clears it afterwards', async () => {
+      let during: string | undefined;
+      const spawner: Spawner = async (_c, args) => { during = await readFile(lockFile(), 'utf8'); calls.push({ command: 'claude', args, cwd: dir }); return 0; };
+      const result = await runRound(dir, { dryRun: false, skipPermissions: false, lane: 'api' }, spawner);
+      expect(during).toMatch(/^\d{4}-\d\d-\d\dT/);
+      await expect(readFile(lockFile())).rejects.toThrow();
+      expect(result.prompt).toContain('**api** lane');
+      expect(result.prompt).toContain('Lane: api');
+      expect(result.prompt).toContain('.ai/lanes/api/session.lock');
+    });
+
+    it('clears the lock when the runner fails', async () => {
+      const boom: Spawner = async () => { throw new Error('claude exploded'); };
+      await expect(runRound(dir, { dryRun: false, skipPermissions: false, lane: 'api' }, boom)).rejects.toThrow(/exploded/);
+      await expect(readFile(lockFile())).rejects.toThrow();
+    });
+
+    it('stops for the lane\'s own DONE/BLOCKED and fresh lock, but not for another lane\'s', async () => {
+      await mkdir(path.join(dir, '.ai', 'lanes', 'ui'), { recursive: true });
+      await writeFile(path.join(dir, '.ai', 'lanes', 'ui', 'DONE.md'), 'x');
+      expect((await runRound(dir, { dryRun: false, skipPermissions: false, lane: 'api' }, fake)).exitCode).toBe(0);
+      await writeFile(path.join(dir, '.ai', 'lanes', 'api', 'BLOCKED.md'), 'x');
+      expect((await runRound(dir, { dryRun: false, skipPermissions: false, lane: 'api' }, fake)).skipped).toMatch(/BLOCKED.md/);
+      await rm(path.join(dir, '.ai', 'lanes', 'api', 'BLOCKED.md'));
+      await writeFile(lockFile(), new Date().toISOString());
+      expect((await runRound(dir, { dryRun: false, skipPermissions: false, lane: 'api' }, fake)).skipped).toMatch(/session\.lock/);
+    });
+
+    it('rejects an unknown lane or a missing lanes.json with the fix', async () => {
+      await expect(runRound(dir, { dryRun: true, skipPermissions: false, lane: 'ghost' }, fake)).rejects.toThrow(/Lanes in .ai\/lanes.json: api, ui/);
+      await rm(path.join(dir, '.ai', 'lanes.json'));
+      await expect(runRound(dir, { dryRun: true, skipPermissions: false, lane: 'api' }, fake)).rejects.toThrow(/loop init --lanes/);
+    });
+
+    it('prefers a lane prompt file from the repo', async () => {
+      await writeFile(path.join(dir, '.ai', 'lanes', 'api', 'prompt.md'), 'Lane {{lane}} of {{name}}');
+      expect((await loadPromptText(dir, dir, 'api')).text).toBe('Lane {{lane}} of {{name}}');
+    });
   });
 
   it('does nothing when DONE.md or BLOCKED.md exists, and on --dry-run', async () => {
