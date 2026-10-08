@@ -99,7 +99,9 @@ export async function runAnswer(
       result.pushed = true;
     } catch (error) {
       result.pushed = false;
-      result.pushError = error instanceof Error ? error.message.split('\n').find((l) => l.trim()) ?? 'git push failed' : String(error);
+      const output = `${(error as { stderr?: string }).stderr ?? ''}\n${error instanceof Error ? error.message : String(error)}`;
+      const lines = output.split('\n').map((l) => l.trim()).filter(Boolean);
+      result.pushError = lines.find((l) => /rejected|fatal|error:/i.test(l)) ?? lines[0] ?? 'git push failed';
     }
   }
   return result;

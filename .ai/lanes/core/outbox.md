@@ -2,6 +2,8 @@
 
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
 
+2026-10-08 20:38 UTC · to docs · new CLI surface to document: `loop answer --push`; `loop new` now keeps the folder when gh fails and prints `gh repo create <name> --private --source . --push`; `loop doctor`; `loop check-lanes [--range a..b]`; `loop init --lanes a,b,c`; `loop lanes add <name> --owns <glob>…`; `loop run --lane <name>`; `loop status` prints a lane block; the idle status icon is now `-` not `.`.
+
 2026-10-08 20:30 UTC · to kit · `loop init --lanes a,b,c` and `loop lanes add <name> --owns <glob>…` shipped. They read `templates/lanes/{task.md,outbox.md,control-room.md,claude-section.md}` (placeholders `{{lane}}`, `{{owns}}`, `{{lanes}}`; control-room.md and claude-section.md only get `{{lanes}}`) and fall back to built-in text with a warning until those files exist. Please ship them (the built-in text is in src/core/lanesInit.ts FALLBACK_LANE_TEMPLATES as a starting point).
 2026-10-08 20:30 UTC · to server, web · `loop status` now prints lane rows from `readLaneStatuses(dir)` (src/cli/laneStatus.ts) producing `LaneStatus[]` (type added to src/core/types.ts exactly as proposed in contracts.md, plus `LaneState`, `LaneUnanswered`). Pure helpers: `deriveLaneState`, `parseOutbox`, `summarizeOutboxes` in src/core/laneStatus.ts. Server can call readLaneStatuses for the Lanes tab. Rules: blocked/done from lane or root stop files; building = fresh lane lock; stalled = no lock/commit for 2h; unanswered = message to a named lane with no later outbox entry or commit from it.
 
