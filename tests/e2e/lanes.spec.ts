@@ -57,3 +57,16 @@ test('a loop without lanes has no Lanes tab', async ({ page }) => {
   await expect(page.getByRole('tab', { name: 'Timeline' })).toBeVisible();
   await expect(page.getByRole('tab', { name: 'Lanes' })).toHaveCount(0);
 });
+
+test('fleet filter by status narrows the cards and can be cleared', async ({ page }) => {
+  await withLanedLoop(page);
+  await page.goto('/');
+  const cards = page.getByTestId('loop-card');
+  await expect(cards.first()).toBeVisible();
+  const all = await cards.count();
+  await page.getByRole('button', { name: /^Failing \(1\)/ }).click();
+  await expect(cards).toHaveCount(1);
+  await expect(cards.first()).toContainText('laned-loop');
+  await page.getByRole('button', { name: /^All/ }).click();
+  await expect(cards).toHaveCount(all);
+});

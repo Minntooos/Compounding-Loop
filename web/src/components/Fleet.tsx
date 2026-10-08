@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { CheckCircle2, Inbox as InboxIcon } from 'lucide-react';
-import type { InboxItem, LoopSummary } from '@core/types';
+import type { InboxItem, LoopState, LoopSummary } from '@core/types';
 import { api } from '../api/client';
-import { relativeTime } from '../lib/format';
+import { relativeTime, STATE_LABEL } from '../lib/format';
 import { lanesNeedingYou, needsYouCount } from '../lib/lanes';
 import { LaneStrip } from './LaneStrip';
 import { StatusBadge } from './StatusBadge';
@@ -49,7 +50,24 @@ function LoopCard({ loop }: { loop: LoopSummary }) {
   );
 }
 
+type Filter = LoopState | 'all';
+
+function FilterBar({ loops, value, onChange }: { loops: LoopSummary[]; value: Filter; onChange: (f: Filter) => void }) {
+  const present = (['failing', 'blocked', 'building', 'waiting', 'done'] as const).filter((s) => loops.some((l) => l.state === s));
+  if (present.length < 2) return null;
+  return (
+    <div role="group" aria-label="Filter by status" className="flex flex-wrap gap-1.5">
+      {(['all', ...present] as const).map((f) => (
+        <button key={f} type="button" aria-pressed={value === f} onClick={() => onChange(f)} className="rounded border px-2.5 py-1 text-[13px] aria-pressed:font-semibold aria-pressed:underline" style={{ borderColor: 'var(--border)' }}>
+          {f === 'all' ? 'All' : STATE_LABEL[f]} ({f === 'all' ? loops.length : loops.filter((l) => l.state === f).length})
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function Fleet() {
+  const [filter, setFilter] = useState<Filter>('all');
   const loops = useQuery({ queryKey: ['loops'], queryFn: api.loops });
   const inbox = useQuery({ queryKey: ['inbox'], queryFn: api.inbox });
   if (loops.isPending || inbox.isPending) return <Loading what="Loading the fleet…" />;
@@ -66,8 +84,9 @@ export function Fleet() {
   return (
     <div className="space-y-5">
       <NeedsYou loops={loops.data} inbox={inbox.data} />
+      <FilterBar loops={loops.data} value={filter} onChange={setFilter} />
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loops">
-        {loops.data.map((l) => <LoopCard key={l.id} loop={l} />)}
+        {loops.data.filter((l) => filter === 'all' || l.state === filter).map((l) => <LoopCard key={l.id} loop={l} />)}
       </ul>
     </div>
   );
