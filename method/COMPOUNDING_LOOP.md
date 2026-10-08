@@ -564,6 +564,6 @@ Don't set up everything at once. Each step is useful by itself:
 
 When no human is watching (scheduled runs), these rules replace "ask the human":
 
-- **Session lock:** if another run started less than 90 minutes ago, do nothing and stop.
+- **Session lock:** if `.ai/session.lock` shows another run started less than 90 minutes ago, do nothing and stop.
 - **Run budget:** the task file holds `Run: N / 30`. Add 1 at the start of every run; at 30, write `BLOCKED.md` ("run budget reached") and stop.
 - **DONE / BLOCKED:** if `DONE.md` or `BLOCKED.md` exists, do nothing and stop. Write `DONE.md` only when every done-when passes; write `BLOCKED.md` (what you tried, the specific question, your best guess) when the stuck protocol is exhausted.

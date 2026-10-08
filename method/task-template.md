@@ -4,8 +4,8 @@ Run: 0 / 30
 Status: not started
 
 ## Contract
-**Goal:** <one sentence, the outcome>
-**Done when:** `<command>` passes; <other checks>
+**Goal:** build v1 of IDEA.md (replace with one sentence per task)
+**Done when:** derive from IDEA.md: `<command>` passes; <other checks>
 **Constraints:** <what must not change, what must be reused>
 **Out of scope:** <what not to touch>
 

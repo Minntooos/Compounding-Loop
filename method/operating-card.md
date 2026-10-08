@@ -29,7 +29,7 @@
 14. When the checks pass, run the retro (§12), log the task and delete `.ai/task.md`.
 
 **Unattended runs** (no human watching; the owner reads the results later)
-- Session lock: if another run started less than 90 minutes ago, do nothing and stop.
+- Session lock: if `.ai/session.lock` shows another run started less than 90 minutes ago, do nothing and stop.
 - Run budget: `.ai/task.md` holds `Run: N / 30`. Add 1 at the start of every run; at 30, write `BLOCKED.md` ("run budget reached") and stop.
 - If `DONE.md` or `BLOCKED.md` exists, do nothing and stop. Write `DONE.md` only when every done-when passes; write `BLOCKED.md` (tried, the question, best guess) when stuck.
 
