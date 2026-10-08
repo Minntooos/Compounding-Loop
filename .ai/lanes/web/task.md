@@ -1,6 +1,6 @@
 # Lane: web
 
-Run: 5 / 30
+Run: 6 / 30
 Status: units 1-7 done (polish partial)
 
 ## Contract
@@ -33,6 +33,8 @@ Status: units 1-7 done (polish partial)
 - Playwright now runs `loop dashboard --demo` (server serves dist/web); previewApi removed.
 - Live updates via EventSource in App.tsx; invalidate query keys by name.
 
+- Component unit tests use react-dom/server renderToStaticMarkup in Vitest node env (no new dependency); added `jsx: react-jsx` to root tsconfig so tests/unit/web can import web .tsx · tests/unit/web/query-state.test.ts.
+
 ## Confirmed
 (facts proven by a command or test; cite path:line)
 
@@ -58,3 +60,5 @@ Run 3: LoadError takes `busy` (Try again disabled while refetching); e2e error+r
 Run 4: origin/main had unrelated history to the local clone; reset local main to origin/main (old commits on branch backup-local-main). Tests green (38 pass). Busy-state e2e attempt failed, see Tried. Remaining polish: that test, Settings projects folder/gh account/default runner (needs server route), motion on change.
 
 Run 5: origin/main history had been rewritten again; reset local main to origin/main (no unique local work). Tests green (38 pass). Motion-on-change attempt failed, see Tried. Remaining polish: motion on change, busy-state test, Settings projects folder/gh account/default runner (needs a server route that does not exist in .ai/contracts.md; request it under Requested). Suggest adding jsdom + @testing-library/react to unblock component tests.
+
+Run 6: origin/main history rewritten again; reset local main to origin/main. Added tests/unit/web/query-state.test.ts (busy LoadError covered at unit level, closes the run 4 gap). Remaining: motion on change (needs a real SSE event or hook tests), Settings projects folder/gh account/default runner (needs server route).
