@@ -1,5 +1,5 @@
 {
-  "name": "niche-site",
+  "name": "{{name}}",
   "private": true,
   "type": "module",
   "scripts": {

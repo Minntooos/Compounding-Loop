@@ -3,11 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>REPLACE_ME</title>
-  <meta name="description" content="REPLACE_ME">
-  <link rel="canonical" href="https://REPLACE_ME/">
+  <title>{{name}} | Free online tools</title>
+  <meta name="description" content="{{name}} is a fast, free, privacy-friendly website built and verified by an unattended Compounding Loop.">
+  <link rel="icon" href="data:,">
+  <link rel="canonical" href="https://{{name}}.netlify.app/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"{{name}}","url":"https://{{name}}.netlify.app/"}</script>
 </head>
 <body>
-  <h1>REPLACE_ME</h1>
+  <main>
+  <h1>{{name}}</h1>
+  <p>This is the starting page for {{name}}. It is a small, fast, static website: plain HTML, one stylesheet and no third-party code. Every page you add lives in the site folder, and the checks that ship with this project refuse to pass until each page is complete, original and safe to publish.</p>
+  <p>The loop that builds this site works in short, verified units. It reads the brief in IDEA.md, writes a contract for the next unit of work, builds it, and runs the full test suite. Only when the checks pass does it commit and push. If a check fails, the attempt is recorded so the next run does not repeat the same mistake. Nothing counts as finished because the agent says so; it counts when a test proves it.</p>
+  <p>What the checks look at: every page needs a title, a description written for searchers, exactly one main heading, a canonical address on the domain named in the brief, structured data, and enough real text to be useful. Pages that copy each other are rejected. Links and assets must exist. Scripts must come from the same origin, because the security policy blocks everything else. Private files such as the brief and the notes folder must never end up inside the published folder.</p>
+  <p>How to use this starter: open IDEA.md and describe the site in one sentence, name the domain, list the audience and the keywords, and say what the first version must do. Then run the loop. The first run replaces this page with the real home page, adds the pages for each keyword cluster, and writes a browser test for every must-have feature, so a broken tool is caught before a visitor sees it.</p>
+  <p>Frequently asked questions. Can I edit pages by hand? Yes, the checks run the same way for people and for the loop. Does the site track visitors? No analytics, ads or tracking code are added unless the owner decides to. Where is it hosted? Any static host works; the configuration for Netlify and Vercel is included and publishes only the site folder. How do I see it locally? Run npm start and open the address it prints.</p>
+  <p>When the brief is complete and every check passes, the loop writes a short report listing what was built, what was tested, and the ten most valuable pages to build next. Replace this text with your own content as soon as the first real page exists, and keep each page focused on one question that a searcher would actually ask.</p>
+  </main>
 </body>
 </html>

@@ -1,7 +1,7 @@
 # Lane: kit
 
 Run: 1 / 30
-Status: unit 1 done (+ knowledge-index, example entry, unattended section from unit 7)
+Status: units 1, 2 done (+ knowledge-index, example entry, unattended section from unit 7)
 
 ## Contract
 **Goal:** the method, templates, runners and Claude Code plugin that `loop init`/`loop new` install (IDEA.md must-haves 8–16).
@@ -43,4 +43,4 @@ Status: unit 1 done (+ knowledge-index, example entry, unattended section from u
 - Add a dependency without a Decisions entry.
 
 ## Handoff
-Run 1 finished units 1 and most of 7 (knowledge-index + example; reviewer prompt and retro still to do). Next: unit 2 (generalise templates/static-site; core asks that a fresh copy passes its own check).
+Run 1 finished units 1, 2 (static-site fresh copy passes check and its own npm test, LOOP_SLOW) and most of 7 (knowledge-index + example; reviewer prompt and retro still to do). Next: unit 3 (runners/routine).
