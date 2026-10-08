@@ -1,7 +1,7 @@
 # Lane: server
 
 Run: 1 / 30
-Status: in progress (units 1-6 done)
+Status: in progress (units 1-7 done)
 
 ## Contract
 **Goal:** the local HTTP server the dashboard talks to, plus the scrubbed demo data (IDEA.md must-haves 17–18).

@@ -16,5 +16,9 @@ Owned by the **server** lane; change it in the same commit as any route change. 
 
 **Guard (all routes):** `Host` must be loopback (`127.0.0.1`, `localhost`, `[::1]`) and `Origin`, when sent, must be a loopback page, else `403 { error: "forbidden" }`. POSTs must send `Content-Type: application/json` (else 415). A dev proxy must keep a loopback Host/Origin. The answer text is stored as typed (the word `accept` is not a command).
 
+**Static files:** every non-`/api` GET serves `dist/web` (unknown extension-less paths fall back to `index.html`) with a strict CSP (`default-src 'none'`, scripts/fonts/connect only from `'self'`), `nosniff` and no-referrer.
+
+**Static demo (GitHub Pages):** `npm run build` then `node demo/export-static.mjs` writes `demo/static/api/{health,loops,inbox,checks}.json` and `demo/static/api/loops/<id>.json`, the same bodies as the live demo API. Web's static mode fetches these as *relative* URLs (`api/loops.json`, no leading slash) so a Pages sub-path works, and hides the answer form.
+
 ## Requested
 (web appends: date · what · why)

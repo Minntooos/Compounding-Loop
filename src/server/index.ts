@@ -1,10 +1,12 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import type { AddressInfo } from 'node:net';
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import { DEFAULT_WATCH, EventBus, watchProjects, type WatchOptions } from './events.js';
 import { projectsSource } from './loops.js';
+import { SECURITY_HEADERS, staticHandler } from './static.js';
 import { loadDemoSnapshot, snapshotSource, type DataSource } from './data.js';
 
 export interface AppOptions {
@@ -16,6 +18,8 @@ export interface AppOptions {
   source?: DataSource;
   /** Where `/api/events` gets its events; `startServer` feeds it from the watcher. */
   bus?: EventBus;
+  /** Folder with the built dashboard; defaults to `dist/web` next to the compiled server. */
+  webDir?: string;
 }
 
 const pkg = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')) as { version: string };
@@ -37,11 +41,22 @@ export function isAllowedOrigin(origin: string | undefined): boolean {
   }
 }
 
+/** `dist/web` from compiled code (`dist/server`) or from source (`src/server`). */
+export function defaultWebDir(): string {
+  const candidates = [new URL('../web/', import.meta.url), new URL('../../dist/web/', import.meta.url)].map((u) => fileURLToPath(u));
+  return candidates.find((dir) => existsSync(dir)) ?? (candidates[0] as string);
+}
+
 /** Builds the HTTP app without opening a port, so tests can call `app.request()`. */
 export async function createApp(options: AppOptions): Promise<Hono> {
   const source = options.source ?? (options.demo ? snapshotSource(await loadDemoSnapshot()) : projectsSource(options.projectsDir ?? process.cwd()));
   const bus = options.bus ?? new EventBus();
   const app = new Hono();
+
+  app.use('*', async (c, next) => {
+    await next();
+    for (const [name, value] of Object.entries(SECURITY_HEADERS)) c.res.headers.set(name, value);
+  });
 
   // Defence against DNS rebinding and cross-site requests: this server only answers its own pages.
   app.use('*', async (c, next) => {
@@ -99,6 +114,9 @@ export async function createApp(options: AppOptions): Promise<Hono> {
       unsubscribe();
     }),
   );
+  app.all('/api/*', (c) => c.json({ error: 'not found' }, 404));
+  const serveWeb = staticHandler(options.webDir ?? defaultWebDir());
+  app.get('*', (c) => serveWeb(c));
   app.notFound((c) => c.json({ error: 'not found' }, 404));
   return app;
 }
