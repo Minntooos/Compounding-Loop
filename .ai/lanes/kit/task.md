@@ -1,7 +1,7 @@
 # Lane: kit
 
-Run: 1 / 30
-Status: units 1-7 done; waiting on core (gitignore rename) and docs (marketplace.json) before DONE (+ knowledge-index, example entry, unattended section from unit 7)
+Run: 2 / 30
+Status: units 1-7 done; gitignore rename shipped; marketplace.json exists; closing out lane
 
 ## Contract
 **Goal:** the method, templates, runners and Claude Code plugin that `loop init`/`loop new` install (IDEA.md must-haves 8–16).

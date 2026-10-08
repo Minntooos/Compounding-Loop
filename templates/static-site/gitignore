@@ -2,3 +2,6 @@ node_modules/
 test-results/
 playwright-report/
 .env*
+.ai/runs.jsonl
+.ai/last-test.json
+.ai/session.lock
