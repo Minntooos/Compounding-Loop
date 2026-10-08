@@ -1,7 +1,7 @@
 # Lane: core
 
 Run: 1 / 30
-Status: units 1-5 done (new has no @clack brief prompts yet) (init installs .ai/* + AGENTS.md; card waits on kit)
+Status: units 1-6 done (new has no @clack brief prompts yet) (init installs .ai/* + AGENTS.md; card waits on kit)
 
 ## Contract
 **Goal:** the `loop` CLI and the pure logic in `src/core` that every other lane builds on (IDEA.md must-haves 1–7).
@@ -29,11 +29,14 @@ state files (.ai/task|log|index) are create-only even with --force · reviewer f
 loop new skips the brief gate and @clack/prompts walkthrough for now · the brief is written after creation (dashboard wizard or by hand); core can add prompts later without changing runNew · add a prompts step in src/cli/index.ts before runNew.
 `loop new` removes the folder when gh fails · retry would otherwise fail "already exists" · drop the rm in new.ts.
 
+loop run passes --allowedTools (Bash,Edit,...) + acceptEdits by default · headless claude -p cannot run git/npm without them · --skip-permissions stays opt-in.
+
 ## Confirmed
 - repo.ts readers pass tests/unit/core/repo.test.ts; DONE.md/BLOCKED.md live at repo root, session.lock/task.md/done-vN in .ai/.
 
 ## Guesses
 (unproven beliefs; never treat one as fact in a later run)
+- GUESS: loop run should write .ai/session.lock so the dashboard shows Building and a scheduled run stands down; not done, not in the contract.
 
 ## Tried
 (what failed and why, so the next run does not repeat it)
@@ -43,4 +46,4 @@ loop new skips the brief gate and @clack/prompts walkthrough for now · the brie
 - Add a dependency without a Decisions entry.
 
 ## Handoff
-Run 1: fixed red main (favicon), shipped unit 1 (src/core/repo.ts). Unit 2 shipped (src/core/brief.ts, exports lintBrief/briefPasses/MIN_BRIEF_SCORE). Unit 3 shipped: src/core/init.ts, src/cli/init.ts (loadKit reads method/operating-card.md, task-template.md, knowledge-index.md, COMPOUNDING_LOOP.md -> .ai/method.md; missing ones warn). Still to add to init once kit ships: check script/tests/runner config install. Unit 5 shipped (src/cli/loops.ts: runStatus/runNextRound/runAnswer; core: rounds.ts, blocked.ts, table.ts). answer commits only task.md+BLOCKED.md, does not push; budget blocks raise the limit by 30. Next: unit 6, `loop run` prompt builder (needs kit's runners/routine/prompt.md; check outbox/kit first). Nothing half-done.
+Run 1: fixed red main (favicon), shipped unit 1 (src/core/repo.ts). Unit 2 shipped (src/core/brief.ts, exports lintBrief/briefPasses/MIN_BRIEF_SCORE). Unit 3 shipped: src/core/init.ts, src/cli/init.ts (loadKit reads method/operating-card.md, task-template.md, knowledge-index.md, COMPOUNDING_LOOP.md -> .ai/method.md; missing ones warn). Still to add to init once kit ships: check script/tests/runner config install. Unit 5 shipped (src/cli/loops.ts: runStatus/runNextRound/runAnswer; core: rounds.ts, blocked.ts, table.ts). answer commits only task.md+BLOCKED.md, does not push; budget blocks raise the limit by 30. Unit 6 shipped (src/cli/run.ts, src/core/runPrompt.ts): prompt = repo .ai/loop-prompt.md > repo runners/routine/prompt.md > package runners/routine/prompt.md > built-in. Next: unit 7, `loop dashboard` (needs startServer from src/server; check server outbox). Later: add a drift test between DEFAULT_PROMPT and kit's runners/routine/prompt.md once it exists. Nothing half-done.

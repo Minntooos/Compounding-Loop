@@ -23,12 +23,15 @@ export interface ClaudeArgsOptions {
   model?: string;
 }
 
+/** Tools an unattended round needs (git, npm test, edits, reviewer subagent, web search). Passed explicitly so `claude -p` can run them headless. */
+export const ROUND_TOOLS = ['Bash', 'Edit', 'Write', 'Read', 'Glob', 'Grep', 'Agent', 'WebSearch'] as const;
+
 /** Argument array for `claude`; the prompt is a single argv entry, never part of a shell string. */
 export function buildClaudeArgs(prompt: string, options: ClaudeArgsOptions): string[] {
   return [
     '-p',
     prompt,
     ...(options.model ? ['--model', options.model] : []),
-    ...(options.skipPermissions ? ['--dangerously-skip-permissions'] : ['--permission-mode', 'acceptEdits']),
+    ...(options.skipPermissions ? ['--dangerously-skip-permissions'] : ['--permission-mode', 'acceptEdits', '--allowedTools', ROUND_TOOLS.join(',')]),
   ];
 }

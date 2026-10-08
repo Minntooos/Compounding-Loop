@@ -13,7 +13,7 @@ describe('buildRunPrompt', () => {
 
 describe('buildClaudeArgs', () => {
   it('keeps the prompt as one argument and defaults to acceptEdits', () => {
-    expect(buildClaudeArgs('do $(rm -rf /) "x"', { skipPermissions: false })).toEqual(['-p', 'do $(rm -rf /) "x"', '--permission-mode', 'acceptEdits']);
+    expect(buildClaudeArgs('do $(rm -rf /) "x"', { skipPermissions: false })).toEqual(['-p', 'do $(rm -rf /) "x"', '--permission-mode', 'acceptEdits', '--allowedTools', 'Bash,Edit,Write,Read,Glob,Grep,Agent,WebSearch']);
   });
   it('only skips permissions when asked, and passes a model', () => {
     expect(buildClaudeArgs('p', { skipPermissions: true, model: 'm' })).toEqual(['-p', 'p', '--model', 'm', '--dangerously-skip-permissions']);

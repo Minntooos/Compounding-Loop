@@ -3,7 +3,7 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { loadPromptText, runRound, type Spawner } from '../../../src/cli/run.js';
+import { loadPromptText, resolveExecutable, runRound, type Spawner } from '../../../src/cli/run.js';
 
 const tsx = path.resolve('node_modules/.bin/tsx');
 const cli = path.resolve('src/cli/index.ts');
@@ -27,7 +27,7 @@ describe('loop run', () => {
     await writeFile(path.join(dir, '.ai', 'loop-prompt.md'), 'Build {{name}}');
     const result = await runRound(dir, { dryRun: false, skipPermissions: false }, fake);
     expect(result.exitCode).toBe(0);
-    expect(calls).toEqual([{ command: 'claude', args: ['-p', `Build ${path.basename(dir)}\n`, '--permission-mode', 'acceptEdits'], cwd: dir }]);
+    expect(calls).toEqual([{ command: 'claude', args: ['-p', `Build ${path.basename(dir)}\n`, '--permission-mode', 'acceptEdits', '--allowedTools', 'Bash,Edit,Write,Read,Glob,Grep,Agent,WebSearch'], cwd: dir }]);
   });
 
   it('does nothing when DONE.md or BLOCKED.md exists, and on --dry-run', async () => {
@@ -36,6 +36,14 @@ describe('loop run', () => {
     await rm(path.join(dir, 'BLOCKED.md'));
     await runRound(dir, { dryRun: true, skipPermissions: false }, fake);
     expect(calls).toEqual([]);
+  });
+
+  it('resolves claude per platform without a shell', async () => {
+    expect(await resolveExecutable('claude', 'linux')).toBe('claude');
+    const has = (set: string[]) => async (f: string) => set.includes(f);
+    expect(await resolveExecutable('claude', 'win32', 'C:\\a;C:\\b', has(['C:\\b\\claude.exe']))).toBe('C:\\b\\claude.exe');
+    await expect(resolveExecutable('claude', 'win32', 'C:\\a', has(['C:\\a\\claude.cmd']))).rejects.toThrow(/native claude.exe/);
+    await expect(resolveExecutable('claude', 'win32', 'C:\\a', has([]))).rejects.toThrow(/Could not find/);
   });
 
   it('prints the prompt through the CLI on --dry-run', () => {

@@ -22,12 +22,35 @@ export async function loadPromptText(dir: string, root: string = packageRoot): P
 
 export type Spawner = (command: string, args: string[], cwd: string) => Promise<number>;
 
-const realSpawn: Spawner = (command, args, cwd) =>
-  new Promise((resolve, reject) => {
-    const child = spawn(command, args, { cwd, stdio: 'inherit' });
+/**
+ * Finds an executable on PATH. Node cannot start `.cmd` shims without a shell (and we never build shell strings),
+ * so on Windows only `.exe` files count; a lone `claude.cmd` gets an explanatory error.
+ */
+export async function resolveExecutable(
+  name: string,
+  platform: NodeJS.Platform = process.platform,
+  pathEnv: string = process.env.PATH ?? '',
+  has: (file: string) => Promise<boolean> = exists,
+): Promise<string> {
+  if (platform !== 'win32') return name;
+  const dirs = pathEnv.split(path.win32.delimiter).filter(Boolean);
+  for (const dir of dirs) if (await has(path.win32.join(dir, `${name}.exe`))) return path.win32.join(dir, `${name}.exe`);
+  for (const dir of dirs) {
+    if (await has(path.win32.join(dir, `${name}.cmd`))) {
+      throw new Error(`Found ${name}.cmd but Node cannot start it safely. Install the native ${name}.exe build of Claude Code, or run the round from a terminal with \`${name} -p\`.`);
+    }
+  }
+  throw new Error(`Could not find ${name}.exe on PATH. Is Claude Code installed?`);
+}
+
+const realSpawn: Spawner = async (command, args, cwd) => {
+  const executable = await resolveExecutable(command);
+  return new Promise((resolve, reject) => {
+    const child = spawn(executable, args, { cwd, stdio: 'inherit' });
     child.on('error', (error) => reject(new Error(`Could not start \`${command}\`: ${error.message}. Is Claude Code installed and on your PATH?`)));
     child.on('close', (code) => resolve(code ?? 1));
   });
+};
 
 export interface RunResult {
   /** Why nothing ran, when the loop is already stopped. */
@@ -49,6 +72,7 @@ export async function runRound(
     if (await exists(path.join(dir, stop))) return { skipped: `${stop} exists: nothing to do`, prompt, source };
   }
   if (options.dryRun) return { prompt, source };
+  console.error(`Running one round in ${dir} (prompt: ${source})`);
   const exitCode = await spawner('claude', buildClaudeArgs(prompt, { skipPermissions: options.skipPermissions, ...(options.model && { model: options.model }) }), dir);
   return { prompt, source, exitCode };
 }
