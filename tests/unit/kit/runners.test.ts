@@ -106,3 +106,41 @@ describe('plugin/', () => {
     expect(text).toMatch(/^---\ndescription: .{10,}\n---\n/);
   });
 });
+
+describe('runners/routine lane prompts', () => {
+  const lane = read('runners', 'routine', 'lane-prompt.md');
+  const control = read('runners', 'routine', 'control-room-prompt.md');
+  const placeholders = (text: string): string[] => [...new Set([...text.matchAll(/\{\{(\w+)\}\}/g)].map((m) => m[1] ?? ''))].sort();
+
+  it('use only the documented placeholders', () => {
+    expect(placeholders(lane)).toEqual(['lane', 'name']);
+    expect(placeholders(control)).toEqual(['lanes', 'name']);
+    const readme = read('runners', 'routine', 'README.md');
+    for (const p of ['{{name}}', '{{lane}}', '{{lanes}}']) expect(readme).toContain(p);
+  });
+
+  it('lane prompt keeps what made the real one work', () => {
+    for (const needle of ['40 minutes', 'reviewer subagent', 'git pull --ff-only', 'git pull --rebase', 'git push origin main', 'Never create or push a `claude/` branch', 'DONE.md', 'BLOCKED.md', 'Lane: {{lane}}', '.ai/control-room.md', 'outbox.md', 'Never spend money', 'force-push', 'session.lock']) {
+      expect(lane, needle).toContain(needle);
+    }
+  });
+
+  it('control room prompt keeps budget, stalled, leak and done handling', () => {
+    for (const needle of ['run budget reached', 'stalled', 'Leak check', 'DONE.md', 'Lane: control', 'check-lanes', 'Never force-push', 'Never spend money']) {
+      expect(control, needle).toContain(needle);
+    }
+  });
+
+  it('carry nothing specific to the repository that built them', () => {
+    for (const text of [lane, control]) expect(text).not.toMatch(/Minntooos|Compounding[_ -]Loop|trig_|gmail/i);
+  });
+
+  it('README staggers cron for 3 and 5 lanes without minute 0', () => {
+    const readme = read('runners', 'routine', 'README.md');
+    const rows = [...readme.matchAll(/`(\d+) (\*|\*\/\d+) \* \* \*`/g)].map((m) => Number(m[1]));
+    expect(rows.length).toBeGreaterThanOrEqual(10);
+    expect(rows.every((m) => m > 0 && m < 60)).toBe(true);
+    expect(readme).toContain('3 lanes');
+    expect(readme).toContain('5 lanes');
+  });
+});

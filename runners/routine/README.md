@@ -17,3 +17,40 @@ Each run stops after about 40 minutes of work, so an hourly schedule leaves a ga
 ## Safety
 
 The prompt never publishes, spends money or stores a secret. The routine uses your Claude account; no API key goes into the repository.
+
+## Lanes
+
+With several lanes, create one routine per lane plus one control room routine.
+
+| File | Placeholders | Routine |
+|---|---|---|
+| `lane-prompt.md` | `{{name}}` project, `{{lane}}` lane name | one per lane, hourly |
+| `control-room-prompt.md` | `{{name}}` project, `{{lanes}}` lane names, comma separated | one, every 3 hours |
+
+`loop run --lane <name>` fills them for local runs. In the cloud, paste the filled text into the routine. The lane prompt stands down on `.ai/lanes/<lane>/session.lock`, stops on root or lane `DONE.md`/`BLOCKED.md`, and ends every commit with `Lane: <lane>`.
+
+### Staggered cron for N lanes
+
+Give lane `i` (counting from 0) the minute `first + i * step` with `step = 12` for up to five lanes (at least 10 minutes between lanes, so a run that finishes early never meets the next lane's pull), and put the control room on a different minute every 3 hours. Avoid minute 0.
+
+3 lanes (`api`, `web`, `docs`):
+
+| Routine | Cron |
+|---|---|
+| api | `7 * * * *` |
+| web | `19 * * * *` |
+| docs | `31 * * * *` |
+| control room | `47 */3 * * *` |
+
+5 lanes (`core`, `kit`, `server`, `web`, `docs`, as in this repository):
+
+| Routine | Cron |
+|---|---|
+| core | `7 * * * *` |
+| kit | `19 * * * *` |
+| server | `31 * * * *` |
+| web | `43 * * * *` |
+| docs | `55 * * * *` |
+| control room | `27 */3 * * *` |
+
+Each lane run stops after about 40 minutes, so an hourly lane leaves a gap. Runs that end in about a second usually hit the plan's usage limit, not a bug; fewer or slower lanes cost less.

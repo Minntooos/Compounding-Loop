@@ -8,10 +8,7 @@ const dir = join(process.cwd(), 'templates', 'lanes');
 const read = (file: string): string => readFileSync(join(dir, file), 'utf8');
 const templates = readdirSync(dir).filter((f) => f !== 'README.md');
 
-const VARS = {
-  name: 'acme', lane: 'api', owns: '`src/api/**`', limit: '20',
-  lane_table: '| api | `src/api/**` | `.ai/lanes/api/task.md` |', lane_count: '1', lane_names: 'api', date: '2026-10-08',
-};
+const VARS = { lane: 'api', owns: 'src/api/**', lanes: 'api, web' };
 
 /** `{{x}}` placeholders, ignoring GitHub Actions `${{ ... }}` expressions. */
 const placeholdersIn = (text: string): string[] => [...text.matchAll(/(?<!\$)\{\{\s*([\w.-]+)\s*\}\}/g)].map((m) => m[1] ?? '');
@@ -41,7 +38,7 @@ describe('templates/lanes', () => {
 
   it('lane task.md keeps the run counter and the sections the prompts rely on', () => {
     const task = read('task.md');
-    expect(task).toMatch(/^Run: 0 \/ \{\{limit\}\}$/m);
+    expect(task).toMatch(/^Run: 0 \/ 20$/m);
     for (const heading of ['Contract', 'Units, in order', 'Decisions', 'Confirmed', 'Guesses', 'Tried', 'Don\'t', 'Handoff']) {
       expect(task).toContain(`## ${heading}`);
     }
@@ -49,7 +46,7 @@ describe('templates/lanes', () => {
 
   it('CLAUDE.md section states ownership, trailer, outbox, git and stop rules', () => {
     const section = read('claude-section.md');
-    for (const needle of ['Lane: <your lane>', 'loop check-lanes', 'outbox.md', 'control-room.md', 'git pull --ff-only', 'git pull --rebase', 'Never force-push', 'BLOCKED.md', 'DONE.md', '.ai/lanes.json', '<!-- compounding-loop:lanes -->', '<!-- /compounding-loop:lanes -->', 'reviewer subagent', 'Decisions', 'add-only', 'Never:']) {
+    for (const needle of ['Lane: <your lane>', 'loop check-lanes', 'outbox.md', 'control-room.md', 'git pull --ff-only', 'git pull --rebase', 'Never force-push', 'BLOCKED.md', 'DONE.md', '.ai/lanes.json', 'Lanes in this repo: {{lanes}}', 'reviewer subagent', 'Decisions', 'add-only', 'Never:']) {
       expect(section, needle).toContain(needle);
     }
   });

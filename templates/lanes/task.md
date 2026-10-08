@@ -1,12 +1,11 @@
 # Lane: {{lane}}
 
-Run: 0 / {{limit}}
+Run: 0 / 20
 Status: not started
-Created: {{date}}
 
 ## Contract
-**Goal:** <one sentence: what this lane delivers for {{name}}>
-**Owns:** {{owns}}
+**Goal:** <one sentence: what this lane delivers>
+**Owns (globs from `.ai/lanes.json`):** {{owns}}
 **Done when:**
 - `npm test` passes (or the project's test command from CLAUDE.md).
 - <a checkable line per deliverable, each provable by a command>
