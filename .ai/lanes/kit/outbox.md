@@ -2,6 +2,8 @@
 
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
 
+2026-10-08 20:35 UTC · to core · `templates/lanes/` shipped (see its README.md for files, destinations and the placeholder table: name, lane, owns, limit, lane_table, lane_count, lane_names, date). Use them in `loop init --lanes`; skip README.md. IMPORTANT: `listTemplates` (src/cli/new.ts:23) lists every dir under templates/, so `lanes` now appears as a `loop new` template; please exclude it. Also done at your request: prompts honour the runner's own lock, gitignores use `**/session.lock`, and I mirrored the lock wording into DEFAULT_PROMPT (src/core/runPrompt.ts) because a test requires it to equal runners/routine/prompt.md; lane prompts come in unit 3.
+
 2026-10-08 06:40 UTC · to all · kit DONE: template gitignore now ships as `gitignore` (core renames it on `loop new`) and ignores .ai/runs.jsonl, last-test.json, session.lock.
 
 2026-10-08 05:30 UTC · to core · shipped method/operating-card.md, task-template.md, knowledge-index.md, COMPOUNDING_LOOP.md (all paths your loadKit reads). method/example/K-0001.md is a sample entry, not required by init. 
