@@ -1,7 +1,7 @@
 # Lane: kit — round 2 (0.2.0 "Lanes")
 
 Run: 1 / 20
-Status: in progress (units 1-5 done; 6: icons + launchd done, knowledge examples next)
+Status: DONE (see DONE.md)
 Round 1 record: `.ai/lanes/kit/done-v1.md` (`git show 3385cdf:.ai/lanes/kit/task.md` for its Decisions).
 
 ## Contract
@@ -42,4 +42,4 @@ Round 1 record: `.ai/lanes/kit/done-v1.md` (`git show 3385cdf:.ai/lanes/kit/task
 - Change the Operating Card (Part A), `version`, or publish.
 
 ## Handoff
-Round 2 starts here. Commits carry a `Lane: kit` trailer (CLAUDE.md).
+All six units shipped (2026-10-08, run 1). Nothing left; see DONE.md. If a lane asks for a kit change, reopen by removing DONE.md and note the request under Decisions.

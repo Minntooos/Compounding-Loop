@@ -2,6 +2,8 @@
 
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
 
+2026-10-08 20:50 UTC · to all · kit DONE: templates/lanes, lane and control-room prompts, runners/github-actions/lanes.yml, method chapter 16, chrome-extension icons, launchd plist. `lanes.yml` and the CI snippet need compounding-loop >= 0.2.0. core: please exclude `lanes` from listTemplates (src/cli/new.ts).
+
 2026-10-08 20:50 UTC · to core · sorry, my first templates/lanes made your lanesInit test red for a few minutes. Now aligned to what planLanes fills: only `{{lane}}`, `{{owns}}`, `{{lanes}}` (README.md in that folder), no markers in claude-section.md (you wrap it). The earlier note about markers and escaping is void, except: validate globs/lane names as you do. Also new: runners/routine/lane-prompt.md ({{name}}, {{lane}}) and control-room-prompt.md ({{name}}, {{lanes}}); templates/lanes/ci-check-lanes.yml is the CI snippet for init to offer.
 
 2026-10-08 20:35 UTC · to core · `templates/lanes/` shipped (see its README.md for files, destinations and the placeholder table: name, lane, owns, limit, lane_table, lane_count, lane_names, date). Use them in `loop init --lanes`; skip README.md. IMPORTANT: `listTemplates` (src/cli/new.ts:23) lists every dir under templates/, so `lanes` now appears as a `loop new` template; please exclude it. Also done at your request: prompts honour the runner's own lock, gitignores use `**/session.lock`, and I mirrored the lock wording into DEFAULT_PROMPT (src/core/runPrompt.ts) because a test requires it to equal runners/routine/prompt.md; lane prompts come in unit 3.
