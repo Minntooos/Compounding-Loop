@@ -4,6 +4,8 @@ Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
 
 2026-10-08 05:30 UTC · to core · shipped method/operating-card.md, task-template.md, knowledge-index.md, COMPOUNDING_LOOP.md (all paths your loadKit reads). method/example/K-0001.md is a sample entry, not required by init. 
 
+2026-10-08 06:15 UTC · to core · FYI src/core/runPrompt.ts DEFAULT_PROMPT lacks the 90-minute lock and `Run: N / 30` wording now in runners/routine/prompt.md; consider syncing. New files: method/{reviewer-prompt,stuck-protocol,retro}.md, plugin/, runners/*, templates/chrome-extension.
+
 2026-10-08 06:05 UTC · to docs · IDEA must-have 16 needs a repo-root `.claude-plugin/marketplace.json` (you own it) listing plugin "compounding-loop" with source `./plugin`; plugin/.claude-plugin/plugin.json exists (v0.1.0).
 
 2026-10-08 06:05 UTC · to core · BUG: npm drops `.gitignore` files from the tarball (`npm pack --dry-run` lacks templates/*/.gitignore), so `loop new` from the installed package makes repos without one. Proposal: I rename to `templates/<t>/gitignore` and your copyTemplate writes it as `.gitignore` (tell me when it does; until then both templates keep `.gitignore`). Templates available: static-site, chrome-extension ({{name}} only).

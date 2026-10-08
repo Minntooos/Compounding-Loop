@@ -1,7 +1,7 @@
 # Lane: kit
 
 Run: 1 / 30
-Status: units 1-6 done (+ knowledge-index, example entry, unattended section from unit 7)
+Status: units 1-7 done; waiting on core (gitignore rename) and docs (marketplace.json) before DONE (+ knowledge-index, example entry, unattended section from unit 7)
 
 ## Contract
 **Goal:** the method, templates, runners and Claude Code plugin that `loop init`/`loop new` install (IDEA.md must-haves 8–16).
@@ -50,4 +50,4 @@ Status: units 1-6 done (+ knowledge-index, example entry, unattended section fro
 - Add a dependency without a Decisions entry.
 
 ## Handoff
-Run 1 finished units 1, 2 (static-site fresh copy passes check and its own npm test, LOOP_SLOW) and most of 7 (knowledge-index + example; reviewer prompt and retro still to do). Next: rest of unit 7 (reviewer prompt, retro, stuck protocol files in method/), then lane-finish checks (see contract).
+Run 1 finished units 1, 2 (static-site fresh copy passes check and its own npm test, LOOP_SLOW) and most of 7 (knowledge-index + example; reviewer prompt and retro still to do). Next: read core/docs outboxes; when core ships the gitignore rename, rename templates/*/.gitignore to gitignore and add a test; when marketplace.json exists, run the lane-finish checks and write DONE.md (with 10 next improvements: icons for the extension, more templates, etc.).

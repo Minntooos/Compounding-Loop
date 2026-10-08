@@ -52,3 +52,45 @@ describe('method/COMPOUNDING_LOOP.md and knowledge files', () => {
     expect(read('method', 'example', 'K-0001.md')).toMatch(/^---\nid: K-0001\n/);
   });
 });
+
+describe('method protocol files', () => {
+  it('reviewer prompt asks for the three likeliest failures and a short report', () => {
+    const text = read('method', 'reviewer-prompt.md');
+    expect(text).toContain('three most likely ways this is wrong');
+    expect(text).toContain('BLOCKER');
+  });
+
+  it('stuck protocol ends in BLOCKED.md', () => {
+    const text = read('method', 'stuck-protocol.md');
+    expect(text).toContain('same failure twice');
+    expect(text).toContain('BLOCKED.md');
+  });
+
+  it('retro covers the promotion ladder and deleting the task file', () => {
+    const text = read('method', 'retro.md');
+    expect(text).toContain('guess → confirmed note → note with a trigger → automated check');
+    expect(text).toContain('Delete `.ai/task.md`');
+  });
+});
+
+describe('unattended rules are identical everywhere', () => {
+  const files: string[][] = [
+    ['method', 'operating-card.md'],
+    ['method', 'COMPOUNDING_LOOP.md'],
+    ['runners', 'routine', 'prompt.md'],
+    ['templates', 'static-site', '.ai', 'loop-prompt.md'],
+    ['templates', 'static-site', '.ai', 'task.md'],
+    ['method', 'task-template.md'],
+  ];
+
+  it.each(files)('%s carries the 30-run budget', (...parts) => {
+    expect(read(...parts)).toMatch(/Run: (N|0) \/ 30/);
+  });
+
+  it.each(files.slice(0, 4))('%s carries the 90-minute lock and DONE/BLOCKED', (...parts) => {
+    const text = read(...parts);
+    expect(text).toMatch(/less than 90 minutes/);
+    expect(text).toContain('DONE.md');
+    expect(text).toContain('BLOCKED.md');
+  });
+});
