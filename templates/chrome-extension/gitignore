@@ -3,4 +3,4 @@ test-results/
 playwright-report/
 .env*
 .ai/runs.jsonl
-.ai/session.lock
+**/session.lock

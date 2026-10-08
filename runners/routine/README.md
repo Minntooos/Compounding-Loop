@@ -12,7 +12,7 @@ A routine is a scheduled Claude Code session in the cloud. It runs `prompt.md` a
 
 If several loops (or several lanes of one project) run against one repository, give each a different minute so they do not collide. Use the pattern `M * * * *` (hourly), and move `M` by at least 10 minutes per loop, for example `7 * * * *`, `17 * * * *`, `27 * * * *`. Avoid minute `0`: everyone's schedule lands there.
 
-Each run stops after about 40 minutes of work, so an hourly schedule leaves a gap before the next one. The 90-minute session lock (`.ai/session.lock`) stops two runs from working at once. The run budget (`Run: N / 30` in `.ai/task.md`) caps the total number of runs.
+Each run stops after about 40 minutes of work, so an hourly schedule leaves a gap before the next one. The 90-minute session lock (`.ai/session.lock`, or `.ai/lanes/<lane>/session.lock` per lane) stops two runs from working at once. The run budget (`Run: N / 30` in `.ai/task.md`) caps the total number of runs.
 
 ## Safety
 

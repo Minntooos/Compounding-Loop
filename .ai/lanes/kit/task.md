@@ -1,7 +1,7 @@
 # Lane: kit — round 2 (0.2.0 "Lanes")
 
-Run: 0 / 20
-Status: not started
+Run: 1 / 20
+Status: in progress (unit 1 audit)
 Round 1 record: `.ai/lanes/kit/done-v1.md` (`git show 3385cdf:.ai/lanes/kit/task.md` for its Decisions).
 
 ## Contract
