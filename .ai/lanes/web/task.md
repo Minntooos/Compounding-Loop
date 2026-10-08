@@ -1,6 +1,6 @@
 # Lane: web
 
-Run: 3 / 30
+Run: 4 / 30
 Status: units 1-7 done (polish partial)
 
 ## Contract
@@ -40,6 +40,7 @@ Status: units 1-7 done (polish partial)
 (unproven beliefs; never treat one as fact in a later run)
 
 ## Tried
+- Run 4: e2e for the busy state (gate the refetch with a route promise, expect 'Retrying…' disabled). Failed twice (fleet route, then loop detail route): the button never showed 'Retrying…'; with the fleet route the page fell back to 'Loading the fleet…' during the gated refetch. Cause not found (suspect the query goes back to pending, or the route fulfils before the click). Reverted. Next: debug with a headed trace before retrying, or unit-test LoadError with busy=true in Vitest instead.
 (what failed and why, so the next run does not repeat it)
 
 ## Don't
@@ -52,3 +53,5 @@ Run 1: shipped shell, Fleet, Loop detail, Inbox (j/k/a), Health, Settings, wizar
 Run 2: added shared Loading/LoadError (retry button) in web/src/components/QueryState.tsx, used by Fleet/Health/Inbox/LoopDetail; e2e for fleet error+retry. Remaining polish: Settings projects folder/gh account/default runner (needs server route), motion on change, disable Try again while fetching, error tests for other screens.
 
 Run 3: LoadError takes `busy` (Try again disabled while refetching); e2e error+retry for Health, Inbox, loop detail. Remaining polish: Settings projects folder/gh account/default runner (needs server route), motion on change, a test for the busy state, consider aria-disabled to keep focus.
+
+Run 4: origin/main had unrelated history to the local clone; reset local main to origin/main (old commits on branch backup-local-main). Tests green (38 pass). Busy-state e2e attempt failed, see Tried. Remaining polish: that test, Settings projects folder/gh account/default runner (needs server route), motion on change.
