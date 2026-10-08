@@ -5,6 +5,7 @@ import { realGh } from './gh.js';
 import { runInit } from './init.js';
 import { runAnswer, runNextRound, runStatus } from './loops.js';
 import { runNew } from './new.js';
+import { runRound } from './run.js';
 
 const pkg = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')) as { version: string };
 
@@ -93,6 +94,26 @@ program
       if (!options.accept && !answer) throw new Error('Pass an answer, or --accept to take the best guess.');
       const result = await runAnswer(path.resolve(options.dir), options.accept ? 'accept' : (answer ?? ''), { dryRun: Boolean(options.dryRun) });
       console.log(`Question: ${result.question}\nAnswer:   ${result.answer}${options.dryRun ? '\n(dry run: nothing written)' : '\nCommitted. Push to restart the loop.'}`);
+    } catch (error) {
+      fail(error);
+    }
+  });
+
+program
+  .command('run')
+  .description('Run one build round now with Claude Code, using the same prompt the scheduler uses')
+  .argument('[dir]', 'loop folder', '.')
+  .option('--dry-run', 'print the prompt and stop; never starts claude')
+  .option('--skip-permissions', 'pass --dangerously-skip-permissions to claude (you accept the risk)')
+  .option('--model <model>', 'model for this round')
+  .action(async (dir: string, options: { dryRun?: boolean; skipPermissions?: boolean; model?: string }) => {
+    try {
+      const result = await runRound(path.resolve(dir), {
+        dryRun: Boolean(options.dryRun), skipPermissions: Boolean(options.skipPermissions), ...(options.model && { model: options.model }),
+      });
+      if (result.skipped) console.log(result.skipped);
+      else if (options.dryRun) console.log(`Prompt from ${result.source}:\n\n${result.prompt}`);
+      if (result.exitCode) process.exitCode = result.exitCode;
     } catch (error) {
       fail(error);
     }
