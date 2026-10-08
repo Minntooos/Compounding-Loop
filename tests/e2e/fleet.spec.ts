@@ -17,7 +17,8 @@ test('fleet shows the five demo sites with their numbers and "Nothing needs you"
   await page.goto('/');
   await expect(page.getByText('Nothing needs you')).toBeVisible();
   const cards = page.getByTestId('loop-card');
-  await expect(cards).toHaveCount(5);
+  // The demo also has a sixth loop (this repo, with lanes); the five sites are the ones with a netlify.app name.
+  await expect(cards.filter({ hasText: 'netlify.app' })).toHaveCount(5);
   for (const [name, passed] of SITES) {
     const card = cards.filter({ hasText: name });
     await expect(card).toContainText('Done');
@@ -48,7 +49,7 @@ test('theme toggle switches and persists the theme', async ({ page }) => {
 
 test('keyboard: tab reaches nav and cards with visible focus; Ctrl+K palette navigates', async ({ page, isMobile }) => {
   await page.goto('/');
-  await expect(page.getByTestId('loop-card')).toHaveCount(5);
+  await expect(page.getByTestId('loop-card').first()).toBeVisible();
   // Tab through the whole page: every stop must show a focus outline, and a loop card must be reachable.
   let reachedCard = false;
   for (let i = 0; i < 15 && !reachedCard; i++) {

@@ -271,6 +271,66 @@
         "sha": "d48aab3",
         "at": "2026-10-08T05:29:55.000Z",
         "message": "kit: outbox requests for core (gitignore in tarball) and docs (marketplace.json)"
+      },
+      {
+        "sha": "aaf8ab9",
+        "at": "2026-10-08T05:29:09.000Z",
+        "message": "kit: Chrome extension template with check script and Playwright extension test"
+      },
+      {
+        "sha": "c8ddbae",
+        "at": "2026-10-08T05:28:05.000Z",
+        "message": "kit: Claude Code plugin with loop-init, handoff, retro and stuck commands"
+      },
+      {
+        "sha": "3c0b4c8",
+        "at": "2026-10-08T05:27:20.000Z",
+        "message": "kit: fix runner review findings (github_token, allowedTools, XML encoding, lock wording)"
+      },
+      {
+        "sha": "8201e6e",
+        "at": "2026-10-08T05:26:35.000Z",
+        "message": "kit: GitHub Actions workflow and local scheduler configs with tests"
+      },
+      {
+        "sha": "d8cc97d",
+        "at": "2026-10-08T05:25:56.000Z",
+        "message": "kit: routine runner prompt and README; loop run test accepts the shipped prompt"
+      },
+      {
+        "sha": "2b919a7",
+        "at": "2026-10-08T05:25:03.000Z",
+        "message": "kit: static-site check rejects invalid hostnames; flag underscore-name bug to core"
+      },
+      {
+        "sha": "61467c3",
+        "at": "2026-10-08T05:25:03.000Z",
+        "message": "kit: static-site template passes its own checks when freshly generated"
+      },
+      {
+        "sha": "ea9869d",
+        "at": "2026-10-08T05:23:30.000Z",
+        "message": "core: dashboard shutdown, busy-port hint, handoff"
+      },
+      {
+        "sha": "d6c7a02",
+        "at": "2026-10-08T05:23:30.000Z",
+        "message": "core: loop dashboard command with lazy server import"
+      },
+      {
+        "sha": "0e0d08f",
+        "at": "2026-10-08T05:22:11.000Z",
+        "message": "kit: fix review findings (empty shipped index, prefilled goal, lock file named)"
+      },
+      {
+        "sha": "d4f7299",
+        "at": "2026-10-08T05:22:10.000Z",
+        "message": "kit: operating card, task template, knowledge index and unattended rules with tests"
+      },
+      {
+        "sha": "0596cfe",
+        "at": "2026-10-08T05:21:44.000Z",
+        "message": "core: loop run allows the tools a round needs, handles Windows claude lookup"
       }
     ],
     "contract": [
