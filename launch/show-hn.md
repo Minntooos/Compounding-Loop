@@ -10,7 +10,7 @@ What made it work was not the loop, it was what stops the loop. Each repo has a 
 
 Compounding Loop packages that as a CLI (`init`, `new`, `run`, `status`, `dashboard`), templates, runners (routine, GitHub Actions, cron) and a local dashboard with an inbox for the questions the loop asks. No telemetry, loopback-only server, MIT.
 
-Try the dashboard on the real data: `npx compounding-loop dashboard --demo`
+Try the dashboard on the real data: https://minntooos.github.io/Compounding-Loop/ (or locally: `npx compounding-loop dashboard --demo`)
 
 Repo: https://github.com/Minntooos/compounding-loop
 

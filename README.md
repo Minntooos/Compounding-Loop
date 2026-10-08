@@ -6,6 +6,10 @@
 npx compounding-loop init
 ```
 
+[![npm](https://img.shields.io/npm/v/compounding-loop)](https://www.npmjs.com/package/compounding-loop) [![CI](https://github.com/Minntooos/compounding-loop/actions/workflows/ci.yml/badge.svg)](https://github.com/Minntooos/compounding-loop/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
+**[Live demo](https://minntooos.github.io/Compounding-Loop/)**: the dashboard on the real five-site data, in your browser.
+
 ![The Compounding Loop dashboard showing five finished loops](docs/assets/dashboard.png)
 
 Most agent tools show a demo. This one ships with proof: the method in this repo built five live sites, 215 pages in all, with nobody watching, and made **verification** the product. A round only counts when the repo's own tests pass and a reviewer that did not write the code has checked the diff.

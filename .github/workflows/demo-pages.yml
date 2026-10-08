@@ -1,6 +1,13 @@
 name: Demo site
-# Manual only: the owner enables GitHub Pages and runs this when ready to publish the static demo.
-on: workflow_dispatch
+# Publishes the static five-site demo to https://minntooos.github.io/Compounding-Loop/ (Pages source: GitHub Actions).
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['web/**', 'demo/**', 'src/server/**', 'vite.config.ts', 'package-lock.json', '.github/workflows/demo-pages.yml']
+concurrency:
+  group: pages
+  cancel-in-progress: false
 permissions:
   contents: read
   pages: write
@@ -8,13 +15,16 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment:
       name: github-pages
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
       - run: npm ci
       - run: npm run build
