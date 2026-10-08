@@ -41,6 +41,8 @@ Status: units 1-6 done (+ knowledge-index, example entry, unattended section fro
 (unproven beliefs; never treat one as fact in a later run)
 
 ## Tried
+- Reviewer: npm strips .gitignore from tarballs; fix needs core's copyTemplate (outbox). Marketplace.json needs docs (outbox).
+
 (what failed and why, so the next run does not repeat it)
 
 ## Don't
