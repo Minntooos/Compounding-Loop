@@ -82,3 +82,12 @@ describe('loadDemoSnapshot', () => {
     await expect(loadDemoSnapshot([new URL('file:///nope.json')])).rejects.toThrow(/demo snapshot not found/);
   });
 });
+
+describe('host and origin guard', () => {
+  it('refuses non-loopback Host and Origin on reads too', async () => {
+    const app = await createApp({ demo: true });
+    expect((await app.request('http://evil.example/api/health')).status).toBe(403);
+    expect((await app.request('http://127.0.0.1:1/api/health', { headers: { origin: 'https://evil.example' } })).status).toBe(403);
+    expect((await app.request('http://localhost:1/api/health', { headers: { origin: 'http://localhost:5173' } })).status).toBe(200);
+  });
+});

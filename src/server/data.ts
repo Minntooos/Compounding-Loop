@@ -7,6 +7,8 @@ export interface DataSource {
   loop(id: string): Promise<LoopDetail | undefined>;
   inbox(): Promise<InboxItem[]>;
   checks(): Promise<HealthCheck[]>;
+  /** Absent for read-only sources (the demo). Resolves with the new commit's sha. */
+  answer?(id: string, answer: string): Promise<{ commit: string; pushed: boolean } | undefined>;
 }
 
 /** Fleet order from the contract: what needs the owner first. */

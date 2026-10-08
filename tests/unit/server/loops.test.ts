@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -104,5 +104,53 @@ describe('id handling', () => {
   it('never resolves an id as a path', async () => {
     const res = await (await createApp({ demo: false, projectsDir: root })).request('/api/loops/..%2Fbeta');
     expect(res.status).toBe(404);
+  });
+});
+
+describe('POST /api/loops/:id/answer', () => {
+  const post = async (app: Awaited<ReturnType<typeof createApp>>, id: string, body: unknown, headers: Record<string, string> = {}) =>
+    app.request(`http://127.0.0.1:4321/api/loops/${id}/answer`, { method: 'POST', body: JSON.stringify(body), headers: { 'content-type': 'application/json', ...headers } });
+
+  it('refuses cross-site, rebinding and non-JSON posts', async () => {
+    const app = await createApp({ demo: false, projectsDir: root });
+    const body = { file: 'BLOCKED.md', answer: 'x' };
+    expect((await post(app, 'beta', body, { origin: 'https://evil.example' })).status).toBe(403);
+    expect((await post(app, 'beta', body, { host: 'evil.example' })).status).toBe(403);
+    expect((await post(app, 'beta', body, { 'content-type': 'text/plain' })).status).toBe(415);
+    expect(existsSync(path.join(root, 'beta', 'BLOCKED.md'))).toBe(true);
+  });
+
+  it('records the word "accept" as text, not as the best-guess command', async () => {
+    const dir = makeLoop('delta', { '.ai/task.md': TASK, 'BLOCKED.md': '## Question\nQ?\n\n## Best guess\nG\n' });
+    const app = await createApp({ demo: false, projectsDir: root });
+    expect((await post(app, 'delta', { file: 'BLOCKED.md', answer: 'accept' })).status).toBe(200);
+    expect(readFileSync(path.join(dir, '.ai', 'task.md'), 'utf8')).toContain('Answer: Accept.');
+  });
+
+  it('is read-only in demo mode', async () => {
+    const res = await post(await createApp({ demo: true }), 'proj1', { file: 'BLOCKED.md', answer: 'x' });
+    expect(res.status).toBe(409);
+    expect(await res.json()).toEqual({ error: 'demo is read-only' });
+  });
+
+  it('rejects bad bodies and unknown loops', async () => {
+    const app = await createApp({ demo: false, projectsDir: root });
+    expect((await post(app, 'beta', { file: 'BLOCKED.md', answer: '  ' })).status).toBe(400);
+    expect((await post(app, 'beta', { file: '../../etc/passwd', answer: 'x' })).status).toBe(400);
+    expect((await post(app, 'nope', { file: 'BLOCKED.md', answer: 'x' })).status).toBe(404);
+    const bad = await app.request('/api/loops/beta/answer', { method: 'POST', body: 'not json', headers: { 'content-type': 'application/json' } });
+    expect(bad.status).toBe(400);
+  });
+
+  it('writes the answer, removes BLOCKED.md and commits', async () => {
+    const dir = makeLoop('gamma', { '.ai/task.md': TASK, 'BLOCKED.md': '## Question\nWhich domain?\n\n## Best guess\nUse .com\n' });
+    const app = await createApp({ demo: false, projectsDir: root });
+    const res = await post(app, 'gamma', { file: 'BLOCKED.md', answer: 'Use .org' });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ ok: true, commit: expect.stringMatching(/^[0-9a-f]+$/), pushed: false });
+    expect(existsSync(path.join(dir, 'BLOCKED.md'))).toBe(false);
+    expect(readFileSync(path.join(dir, '.ai', 'task.md'), 'utf8')).toContain('Answer: Use .org');
+    const inbox = (await (await app.request('/api/inbox')).json()) as InboxItem[];
+    expect(inbox.map((i) => i.loopId)).toEqual(['beta']);
   });
 });

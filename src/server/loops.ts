@@ -2,6 +2,7 @@ import { execFile } from 'node:child_process';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
+import { runAnswer } from '../cli/loops.js';
 import { parseBlocked } from '../core/blocked.js';
 import { readLoopFacts, readRunCounter } from '../core/repo.js';
 import { deriveStatus } from '../core/status.js';
@@ -116,6 +117,17 @@ export function projectsSource(projectsDir: string, now: () => Date = () => new 
     inbox: async () => {
       const items = await Promise.all((await findLoopDirs(projectsDir)).map(readInboxItem));
       return items.filter((i): i is InboxItem => i !== undefined).sort((a, b) => a.since.localeCompare(b.since));
+    },
+    answer: async (id, answer) => {
+      const dir = (await findLoopDirs(projectsDir)).find((d) => path.basename(d) === id);
+      if (dir === undefined) return undefined;
+      // runAnswer reads the exact word "accept" as "use the best guess"; the web form sends literal text only.
+      const text = answer.trim();
+      await runAnswer(dir, text === 'accept' ? 'Accept.' : text, { dryRun: false, now: now() });
+      const commit = (await execFileAsync('git', ['rev-parse', '--short', 'HEAD'], { cwd: dir })).stdout.trim();
+      // Best effort: a clone without a remote (or offline) keeps the commit and the loop pulls it later.
+      const pushed = await execFileAsync('git', ['push'], { cwd: dir, timeout: 30_000, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }).then(() => true, () => false);
+      return { commit, pushed };
     },
     // Filled in by the health checks (unit 6).
     checks: async (): Promise<HealthCheck[]> => [],

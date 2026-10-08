@@ -8,11 +8,13 @@ Owned by the **server** lane; change it in the same commit as any route change. 
 | GET | `/api/loops` | `LoopSummary[]` | Fleet; sorted by attention (failing, blocked, building, waiting, done) |
 | GET | `/api/loops/:id` | `LoopDetail` | summary + timeline (commits), contract (done-when items with pass/fail), knowledge, decisions |
 | GET | `/api/inbox` | `InboxItem[]` | every BLOCKED.md: loop id, file, question, best guess, since |
-| POST | `/api/loops/:id/answer` | `{ ok: true, commit }` | body `{ file, answer }`: writes the answer, deletes BLOCKED.md, commits, pushes. Demo: `409 { error: "demo is read-only" }` |
+| POST | `/api/loops/:id/answer` | `{ ok: true, commit, pushed }` | body `{ file: "BLOCKED.md", answer }`: writes the answer to task.md, deletes BLOCKED.md, commits, then pushes if it can (`pushed: false` when there is no remote or it is offline). Errors are `{ error }`: 400 bad body, 404 unknown loop, 409 demo (`"demo is read-only"`), 422 git/answer failure |
 | GET | `/api/checks` | `HealthCheck[]` | Health page: `{ loopId, kind, ok, reason, proof }` |
 | GET | `/api/events` | SSE | events: `loop-updated { id }`, `inbox-changed`, `checks-changed` |
 
 **LoopSummary (draft; server finalises it in types.ts):** `{ id, name, url?, state: LoopState, reason, round, roundsTotal, run, runLimit, nextRunAt?, tests?: { passed, failed, at }, live?: { ok, status, leaked: string[] }, pages?, lastCommit?: { sha, at, message } }`
+
+**Guard (all routes):** `Host` must be loopback (`127.0.0.1`, `localhost`, `[::1]`) and `Origin`, when sent, must be a loopback page, else `403 { error: "forbidden" }`. POSTs must send `Content-Type: application/json` (else 415). A dev proxy must keep a loopback Host/Origin. The answer text is stored as typed (the word `accept` is not a command).
 
 ## Requested
 (web appends: date · what · why)
