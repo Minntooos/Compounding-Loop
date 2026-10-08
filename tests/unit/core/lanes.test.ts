@@ -71,10 +71,10 @@ describe('laneForPath', () => {
 });
 
 describe('parseLaneTrailer', () => {
-  it('reads the trailer from the last paragraph only', () => {
+  it('finds the last Lane: line', () => {
     expect(parseLaneTrailer('fix\n\nbody\n\nLane: core\n')).toBe('core');
     expect(parseLaneTrailer('fix\n\nLane: Core\r\nCo-Authored-By: x')).toBe('core');
-    expect(parseLaneTrailer('fix\n\nLane: core\n\nmore text')).toBeUndefined();
+    expect(parseLaneTrailer('fix\n\nLane: core\n\nCo-Authored-By: x')).toBe('core');
     expect(parseLaneTrailer('no trailer')).toBeUndefined();
   });
 });

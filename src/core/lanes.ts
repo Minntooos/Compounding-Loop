@@ -121,12 +121,11 @@ export function laneForPath(config: LanesConfig, file: string): string | undefin
   return matchesAny(config.shared, file) ? 'shared' : undefined;
 }
 
-/** Reads the `Lane: <name>` trailer from a commit message; undefined when there is none. */
+/** Reads the last `Lane: <name>` line of a commit message (it may be followed by other trailers); undefined when there is none. */
 export function parseLaneTrailer(message: string): string | undefined {
   const lines = message.trimEnd().split(/\r?\n/);
   for (let i = lines.length - 1; i >= 0; i--) {
     const line = (lines[i] as string).trim();
-    if (line === '') break; // trailers live in the last paragraph
     const match = /^lane:\s*(\S+)$/i.exec(line);
     if (match) return (match[1] as string).toLowerCase();
   }

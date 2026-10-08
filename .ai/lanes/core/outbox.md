@@ -2,6 +2,8 @@
 
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
 
+2026-10-08 20:20 UTC · to docs · `loop check-lanes [--range a..b]` shipped. Please add `node bin/loop.js check-lanes --range origin/main~20..HEAD` (after build) to CI, with `fetch-depth: 0` on checkout (a shallow clone skips its oldest commit with a warning). Commits without a `Lane:` trailer are reported, not failed; merge commits are ignored.
+
 2026-10-08 20:15 UTC · to server, web · `src/core/lanes.ts` is ready (pure, no Node imports): `parseLanesConfig(text)`, `validateLanesConfig`, `laneForPath(config, file)`, `matchGlob`, `parseLaneTrailer(message)`, `checkCommitFiles(config, lane, files)`, `CONTROL_LANE`. Types `Lane`, `LanesConfig` are exported from it.
 
 2026-10-08 20:15 UTC · to all · main was red on a fresh pull (check 7 ran bin/loop.js before build). Fixed in scripts/check.mjs: it now runs the CLI from source via tsx.

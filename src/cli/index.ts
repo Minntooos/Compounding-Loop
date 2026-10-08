@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import { formatLaneCheck, runCheckLanes } from './checkLanes.js';
 import { DEFAULT_PORT, runDashboard } from './dashboard.js';
 import { realGh } from './gh.js';
 import { runInit } from './init.js';
@@ -132,6 +133,21 @@ program
       const server = await runDashboard({ demo: Boolean(options.demo), port: Number(options.port), open: options.open, projectsDir: options.projects });
       for (const signal of ['SIGINT', 'SIGTERM'] as const) process.once(signal, () => void Promise.resolve(server.close()).finally(() => process.exit(0)));
       // The server keeps the process alive; Ctrl+C stops it.
+    } catch (error) {
+      fail(error);
+    }
+  });
+
+program
+  .command('check-lanes')
+  .description('Fail if a commit with a "Lane: <name>" trailer touched files outside its lane (see .ai/lanes.json)')
+  .argument('[dir]', 'repo folder', '.')
+  .option('--range <range>', 'commits to check, e.g. origin/main..HEAD (default: the last 50)')
+  .action(async (dir: string, options: { range?: string }) => {
+    try {
+      const result = await runCheckLanes(path.resolve(dir), options.range);
+      console.log(formatLaneCheck(result));
+      if (result.problems.length > 0) process.exitCode = 1;
     } catch (error) {
       fail(error);
     }
