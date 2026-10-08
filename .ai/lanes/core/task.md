@@ -1,7 +1,7 @@
 # Lane: core
 
-Run: 2 / 30
-Status: units 1-7 built; waiting on server's startServer for the real /api/health test (new has no @clack brief prompts yet) (init installs .ai/* + AGENTS.md; card waits on kit)
+Run: 3 / 30
+Status: DONE (run 3); see DONE.md
 
 ## Contract
 **Goal:** the `loop` CLI and the pure logic in `src/core` that every other lane builds on (IDEA.md must-haves 1–7).
