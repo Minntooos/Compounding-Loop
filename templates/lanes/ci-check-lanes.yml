@@ -1,5 +1,5 @@
 # Fails a push or pull request whose commits touch another lane's paths.
-# Copy to .github/workflows/check-lanes.yml. Commits without a `Lane:` trailer are reported, not failed.
+# Needs compounding-loop 0.2.0 or later (the release that adds `check-lanes`). Copy to .github/workflows/check-lanes.yml. Commits without a `Lane:` trailer are reported, not failed.
 name: check-lanes
 
 on:

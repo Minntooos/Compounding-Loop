@@ -6,7 +6,8 @@
 #        CLAUDE_CODE_OAUTH_TOKEN  (a Claude subscription; create it with `claude setup-token`).
 #      Secrets are referenced by name only. Never write a key into this file or the repository.
 #   2. Copy this file to .github/workflows/lanes.yml.
-#   3. Edit the `lane` and `cron` pairs in the matrix to match .ai/lanes.json, and keep the same
+#   3. The `verify` job runs `loop check-lanes`, which needs compounding-loop 0.2.0 or later.
+#   4. Edit the `lane` and `cron` pairs in the matrix to match .ai/lanes.json, and keep the same
 #      cron strings in `on.schedule` (see runners/routine/README.md for staggering N lanes).
 #
 # How it runs: every cron line starts the whole matrix, and each job does real work only when

@@ -393,7 +393,7 @@ A lane is one scheduled run that owns one part of the codebase. Several lanes pu
 - Do not split a project that is small, or whose parts change together in most commits. A cross-cutting change in a laned repo means waiting on another lane, which costs a day. One loop with units in order is faster and simpler.
 - Start with two or three lanes. Each lane costs a run budget and a share of your plan's usage limit.
 
-**Ownership.** `.ai/lanes.json` lists each lane's `owns` globs and the `shared` files any lane may edit with the smallest possible change (lockfiles, config, shared types). Owning no overlapping paths is checked when the file is read. Reading is free: a lane may read anything. Fixing a red `main` is the one cross-lane edit allowed anywhere; tell the owner in your outbox.
+**Ownership.** `.ai/lanes.json` lists each lane's `owns` globs and the `shared` files any lane may edit with the smallest possible change (lockfiles, config, shared types). Owning no overlapping paths is checked when the file is read. Reading is free: a lane may read anything. Fixing a red `main` is the one cross-lane edit allowed anywhere. `loop check-lanes` only lets the trailer `Lane: control` touch every path, so commit that fix as `Lane: control` (or list the file under `shared`) and tell the owner in your outbox.
 
 **Outboxes.** A lane talks to the others by writing only to its own `.ai/lanes/<lane>/outbox.md`, newest first: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`. At the start of every run each lane reads every other outbox and the control room's notes, and acts on messages to it or to `all`. Nobody writes into another lane's files, so there is no conflict even on the notes. Say what you shipped that someone waits on, and point to `path:line`.
 

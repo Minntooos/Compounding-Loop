@@ -46,7 +46,7 @@ describe('templates/lanes', () => {
 
   it('CLAUDE.md section states ownership, trailer, outbox, git and stop rules', () => {
     const section = read('claude-section.md');
-    for (const needle of ['Lane: <your lane>', 'loop check-lanes', 'outbox.md', 'control-room.md', 'git pull --ff-only', 'git pull --rebase', 'Never force-push', 'BLOCKED.md', 'DONE.md', '.ai/lanes.json', 'Lanes in this repo: {{lanes}}', 'reviewer subagent', 'Decisions', 'add-only', 'Never:']) {
+    for (const needle of ['Lane: <your lane>', 'loop check-lanes', 'outbox.md', 'control-room.md', 'git pull --ff-only', 'git pull --rebase', 'Never force-push', 'Lane: control', 'BLOCKED.md', 'DONE.md', '.ai/lanes.json', 'Lanes in this repo: {{lanes}}', 'reviewer subagent', 'Decisions', 'add-only', 'Never:']) {
       expect(section, needle).toContain(needle);
     }
   });
