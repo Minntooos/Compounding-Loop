@@ -16,6 +16,13 @@ describe('mergeCard', () => {
   });
 });
 
+describe('mergeCard broken markers', () => {
+  it('throws on an orphan marker', () => {
+    expect(() => mergeCard(`${CARD_START}\nold`, 'CARD')).toThrow(/broken/);
+    expect(() => mergeCard(`${CARD_END}\n${CARD_START}`, 'CARD')).toThrow(/broken/);
+  });
+});
+
 describe('briefBlocker', () => {
   it('blocks a missing or weak brief and names gaps', () => {
     expect(briefBlocker(undefined)).toMatch(/IDEA.md is missing/);
@@ -35,6 +42,11 @@ describe('planInit', () => {
     expect(planInit({ ...base, existing })[0]).toMatchObject({ kind: 'skip' });
     expect(planInit({ ...base, existing, force: true })[0]).toMatchObject({ kind: 'overwrite', content: 'LOG' });
     expect(planInit({ ...base, existing, force: true }).find((a) => a.dest === 'AGENTS.md')?.kind).toBe('skip');
+  });
+  it('never overwrites loop state, even with force', () => {
+    const existing = new Map([['.ai/log.md', 'MINE']]);
+    const plan = planInit({ ...base, kit: [{ dest: '.ai/log.md', content: 'LOG', keep: true }], existing, force: true });
+    expect(plan[0]).toMatchObject({ kind: 'skip', reason: 'loop state, never overwritten' });
   });
   it('is a no-op the second time', () => {
     const first = planInit(base);

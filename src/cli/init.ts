@@ -38,11 +38,11 @@ export async function loadKit(root: string = packageRoot): Promise<Kit> {
   const task = await read('method/task-template.md', FALLBACK_TASK);
   const index = await read('method/knowledge-index.md', FALLBACK_INDEX);
   const files: KitFile[] = [
-    { dest: '.ai/index.md', content: index ?? FALLBACK_INDEX },
-    { dest: '.ai/log.md', content: FALLBACK_LOG },
-    { dest: '.ai/task.md', content: task ?? FALLBACK_TASK },
-    { dest: '.ai/knowledge/.gitkeep', content: '' },
-    { dest: '.ai/plans/.gitkeep', content: '' },
+    { dest: '.ai/index.md', content: index ?? FALLBACK_INDEX, keep: true },
+    { dest: '.ai/log.md', content: FALLBACK_LOG, keep: true },
+    { dest: '.ai/task.md', content: task ?? FALLBACK_TASK, keep: true },
+    { dest: '.ai/knowledge/.gitkeep', content: '', keep: true },
+    { dest: '.ai/plans/.gitkeep', content: '', keep: true },
   ];
   if (method !== undefined) files.push({ dest: '.ai/method.md', content: method });
   return { files, card, missing };
@@ -66,7 +66,12 @@ export async function runInit(target: string, options: { force: boolean; dryRun:
     const text = await readIfExists(path.join(target, ...dest.split('/')));
     if (text !== undefined) existing.set(dest, text);
   }
-  const actions = planInit({ kit: loaded.files, card: loaded.card, existing, force: options.force });
+  let actions: InitAction[];
+  try {
+    actions = planInit({ kit: loaded.files, card: loaded.card, existing, force: options.force });
+  } catch (error) {
+    return { actions: [], missing: loaded.missing, refused: error instanceof Error ? error.message : String(error) };
+  }
   if (!options.dryRun) {
     for (const action of actions) {
       if (action.content === undefined) continue;

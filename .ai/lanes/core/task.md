@@ -1,7 +1,7 @@
 # Lane: core
 
 Run: 1 / 30
-Status: units 1-2 done
+Status: units 1-3 done (init installs .ai/* + AGENTS.md; card waits on kit)
 
 ## Contract
 **Goal:** the `loop` CLI and the pure logic in `src/core` that every other lane builds on (IDEA.md must-haves 1–7).
@@ -24,6 +24,7 @@ Status: units 1-2 done
 
 ## Decisions
 roundsDone = count of .ai/done-vN.md only (not +1 for DONE.md) · matches IDEA.md and deriveStatus's "Round roundsDone+1" · change readLoopFacts + status.ts together.
+state files (.ai/task|log|index) are create-only even with --force · reviewer found --force clobbered loop state · drop `keep` in loadKit.
 
 ## Confirmed
 - repo.ts readers pass tests/unit/core/repo.test.ts; DONE.md/BLOCKED.md live at repo root, session.lock/task.md/done-vN in .ai/.
@@ -39,4 +40,4 @@ roundsDone = count of .ai/done-vN.md only (not +1 for DONE.md) · matches IDEA.m
 - Add a dependency without a Decisions entry.
 
 ## Handoff
-Run 1: fixed red main (favicon), shipped unit 1 (src/core/repo.ts). Unit 2 shipped (src/core/brief.ts, exports lintBrief/briefPasses/MIN_BRIEF_SCORE). Next: unit 3, `loop init`. Nothing half-done.
+Run 1: fixed red main (favicon), shipped unit 1 (src/core/repo.ts). Unit 2 shipped (src/core/brief.ts, exports lintBrief/briefPasses/MIN_BRIEF_SCORE). Unit 3 shipped: src/core/init.ts, src/cli/init.ts (loadKit reads method/operating-card.md, task-template.md, knowledge-index.md, COMPOUNDING_LOOP.md -> .ai/method.md; missing ones warn). Still to add to init once kit ships: check script/tests/runner config install. Next: unit 4, `loop new`. Nothing half-done.

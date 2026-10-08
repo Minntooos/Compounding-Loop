@@ -24,7 +24,8 @@ program
       return;
     }
     for (const action of result.actions) console.log(`${action.kind.padEnd(9)} ${action.dest}${action.reason ? `  (${action.reason})` : ''}`);
-    for (const rel of result.missing) console.log(`note: ${rel} is not in this package yet; used a built-in fallback or skipped it`);
+    if (result.missing.includes('method/operating-card.md')) console.error('warning: the Operating Card was NOT installed, so CLAUDE.md is unchanged.');
+    for (const rel of result.missing) console.error(`warning: ${rel} is not in this package yet; used a built-in fallback or skipped it`);
   });
 
 await program.parseAsync();

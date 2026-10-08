@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -26,6 +26,16 @@ describe('loop init', () => {
     expect(await readFile(path.join(dir, '.ai', 'log.md'), 'utf8')).toBe('LOG');
     const second = await runInit(dir, { force: true, dryRun: false }, kit);
     expect(second.actions.every((a) => a.kind === 'skip')).toBe(true);
+  });
+
+  it('keeps user log and refuses broken markers', async () => {
+    await mkdir(path.join(dir, '.ai'));
+    await writeFile(path.join(dir, '.ai', 'log.md'), 'MINE');
+    const real = await loadKit();
+    await runInit(dir, { force: true, dryRun: false }, { ...real, files: real.files.filter((f) => f.dest === '.ai/log.md').map((f) => ({ ...f, keep: true })) });
+    expect(await readFile(path.join(dir, '.ai', 'log.md'), 'utf8')).toBe('MINE');
+    await writeFile(path.join(dir, 'CLAUDE.md'), '<!-- compounding-loop:start -->\n');
+    expect((await runInit(dir, { force: true, dryRun: false }, kit)).refused).toMatch(/broken/);
   });
 
   it('dry-run writes nothing', async () => {

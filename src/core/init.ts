@@ -8,6 +8,8 @@ export const CARD_END = '<!-- compounding-loop:end -->';
 export interface KitFile {
   dest: string;
   content: string;
+  /** Loop state (task, log, knowledge): created if absent, never overwritten, even with `force`. */
+  keep?: boolean;
 }
 
 export interface InitAction {
@@ -36,6 +38,9 @@ export function mergeCard(existing: string | undefined, card: string): string {
   if (existing === undefined || existing.trim() === '') return block;
   const start = existing.indexOf(CARD_START);
   const end = existing.indexOf(CARD_END);
+  if ((start === -1) !== (end === -1) || (start !== -1 && end < start)) {
+    throw new Error(`CLAUDE.md has a broken ${CARD_START} / ${CARD_END} pair: fix or remove the markers, then re-run.`);
+  }
   if (start !== -1 && end > start) {
     return existing.slice(0, start) + block + existing.slice(end + CARD_END.length).replace(/^\r?\n/, '');
   }
@@ -57,8 +62,8 @@ export function planInit({ kit, card, existing, force }: InitPlanInput): InitAct
     const current = existing.get(file.dest);
     if (current === undefined) actions.push({ dest: file.dest, kind: 'create', content: file.content });
     else if (current === file.content) actions.push({ dest: file.dest, kind: 'skip', reason: 'already up to date' });
-    else if (force) actions.push({ dest: file.dest, kind: 'overwrite', content: file.content });
-    else actions.push({ dest: file.dest, kind: 'skip', reason: 'exists (use --force to overwrite)' });
+    else if (force && !file.keep) actions.push({ dest: file.dest, kind: 'overwrite', content: file.content });
+    else actions.push({ dest: file.dest, kind: 'skip', reason: file.keep ? 'loop state, never overwritten' : 'exists (use --force to overwrite)' });
   }
 
   if (card !== undefined) {
