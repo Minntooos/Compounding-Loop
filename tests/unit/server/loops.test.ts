@@ -67,8 +67,12 @@ describe('reading clones', () => {
   });
 
   it('readLoop fills run counter, contract, decisions and a state', async () => {
-    const loop = await readLoop(path.join(root, 'alpha'), new Date(Date.now() + 5 * 3_600_000));
+    const loop = await readLoop(path.join(root, 'alpha'), new Date(Date.now() + 90 * 60_000));
     expect(loop).toMatchObject({ id: 'alpha', state: 'waiting', run: 3, runLimit: 30, round: 1 });
+    // Silent for more than two hourly periods: the runner-silent check turns it failing.
+    const silent = await readLoop(path.join(root, 'alpha'), new Date(Date.now() + 5 * 3_600_000));
+    expect(silent).toMatchObject({ state: 'failing' });
+    expect(silent.reason).toContain('limit 120');
     expect(loop.contract).toHaveLength(2);
     expect(loop.knowledge).toEqual(['thing works (a.ts:1)']);
     expect(loop.decisions).toEqual(['picked A · cheaper']);
@@ -152,5 +156,18 @@ describe('POST /api/loops/:id/answer', () => {
     expect(readFileSync(path.join(dir, '.ai', 'task.md'), 'utf8')).toContain('Answer: Use .org');
     const inbox = (await (await app.request('/api/inbox')).json()) as InboxItem[];
     expect(inbox.map((i) => i.loopId)).toEqual(['beta']);
+  });
+});
+
+describe('health checks in the API', () => {
+  it('a failing check makes the loop failing and shows up in /api/checks', async () => {
+    makeLoop('leaky', { '.ai/task.md': TASK, 'netlify.toml': '[build]\n publish = "."\n' });
+    const app = await createApp({ demo: false, projectsDir: root });
+    const detail = (await (await app.request('/api/loops/leaky')).json()) as LoopDetail;
+    expect(detail.state).toBe('failing');
+    expect(detail.reason).toContain('public');
+    const checks = (await (await app.request('/api/checks')).json()) as { loopId: string; kind: string; ok: boolean }[];
+    expect(checks.filter((c) => c.loopId === 'leaky' && !c.ok).map((c) => c.kind)).toEqual(['leak']);
+    expect(checks.filter((c) => c.loopId === 'alpha')).toHaveLength(5);
   });
 });

@@ -6,7 +6,8 @@ import { runAnswer } from '../cli/loops.js';
 import { parseBlocked } from '../core/blocked.js';
 import { readLoopFacts, readRunCounter } from '../core/repo.js';
 import { deriveStatus } from '../core/status.js';
-import type { ContractItem, HealthCheck, InboxItem, LoopCommit, LoopDetail } from '../core/types.js';
+import type { ContractItem, InboxItem, LoopCommit, LoopDetail } from '../core/types.js';
+import { checkLoop } from './health.js';
 import { sortByAttention, toSummary, type DataSource } from './data.js';
 
 const execFileAsync = promisify(execFile);
@@ -56,12 +57,15 @@ export function contractFromTask(taskText: string, finished: boolean): ContractI
 
 /** Reads one clone into the API's LoopDetail. `now` is a parameter so tests are deterministic. */
 export async function readLoop(dir: string, now: Date = new Date()): Promise<LoopDetail> {
-  const [facts, counter, timeline, taskText] = await Promise.all([
+  const [baseFacts, counter, timeline, taskText] = await Promise.all([
     readLoopFacts(dir),
     readRunCounter(dir),
     readTimeline(dir),
     readOptional(path.join(dir, '.ai', 'task.md')),
   ]);
+  // Any failing health check turns the loop "failing" with that check's reason (IDEA.md status rule 5).
+  const checks = await checkLoop(dir, baseFacts, now);
+  const facts = { ...baseFacts, healthFailures: checks.filter((c) => !c.ok).map((c) => c.reason) };
   const status = deriveStatus(facts, now);
   const round = facts.roundsDone + 1;
   const task = taskText ?? '';
@@ -129,7 +133,10 @@ export function projectsSource(projectsDir: string, now: () => Date = () => new 
       const pushed = await execFileAsync('git', ['push'], { cwd: dir, timeout: 30_000, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }).then(() => true, () => false);
       return { commit, pushed };
     },
-    // Filled in by the health checks (unit 6).
-    checks: async (): Promise<HealthCheck[]> => [],
+    checks: async () => {
+      const dirs = await findLoopDirs(projectsDir);
+      const perLoop = await Promise.all(dirs.map(async (dir) => checkLoop(dir, await readLoopFacts(dir), now())));
+      return perLoop.flat();
+    },
   };
 }

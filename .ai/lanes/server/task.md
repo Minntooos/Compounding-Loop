@@ -1,7 +1,7 @@
 # Lane: server
 
 Run: 1 / 30
-Status: in progress (units 1-5 done)
+Status: in progress (units 1-6 done)
 
 ## Contract
 **Goal:** the local HTTP server the dashboard talks to, plus the scrubbed demo data (IDEA.md must-haves 17–18).
@@ -31,6 +31,8 @@ Status: in progress (units 1-5 done)
 
 ## Decisions (cont.)
 - Demo snapshot ships as dist/server/five-sites.json (copied by `demo/copy-demo.mjs` in `npm run build`) · CLAUDE.md forbids adding demo/ to package `files`, and scripts/check.mjs enforces it · none.
+
+- Health inputs · leak = netlify.toml publishes repo root (offline, deterministic); stale lock = lock >= 90 min and no commit after it; runner silent = no commit/lock for 2 periods (default 60 min, runners are hourly); short runs and failing tests read optional `.ai/runs.jsonl` / `.ai/last-test.json` (no producer exists yet: asked core in outbox) · reverse: change src/server/health.ts.
 
 ## Confirmed
 - demo/five-sites.json is rebuilt with `node demo/build-demo.mjs`; tests/unit/server/demo.test.ts fails if it is stale or unscrubbed.
