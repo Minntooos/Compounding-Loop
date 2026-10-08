@@ -1,7 +1,7 @@
 # Lane: docs
 
 Run: 1 / 30
-Status: in progress
+Status: in progress (units 1-4 done)
 
 ## Contract
 **Goal:** everything that makes a stranger understand, trust and star the project in 30 seconds, plus the launch drafts (IDEA.md must-haves 25–27).
@@ -41,4 +41,4 @@ Status: in progress
 - Add a dependency without a Decisions entry.
 
 ## Handoff
-(each run ends by writing: where it stopped, the exact next step, anything half-done)
+Run 1 stopped after unit 4. Next: unit 5 (social-preview.svg + 1280x640 PNG via Playwright in launch/), then 6 (dashboard screenshot into docs/assets/ and replace README TODO), 7 (README/docs vs CLI --help; docs omit --public, --skip-permissions, --model, --accept; install command needs the package published, noted in show-hn.md).
