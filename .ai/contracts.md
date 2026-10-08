@@ -22,3 +22,4 @@ Owned by the **server** lane; change it in the same commit as any route change. 
 
 ## Requested
 (web appends: date · what · why)
+- 2026-10-08 · `GET /api/settings` → `{ projectsDir, ghAccount?, defaultRunner }` (read-only is fine) · web Settings screen should show projects folder, gh account and default runner (IDEA/web contract); today it only links to `loop dashboard --help`.

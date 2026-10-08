@@ -1,6 +1,6 @@
 # Lane: web
 
-Run: 6 / 30
+Run: 7 / 30
 Status: units 1-7 done (polish partial)
 
 ## Contract
@@ -62,3 +62,5 @@ Run 4: origin/main had unrelated history to the local clone; reset local main to
 Run 5: origin/main history had been rewritten again; reset local main to origin/main (no unique local work). Tests green (38 pass). Motion-on-change attempt failed, see Tried. Remaining polish: motion on change, busy-state test, Settings projects folder/gh account/default runner (needs a server route that does not exist in .ai/contracts.md; request it under Requested). Suggest adding jsdom + @testing-library/react to unblock component tests.
 
 Run 6: origin/main history rewritten again; reset local main to origin/main. Added tests/unit/web/query-state.test.ts (busy LoadError covered at unit level, closes the run 4 gap). Remaining: motion on change (needs a real SSE event or hook tests), Settings projects folder/gh account/default runner (needs server route).
+
+Run 7: origin/main history rewritten again; reset local main to origin/main (old commits on branch backup-old-root). Tests green (38 pass, 2 skipped). No unit taken: the two remaining items are blocked (Settings projects folder/gh account/default runner needs a server route, now requested in .ai/contracts.md; motion on change needs jsdom + @testing-library or a real SSE server, see Tried). Everything else in the contract passes. Next run: if the server lane added GET /api/settings, wire it into Settings.tsx with an e2e; otherwise write DONE.md noting those two gaps.
