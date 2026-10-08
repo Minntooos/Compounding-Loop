@@ -55,13 +55,16 @@ export interface AnswerResult {
   bestGuess: string;
   /** The text that was (or would be) recorded. */
   answer: string;
+  /** `true` after a successful `--push`; `false` when the push failed (see `pushError`); absent when not asked. */
+  pushed?: boolean;
+  pushError?: string;
 }
 
 /** `loop answer`: record the owner's answer in task.md, remove BLOCKED.md, and commit so the next run restarts. */
 export async function runAnswer(
   dir: string,
   answer: string | 'accept',
-  options: { dryRun: boolean; now?: Date },
+  options: { dryRun: boolean; push?: boolean; now?: Date },
 ): Promise<AnswerResult> {
   const blockedPath = path.join(dir, 'BLOCKED.md');
   const text = await readFile(blockedPath, 'utf8').catch(() => undefined);
@@ -89,5 +92,15 @@ export async function runAnswer(
     await git(dir, 'add', '-A', '--', ...paths);
     await git(dir, '-c', 'user.name=Compounding Loop', '-c', 'user.email=loop@users.noreply.github.com', 'commit', '-qm', 'Answer BLOCKED.md and restart the loop', '--', ...paths);
   }
-  return { question: note.question, bestGuess: note.bestGuess, answer: finalAnswer };
+  const result: AnswerResult = { question: note.question, bestGuess: note.bestGuess, answer: finalAnswer };
+  if (options.push && !options.dryRun) {
+    try {
+      await git(dir, 'push');
+      result.pushed = true;
+    } catch (error) {
+      result.pushed = false;
+      result.pushError = error instanceof Error ? error.message.split('\n').find((l) => l.trim()) ?? 'git push failed' : String(error);
+    }
+  }
+  return result;
 }

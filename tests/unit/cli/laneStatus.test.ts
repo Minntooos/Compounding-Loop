@@ -48,6 +48,6 @@ describe('lane status', () => {
     const out = await runStatus([dir]);
     expect(out).toMatch(/Lanes in loop-lstatus-/);
     expect(out).toMatch(/LANE\s+STATUS\s+RUN/);
-    expect(out).toMatch(/api\s+. waiting\s+run 4\/20/);
+    expect(out).toMatch(/api\s+- waiting\s+run 4\/20/);
   });
 });

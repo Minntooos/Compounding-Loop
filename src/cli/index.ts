@@ -131,12 +131,15 @@ program
   .argument('[answer]', 'your answer; omit with --accept to take the agent\'s best guess')
   .option('--accept', 'accept the best guess in BLOCKED.md')
   .option('--dir <dir>', 'loop folder', '.')
+  .option('--push', 'push the commit so the loop restarts without another step')
   .option('--dry-run', 'show the question and answer without writing')
-  .action(async (answer: string | undefined, options: { accept?: boolean; dir: string; dryRun?: boolean }) => {
+  .action(async (answer: string | undefined, options: { accept?: boolean; dir: string; dryRun?: boolean; push?: boolean }) => {
     try {
       if (!options.accept && !answer) throw new Error('Pass an answer, or --accept to take the best guess.');
-      const result = await runAnswer(path.resolve(options.dir), options.accept ? 'accept' : (answer ?? ''), { dryRun: Boolean(options.dryRun) });
-      console.log(`Question: ${result.question}\nAnswer:   ${result.answer}${options.dryRun ? '\n(dry run: nothing written)' : '\nCommitted. Push to restart the loop.'}`);
+      const result = await runAnswer(path.resolve(options.dir), options.accept ? 'accept' : (answer ?? ''), { dryRun: Boolean(options.dryRun), push: Boolean(options.push) });
+      const ending = options.dryRun ? '\n(dry run: nothing written)' : result.pushed ? '\nCommitted and pushed. The loop restarts on its next run.' : result.pushed === false ? `\nCommitted, but the push failed: ${result.pushError}\nFix that and run \`git push\` to restart the loop.` : '\nCommitted. Push (or use --push next time) to restart the loop.';
+      console.log(`Question: ${result.question}\nAnswer:   ${result.answer}${ending}`);
+      if (result.pushed === false) process.exitCode = 1;
     } catch (error) {
       fail(error);
     }

@@ -53,6 +53,6 @@ describe('formatLanes', () => {
     ], now);
     expect(out.split('\n')).toHaveLength(3);
     expect(out).toMatch(/core\s+~ building\s+run 3\/20\s+5m ago: core: doctor/);
-    expect(out).toMatch(/web\s+\. waiting\s+run -\s+no lane commits yet\s+waits on server/);
+    expect(out).toMatch(/web\s+- waiting\s+run -\s+no lane commits yet\s+waits on server/);
   });
 });

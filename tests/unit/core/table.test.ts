@@ -8,7 +8,7 @@ describe('formatFleet', () => {
   it('says nothing needs you for quiet loops', () => {
     const out = formatFleet([{ name: 'a', facts }], now);
     expect(out.split('\n')[0]).toBe('Nothing needs you.');
-    expect(out).toContain('. waiting');
+    expect(out).toContain('- waiting');
   });
   it('lists blocked loops first and counts them', () => {
     const out = formatFleet([{ name: 'a', facts }, { name: 'b', facts: { ...facts, hasBlocked: true }, run: { run: 3, limit: 30 } }], now);

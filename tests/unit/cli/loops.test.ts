@@ -70,6 +70,30 @@ describe('loop status / next-round / answer', () => {
     expect(g('status', '--short')).toContain('A  other.txt');
   });
 
+  it('answer --push pushes the commit, and reports a failed push without losing the commit', async () => {
+    const g = (cwd: string, ...a: string[]) => execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@e.x', ...a], { cwd, encoding: 'utf8' });
+    const remote = await mkdtemp(path.join(tmpdir(), 'loop-remote-'));
+    try {
+      g(remote, 'init', '-q', '--bare');
+      g(dir, 'init', '-q', '-b', 'main');
+      g(dir, 'remote', 'add', 'origin', remote);
+      await writeFile(path.join(dir, 'BLOCKED.md'), '## Best guess\nMIT');
+      g(dir, 'add', '-A');
+      g(dir, 'commit', '-qm', 'base');
+      g(dir, 'push', '-q', '-u', 'origin', 'main');
+      const ok = await runAnswer(dir, 'accept', { dryRun: false, push: true });
+      expect(ok.pushed).toBe(true);
+      expect(g(remote, 'log', '--format=%s', 'main')).toContain('Answer BLOCKED.md');
+
+      await writeFile(path.join(dir, 'BLOCKED.md'), '## Best guess\nApache');
+      g(dir, 'remote', 'set-url', 'origin', path.join(remote, 'missing'));
+      const failed = await runAnswer(dir, 'accept', { dryRun: false, push: true });
+      expect(failed.pushed).toBe(false);
+      expect(failed.pushError).toBeTruthy();
+      expect(g(dir, 'log', '--format=%s', '-1')).toContain('Answer BLOCKED.md');
+    } finally { await rm(remote, { recursive: true, force: true }); }
+  });
+
   it('answer refuses outside a git repo before changing anything', async () => {
     await writeFile(path.join(dir, 'BLOCKED.md'), '## Best guess\nMIT');
     await expect(runAnswer(dir, 'accept', { dryRun: false })).rejects.toThrow(/not a git repository/);

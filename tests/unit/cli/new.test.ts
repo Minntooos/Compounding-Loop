@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -45,11 +45,11 @@ describe('loop new', () => {
     expect(calls).toEqual([['demo-y', 'true']]);
   });
 
-  it('removes the folder and explains when GitHub fails, so a retry works', async () => {
+  it('keeps the folder and prints how to finish when GitHub fails', async () => {
     const failing: Gh = { createRepoFromFolder: async () => { throw new Error('not logged in'); } };
     const options = { parentDir: parent, dryRun: false, publicRepo: false };
-    await expect(runNew('static-site', 'demo-z', { ...options, gh: failing })).rejects.toThrow(/folder was removed[\s\S]*not logged in/);
-    await expect(runNew('static-site', 'demo-z', { ...options, gh: fakeGh })).resolves.toMatchObject({ repoUrl: 'https://github.com/me/demo-z' });
+    await expect(runNew('static-site', 'demo-z', { ...options, gh: failing })).rejects.toThrow(/folder was kept[\s\S]*gh repo create demo-z[\s\S]*not logged in/);
+    expect((await stat(path.join(parent, 'demo-z', '.ai'))).isDirectory()).toBe(true);
   });
 
   it('rejects bad names, unknown templates and existing folders', async () => {

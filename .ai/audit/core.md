@@ -17,6 +17,10 @@ None open. Fixed: `npm test` was red on a fresh checkout because check 7 (docs v
 ## Findings
 | # | Finding | Severity | Fix |
 |---|---|---|---|
-| 1 | Stray `.` in the status table's name column for the current folder | major | show the folder's basename (`src/core/status.ts`) |
-| 2 | `loop new` deletes the folder when gh fails | major | keep it, print a resume hint |
-| 3 | `answer` commits but does not push | major | `--push` flag |
+| 1 | The idle icon `.` looked like a stray dot in the status table | major | FIXED: idle is now `-` (`src/core/table.ts`) |
+| 2 | `loop new` deleted the folder when gh fails | major | FIXED: folder kept, message prints `gh repo create <name> --private --source . --push` |
+| 3 | `answer` committed but did not push | major | FIXED: `--push` (a failed push exits 1 and says what to run) |
+| 4 | `loop run` never wrote `.ai/session.lock` | major | FIXED: `loop run [--lane]` writes/clears it, also on failure, Ctrl-C, SIGTERM, SIGHUP |
+| 5 | `npm test` red on a fresh checkout (check 7 needed `dist/`) | blocker | FIXED |
+| 6 | Not covered by a test: SIGKILL / terminal crash leaves a stale lock (expires after 90 min by design); the `claude` child may outlive the parent on Ctrl-C | minor | open |
+| 7 | `.ai/last-test.json` is still not written by anything | minor | open (needs a decision with server on who runs the tests) |

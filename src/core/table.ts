@@ -7,7 +7,7 @@ export interface FleetRow {
   run?: { run: number; limit: number };
 }
 
-const ICON = { blocked: '!', failing: 'x', done: '+', building: '~', waiting: '.' } as const;
+const ICON = { blocked: '!', failing: 'x', done: '+', building: '~', waiting: '-' } as const;
 // Needs-you states first: blocked, failing, done, then the quiet ones.
 const ORDER = ['blocked', 'failing', 'done', 'building', 'waiting'] as const;
 
@@ -31,7 +31,7 @@ export function formatFleet(rows: readonly FleetRow[], now: Date = new Date()): 
   return [summary, '', render(header), ...lines.map(render)].join('\n');
 }
 
-const LANE_ICON = { blocked: '!', stalled: 'x', done: '+', building: '~', waiting: '.' } as const;
+const LANE_ICON = { blocked: '!', stalled: 'x', done: '+', building: '~', waiting: '-' } as const;
 
 /** One row per lane, for `loop status` on a laned loop. */
 export function formatLanes(lanes: readonly LaneStatus[], now: Date = new Date()): string {
