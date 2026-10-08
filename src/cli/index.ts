@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { realGh } from './gh.js';
 import { runInit } from './init.js';
+import { runAnswer, runNextRound, runStatus } from './loops.js';
 import { runNew } from './new.js';
 
 const pkg = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')) as { version: string };
@@ -46,6 +47,54 @@ program
     } catch (error) {
       console.error(error instanceof Error ? error.message : String(error));
       process.exitCode = 1;
+    }
+  });
+
+const fail = (error: unknown) => {
+  console.error(error instanceof Error ? error.message : String(error));
+  process.exitCode = 1;
+};
+
+program
+  .command('status')
+  .description('Fleet table for one or more loop folders')
+  .argument('[dirs...]', 'loop folders', ['.'])
+  .action(async (dirs: string[]) => {
+    try {
+      console.log(await runStatus(dirs.map((d) => path.resolve(d))));
+    } catch (error) {
+      fail(error);
+    }
+  });
+
+program
+  .command('next-round')
+  .description('After DONE.md: archive it as .ai/done-vN.md and write the next round\'s task.md from its "next 10" list')
+  .argument('[dir]', 'loop folder', '.')
+  .option('--dry-run', 'report what would happen without writing')
+  .action(async (dir: string, options: { dryRun?: boolean }) => {
+    try {
+      const result = await runNextRound(path.resolve(dir), { dryRun: Boolean(options.dryRun) });
+      console.log(`${options.dryRun ? 'Would archive' : 'Archived'} DONE.md as .ai/${result.archivedAs}; next round has ${result.units} units.`);
+    } catch (error) {
+      fail(error);
+    }
+  });
+
+program
+  .command('answer')
+  .description('Answer a BLOCKED.md: record the answer, remove the file, commit')
+  .argument('[answer]', 'your answer; omit with --accept to take the agent\'s best guess')
+  .option('--accept', 'accept the best guess in BLOCKED.md')
+  .option('--dir <dir>', 'loop folder', '.')
+  .option('--dry-run', 'show the question and answer without writing')
+  .action(async (answer: string | undefined, options: { accept?: boolean; dir: string; dryRun?: boolean }) => {
+    try {
+      if (!options.accept && !answer) throw new Error('Pass an answer, or --accept to take the best guess.');
+      const result = await runAnswer(path.resolve(options.dir), options.accept ? 'accept' : (answer ?? ''), { dryRun: Boolean(options.dryRun) });
+      console.log(`Question: ${result.question}\nAnswer:   ${result.answer}${options.dryRun ? '\n(dry run: nothing written)' : '\nCommitted. Push to restart the loop.'}`);
+    } catch (error) {
+      fail(error);
     }
   });
 
