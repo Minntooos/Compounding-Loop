@@ -22,6 +22,11 @@ describe('runDashboard', () => {
     expect(opened).toEqual([]);
   });
 
+  it('explains a busy port', async () => {
+    const busy: StartServer = async () => { throw Object.assign(new Error('listen'), { code: 'EADDRINUSE' }); };
+    await expect(runDashboard({ demo: false, port: 4321, open: false, projectsDir: '.' }, { start: busy })).rejects.toThrow(/already in use/);
+  });
+
   it('rejects a bad port', async () => {
     await expect(runDashboard({ demo: false, port: 70000, open: false, projectsDir: '.' }, { start })).rejects.toThrow(/not a valid port/);
     await expect(runDashboard({ demo: false, port: Number('x'), open: false, projectsDir: '.' }, { start })).rejects.toThrow(/not a valid port/);

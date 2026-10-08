@@ -129,7 +129,8 @@ program
   .option('--projects <dir>', 'folder that holds your loops', '.')
   .action(async (options: { demo?: boolean; port: string; open: boolean; projects: string }) => {
     try {
-      await runDashboard({ demo: Boolean(options.demo), port: Number(options.port), open: options.open, projectsDir: options.projects });
+      const server = await runDashboard({ demo: Boolean(options.demo), port: Number(options.port), open: options.open, projectsDir: options.projects });
+      for (const signal of ['SIGINT', 'SIGTERM'] as const) process.once(signal, () => void Promise.resolve(server.close()).finally(() => process.exit(0)));
       // The server keeps the process alive; Ctrl+C stops it.
     } catch (error) {
       fail(error);

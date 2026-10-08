@@ -18,7 +18,9 @@ async function loadStartServer(): Promise<StartServer> {
     const mod = (await import(specifier)) as { startServer?: StartServer };
     if (typeof mod.startServer === 'function') return mod.startServer;
   } catch (error) {
-    if (!(error instanceof Error) || !/Cannot find module|ERR_MODULE_NOT_FOUND/.test(error.message)) throw error;
+    // Only "the server file itself is missing" is expected; a missing dependency inside it must surface as is.
+    const serverMissing = error instanceof Error && /Cannot find module|ERR_MODULE_NOT_FOUND/.test(error.message) && /server[\\/]index/.test(error.message);
+    if (!serverMissing) throw error;
   }
   throw new Error('The dashboard server is not available in this build (src/server/index.ts must export startServer).');
 }
@@ -55,7 +57,10 @@ export async function runDashboard(options: DashboardOptions, deps: DashboardDep
     throw new Error(`"${options.port}" is not a valid port (0-65535).`);
   }
   const start = deps.start ?? (await loadStartServer());
-  const server = await start({ port: options.port, demo: options.demo, projectsDir: path.resolve(options.projectsDir) });
+  const server = await start({ port: options.port, demo: options.demo, projectsDir: path.resolve(options.projectsDir) }).catch((error: unknown) => {
+    if ((error as { code?: string }).code === 'EADDRINUSE') throw new Error(`Port ${options.port} is already in use. Pick another with --port.`);
+    throw error;
+  });
   (deps.log ?? console.log)(`Dashboard${options.demo ? ' (demo)' : ''}: ${server.url}`);
   if (options.open) (deps.open ?? openBrowser)(server.url);
   return server;
