@@ -148,7 +148,8 @@ export function checkCommitFiles(config: LanesConfig, lane: string, files: reado
   const violations: LaneViolation[] = [];
   for (const file of files) {
     const owner = laneForPath(config, file);
-    if (owner === self.name || owner === 'shared') continue;
+    // A path listed in "shared" is open to every lane even when an "owns" glob also covers it (e.g. src/core/types.ts).
+    if (owner === self.name || owner === 'shared' || matchesAny(config.shared, file)) continue;
     const fix = owner
       ? `it belongs to lane "${owner}". Ask that lane through your outbox (.ai/lanes/${self.name}/outbox.md) instead of editing it.`
       : `no lane owns it. Add it to a lane's "owns" or to "shared" in .ai/lanes.json.`;

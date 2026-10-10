@@ -83,6 +83,11 @@ describe('checkCommitFiles', () => {
   it('passes owned, shared and own-folder files', () => {
     expect(checkCommitFiles(config, 'core', ['src/core/a.ts', 'package.json', '.ai/lanes/core/task.md'])).toEqual([]);
   });
+  it('lets any lane edit a shared path inside another lane\'s glob', () => {
+    const withTypes = validateLanesConfig({ ...good, shared: [...good.shared, 'src/core/types.ts'] }).config!;
+    expect(checkCommitFiles(withTypes, 'web', ['src/core/types.ts'])).toEqual([]);
+    expect(checkCommitFiles(withTypes, 'web', ['src/core/other.ts'])[0]?.message).toMatch(/belongs to lane "core"/);
+  });
   it('names the file, the lane and the fix when a lane crosses over', () => {
     const [v] = checkCommitFiles(config, 'core', ['web\\App.tsx']);
     expect(v?.file).toBe('web/App.tsx');

@@ -2,6 +2,8 @@
 
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
 
+2026-10-10 21:55 UTC · to docs, all · `loop check-lanes` now lets any lane edit a path listed in "shared" even when another lane's owns glob also covers it (src/core/types.ts is the case in this repo). With that and web owning tests/unit/web/**, the only failure left in the last 25 commits is 27eb065 (web regenerating demo/this-repo.json as a main-stays-green fix), a real crossing.
+
 2026-10-08 21:25 UTC · to server · lane stall threshold now 2x the lane's cron period (fallback 120 min); `loop new` no longer lists `lanes` as a template. tests/unit/server/demo-self.test.ts still fails on shallow clones (hasHistory true, history truncated).
 
 2026-10-08 20:38 UTC · to docs · new CLI surface to document: `loop answer --push`; `loop new` now keeps the folder when gh fails and prints `gh repo create <name> --private --source . --push`; `loop doctor`; `loop check-lanes [--range a..b]`; `loop init --lanes a,b,c`; `loop lanes add <name> --owns <glob>…`; `loop run --lane <name>`; `loop status` prints a lane block; the idle status icon is now `-` not `.`.

@@ -1,6 +1,6 @@
 # Lane: core — round 2 (0.2.0 "Lanes")
 
-Run: 2 / 20
+Run: 3 / 20
 Status: in progress (units 2,3,4,5,6,7 done; next: finish audit majors = unit 8: stray dot in status, keep folder on gh failure, answer --push, last-test.json; then DONE if reviewer clean)
 Round 1 record: `.ai/lanes/core/done-v1.md`; its Decisions still hold (`git show 3385cdf:.ai/lanes/core/task.md`).
 
@@ -38,6 +38,7 @@ Round 1 record: `.ai/lanes/core/done-v1.md`; its Decisions still hold (`git show
 ## Decisions
 - 2026-10-08: lane globs use a tiny in-house matcher in `src/core/lanes.ts` (`**`, `*`, `?`), not picomatch: picomatch is only a transitive dep and lanes.ts must stay browser-safe. Overlap detection compares each glob against a sample path of the other (catches nested prefixes; misses exotic pairs like `**/*.ts` vs `src/**`).
 - 2026-10-08: `loop doctor` requires node>=20, git, claude; gh, gh auth and Chromium are 'missing' warnings only (they gate `loop new`/pushing/browser tests, not running a loop). Easy to flip in `src/core/doctor.ts`.
+- 2026-10-10: a path listed in "shared" passes check-lanes for every lane even when another lane's owns glob also matches it (`checkCommitFiles`); `laneForPath` still reports the owner for display.
 - 2026-10-08: check-lanes skips merge commits and a shallow clone's oldest commit (reports it); commits without trailer are reported, not failed.
 
 ## Confirmed
@@ -56,3 +57,5 @@ Run 1 (2026-10-08 20:08-20:40 UTC) shipped, all pushed to main and green: fresh-
 Next: (1) check outboxes: kit's `templates/lanes/*` and prompt wording about the runner's own lock; server's use of `readLaneStatuses`; docs' CI line for check-lanes. (2) Remaining audit items: measure `npx compounding-loop@0.1.0` cold start (needs network), `.ai/last-test.json` writer (decide with server), wait for the `claude` child before releasing the lock on Ctrl-C, merge lane section into an existing AGENTS.md (currently only CLAUDE.md), case-insensitive glob matching on Windows/macOS, overlap detection for exotic globs. (3) If all contract items pass and the reviewer finds none, write DONE.md (10 next improvements).
 
 Run 2 (2026-10-08 21:08-21:12 UTC): shipped cron-derived stall threshold (`stallMinutesFor`) and excluded `lanes` from `listTemplates`, answering kit's and server's outbox asks. Outboxes read; nothing else waiting on core. Next: remaining Run-1 leftovers (last-test.json writer, wait for claude child before releasing lock on Ctrl-C, AGENTS.md merge, case-insensitive globs), then DONE.md.
+
+Run 3 (2026-10-10 21:20-22:00 UTC, owner's local Windows session): `npm test` was red on Windows; fixed with a `Lane: control` commit (see control-room.md 2026-10-10). Core part: `resolveExecutable` returns absolute non-.cmd paths unchanged and refuses `.cmd`/`.bat` names. Core unit: shared paths pass `check-lanes` (src/core/lanes.ts `checkCommitFiles`). Next: unchanged from Run 2 (last-test.json writer, wait for the claude child before releasing the lock on Ctrl-C, AGENTS.md merge, case-insensitive globs), then DONE.md.
