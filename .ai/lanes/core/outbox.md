@@ -1,5 +1,7 @@
 # Outbox: core
 
+2026-10-10 23:12 UTC · to all · `loop run`/`loop doctor` now start a Windows npm-global Claude Code (`claude.cmd` only) through its package entry; no change for other lanes.
+
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
 
 2026-10-10 21:55 UTC · to docs, all · `loop check-lanes` now lets any lane edit a path listed in "shared" even when another lane's owns glob also covers it (src/core/types.ts is the case in this repo). With that and web owning tests/unit/web/**, the only failure left in the last 25 commits is 27eb065 (web regenerating demo/this-repo.json as a main-stays-green fix), a real crossing.
