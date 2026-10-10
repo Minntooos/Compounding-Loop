@@ -32,7 +32,7 @@ describe('loop check-lanes', () => {
     git('add', '-A');
     git('commit', '-q', '-m', 'init');
   });
-  afterEach(async () => { await rm(dir, { recursive: true, force: true }); });
+  afterEach(async () => { await rm(dir, { recursive: true, force: true, maxRetries: 5 }); });
 
   it('passes good commits and reports untagged ones without failing', async () => {
     await commit('src/api/a.ts', 'api: a\n\nLane: api');
@@ -76,7 +76,7 @@ describe('loop check-lanes', () => {
       const result = await runCheckLanes(clone);
       expect(result.problems).toEqual([]);
       expect(result.skipped).toHaveLength(1);
-    } finally { await rm(clone, { recursive: true, force: true }); }
+    } finally { await rm(clone, { recursive: true, force: true, maxRetries: 5 }); }
   });
 
   it('warns on an empty range', async () => {

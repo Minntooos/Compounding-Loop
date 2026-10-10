@@ -22,7 +22,7 @@ describe('countResults', () => {
 
 describe('templates scripts/test.mjs', () => {
   let dir = '';
-  afterEach(() => rmSync(dir, { recursive: true, force: true }));
+  afterEach(() => rmSync(dir, { recursive: true, force: true, maxRetries: 5 }));
 
   it('the two templates ship the same recorder', () => {
     const read = (t: string) => readFileSync(path.resolve('templates', t, 'scripts', 'test.mjs'), 'utf8');

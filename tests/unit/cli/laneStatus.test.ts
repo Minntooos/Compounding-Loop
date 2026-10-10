@@ -25,7 +25,7 @@ describe('lane status', () => {
     git('add', '-A');
     git('commit', '-q', '-m', 'api: first\n\nLane: api');
   });
-  afterEach(async () => { await rm(dir, { recursive: true, force: true }); });
+  afterEach(async () => { await rm(dir, { recursive: true, force: true, maxRetries: 5 }); });
 
   it('is undefined for a folder without lanes.json', async () => {
     await rm(path.join(dir, '.ai', 'lanes.json'));

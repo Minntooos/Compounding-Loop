@@ -16,7 +16,7 @@ describe('loop status / next-round / answer', () => {
     await mkdir(path.join(dir, '.ai'));
     await writeFile(path.join(dir, '.ai', 'task.md'), '# T\n\nRun: 7 / 30\n\n## Decisions\n');
   });
-  afterEach(async () => { await rm(dir, { recursive: true, force: true }); });
+  afterEach(async () => { await rm(dir, { recursive: true, force: true, maxRetries: 5 }); });
 
   it('status shows a done loop with its run counter', async () => {
     await writeFile(path.join(dir, 'DONE.md'), 'x');
@@ -91,12 +91,20 @@ describe('loop status / next-round / answer', () => {
       expect(failed.pushed).toBe(false);
       expect(failed.pushError).toBeTruthy();
       expect(g(dir, 'log', '--format=%s', '-1')).toContain('Answer BLOCKED.md');
-    } finally { await rm(remote, { recursive: true, force: true }); }
+    } finally { await rm(remote, { recursive: true, force: true, maxRetries: 5 }); }
   });
 
   it('answer refuses outside a git repo before changing anything', async () => {
     await writeFile(path.join(dir, 'BLOCKED.md'), '## Best guess\nMIT');
-    await expect(runAnswer(dir, 'accept', { dryRun: false })).rejects.toThrow(/not a git repository/);
+    // Stop git from finding a repo above the temp folder (some machines keep their home folder in git).
+    const ceiling = process.env.GIT_CEILING_DIRECTORIES;
+    process.env.GIT_CEILING_DIRECTORIES = path.dirname(dir);
+    try {
+      await expect(runAnswer(dir, 'accept', { dryRun: false })).rejects.toThrow(/not a git repository/);
+    } finally {
+      if (ceiling === undefined) delete process.env.GIT_CEILING_DIRECTORIES;
+      else process.env.GIT_CEILING_DIRECTORIES = ceiling;
+    }
     expect(await readFile(path.join(dir, 'BLOCKED.md'), 'utf8')).toBeTruthy();
   });
 

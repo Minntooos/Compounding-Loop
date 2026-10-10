@@ -52,6 +52,8 @@ export interface WatchOptions {
   intervalMs: number;
   /** How often to `git fetch` every clone; 0 turns fetching off (tests). */
   fetchIntervalMs: number;
+  /** Called after every completed pass; tests use it to wait for the baseline instead of sleeping. */
+  onPoll?: () => void;
 }
 
 export const DEFAULT_WATCH: WatchOptions = { intervalMs: 5_000, fetchIntervalMs: 5 * 60_000 };
@@ -109,6 +111,7 @@ export function watchProjects(projectsDir: string, bus: EventBus, options: Watch
     for (const id of nowBlocked) blocked.add(id);
     if (!first && inboxChanged) bus.emit({ type: 'inbox-changed' });
     first = false;
+    options.onPoll?.();
   };
 
   const timer = setInterval(() => void tick().catch(() => undefined), options.intervalMs);

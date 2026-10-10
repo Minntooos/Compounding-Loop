@@ -55,6 +55,9 @@ export async function resolveExecutable(
   has: (file: string) => Promise<boolean> = exists,
 ): Promise<string> {
   if (platform !== 'win32') return name;
+  if (/\.(?:cmd|bat)$/i.test(name)) throw new Error(`Node cannot start ${name} safely. Point at a native .exe instead.`);
+  // A full path (e.g. process.execPath) needs no PATH search, and appending `.exe` would break it.
+  if (path.win32.isAbsolute(name)) return name;
   const dirs = pathEnv.split(path.win32.delimiter).filter(Boolean);
   for (const dir of dirs) if (await has(path.win32.join(dir, `${name}.exe`))) return path.win32.join(dir, `${name}.exe`);
   for (const dir of dirs) {

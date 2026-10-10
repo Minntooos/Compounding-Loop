@@ -28,7 +28,7 @@ const until = async (check: () => boolean, ms = 5000) => {
 };
 
 beforeEach(() => { root = mkdtempSync(path.join(tmpdir(), 'cl-events-')); });
-afterEach(() => rmSync(root, { recursive: true, force: true }));
+afterEach(() => rmSync(root, { recursive: true, force: true, maxRetries: 5 }));
 
 describe('EventBus', () => {
   it('delivers to subscribers until they unsubscribe', () => {
@@ -82,14 +82,15 @@ describe('watchProjects', () => {
     const bus = new EventBus();
     const got: LoopEvent[] = [];
     bus.subscribe((e) => got.push(e));
-    const stop = watchProjects(root, bus, { intervalMs: 30, fetchIntervalMs: 0 });
+    let polls = 0;
+    const stop = watchProjects(root, bus, { intervalMs: 30, fetchIntervalMs: 0, onPoll: () => polls++ });
     try {
-      await new Promise((r) => setTimeout(r, 400));
+      await until(() => polls >= 1, 8_000);
       expect(got).toEqual([]); // the first pass only records a baseline
       writeFileSync(path.join(dir, 'BLOCKED.md'), 'q');
       git(dir, 'add', '-A');
       git(dir, 'commit', '-qm', 'blocked');
-      await until(() => got.some((e) => e.type === 'inbox-changed'));
+      await until(() => got.some((e) => e.type === 'inbox-changed'), 8_000);
       expect(got).toContainEqual({ type: 'loop-updated', id: 'a' });
     } finally {
       await stop();
@@ -121,8 +122,10 @@ describe('GET /api/events', () => {
 describe('startServer watching a projects folder', () => {
   it('pushes loop-updated to a connected client when a clone changes', async () => {
     const dir = makeLoop('a');
-    const server = await startServer({ demo: false, port: 0, projectsDir: root, watch: { intervalMs: 30, fetchIntervalMs: 0 } });
+    let polls = 0;
+    const server = await startServer({ demo: false, port: 0, projectsDir: root, watch: { intervalMs: 30, fetchIntervalMs: 0, onPoll: () => polls++ } });
     try {
+      await until(() => polls >= 1, 8_000); // the change must land after the baseline pass
       const res = await fetch(`${server.url}/api/events`);
       const reader = res.body!.getReader();
       const decoder = new TextDecoder();

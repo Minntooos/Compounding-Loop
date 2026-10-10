@@ -25,7 +25,7 @@ function freshCopy(name: string): string {
 }
 
 afterAll(() => {
-  for (const d of temps) rmSync(d, { recursive: true, force: true });
+  for (const d of temps) rmSync(d, { recursive: true, force: true, maxRetries: 5 });
 });
 
 describe('templates/static-site', () => {

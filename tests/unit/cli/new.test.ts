@@ -15,7 +15,7 @@ describe('loop new', () => {
   const calls: string[][] = [];
   const fakeGh: Gh = { createRepoFromFolder: async (_f, name, o) => { calls.push([name, String(o.private)]); return `https://github.com/me/${name}`; } };
   beforeEach(async () => { parent = await mkdtemp(path.join(tmpdir(), 'loop-new-')); calls.length = 0; });
-  afterEach(async () => { await rm(parent, { recursive: true, force: true }); });
+  afterEach(async () => { await rm(parent, { recursive: true, force: true, maxRetries: 5 }); });
 
   it('lists the shipped templates', async () => {
     expect(await listTemplates()).toContain('static-site');

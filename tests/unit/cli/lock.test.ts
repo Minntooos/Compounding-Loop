@@ -8,7 +8,7 @@ describe('withSessionLock', () => {
   let dir: string;
   let file: string;
   beforeEach(async () => { dir = await mkdtemp(path.join(tmpdir(), 'loop-lock-')); file = path.join(dir, 'nested', 'session.lock'); });
-  afterEach(async () => { await rm(dir, { recursive: true, force: true }); });
+  afterEach(async () => { await rm(dir, { recursive: true, force: true, maxRetries: 5 }); });
 
   it('writes a UTC timestamp, returns the result and removes the lock', async () => {
     const value = await withSessionLock(file, async () => (await readFile(file, 'utf8')).trim(), { now: () => new Date('2026-10-08T05:00:00Z') });

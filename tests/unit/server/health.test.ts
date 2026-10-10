@@ -134,7 +134,7 @@ describe('checkLoop', () => {
       expect(new Set(checks.map((c) => c.loopId))).toEqual(new Set([path.basename(dir)]));
       expect(checks.filter((c) => !c.ok).map((c) => c.kind)).toEqual(['leak', 'failing-tests']);
     } finally {
-      rmSync(dir, { recursive: true, force: true });
+      rmSync(dir, { recursive: true, force: true, maxRetries: 5 });
     }
   });
 });
@@ -170,7 +170,7 @@ describe('deployLeakCheck', () => {
       const checks = await checkLoop(dir, { hasBlocked: false, hasDone: false, roundsDone: 0, healthFailures: [] }, now);
       expect(checks.find((c) => c.kind === 'leak')?.ok).toBe(false);
     } finally {
-      rmSync(dir, { recursive: true, force: true });
+      rmSync(dir, { recursive: true, force: true, maxRetries: 5 });
     }
   });
 });

@@ -41,7 +41,7 @@ describe('countDoneRounds', () => {
 describe('folder readers', () => {
   let dir: string;
   beforeEach(async () => { dir = await mkdtemp(path.join(tmpdir(), 'loop-repo-')); });
-  afterEach(async () => { await rm(dir, { recursive: true, force: true }); });
+  afterEach(async () => { await rm(dir, { recursive: true, force: true, maxRetries: 5 }); });
 
   it('reads facts from a folder with no .ai and no git', async () => {
     expect(await readLoopFacts(dir)).toEqual({ hasBlocked: false, hasDone: false, roundsDone: 0, healthFailures: [] });

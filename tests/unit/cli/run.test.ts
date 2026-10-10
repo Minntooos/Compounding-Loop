@@ -14,7 +14,7 @@ describe('loop run', () => {
   const calls: { command: string; args: string[]; cwd: string }[] = [];
   const fake: Spawner = async (command, args, cwd) => { calls.push({ command, args, cwd }); return 0; };
   beforeEach(async () => { dir = await mkdtemp(path.join(tmpdir(), 'loop-run-')); calls.length = 0; });
-  afterEach(async () => { await rm(dir, { recursive: true, force: true }); });
+  afterEach(async () => { await rm(dir, { recursive: true, force: true, maxRetries: 5 }); });
 
   it('prefers the repo prompt, then falls back to the built-in default', async () => {
     expect((await loadPromptText(dir, dir)).source).toBe('built-in default');
@@ -116,6 +116,8 @@ describe('loop run', () => {
     expect(await resolveExecutable('claude', 'win32', 'C:\\a;C:\\b', has(['C:\\b\\claude.exe']))).toBe('C:\\b\\claude.exe');
     await expect(resolveExecutable('claude', 'win32', 'C:\\a', has(['C:\\a\\claude.cmd']))).rejects.toThrow(/native claude.exe/);
     await expect(resolveExecutable('claude', 'win32', 'C:\\a', has([]))).rejects.toThrow(/Could not find/);
+    expect(await resolveExecutable('C:\\node\\node.exe', 'win32', '', has([]))).toBe('C:\\node\\node.exe');
+    await expect(resolveExecutable('C:\\tools\\claude.cmd', 'win32', '', has([]))).rejects.toThrow(/cannot start/);
   });
 
   it('prints the prompt through the CLI on --dry-run', () => {

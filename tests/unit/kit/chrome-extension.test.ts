@@ -44,7 +44,7 @@ function chromiumAvailable(): boolean {
 }
 
 afterAll(() => {
-  for (const d of temps) rmSync(d, { recursive: true, force: true });
+  for (const d of temps) rmSync(d, { recursive: true, force: true, maxRetries: 5 });
 });
 
 describe('templates/chrome-extension', () => {

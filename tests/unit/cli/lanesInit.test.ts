@@ -13,7 +13,7 @@ const loop = (dir: string, ...args: string[]) => execFileSync(process.execPath, 
 describe('lanes init', () => {
   let dir: string;
   beforeEach(async () => { dir = await mkdtemp(path.join(tmpdir(), 'loop-linit-')); });
-  afterEach(async () => { await rm(dir, { recursive: true, force: true }); });
+  afterEach(async () => { await rm(dir, { recursive: true, force: true, maxRetries: 5 }); });
   const read = (rel: string) => readFile(path.join(dir, ...rel.split('/')), 'utf8');
 
   it('runAddLanes writes the files, and a second run changes nothing', async () => {

@@ -12,7 +12,7 @@ const cli = path.resolve('src/cli/index.ts');
 describe('loop init', () => {
   let dir: string;
   beforeEach(async () => { dir = await mkdtemp(path.join(tmpdir(), 'loop-init-')); });
-  afterEach(async () => { await rm(dir, { recursive: true, force: true }); });
+  afterEach(async () => { await rm(dir, { recursive: true, force: true, maxRetries: 5 }); });
   const kit = { files: [{ dest: '.ai/log.md', content: 'LOG' }], card: 'CARD', missing: [] };
 
   it('refuses without a good brief', async () => {

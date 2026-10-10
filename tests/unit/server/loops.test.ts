@@ -44,7 +44,7 @@ beforeAll(() => {
   makeLoop('beta', { '.ai/task.md': TASK, 'BLOCKED.md': '# Blocked\n\n## Question\nWhich domain?\n\n## Best guess\nUse .com\n' });
   mkdirSync(path.join(root, 'not-a-loop'));
 });
-afterAll(() => rmSync(root, { recursive: true, force: true }));
+afterAll(() => rmSync(root, { recursive: true, force: true, maxRetries: 5 }));
 
 describe('parsers', () => {
   it('bulletsUnder reads bullets after a heading or bold label and stops at the next section', () => {

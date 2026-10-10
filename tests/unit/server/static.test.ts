@@ -8,17 +8,19 @@ import { CSP, mimeFor, resolveInside } from '../../../src/server/static.js';
 import { staticApiFiles, writeStaticApi } from '../../../src/server/static-export.js';
 import { loadDemoSnapshot } from '../../../src/server/data.js';
 
+let root: string;
 let web: string;
 beforeAll(() => {
-  web = mkdtempSync(path.join(tmpdir(), 'cl-web-'));
-  mkdirSync(path.join(web, 'assets'));
+  // A private parent folder, so the secret next to `web` never lands in (or collides inside) the shared temp root.
+  root = mkdtempSync(path.join(tmpdir(), 'cl-static-'));
+  web = path.join(root, 'web');
+  mkdirSync(path.join(web, 'assets'), { recursive: true });
   writeFileSync(path.join(web, 'index.html'), '<!doctype html><title>x</title>');
   writeFileSync(path.join(web, 'assets', 'app-abc.js'), 'console.log(1)');
-  writeFileSync(path.join(path.dirname(web), 'secret.txt'), 'top secret');
+  writeFileSync(path.join(root, 'secret.txt'), 'top secret');
 });
 afterAll(() => {
-  rmSync(web, { recursive: true, force: true });
-  rmSync(path.join(path.dirname(web), 'secret.txt'), { force: true });
+  rmSync(root, { recursive: true, force: true, maxRetries: 5 });
 });
 
 describe('resolveInside', () => {
@@ -121,7 +123,7 @@ describe('static demo export', () => {
       const { readFile } = await import('node:fs/promises');
       expect(JSON.parse(await readFile(path.join(out, 'api', 'loops.json'), 'utf8'))).toEqual(await live.json());
     } finally {
-      rmSync(out, { recursive: true, force: true });
+      rmSync(out, { recursive: true, force: true, maxRetries: 5 });
     }
   });
 });

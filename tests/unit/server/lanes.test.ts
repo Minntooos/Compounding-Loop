@@ -53,7 +53,7 @@ describe('lanes over the API', () => {
     git(dir, 'add', '-A');
     git(dir, 'commit', '-qm', 'server: first\n\nLane: server');
   });
-  afterAll(() => rmSync(root, { recursive: true, force: true }));
+  afterAll(() => rmSync(root, { recursive: true, force: true, maxRetries: 5 }));
 
   it('returns lanes on the summary and detail of a laned loop only', async () => {
     const app = await createApp({ demo: false, projectsDir: root });
