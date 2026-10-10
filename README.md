@@ -10,7 +10,9 @@ npx compounding-loop init
 
 **[Live demo](https://minntooos.github.io/Compounding-Loop/)**: the dashboard on the real five-site data, in your browser.
 
-![The Compounding Loop dashboard showing five finished loops](docs/assets/dashboard.png)
+![The Compounding Loop fleet screen: six loops, one with lanes](docs/assets/screens/fleet-light-laptop.png)
+
+![A loop's detail screen in the dark theme](docs/assets/screens/loop-dark-laptop.png)
 
 **Lanes:** each lane is a scheduled run that owns a set of paths (`.ai/lanes.json`). `loop check-lanes` fails any commit that touches files outside its lane, so parallel runs do not collide. This repo is the proof: five lanes (core, kit, server, web, docs) built and documented it by pushing to one `main`. See [Lanes](docs/lanes.md).
 

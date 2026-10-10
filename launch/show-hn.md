@@ -1,17 +1,28 @@
 # Show HN draft
 
-**Title:** Show HN: Compounding Loop – unattended Claude Code build loops that must pass their own tests
+**Title:** Show HN: Compounding Loop – parallel unattended Claude Code lanes, one repo
 
-Note for the owner: the package is not yet published, so publish `compounding-loop` to npm before posting, or the `npx` command will fail.
+Note for the owner: publish `compounding-loop` 0.2.0 to npm before posting, or the `npx` command will fail.
 
-I let Claude Code build five calculator sites on a schedule, with nobody watching: 215 pages, 2,125 passing tests, 464 commits over roughly 18–22 hours of wall-clock time (data in `demo/five-sites.json`). I wrote five briefs and answered a few questions.
+**First comment:**
 
-What made it work was not the loop, it was what stops the loop. Each repo has a task contract whose "done" is a command, not the model's opinion. A reviewer subagent that did not write the code attacks every diff before it is pushed. A session lock stops overlapping runs, a run budget caps spending, and when it is stuck it writes `BLOCKED.md` instead of guessing.
+I let scheduled Claude Code runs build five calculator sites with nobody watching: 215 pages, 2,125 passing tests, 464 commits, roughly 18–22 hours of wall-clock time each (data in `demo/five-sites.json`). I wrote five briefs and answered a few questions.
 
-Compounding Loop packages that as a CLI (`init`, `new`, `run`, `status`, `dashboard`), templates, runners (routine, GitHub Actions, cron) and a local dashboard with an inbox for the questions the loop asks. No telemetry, loopback-only server, MIT.
+The part that mattered was what stops the loop, not the loop. "Done" is a command, not the model's opinion. A reviewer subagent that did not write the code checks each diff before it is pushed. A session lock stops overlapping runs, a run budget caps them, and a stuck run writes `BLOCKED.md` instead of guessing.
 
-Try the dashboard on the real data: https://minntooos.github.io/Compounding-Loop/ (or locally: `npx compounding-loop dashboard --demo`)
+0.2.0 adds lanes: several scheduled runs on one repo, each owning a set of paths in `.ai/lanes.json`, with `loop check-lanes` failing any commit that touches someone else's files. This repo was built that way, with five lanes (core, kit, server, web, docs) pushing to one `main`.
 
-Repo: https://github.com/Minntooos/compounding-loop
+It is a CLI, templates, runners (routine, GitHub Actions, cron), a Claude Code plugin and a local dashboard. No telemetry, loopback-only server, MIT.
 
-Happy to hear where the method breaks for you.
+Demo on real data: https://minntooos.github.io/Compounding-Loop/ (or `npx compounding-loop dashboard --demo`)
+Repo: https://github.com/Minntooos/Compounding-Loop
+
+Where it is weak: five sites by one person is a small sample, and lanes are young. I would like to hear where the method breaks for you.
+
+## Likely objections + answers (for the owner)
+- **"Isn't this cron + `claude -p`?"** Partly, yes: the scheduler is plain. What the repo adds is what stops a run: checkable done-when, a reviewer pass, a lock, a run budget, `BLOCKED.md`, and `loop check-lanes` for parallel lanes. See the FAQ in the README.
+- **"What does it cost?"** Depends on your Claude plan or API use; the tool adds no cost of its own and I have no cost-per-site figure to quote. Do not invent one.
+- **"Why not agent teams / worktrees?"** Those fit one interactive session. This is for scheduled runs with nobody watching, where ownership is checked per commit. The README comparison table lists sources; do not claim the others lack features beyond what it cites.
+- **"What if it goes wrong?"** Runs stop at the budget or write `BLOCKED.md`; `main` is protected only by the repo's own tests. A bad round is a revert away. Say so plainly.
+- **"Do the lanes really stay in their paths?"** Mostly. `loop check-lanes` on the last 50 commits reports three crossings (web regenerating `demo/this-repo.json`, kit editing `src/core/runPrompt.ts`, core leaving a stray `.tmp-t.mts`). Say so; it shows the check works, and the CI step is advisory until they are cleaned up.
+- **"Is the sample size five sites?"** Yes, built by one person on calculator sites. It is evidence, not a benchmark.
