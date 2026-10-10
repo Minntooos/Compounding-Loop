@@ -4,14 +4,15 @@ import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { doctorPassed, evaluateDoctor, formatDoctor, type DoctorInput, type ProbeResult } from '../core/doctor.js';
-import { resolveExecutable } from './run.js';
+import { resolveInvocation } from './run.js';
 
 const execFileAsync = promisify(execFile);
 
 /** Runs `command args` and reports success plus its first output; never throws. */
 export async function probe(command: string, args: string[]): Promise<ProbeResult> {
   try {
-    const { stdout, stderr } = await execFileAsync(await resolveExecutable(command), args, { timeout: 15_000 });
+    const invocation = await resolveInvocation(command, args);
+    const { stdout, stderr } = await execFileAsync(invocation.command, invocation.args, { timeout: 15_000 });
     return { ok: true, output: stdout.trim() || stderr.trim() };
   } catch (error) {
     return { ok: false, output: error instanceof Error ? error.message : String(error) };

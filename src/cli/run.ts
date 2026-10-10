@@ -68,8 +68,63 @@ export async function resolveExecutable(
   throw new Error(`Could not find ${name}.exe on PATH. Is Claude Code installed?`);
 }
 
-const realSpawn: Spawner = async (command, args, cwd) => {
-  const executable = await resolveExecutable(command);
+export interface Invocation {
+  command: string;
+  args: string[];
+}
+
+/**
+ * Where an npm-installed `<name>.cmd` shim really points: the `bin` entry of the package installed next to it.
+ * Returns undefined when the layout is not the usual global one.
+ */
+export async function shimEntry(
+  shim: string,
+  packageName: string,
+  read: (file: string) => Promise<string | undefined> = (file) => readFile(file, 'utf8').catch(() => undefined),
+): Promise<string | undefined> {
+  const packageDir = path.win32.join(path.win32.dirname(shim), 'node_modules', ...packageName.split('/'));
+  const text = await read(path.win32.join(packageDir, 'package.json'));
+  if (text === undefined) return undefined;
+  let bin: unknown;
+  try {
+    bin = (JSON.parse(text) as { bin?: unknown }).bin;
+  } catch {
+    return undefined;
+  }
+  const rel = typeof bin === 'string' ? bin : bin && typeof bin === 'object' ? Object.values(bin).find((v) => typeof v === 'string') : undefined;
+  return typeof rel === 'string' ? path.win32.join(packageDir, rel) : undefined;
+}
+
+/**
+ * Like `resolveExecutable`, but also copes with the usual Windows install (`npm i -g @anthropic-ai/claude-code`),
+ * which only has `claude.cmd`: we run the package's own JS entry with this Node, no shell involved.
+ */
+export async function resolveInvocation(
+  name: string,
+  args: string[],
+  platform: NodeJS.Platform = process.platform,
+  pathEnv: string = process.env.PATH ?? '',
+  has: (file: string) => Promise<boolean> = exists,
+  read?: (file: string) => Promise<string | undefined>,
+  nodePath: string = process.execPath,
+): Promise<Invocation> {
+  try {
+    return { command: await resolveExecutable(name, platform, pathEnv, has), args };
+  } catch (error) {
+    if (platform !== 'win32' || path.win32.isAbsolute(name)) throw error;
+    for (const dir of pathEnv.split(path.win32.delimiter).filter(Boolean)) {
+      const shim = path.win32.join(dir, `${name}.cmd`);
+      if (!(await has(shim))) continue;
+      const entry = await shimEntry(shim, name === 'claude' ? '@anthropic-ai/claude-code' : name, read);
+      if (!entry) throw error;
+      return /\.exe$/i.test(entry) ? { command: entry, args } : { command: nodePath, args: [entry, ...args] };
+    }
+    throw error;
+  }
+}
+
+const realSpawn: Spawner = async (command, rawArgs, cwd) => {
+  const { command: executable, args } = await resolveInvocation(command, rawArgs);
   return new Promise((resolve, reject) => {
     const child = spawn(executable, args, { cwd, stdio: 'inherit' });
     child.on('error', (error) => reject(new Error(`Could not start \`${command}\`: ${error.message}. Is Claude Code installed and on your PATH?`)));

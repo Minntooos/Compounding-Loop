@@ -3,7 +3,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { loadPromptText, lockMinutesLeft, resolveExecutable, runRound, type Spawner } from '../../../src/cli/run.js';
+import { loadPromptText, lockMinutesLeft, resolveExecutable, resolveInvocation, runRound, type Spawner } from '../../../src/cli/run.js';
 
 // Run tsx's CLI through node: node_modules/.bin/tsx is a .cmd shim on Windows, which execFile cannot start.
 const tsx = path.resolve('node_modules/tsx/dist/cli.mjs');
@@ -118,6 +118,20 @@ describe('loop run', () => {
     await expect(resolveExecutable('claude', 'win32', 'C:\\a', has([]))).rejects.toThrow(/Could not find/);
     expect(await resolveExecutable('C:\\node\\node.exe', 'win32', '', has([]))).toBe('C:\\node\\node.exe');
     await expect(resolveExecutable('C:\\tools\\claude.cmd', 'win32', '', has([]))).rejects.toThrow(/cannot start/);
+  });
+
+  it('runs a Windows npm shim through its package entry with node', async () => {
+    const has = async (f: string) => f === 'C:\\npm\\claude.cmd';
+    const files: Record<string, string> = {
+      'C:\\npm\\node_modules\\@anthropic-ai\\claude-code\\package.json': JSON.stringify({ bin: { claude: 'cli.js' } }),
+    };
+    const read = async (f: string) => files[f];
+    expect(await resolveInvocation('claude', ['-p', 'hi'], 'win32', 'C:\\npm', has, read, 'C:\\node.exe')).toEqual({
+      command: 'C:\\node.exe',
+      args: ['C:\\npm\\node_modules\\@anthropic-ai\\claude-code\\cli.js', '-p', 'hi'],
+    });
+    await expect(resolveInvocation('claude', [], 'win32', 'C:\\npm', has, async () => undefined)).rejects.toThrow(/native claude.exe/);
+    expect(await resolveInvocation('claude', ['x'], 'linux')).toEqual({ command: 'claude', args: ['x'] });
   });
 
   it('prints the prompt through the CLI on --dry-run', () => {
