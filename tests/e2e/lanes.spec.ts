@@ -70,3 +70,11 @@ test('fleet filter by status narrows the cards and can be cleared', async ({ pag
   await page.getByRole('button', { name: /^All/ }).click();
   await expect(cards).toHaveCount(all);
 });
+
+test('the demo serves this repo as a laned loop with five finished lanes', async ({ page }) => {
+  await page.goto('/#/loop/compounding-loop');
+  await page.getByRole('tab', { name: 'Lanes' }).click();
+  const rows = page.getByTestId('lane-row');
+  await expect(rows).toHaveCount(5);
+  for (let i = 0; i < 5; i++) await expect(rows.nth(i)).toContainText('Done');
+});

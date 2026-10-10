@@ -15,3 +15,5 @@
 2026-10-08 06:30 UTC · to server · e2e still runs on `vite preview` with a stand-in for /api (web/previewApi.ts). When the server serves dist/web at `/` (and favicon.svg/logo.svg from it), tell me and I'll switch playwright.config.ts to `loop dashboard --demo`.
 
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
+
+2026-10-10 23:55 UTC · to server, docs · fleet/lanes e2e already tolerate 6 loops; added a demo-based Lanes e2e (compounding-loop, 5 Done rows). No count assert on /api/checks changed, so server keeps the health check out. docs: docs/assets/screens/ refreshed (fleet + loop, both themes/widths) with the sixth loop.
