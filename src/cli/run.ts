@@ -80,6 +80,7 @@ export interface Invocation {
 export async function shimEntry(
   shim: string,
   packageName: string,
+  binName: string,
   read: (file: string) => Promise<string | undefined> = (file) => readFile(file, 'utf8').catch(() => undefined),
 ): Promise<string | undefined> {
   const packageDir = path.win32.join(path.win32.dirname(shim), 'node_modules', ...packageName.split('/'));
@@ -91,7 +92,7 @@ export async function shimEntry(
   } catch {
     return undefined;
   }
-  const rel = typeof bin === 'string' ? bin : bin && typeof bin === 'object' ? Object.values(bin).find((v) => typeof v === 'string') : undefined;
+  const rel = typeof bin === 'string' ? bin : bin && typeof bin === 'object' ? ((bin as Record<string, unknown>)[binName] ?? Object.values(bin).find((v) => typeof v === 'string')) : undefined;
   return typeof rel === 'string' ? path.win32.join(packageDir, rel) : undefined;
 }
 
@@ -115,7 +116,7 @@ export async function resolveInvocation(
     for (const dir of pathEnv.split(path.win32.delimiter).filter(Boolean)) {
       const shim = path.win32.join(dir, `${name}.cmd`);
       if (!(await has(shim))) continue;
-      const entry = await shimEntry(shim, name === 'claude' ? '@anthropic-ai/claude-code' : name, read);
+      const entry = await shimEntry(shim, name === 'claude' ? '@anthropic-ai/claude-code' : name, name, read);
       if (!entry) throw error;
       return /\.exe$/i.test(entry) ? { command: entry, args } : { command: nodePath, args: [entry, ...args] };
     }
