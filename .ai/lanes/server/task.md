@@ -1,7 +1,7 @@
 # Lane: server — round 2 (0.2.0 "Lanes")
 
-Run: 1 / 20
-Status: in progress (units 1-4, 5 data+scrub, 6 leak checks done; next: merge sixth loop into served demo once web updates e2e counts; lane-cron stall is core's)
+Run: 2 / 20
+Status: in progress (units 1-6 done; sixth loop now served by the demo; next: add its health check once web's health e2e allows 11 checks, then Lane finished)
 Round 1 record: `.ai/lanes/server/done-v1.md` (`git show 3385cdf:.ai/lanes/server/task.md` for its Decisions).
 
 ## Contract
@@ -37,6 +37,8 @@ Round 1 record: `.ai/lanes/server/done-v1.md` (`git show 3385cdf:.ai/lanes/serve
 - Open: stall threshold ignores lane cron (core's STALL_MINUTES); told core in outbox 20:50.
 
 ## Confirmed
+- Sixth loop merged into the served demo (loadDemoSnapshot/withSelfLoop); demo-self rebuild test skips on any shallow clone. Its check is not served: tests/e2e/screens.spec.ts health asserts exactly 10 checks.
+- Run 2 reviewer: no blocker; idea: assert 6 loops from dist after build.
 
 ## Guesses
 

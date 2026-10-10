@@ -12,9 +12,9 @@ describe('demo API', async () => {
     expect(await get('/api/health')).toMatchObject({ ok: true, demo: true, version: expect.any(String) });
   });
 
-  it('GET /api/loops lists the five sites without detail fields', async () => {
+  it('GET /api/loops lists the five sites and this repo without detail fields', async () => {
     const loops = await get<LoopSummary[]>('/api/loops');
-    expect(loops).toHaveLength(5);
+    expect(loops).toHaveLength(6);
     expect(loops[0]).not.toHaveProperty('timeline');
     expect(loops[0]).toMatchObject({ state: 'done', roundsTotal: 5 });
   });
@@ -79,7 +79,7 @@ describe('loadDemoSnapshot', () => {
   it('falls back to the next candidate and fails clearly when none exist', async () => {
     const { loadDemoSnapshot } = await import('../../../src/server/data.js');
     const real = new URL('../../../demo/five-sites.json', import.meta.url);
-    expect((await loadDemoSnapshot([new URL('./nope.json', import.meta.url), real])).loops).toHaveLength(5);
+    expect((await loadDemoSnapshot([new URL('./nope.json', import.meta.url), real])).loops).toHaveLength(6);
     await expect(loadDemoSnapshot([new URL('./nope.json', import.meta.url)])).rejects.toThrow(/demo snapshot not found/);
   });
 });
@@ -108,5 +108,15 @@ describe('GET /api/settings', () => {
     await app.request('/api/settings');
     expect(first).toEqual({ demo: false, projectsDir: path.resolve('loops'), ghAccount: 'ana', defaultRunner: 'routine' });
     expect(calls).toBe(1);
+  });
+});
+
+describe('withSelfLoop', () => {
+  it('appends the loop after the five sites and keeps their checks', async () => {
+    const { withSelfLoop } = await import('../../../src/server/data.js');
+    const base = { loops: [{ id: 'a' }], inbox: [], checks: [{ loopId: 'a' }] } as never;
+    const merged = withSelfLoop(base, { loop: { id: 'self' } as never });
+    expect(merged.loops.map((l) => l.id)).toEqual(['a', 'self']);
+    expect(merged.checks.map((c) => c.loopId)).toEqual(['a']);
   });
 });

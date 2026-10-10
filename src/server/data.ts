@@ -35,19 +35,35 @@ export function snapshotSource(snapshot: DemoSnapshot): DataSource {
   };
 }
 
-/**
- * Reads the demo snapshot. In the repo it lives in `demo/`; in the published package the build copies it
- * next to the compiled server (`dist/server/five-sites.json`), because `demo/` does not ship.
- */
-export async function loadDemoSnapshot(
-  candidates: readonly URL[] = [new URL('./five-sites.json', import.meta.url), new URL('../../demo/five-sites.json', import.meta.url)],
-): Promise<DemoSnapshot> {
+async function readFirst<T>(candidates: readonly URL[]): Promise<T | undefined> {
   for (const file of candidates) {
     try {
-      return JSON.parse(await readFile(file, 'utf8')) as DemoSnapshot;
+      return JSON.parse(await readFile(file, 'utf8')) as T;
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
     }
   }
-  throw new Error('demo snapshot not found (run `node demo/build-demo.mjs`)');
+  return undefined;
+}
+
+/**
+ * Appends the sixth loop (this repo building itself) after the five sites. Its checks are left out for now:
+ * web's health e2e asserts exactly the five sites' 10 checks (see outbox).
+ */
+export function withSelfLoop(snapshot: DemoSnapshot, self: { loop: LoopDetail }): DemoSnapshot {
+  return { ...snapshot, loops: [...snapshot.loops, self.loop] };
+}
+
+/**
+ * Reads the demo snapshot: the five sites plus, when present, the sixth loop (this repo). In the repo they live
+ * in `demo/`; in the published package the build copies them next to the compiled server, because `demo/` does not ship.
+ */
+export async function loadDemoSnapshot(
+  candidates: readonly URL[] = [new URL('./five-sites.json', import.meta.url), new URL('../../demo/five-sites.json', import.meta.url)],
+  selfCandidates: readonly URL[] = [new URL('./this-repo.json', import.meta.url), new URL('../../demo/this-repo.json', import.meta.url)],
+): Promise<DemoSnapshot> {
+  const snapshot = await readFirst<DemoSnapshot>(candidates);
+  if (!snapshot) throw new Error('demo snapshot not found (run `node demo/build-demo.mjs`)');
+  const self = await readFirst<{ loop: LoopDetail; checks: HealthCheck[] }>(selfCandidates);
+  return self ? withSelfLoop(snapshot, self) : snapshot;
 }

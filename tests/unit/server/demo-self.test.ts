@@ -7,11 +7,13 @@ import type { HealthCheck, LoopDetail } from '../../../src/core/types.js';
 
 const root = path.resolve(import.meta.dirname, '..', '..', '..');
 const readShipped = async () => JSON.parse(await readFile(path.join(root, 'demo', 'this-repo.json'), 'utf8')) as { loop: LoopDetail; checks: HealthCheck[] };
-// A shallow clone (CI with fetch-depth 1) does not have the pinned commit, so the rebuild check is skipped there.
+// A shallow clone (CI with fetch-depth 1) may lack the pinned commit or its ancestors, so the rebuild check is skipped there.
 const hasHistory = (() => {
   try {
     execFileSync('git', ['cat-file', '-e', `${ROUND_ONE_COMMIT}^{commit}`], { cwd: root, stdio: 'ignore' });
-    return true;
+    // A truncated history has the commit but not its ancestors, so the rebuilt timeline would differ.
+    const shallow = execFileSync('git', ['rev-parse', '--is-shallow-repository'], { cwd: root, encoding: 'utf8' }).trim();
+    return shallow !== 'true';
   } catch {
     return false;
   }
