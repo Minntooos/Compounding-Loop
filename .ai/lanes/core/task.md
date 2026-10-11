@@ -1,7 +1,7 @@
 # Lane: core — round 3 (0.3.0 "Showcase")
 
-Run: 0 / 20
-Status: not started
+Run: 1 / 20
+Status: in progress (units 1-2 done)
 Round 2 record: `.ai/lanes/core/done-v2.md` (`git show 084bb9f:.ai/lanes/core/task.md` for its Decisions).
 
 ## Contract
@@ -29,4 +29,6 @@ Round 2 record: `.ai/lanes/core/done-v2.md` (`git show 084bb9f:.ai/lanes/core/ta
 - Edit paths another lane owns, except for the "main stays green" fix.
 
 ## Handoff
-Round 3 starts here. Brief: IDEA.md "Round 3". Commits carry a `Lane: core` trailer.
+Run 1 shipped units 1-2: Round 3 audit and `src/core/parse/` (task, markers, re-exports; node:-free test). Reviewer fixed: newest Handoff section wins.
+Next: unit 3 `loop claim`/`loop release` (add a pure `parseClaim` to `src/core/parse/`, CLI in `src/cli/`), then 4 `loop next`, 5 claims in status/LaneStatus (`claim` field), 6 runPrompt claim rule. Main was green at start (a stale local main had to be `git reset --hard origin/main`: local history was unrelated).
+Commits carry a `Lane: core` trailer.

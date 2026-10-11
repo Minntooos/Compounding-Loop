@@ -2,21 +2,14 @@ import { execFile } from 'node:child_process';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
+import { parseRunCounter } from './parse/task.js';
+import type { RunCounter } from './parse/task.js';
 import type { LoopFacts } from './types.js';
 
 const execFileAsync = promisify(execFile);
 
-export interface RunCounter {
-  run: number;
-  limit: number;
-}
-
-/** Reads the `Run: N / LIMIT` line of a task.md; undefined when the line is missing or malformed. */
-export function parseRunCounter(taskText: string): RunCounter | undefined {
-  const match = /^Run:\s*(\d+)\s*\/\s*(\d+)\b/m.exec(taskText);
-  if (!match) return undefined;
-  return { run: Number(match[1]), limit: Number(match[2]) };
-}
+export { parseRunCounter };
+export type { RunCounter };
 
 /** Parses the single UTC timestamp line of `.ai/session.lock`; undefined when it is not a valid date. */
 export function parseLockTime(lockText: string): Date | undefined {

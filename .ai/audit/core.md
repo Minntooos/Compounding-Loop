@@ -1,4 +1,18 @@
-# Audit: core (round 2, 2026-10-08)
+# Audit: core
+
+## Round 3 (2026-10-11)
+
+Goal judged: browser-safe parsers for the live demo, then `loop claim/release/next` for teams.
+
+| # | Finding | Severity | Fix |
+|---|---|---|---|
+| R3-1 | Parsers the browser needs were scattered: `parseRunCounter` lived in `repo.ts` (imports `node:`), there was no task-file, stop-marker or claim parser | blocker for server/web | FIXED: `src/core/parse/` entry point (task, markers, re-exports of lanes/trailer/outbox), a test fails on any `node:` import there |
+| R3-2 | `claude` child may outlive the parent after SIGKILL; stale lock lasts 90 min | minor | open (round 2 leftover) |
+| R3-3 | `.ai/last-test.json` still has no writer, so the dashboard shows "Tests: no result" | major | open, after claim/next |
+
+---
+
+## Round 2 (2026-10-08)
 
 ## Blockers
 None open. Fixed: `npm test` was red on a fresh checkout because check 7 (docs vs `--help`) ran `bin/loop.js` before `build` created `dist/`; it now runs the CLI from source (`scripts/check.mjs`).
