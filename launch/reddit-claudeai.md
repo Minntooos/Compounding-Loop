@@ -10,6 +10,7 @@ It cost me five briefs and a few answers to blocked questions. It also failed in
 
 Repo (MIT, no telemetry): https://github.com/Minntooos/Compounding-Loop
 Demo on the real data: https://minntooos.github.io/Compounding-Loop/ (or `npx compounding-loop dashboard --demo`)
+Controls: pause all lanes and start the next round from the CLI; releases to npm run from a GitHub Actions workflow with trusted publishing (no token).
 
 Happy to answer questions about what didn't work.
 

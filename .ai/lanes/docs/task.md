@@ -1,7 +1,7 @@
 # Lane: docs — round 4 (0.4.0 "Control")
 
-Run: 1 / 20
-Status: units 1, 2, 3 done; unit 4: docs/release.md done, docs/dashboard.md waits on web buttons; units 5-6 open
+Run: 2 / 20
+Status: units 1-3, 5 done; unit 4: docs/release.md done, docs/dashboard.md controls wait on web buttons (not on main at run 2); unit 6 open
 Round 3 record: `.ai/lanes/docs/done-v3.md` (`git show b3b51a5:.ai/lanes/docs/task.md` for its Decisions).
 
 ## Contract
@@ -18,6 +18,7 @@ Round 3 record: `.ai/lanes/docs/done-v3.md` (`git show b3b51a5:.ai/lanes/docs/ta
 6. Fresh-install test, then audit majors.
 
 ## Decisions
+- Run 2: stale clone (local main diverged), worked on `lane-run`, pushing `HEAD:main`. README/CHANGELOG describe the CLI controls as fact and the dashboard controls generally; docs/dashboard.md waits until web ships the buttons so it documents what exists.
 
 ## Confirmed
 

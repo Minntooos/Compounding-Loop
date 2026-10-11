@@ -17,6 +17,7 @@ The part that mattered was what stops the loop, not the loop. "Done" is a comman
 It is a CLI, templates, runners (routine, GitHub Actions, cron), a Claude Code plugin and a local dashboard. No telemetry, loopback-only server, MIT.
 
 Demo on real data: https://minntooos.github.io/Compounding-Loop/ (or `npx compounding-loop dashboard --demo`)
+Controls: pause all lanes and start the next round from the CLI; releases to npm run from a GitHub Actions workflow with trusted publishing (no token).
 Repo: https://github.com/Minntooos/Compounding-Loop
 
 Where it is weak: five sites by one person is a small sample, and lanes are young. I would like to hear where the method breaks for you.

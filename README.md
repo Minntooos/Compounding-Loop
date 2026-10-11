@@ -67,6 +67,8 @@ npx compounding-loop dashboard                 # the local dashboard
 
 Several lanes in one repo (needs an `IDEA.md` brief first): `npx compounding-loop init --lanes core,web,docs`, then `npx compounding-loop run --lane core`. Check ownership with `npx compounding-loop check-lanes`. Details: [Lanes](docs/lanes.md). Sharing a loop with a teammate: [Work on a loop with a teammate](docs/team.md).
 
+**Run the loop without tokens.** Pause every lane (`npx compounding-loop pause`, undo with `resume`), start the next round from a brief in a laned repo (`next-round --brief`), see which scheduled runs happened (`runs`) and check whether you can ship (`ship-check`). The dashboard shows paused state and the run history; its buttons for these controls are coming. Releases go through a GitHub Actions workflow with npm trusted publishing and a protected `release` environment: see [Release](docs/release.md).
+
 Already have a repo? `npx compounding-loop init` adds the method to it without overwriting anything. Details: [Getting started](docs/getting-started.md).
 
 ## Just loop the agent?
@@ -101,7 +103,7 @@ If you work at the keyboard and want to watch agents in parallel, those tools ar
 
 ## Docs
 
-[Getting started](docs/getting-started.md) · [Lanes](docs/lanes.md) · [Team](docs/team.md) · [Concepts](docs/concepts.md) · [Runners](docs/runners.md) · [Dashboard](docs/dashboard.md) · [Templates](docs/templates.md) · [FAQ](docs/faq.md) · [Troubleshooting](docs/troubleshooting.md) · [Contributing](CONTRIBUTING.md)
+[Getting started](docs/getting-started.md) · [Lanes](docs/lanes.md) · [Team](docs/team.md) · [Concepts](docs/concepts.md) · [Runners](docs/runners.md) · [Dashboard](docs/dashboard.md) · [Release](docs/release.md) · [Templates](docs/templates.md) · [FAQ](docs/faq.md) · [Troubleshooting](docs/troubleshooting.md) · [Contributing](CONTRIBUTING.md)
 
 ## FAQ
 
