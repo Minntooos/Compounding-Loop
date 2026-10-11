@@ -2,12 +2,12 @@ import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { AddressInfo } from 'node:net';
 import { serve } from '@hono/node-server';
-import { Hono } from 'hono';
+import { Hono, type Context } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import { DEFAULT_WATCH, EventBus, watchProjects, type WatchOptions } from './events.js';
 import { projectsSource } from './loops.js';
 import { SECURITY_HEADERS, staticHandler } from './static.js';
-import { loadDemoSnapshot, snapshotSource, type DataSource } from './data.js';
+import { loadDemoSnapshot, snapshotSource, type DataSource, type LoopControls } from './data.js';
 import { dashboardSettings, ghLogin } from './settings.js';
 
 export interface AppOptions {
@@ -93,6 +93,30 @@ export async function createApp(options: AppOptions): Promise<Hono> {
       return c.json({ error: error instanceof Error ? error.message : String(error) }, 422);
     }
   });
+  // pause, resume and next-round change the clone's git history; the same loopback/JSON guards as `answer` apply.
+  const control = async <T>(c: Context, run: (controls: LoopControls, body: Record<string, unknown>) => Promise<T | undefined>) => {
+    if (!source.control) return c.json({ error: 'demo is read-only' }, 409);
+    const body: unknown = await c.req.json().catch(() => ({}));
+    try {
+      const result = await run(source.control, typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {});
+      return result ? c.json({ ok: true, ...result }) : c.json({ error: 'no such loop' }, 404);
+    } catch (error) {
+      return c.json({ error: error instanceof Error ? error.message : String(error) }, 422);
+    }
+  };
+  app.post('/api/loops/:id/pause', (c) =>
+    control(c, (controls, { reason }) => controls.pause(c.req.param('id'), typeof reason === 'string' && reason.trim() !== '' ? reason : undefined)),
+  );
+  app.post('/api/loops/:id/resume', (c) => control(c, (controls) => controls.resume(c.req.param('id'))));
+  app.post('/api/loops/:id/next-round', async (c) => {
+    const body: unknown = await c.req.raw.clone().json().catch(() => undefined);
+    const brief = (body as { brief?: unknown } | undefined)?.brief;
+    if (typeof brief !== 'string' || brief.trim() === '') return c.json({ error: 'brief must be a non-empty string' }, 400);
+    return control(c, (controls) => controls.nextRound(c.req.param('id'), brief));
+  });
+  app.get('/api/doctor', async (c) =>
+    c.json(source.doctor ? await source.doctor() : { report: 'Run `npx compounding-loop doctor` on your own machine to check git, gh, Claude Code and Chromium.', passed: true }),
+  );
   app.get('/api/inbox', async (c) => c.json(await source.inbox()));
   app.get('/api/checks', async (c) => c.json(await source.checks()));
   // `gh` is asked once per server, on first use: the account rarely changes and the call takes about a second.

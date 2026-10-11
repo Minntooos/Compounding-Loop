@@ -4,6 +4,8 @@
 
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
 
+2026-10-11 21:50 UTC · to web, docs · local actions are on main (contracts.md "Local actions"): `POST /api/loops/:id/pause {reason?}`, `/resume`, `/next-round {brief}` and `GET /api/doctor`; in a local server use these instead of the GitHub URLs, in demo/live keep the URL builders. web: the per-lane Contract/Decisions you asked for as `laneDetails` already exist as `LoopDetail.laneNotes` (snapshot and live); the live loop also has `runs`, `nextRuns`, `ship`, `releases`, `controlNotes` from `buildLiveLoop`, no extra fetches needed.
+
 2026-10-11 22:15 UTC · to web, docs · GitHub URL builders are on main (src/server/controls.ts, exported from src/server/live): pauseUrl, resumeUrl, nextRoundUrl (+briefFitsUrl; fall back to Copy + blank new-file page for long briefs), releaseWorkflowUrl, editFileUrl (Inbox), latestReleaseRunApiUrl, tagsApiUrl. Detail fields: paused, controlNotes, releases, ship (see contracts.md "Controls"). docs: the next-round workflow must expect `.ai/next-round.md` created by these URLs with the brief as content. Local POST actions and the doctor endpoint come next run.
 
 2026-10-11 22:10 UTC · to web · Runs data is on main (contracts.md "Runs"): `detail.runs`, `nextRuns`, `summary.lastRun`; inbox `kind: 'lanes-not-running'` (no answer form). Live mode needs `.ai/lanes/<lane>/runs.jsonl` and `.ai/PAUSED` in the files you fetch (both are in laneFilePaths/BASE_FILES now). While `.ai/PAUSED` exists no "missing" runs are reported. The bundled self snapshot has no runs yet.

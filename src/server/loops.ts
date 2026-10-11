@@ -1,8 +1,11 @@
 import { execFile } from 'node:child_process';
-import { readdir, readFile, stat } from 'node:fs/promises';
+import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { runAnswer } from '../cli/loops.js';
+import { runDoctor } from '../cli/doctor.js';
+import { runLaneRound } from '../cli/laneRound.js';
+import { runPause, runResume } from '../cli/pause.js';
 import { readLaneStatuses } from '../cli/laneStatus.js';
 import { parseLanesConfig } from '../core/lanes.js';
 import { parseBlocked } from '../core/blocked.js';
@@ -153,14 +156,19 @@ async function readInboxItem(dir: string): Promise<InboxItem | undefined> {
   return { loopId: path.basename(dir), file: 'BLOCKED.md', question: note.question, bestGuess: note.bestGuess, since: info.mtime.toISOString() };
 }
 
+/** Best effort: a clone without a remote (or offline) keeps the commit and the loop pulls it later. */
+const pushQuietly = (dir: string) =>
+  execFileAsync('git', ['push'], { cwd: dir, timeout: 30_000, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }).then(() => true, () => false);
+
 /** A DataSource over a folder of loop clones, re-read on every call so the dashboard is never stale. */
 export function projectsSource(projectsDir: string, now: () => Date = () => new Date()): DataSource {
   const all = async () => Promise.all((await findLoopDirs(projectsDir)).map((dir) => readLoop(dir, now())));
+  // Match the id against folder names; never build a path from it.
+  const loopDir = async (id: string) => (await findLoopDirs(projectsDir)).find((d) => path.basename(d) === id);
   return {
     loops: async () => sortByAttention((await all()).map(toSummary)),
-    // Match the id against folder names; never build a path from it.
     loop: async (id) => {
-      const dir = (await findLoopDirs(projectsDir)).find((d) => path.basename(d) === id);
+      const dir = await loopDir(id);
       return dir === undefined ? undefined : readLoop(dir, now());
     },
     inbox: async () => {
@@ -169,16 +177,40 @@ export function projectsSource(projectsDir: string, now: () => Date = () => new 
       return items.filter((i): i is InboxItem => i !== undefined).sort((a, b) => a.since.localeCompare(b.since));
     },
     answer: async (id, answer) => {
-      const dir = (await findLoopDirs(projectsDir)).find((d) => path.basename(d) === id);
+      const dir = await loopDir(id);
       if (dir === undefined) return undefined;
       // runAnswer reads the exact word "accept" as "use the best guess"; the web form sends literal text only.
       const text = answer.trim();
       await runAnswer(dir, text === 'accept' ? 'Accept.' : text, { dryRun: false, now: now() });
       const commit = (await execFileAsync('git', ['rev-parse', '--short', 'HEAD'], { cwd: dir })).stdout.trim();
       // Best effort: a clone without a remote (or offline) keeps the commit and the loop pulls it later.
-      const pushed = await execFileAsync('git', ['push'], { cwd: dir, timeout: 30_000, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }).then(() => true, () => false);
-      return { commit, pushed };
+      return { commit, pushed: await pushQuietly(dir) };
     },
+    control: {
+      pause: async (id, reason) => {
+        const dir = await loopDir(id);
+        if (dir === undefined) return undefined;
+        const { changed, by, pushed, pushError } = await runPause(dir, reason === undefined ? {} : { reason });
+        return { changed, ...(by !== undefined && { by }), ...(pushed !== undefined && { pushed }), ...(pushError !== undefined && { pushError }) };
+      },
+      resume: async (id) => {
+        const dir = await loopDir(id);
+        if (dir === undefined) return undefined;
+        const { changed, pushed, pushError } = await runResume(dir);
+        return { changed, ...(pushed !== undefined && { pushed }), ...(pushError !== undefined && { pushError }) };
+      },
+      nextRound: async (id, brief) => {
+        const dir = await loopDir(id);
+        if (dir === undefined) return undefined;
+        // The brief lands where the web buttons put it; runLaneRound archives and deletes it.
+        const briefFile = path.join(dir, '.ai', 'next-round.md');
+        await writeFile(briefFile, brief.endsWith('\n') ? brief : `${brief}\n`);
+        const { committed } = await runLaneRound(dir, { briefFile, dryRun: false, commit: true, now: now() });
+        const pushed = committed ? await pushQuietly(dir) : undefined;
+        return { changed: true, committed, ...(pushed !== undefined && { pushed }) };
+      },
+    },
+    doctor: () => runDoctor(),
     checks: async () => {
       const dirs = await findLoopDirs(projectsDir);
       const perLoop = await Promise.all(dirs.map(async (dir) => checkLoop(dir, await readLoopFacts(dir), now(), undefined, await readLaneStatuses(dir, now()))));

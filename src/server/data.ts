@@ -10,6 +10,23 @@ export interface DataSource {
   checks(): Promise<HealthCheck[]>;
   /** Absent for read-only sources (the demo). Resolves with the new commit's sha. */
   answer?(id: string, answer: string): Promise<{ commit: string; pushed: boolean } | undefined>;
+  /** Absent for read-only sources. Each resolves undefined for an unknown loop. */
+  control?: LoopControls;
+  /** The `loop doctor` report of this machine; absent for the demo. */
+  doctor?(): Promise<{ report: string; passed: boolean }>;
+}
+
+export interface ControlResult {
+  changed: boolean;
+  pushed?: boolean;
+  pushError?: string;
+}
+
+/** The dashboard's pause, resume and next-round buttons for a local loop clone. */
+export interface LoopControls {
+  pause(id: string, reason?: string): Promise<(ControlResult & { by?: string }) | undefined>;
+  resume(id: string): Promise<ControlResult | undefined>;
+  nextRound(id: string, brief: string): Promise<(ControlResult & { committed: boolean }) | undefined>;
 }
 
 /** Fleet order from the contract: what needs the owner first. */
