@@ -1,0 +1,16 @@
+# Compounding Loop as a systemd user service: one round of `loop run`, started by compounding-loop.timer.
+# Install (replace /path/to/repo and check `which loop`):
+#   mkdir -p ~/.config/systemd/user
+#   cp compounding-loop.service compounding-loop.timer ~/.config/systemd/user/
+#   systemctl --user daemon-reload && systemctl --user enable --now compounding-loop.timer
+# Remove: systemctl --user disable --now compounding-loop.timer
+# Logs: journalctl --user -u compounding-loop. Add --skip-permissions to ExecStart only in a repository you trust.
+[Unit]
+Description=Compounding Loop: one unattended round
+
+[Service]
+Type=oneshot
+WorkingDirectory=/path/to/repo
+ExecStart=/usr/bin/env loop run
+# A round never runs longer than the 90-minute session lock.
+TimeoutStartSec=90min

@@ -1,0 +1,11 @@
+# Runs compounding-loop.service hourly at minute 17 (change it so several loops do not start together).
+# Persistent=true runs a missed round after the machine was asleep, like launchd.
+[Unit]
+Description=Compounding Loop hourly round
+
+[Timer]
+OnCalendar=*:17:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

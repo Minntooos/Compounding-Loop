@@ -1,6 +1,6 @@
 # Lane: kit — round 3 (0.3.0 "Showcase")
 
-Run: 3 / 20
+Run: 4 / 20
 Status: units 1-3 done; unit 4 started: plugin /loop-lanes shipped (done-v2 improvement 7). Next: more done-v2 leftovers (control-room job in lanes.yml, lane-aware handoff/retro templates)
 Round 2 record: `.ai/lanes/kit/done-v2.md` (`git show 084bb9f:.ai/lanes/kit/task.md` for its Decisions).
 

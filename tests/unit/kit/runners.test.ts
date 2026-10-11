@@ -97,6 +97,29 @@ describe('runners/local launchd.plist', () => {
   });
 });
 
+describe('runners/local systemd units', () => {
+  const service = read('runners', 'local', 'compounding-loop.service');
+  const timer = read('runners', 'local', 'compounding-loop.timer');
+
+  it('runs `loop run` as a oneshot, bounded by the session lock', () => {
+    expect(service).toMatch(/^Type=oneshot$/m);
+    expect(service).toMatch(/^ExecStart=.*\bloop run$/m);
+    expect(service).toMatch(/^TimeoutStartSec=90min$/m);
+  });
+
+  it('fires hourly at a non-zero minute and catches up after sleep', () => {
+    expect(timer).toMatch(/^OnCalendar=\*:(?!00)\d\d:00$/m);
+    expect(timer).toMatch(/^Persistent=true$/m);
+    expect(timer).toMatch(/^WantedBy=timers\.target$/m);
+  });
+
+  it('documents install and removal and carries no personal path', () => {
+    expect(service).toContain('systemctl --user enable --now');
+    expect(service).toContain('systemctl --user disable --now');
+    expect(service + timer).not.toMatch(/\/(home|Users)\/[A-Za-z]/);
+  });
+});
+
 /** Minimal tag-balance check; avoids adding an XML parser for one file. */
 class XMLValidatorLite {
   readonly balanced: boolean;
