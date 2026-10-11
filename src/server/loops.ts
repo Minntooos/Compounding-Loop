@@ -8,9 +8,9 @@ import { parseLanesConfig } from '../core/lanes.js';
 import { parseBlocked } from '../core/blocked.js';
 import { readLoopFacts, readRunCounter } from '../core/repo.js';
 import { deriveStatus } from '../core/status.js';
-import type { ContractItem, InboxItem, LaneStatus, LoopCommit, LoopDetail } from '../core/types.js';
+import type { ContractItem, InboxItem, LaneStatus, LoopCommit, LoopDetail, LoopSummary } from '../core/types.js';
 import { packageVersion, releaseInboxItem, roundState } from './roundState.js';
-import { commitLane, parsePaused } from '../core/parse/index.js';
+import { commitLane, latestControlNotes, parseChangelog, parsePaused } from '../core/parse/index.js';
 import { buildRuns, lastRunOf, sessionKey, silentLanesItem } from './runs.js';
 import { checkLoop } from './health.js';
 import { bulletsUnder, contractFromTask, laneNotesFromTask } from './taskBullets.js';
@@ -54,6 +54,11 @@ export async function readTimeline(dir: string, limit = 50, laneNames: readonly 
   }
 }
 
+function pausedInfo(text: string): NonNullable<LoopSummary['paused']> {
+  const { by, at, reason } = parsePaused(text);
+  return { by, ...(at && { at: at.toISOString() }), ...(reason && { reason }) };
+}
+
 async function readRuns(dir: string, lanes: readonly LaneStatus[], lanesJson: string | undefined, timeline: readonly LoopCommit[], now: Date) {
   const cron = new Map((parseLanesConfig(lanesJson ?? '').config?.lanes ?? []).map((l) => [l.name, l.cron] as const));
   const pausedText = await readOptional(path.join(dir, '.ai', 'PAUSED'));
@@ -74,6 +79,8 @@ export async function readLoop(dir: string, now: Date = new Date()): Promise<Loo
     readOptional(path.join(dir, 'package.json')),
     readOptional(path.join(dir, '.ai', 'lanes.json')),
   ]);
+  const [changelogText, controlText, pausedText] = await Promise.all(['CHANGELOG.md', path.join('.ai', 'control-room.md'), path.join('.ai', 'PAUSED')].map((f) => readOptional(path.join(dir, f))));
+  const notes = controlText === undefined || !lanes ? [] : Object.entries(latestControlNotes(controlText, laneNames)).map(([lane, n]) => ({ lane, at: n.at, text: n.text }));
   const runsData = lanes && (await readRuns(dir, lanes, lanesJson, timeline, now));
   // Any failing health check turns the loop "failing" with that check's reason (IDEA.md status rule 5).
   const checks = await checkLoop(dir, baseFacts, now, undefined, lanes);
@@ -89,6 +96,9 @@ export async function readLoop(dir: string, now: Date = new Date()): Promise<Loo
     state: status.state,
     reason: releaseWaiting && status.state === 'done' ? `${roundLabel} · release waiting on you` : status.reason,
     roundLabel,
+    ...(pausedText !== undefined && { paused: pausedInfo(pausedText) }),
+    ...(notes.length > 0 && { controlNotes: notes }),
+    ...(changelogText !== undefined && { releases: parseChangelog(changelogText) }),
     ...(runsData && lastRunOf(runsData.runs) && { lastRun: lastRunOf(runsData.runs) }),
     ...(runsData && { runs: runsData.runs, nextRuns: runsData.nextRuns }),
     ...(releaseWaiting && { releaseWaiting }),

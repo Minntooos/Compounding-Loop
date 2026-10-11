@@ -23,7 +23,7 @@ export function sortByAttention<T extends { state: LoopState; name: string }>(lo
 
 /** The detail-only fields stay out of the fleet list. */
 export function toSummary(detail: LoopDetail): LoopSummary {
-  const { runs: _runs, nextRuns: _nextRuns, laneNotes: _laneNotes, timeline: _timeline, contract: _contract, knowledge: _knowledge, decisions: _decisions, history: _history, ...summary } = detail;
+  const { controlNotes: _controlNotes, releases: _releases, ship: _ship, runs: _runs, nextRuns: _nextRuns, laneNotes: _laneNotes, timeline: _timeline, contract: _contract, knowledge: _knowledge, decisions: _decisions, history: _history, ...summary } = detail;
   return summary;
 }
 

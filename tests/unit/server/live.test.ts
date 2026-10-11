@@ -118,7 +118,7 @@ describe('buildLiveLoop', () => {
 describe('browser safety', () => {
   it('src/server/live and the files it imports from src/server use no node: modules', () => {
     const dirs = [path.join(here, '../../../src/server/live')];
-    const files = [...dirs.flatMap((d) => readdirSync(d).map((f) => path.join(d, f))), path.join(here, '../../../src/server/laneChecks.ts'), path.join(here, '../../../src/server/taskBullets.ts'), path.join(here, '../../../src/server/checkLabels.ts'), path.join(here, '../../../src/server/roundState.ts')];
+    const files = [...dirs.flatMap((d) => readdirSync(d).map((f) => path.join(d, f))), path.join(here, '../../../src/server/laneChecks.ts'), path.join(here, '../../../src/server/taskBullets.ts'), path.join(here, '../../../src/server/checkLabels.ts'), path.join(here, '../../../src/server/roundState.ts'), path.join(here, '../../../src/server/runs.ts'), path.join(here, '../../../src/server/controls.ts')];
     for (const file of files) expect(read(file, 'utf8'), file).not.toMatch(/from 'node:|require\(/);
   });
 });

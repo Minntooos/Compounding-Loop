@@ -25,6 +25,8 @@ export const BASE_FILES: readonly string[] = [
   '.ai/lanes.json',
   'package.json',
   '.ai/PAUSED',
+  '.ai/control-room.md',
+  'CHANGELOG.md',
   'DONE.md',
   'BLOCKED.md',
   ...Array.from({ length: MAX_ROUND_FILES }, (_, i) => `.ai/done-v${i + 1}.md`),

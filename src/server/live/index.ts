@@ -8,3 +8,4 @@ export { BASE_FILES, COMMITS_PAGE_SIZE, GITHUB_API, GITHUB_RAW, MAX_ROUND_FILES,
 export type { LiveUrls } from './urls.js';
 export { checkLabel, formatUtc, withLabel } from '../checkLabels.js';
 export { buildRuns, lastRunOf, sessionKey, silentLanesItem } from '../runs.js';
+export { deleteFileUrl, editFileUrl, latestReleaseRunApiUrl, newFileUrl, nextRoundUrl, pauseUrl, releaseWorkflowUrl, resumeUrl, tagsApiUrl, NEXT_ROUND_FILE, RELEASE_WORKFLOW } from '../controls.js';

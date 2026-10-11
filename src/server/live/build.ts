@@ -1,7 +1,8 @@
 // Pure: turns fetched GitHub data into the dashboard's existing API shapes (no Node imports, runs in the browser).
 import { parseBlocked } from '../../core/blocked.js';
-import { activeClaim, commitLane, parsePaused, parseLanesConfig, parseOutbox, parseRunCounter, parseTaskFile } from '../../core/parse/index.js';
+import { activeClaim, commitLane, latestControlNotes, parseChangelog, parsePaused, parseLanesConfig, parseOutbox, parseRunCounter, parseTaskFile } from '../../core/parse/index.js';
 import type { OutboxMessage } from '../../core/parse/index.js';
+import { shipCheck } from '../../core/shipCheck.js';
 import { deriveLaneState, stallMinutesFor, summarizeOutboxes } from '../../core/laneStatus.js';
 import { deriveStatus } from '../../core/status.js';
 import type { HealthCheck, InboxItem, LaneStatus, LoopCommit, LoopDetail } from '../../core/types.js';
@@ -13,6 +14,14 @@ import { packageVersion, releaseInboxItem, roundState } from '../roundState.js';
 import { buildRuns, lastRunOf, silentLanesItem } from '../runs.js';
 import { mergeCommits } from './merge.js';
 import { countRoundFiles } from './urls.js';
+
+const pausedInfo = (text: string): NonNullable<LoopDetail['paused']> => {
+  const { by, at, reason } = parsePaused(text);
+  return { by, ...(at && { at: at.toISOString() }), ...(reason && { reason }) };
+};
+
+/** Tag names from the GitHub tags response; anything else is no tags. */
+const tagNames = (json: unknown): string[] => (Array.isArray(json) ? json.flatMap((t) => (typeof t === 'object' && t !== null && typeof (t as { name?: unknown }).name === 'string' ? [(t as { name: string }).name] : [])) : []);
 
 const pausedAtOf = (text: string): { at?: Date } => {
   const { at } = parsePaused(text);
@@ -32,6 +41,8 @@ export interface LiveInput {
   /** Commits of the bundled snapshot (full history up to its pin); merged under the live ones without duplicates. */
   snapshotCommits?: readonly LoopCommit[];
   runs: unknown;
+  /** Parsed JSON of the tags response (`tagsApiUrl`); without it the ship-check assumes the tag is free. */
+  tags?: unknown;
   /** The loop's public site (the repo's GitHub Pages), from `live.json`; shown as the site instead of the repo. */
   pagesUrl?: string;
   /** Raw file text by repo-relative path; a file that 404ed is absent or undefined. */
@@ -118,6 +129,21 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
     ? buildRuns({ lanes: laneConfig.map((l) => ({ name: l.name, ...(l.cron && { cron: l.cron }), stopped: hasDone || ['done', 'blocked'].includes(lanes.find((s) => s.name === l.name)?.state ?? '') || lanes.find((s) => s.name === l.name)?.claim !== undefined })), logs: Object.fromEntries(laneNames.map((n) => [n, input.files[`.ai/lanes/${n}/runs.jsonl`]])), commits: timeline, now: input.now, ...(paused && { paused }) })
     : undefined;
   const lastRun = runsData && lastRunOf(runsData.runs);
+  const controlText = input.files['.ai/control-room.md'];
+  const notes = controlText === undefined || !lanes ? [] : Object.entries(latestControlNotes(controlText, laneNames)).map(([lane, n]) => ({ lane, at: n.at, text: n.text }));
+  const changelogText = input.files['CHANGELOG.md'];
+  const newestTests = runsData?.runs.find((r) => r.tests && r.endedAt);
+  const ship = hasDone && lanes
+    ? shipCheck({
+        version: version ?? '0.0.0',
+        doneText: input.files['DONE.md'] as string,
+        ...(changelogText !== undefined && { changelogText }),
+        tagExists: tagNames(input.tags).includes(`v${version ?? ''}`),
+        // A remote repo has no working tree to be dirty.
+        treeClean: true,
+        ...(newestTests?.tests && { tests: { ...newestTests.tests, ...(newestTests.endedAt && { at: newestTests.endedAt }) } }),
+      })
+    : undefined;
   const detail: LoopDetail = {
     id,
     name: id,
@@ -127,6 +153,10 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
     state: status.state,
     reason: releaseWaiting && status.state === 'done' ? `${roundLabel} · release waiting on you` : status.reason,
     roundLabel,
+    ...(pausedText !== undefined && { paused: pausedInfo(pausedText) }),
+    ...(notes.length > 0 && { controlNotes: notes }),
+    ...(changelogText !== undefined && { releases: parseChangelog(changelogText) }),
+    ...(ship && { ship }),
     ...(lastRun && { lastRun }),
     ...(runsData && { runs: runsData.runs.slice(0, MAX_RUNS), nextRuns: runsData.nextRuns }),
     ...(releaseWaiting && { releaseWaiting }),

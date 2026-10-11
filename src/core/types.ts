@@ -79,6 +79,8 @@ export interface LoopSummary {
   releaseWaiting?: boolean;
   /** The code repository, when `url` points somewhere else (the loop's site or Pages demo). */
   repoUrl?: string;
+  /** `.ai/PAUSED` exists: who paused, when (ISO) and why (server lane, Round 4). Also on the fleet card ("Paused by X since ..."). */
+  paused?: { by: string; at?: string; reason?: string };
   /** The newest run of any lane, for the fleet card's one status line. */
   lastRun?: { lane: string; at: string; outcome: LoopRun['outcome'] };
   lastCommit?: LoopCommit;
@@ -113,7 +115,21 @@ export interface LoopRun {
   note?: string;
 }
 
+/** One CHANGELOG release (same shape as core's parsed `Release`). */
+export interface LoopRelease {
+  version: string;
+  date?: string;
+  sections: { title: string; items: string[] }[];
+  items: string[];
+}
+
 export interface LoopDetail extends LoopSummary {
+  /** The control room's newest note for each lane. */
+  controlNotes?: { lane: string; at: string; text: string }[];
+  /** CHANGELOG.md releases, newest first. */
+  releases?: LoopRelease[];
+  /** Core's ship-check over the repo files ("Ready to ship" panel); only for laned loops with a root DONE.md. */
+  ship?: { ready: boolean; items: { id: string; label: string; ok: boolean; detail: string }[]; openFindings: string[] };
   /** Newest first: each lane's recorded and missing runs of the last two days (loops with lanes). */
   runs?: LoopRun[];
   /** The next scheduled slot of each lane that has a cron. */

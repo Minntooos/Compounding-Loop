@@ -215,3 +215,23 @@ describe('laned clone: runs from the run log and the session trailer', () => {
     expect(detail.lastRun).toMatchObject({ lane: 'core', outcome: 'pushed' });
   });
 });
+
+describe('laned clone: pause, control-room notes and releases', () => {
+  it('reads .ai/PAUSED, the newest note per lane and CHANGELOG.md', async () => {
+    const dir = makeLoop('ctl', {
+      '.ai/lanes.json': JSON.stringify({ lanes: [{ name: 'core', owns: ['src/**'] }], shared: [] }),
+      '.ai/PAUSED': 'Ada · paused 2026-10-11T09:00:00.000Z\n',
+      '.ai/control-room.md': '2026-10-11 10:00 UTC · to core · look at x\n',
+      'CHANGELOG.md': '## [0.4.0] - 2026-10-12\n\n- one thing\n',
+    });
+    const detail = await readLoop(dir, new Date());
+    expect(detail.paused).toEqual({ by: 'Ada', at: '2026-10-11T09:00:00.000Z' });
+    expect(detail.controlNotes).toEqual([{ lane: 'core', at: '2026-10-11T10:00:00.000Z', text: 'look at x' }]);
+    expect(detail.releases?.[0]).toMatchObject({ version: '0.4.0', date: '2026-10-12', items: ['one thing'] });
+    // The fleet list keeps the pause (card line) but not the heavy detail.
+    const summary = (await (await (await createApp({ demo: false, projectsDir: root })).request('/api/loops')).json()) as Record<string, unknown>[];
+    const mine = summary.find((l) => l.id === 'ctl');
+    expect(mine?.paused).toBeDefined();
+    expect(mine && 'releases' in mine).toBe(false);
+  });
+});
