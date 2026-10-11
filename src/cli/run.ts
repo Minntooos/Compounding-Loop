@@ -6,7 +6,8 @@ import { LOCK_MINUTES } from '../core/status.js';
 import { buildClaudeArgs, buildRunPrompt, claimRule, DEFAULT_PROMPT } from '../core/runPrompt.js';
 import { parseLanesConfig } from '../core/lanes.js';
 import { packageRoot } from './init.js';
-import { lockHolderPid, pidAlive, withSessionLock } from './lock.js';
+import { hostname } from 'node:os';
+import { lockHolderHost, lockHolderPid, pidAlive, withSessionLock } from './lock.js';
 
 const exists = (file: string) => stat(file).then(() => true, () => false);
 
@@ -147,12 +148,13 @@ const realSpawn: Spawner = async (command, rawArgs, cwd) => {
 };
 
 /** Minutes left on a fresh `.ai/session.lock`, or undefined when no session holds the repo. */
-export function lockMinutesLeft(lockText: string | undefined, now: Date, isAlive: (pid: number) => boolean = pidAlive): number | undefined {
+export function lockMinutesLeft(lockText: string | undefined, now: Date, isAlive: (pid: number) => boolean = pidAlive, host: string = hostname()): number | undefined {
   const at = lockText === undefined ? undefined : parseLockTime(lockText);
   if (!at || lockText === undefined) return undefined;
   // A lock whose holder was killed (SIGKILL skips the cleanup) is stale at once instead of after 90 minutes.
   const pid = lockHolderPid(lockText);
-  if (pid !== undefined && !isAlive(pid)) return undefined;
+  // Only on the writing machine: in another pid namespace (WSL, a container, a shared drive) a live holder looks dead.
+  if (pid !== undefined && lockHolderHost(lockText) === host && !isAlive(pid)) return undefined;
   const left = LOCK_MINUTES - (now.getTime() - at.getTime()) / 60_000;
   return left > 0 ? Math.ceil(left) : undefined;
 }

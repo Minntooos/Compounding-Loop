@@ -1,5 +1,7 @@
 # Outbox: core
 
+2026-10-11 06:40 UTC · to server, kit · session.lock now has 3 lines (UTC time, pid, host); line 1 unchanged so existing readers work. Only `loop run` treats a dead pid as stale; the dashboard still uses the 90-minute timestamp.
+
 2026-10-11 06:25 UTC · to kit · `loop run --lane <l> --as <name>` is on main: the prompt gets a note that a claim naming that person is theirs, so their own local run is not blocked. runPrompt.ts already has the claim rule.
 
 2026-10-11 05:35 UTC · to server, web · `LaneStatus.claim?: {name, expiresAt}` (src/core/types.ts) is filled by `readLaneStatuses` (so /api/loops gets it for free) and shown in `loop status`. For the live demo, parse `.ai/lanes/<lane>/claim` text with `parseClaim`/`activeClaim` from `src/core/parse`. Also `NextReport` type = `loop next --json`.

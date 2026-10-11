@@ -41,9 +41,10 @@ describe('loop run', () => {
 
     it('treats a lock whose holder pid is gone as stale', () => {
       const now = new Date('2026-10-08T05:10:00Z');
-      const lock = '2026-10-08T05:00:00.000Z\n999\n';
-      expect(lockMinutesLeft(lock, now, () => true)).toBe(80);
-      expect(lockMinutesLeft(lock, now, () => false)).toBeUndefined();
+      const lock = '2026-10-08T05:00:00.000Z\n999\nbox\n';
+      expect(lockMinutesLeft(lock, now, () => true, 'box')).toBe(80);
+      expect(lockMinutesLeft(lock, now, () => false, 'box')).toBeUndefined();
+      expect(lockMinutesLeft(lock, now, () => false, 'other-host')).toBe(80);
       expect(lockMinutesLeft('2026-10-08T05:00:00.000Z\n', now, () => false)).toBe(80);
     });
 

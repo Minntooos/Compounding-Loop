@@ -1,4 +1,5 @@
 import { rmSync } from 'node:fs';
+import { hostname } from 'node:os';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -19,7 +20,7 @@ export interface LockOptions {
 export async function withSessionLock<T>(lockFile: string, fn: () => Promise<T>, options: LockOptions = {}): Promise<T> {
   const exit = options.exit ?? ((code: number) => process.exit(code));
   await mkdir(path.dirname(lockFile), { recursive: true });
-  await writeFile(lockFile, `${(options.now ?? (() => new Date()))().toISOString()}\n${process.pid}\n`);
+  await writeFile(lockFile, `${(options.now ?? (() => new Date()))().toISOString()}\n${process.pid}\n${hostname()}\n`);
   const release = () => rmSync(lockFile, { force: true });
   const graceMs = options.graceMs ?? 10_000;
   let finished!: () => void;
@@ -47,6 +48,11 @@ export async function withSessionLock<T>(lockFile: string, fn: () => Promise<T>,
 export function lockHolderPid(lockText: string): number | undefined {
   const pid = Number(lockText.split(/\r?\n/)[1]?.trim());
   return Number.isInteger(pid) && pid > 0 ? pid : undefined;
+}
+
+/** The host on the lock's third line: a pid only means something on the machine that wrote it. */
+export function lockHolderHost(lockText: string): string | undefined {
+  return lockText.split(/\r?\n/)[2]?.trim() || undefined;
 }
 
 /** True when a process with this pid exists (EPERM means it exists but belongs to someone else). */
