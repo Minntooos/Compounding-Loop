@@ -97,6 +97,19 @@ export async function shimEntry(
 }
 
 /**
+ * Fallback for other layouts (pnpm and similar; Volta shims call its own launcher and are not covered): npm-style `.cmd` shims name their script as
+ * `"%dp0%\\path\\cli.js"` (or `%~dp0`), relative to the shim's own folder.
+ */
+export async function shimScript(
+  shim: string,
+  read: (file: string) => Promise<string | undefined> = (file) => readFile(file, 'utf8').catch(() => undefined),
+): Promise<string | undefined> {
+  const text = await read(shim);
+  const match = text === undefined ? null : /%(?:~dp0|dp0%)\\?([^"%\r\n]+\.(?:c|m)?js)"/i.exec(text);
+  return match?.[1] ? path.win32.join(path.win32.dirname(shim), match[1]) : undefined;
+}
+
+/**
  * Like `resolveExecutable`, but also copes with the usual Windows install (`npm i -g @anthropic-ai/claude-code`),
  * which only has `claude.cmd`: we run the package's own JS entry with this Node, no shell involved.
  */
@@ -116,7 +129,7 @@ export async function resolveInvocation(
     for (const dir of pathEnv.split(path.win32.delimiter).filter(Boolean)) {
       const shim = path.win32.join(dir, `${name}.cmd`);
       if (!(await has(shim))) continue;
-      const entry = await shimEntry(shim, name === 'claude' ? '@anthropic-ai/claude-code' : name, name, read);
+      const entry = (await shimEntry(shim, name === 'claude' ? '@anthropic-ai/claude-code' : name, name, read)) ?? (await shimScript(shim, read));
       if (!entry) throw error;
       return /\.exe$/i.test(entry) ? { command: entry, args } : { command: nodePath, args: [entry, ...args] };
     }

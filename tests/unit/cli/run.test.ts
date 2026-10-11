@@ -3,7 +3,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { loadPromptText, lockMinutesLeft, resolveExecutable, resolveInvocation, runRound, type Spawner } from '../../../src/cli/run.js';
+import { loadPromptText, lockMinutesLeft, resolveExecutable, resolveInvocation, runRound, shimScript, type Spawner } from '../../../src/cli/run.js';
 
 // Run tsx's CLI through node: node_modules/.bin/tsx is a .cmd shim on Windows, which execFile cannot start.
 const tsx = path.resolve('node_modules/tsx/dist/cli.mjs');
@@ -132,6 +132,17 @@ describe('loop run', () => {
     });
     await expect(resolveInvocation('claude', [], 'win32', 'C:\\npm', has, async () => undefined)).rejects.toThrow(/native claude.exe/);
     expect(await resolveInvocation('claude', ['x'], 'linux')).toEqual({ command: 'claude', args: ['x'] });
+  });
+
+  it('finds the script named inside a pnpm-style shim', async () => {
+    const shim = 'C:\\pnpm\\claude.cmd';
+    const text = '@ECHO off\r\n"%_prog%"  "%dp0%\\global\\5\\node_modules\\@anthropic-ai\\claude-code\\cli.js" %*\r\n';
+    expect(await shimScript(shim, async () => text)).toBe('C:\\pnpm\\global\\5\\node_modules\\@anthropic-ai\\claude-code\\cli.js');
+    expect(await shimScript(shim, async () => '@echo off\r\nclaude.exe %*')).toBeUndefined();
+    expect(await shimScript(shim, async () => undefined)).toBeUndefined();
+    const has = async (f: string) => f === shim;
+    const read = async (f: string) => (f === shim ? text : undefined);
+    expect((await resolveInvocation('claude', ['-p'], 'win32', 'C:\\pnpm', has, read, 'C:\\node.exe')).args[0]).toMatch(/cli\.js$/);
   });
 
   it('prints the prompt through the CLI on --dry-run', () => {
