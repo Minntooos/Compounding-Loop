@@ -1,11 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { CheckCircle2, Inbox as InboxIcon } from 'lucide-react';
 import type { InboxItem, LoopState, LoopSummary } from '@core/types';
 import { api } from '../api/client';
-import { relativeTime, STATE_LABEL } from '../lib/format';
+import { cardFacts, roundProgress, runBudget, SELF_BUILD_ID, selfFirst } from '../lib/card';
+import { STATE_LABEL } from '../lib/format';
 import { lanesNeedingYou, needsYouCount } from '../lib/lanes';
 import { LaneStrip } from './LaneStrip';
+import { ProgressBar } from './ProgressBar';
 import { StatusBadge } from './StatusBadge';
 import { LoadError, Loading } from './QueryState';
 
@@ -28,22 +30,32 @@ function NeedsYou({ loops, inbox }: { loops: LoopSummary[]; inbox: InboxItem[] }
   );
 }
 
+const STATE_COLOR: Record<LoopState, string> = {
+  failing: 'var(--failing)', blocked: 'var(--blocked)', building: 'var(--building)', waiting: 'var(--muted)', done: 'var(--done)',
+};
+
 function LoopCard({ loop }: { loop: LoopSummary }) {
+  const rounds = roundProgress(loop);
+  const runs = runBudget(loop);
+  const facts = cardFacts(loop);
+  const self = loop.id === SELF_BUILD_ID;
   return (
-    <li>
-      <a href={`#/loop/${encodeURIComponent(loop.id)}`} data-testid="loop-card" className="block h-full rounded-lg border p-4" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
+    <li className={self ? 'sm:col-span-2' : undefined}>
+      <a href={`#/loop/${encodeURIComponent(loop.id)}`} data-testid="loop-card" className="block h-full rounded-lg border p-3 sm:p-4" style={{ background: 'var(--surface)', borderColor: self ? 'var(--accent)' : 'var(--border)' }}>
         <div className="flex items-start justify-between gap-2">
           <h3 className="break-all text-[15px] font-semibold">{loop.name}</h3>
           <StatusBadge state={loop.state} />
         </div>
         <p className="mt-1 [overflow-wrap:anywhere]" style={{ color: 'var(--muted)' }}>{loop.reason}</p>
-        <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 font-mono text-[12px]">
-          <dt style={{ color: 'var(--muted)' }}>Round</dt><dd>{loop.round}/{loop.roundsTotal}</dd>
-          <dt style={{ color: 'var(--muted)' }}>Run</dt><dd>{loop.run}/{loop.runLimit}</dd>
-          <dt style={{ color: 'var(--muted)' }}>Next run</dt><dd>{loop.nextRunAt ? relativeTime(loop.nextRunAt) : 'none'}</dd>
-          <dt style={{ color: 'var(--muted)' }}>Tests</dt><dd>{loop.tests ? `${loop.tests.passed} passed${loop.tests.failed ? `, ${loop.tests.failed} failed` : ''}` : 'no result'}</dd>
-          <dt style={{ color: 'var(--muted)' }}>Live</dt><dd>{loop.live ? (loop.live.ok ? `up (${loop.live.status})` : `down (${loop.live.status})`) : 'not checked'}</dd>
-        </dl>
+        <div className="mt-3 space-y-2">
+          <ProgressBar label="Rounds" {...rounds} color={STATE_COLOR[loop.state]} />
+          <ProgressBar label="Run budget" {...runs} color="var(--muted)" />
+        </div>
+        {facts.length > 0 && (
+          <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 font-mono text-[12px]">
+            {facts.map((f) => <Fragment key={f.label}><dt style={{ color: 'var(--muted)' }}>{f.label}</dt><dd>{f.value}</dd></Fragment>)}
+          </dl>
+        )}
         {loop.lanes && <LaneStrip lanes={loop.lanes} />}
       </a>
     </li>
@@ -86,7 +98,7 @@ export function Fleet() {
       <NeedsYou loops={loops.data} inbox={inbox.data} />
       <FilterBar loops={loops.data} value={filter} onChange={setFilter} />
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loops">
-        {loops.data.filter((l) => filter === 'all' || l.state === filter).map((l) => <LoopCard key={l.id} loop={l} />)}
+        {selfFirst(loops.data.filter((l) => filter === 'all' || l.state === filter)).map((l) => <LoopCard key={l.id} loop={l} />)}
       </ul>
     </div>
   );
