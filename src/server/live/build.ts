@@ -1,6 +1,6 @@
 // Pure: turns fetched GitHub data into the dashboard's existing API shapes (no Node imports, runs in the browser).
 import { parseBlocked } from '../../core/blocked.js';
-import { activeClaim, commitLane, parseLanesConfig, parseOutbox, parseRunCounter, parseTaskFile } from '../../core/parse/index.js';
+import { activeClaim, commitLane, parsePaused, parseLanesConfig, parseOutbox, parseRunCounter, parseTaskFile } from '../../core/parse/index.js';
 import type { OutboxMessage } from '../../core/parse/index.js';
 import { deriveLaneState, stallMinutesFor, summarizeOutboxes } from '../../core/laneStatus.js';
 import { deriveStatus } from '../../core/status.js';
@@ -13,6 +13,11 @@ import { packageVersion, releaseInboxItem, roundState } from '../roundState.js';
 import { buildRuns, lastRunOf, silentLanesItem } from '../runs.js';
 import { mergeCommits } from './merge.js';
 import { countRoundFiles } from './urls.js';
+
+const pausedAtOf = (text: string): { at?: Date } => {
+  const { at } = parsePaused(text);
+  return at ? { at } : {};
+};
 
 /** Runs kept in the loop detail (newest first); older ones stay in git. */
 const MAX_RUNS = 200;
@@ -107,8 +112,10 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
   const version = packageVersion(input.files['package.json']);
   const { roundLabel, releaseWaiting } = roundState({ round, hasDone, laned: lanes !== undefined, ...(version && { version }) });
   const repoUrl = `https://github.com/${input.slug}`;
+  const pausedText = input.files['.ai/PAUSED'];
+  const paused = pausedText === undefined ? undefined : pausedAtOf(pausedText);
   const runsData = lanes
-    ? buildRuns({ lanes: laneConfig.map((l) => ({ name: l.name, ...(l.cron && { cron: l.cron }), stopped: hasDone || ['done', 'blocked'].includes(lanes.find((s) => s.name === l.name)?.state ?? '') })), logs: Object.fromEntries(laneNames.map((n) => [n, input.files[`.ai/lanes/${n}/runs.jsonl`]])), commits: timeline, now: input.now })
+    ? buildRuns({ lanes: laneConfig.map((l) => ({ name: l.name, ...(l.cron && { cron: l.cron }), stopped: hasDone || ['done', 'blocked'].includes(lanes.find((s) => s.name === l.name)?.state ?? '') || lanes.find((s) => s.name === l.name)?.claim !== undefined })), logs: Object.fromEntries(laneNames.map((n) => [n, input.files[`.ai/lanes/${n}/runs.jsonl`]])), commits: timeline, now: input.now, ...(paused && { paused }) })
     : undefined;
   const lastRun = runsData && lastRunOf(runsData.runs);
   const detail: LoopDetail = {

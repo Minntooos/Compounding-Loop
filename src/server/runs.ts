@@ -7,7 +7,7 @@ export interface RunLane {
   name: string;
   /** 5-field cron from `.ai/lanes.json`; a lane without one only shows the runs it logged. */
   cron?: string;
-  /** Done or blocked on purpose: its missing slots are not a problem. */
+  /** Done, blocked or claimed on purpose: its missing slots are not a problem. */
   stopped?: boolean;
 }
 
@@ -18,6 +18,8 @@ export interface RunsInput {
   /** Newest first, each with the lane it belongs to. */
   commits: readonly LoopCommit[];
   now: Date;
+  /** `.ai/PAUSED` exists: runs reply "Paused" and log nothing, so slots from `at` on (all, if unknown) are not missing. */
+  paused?: { at?: Date };
 }
 
 export interface RunsData {
@@ -50,14 +52,17 @@ function laneRuns(lane: RunLane, input: RunsInput): { runs: LoopRun[]; next?: st
   const claimed = new Set(results.flatMap((r) => (r.entry ? [r.entry.at] : [])));
   const manual: SlotResult[] = entries.filter((e) => !claimed.has(e.at)).map((entry) => ({ slot: new Date(entry.at).toISOString(), entry, outcome: outcomeOf(entry) }));
   const graceEnd = input.now.getTime() - SLOT_GRACE_MINUTES * MINUTE;
-  const settled = results.filter((r) => r.outcome !== 'no-run-recorded' || new Date(r.slot).getTime() <= graceEnd);
+  const pausedFrom = input.paused ? (input.paused.at?.getTime() ?? -Infinity) : Infinity;
+  const settled = results.filter((r) => r.outcome !== 'no-run-recorded' || (new Date(r.slot).getTime() <= graceEnd && new Date(r.slot).getTime() < pausedFrom));
   const all = [...settled, ...manual].sort((a, b) => a.slot.localeCompare(b.slot));
+  const loggedSessions = new Set(entries.flatMap((e) => (e.session ? [sessionKey(e.session)] : [])));
   const runs = all.map((r, i): LoopRun => {
     const windowStart = new Date(r.slot).getTime();
     const windowEnd = all[i + 1] ? new Date((all[i + 1] as SlotResult).slot).getTime() : Infinity;
-    const session = r.entry?.session;
-    // Commits of one session belong to its run; without a session on both sides, the slot's time window decides.
-    const belongs = (c: LoopCommit) => (c.session !== undefined && session !== undefined ? c.session === sessionKey(session) : at(c) >= windowStart && at(c) < windowEnd);
+    const session = r.entry?.session === undefined ? undefined : sessionKey(r.entry.session);
+    const inWindow = (c: LoopCommit) => at(c) >= windowStart && at(c) < windowEnd;
+    // A commit of this run's session belongs to it; a commit of another logged session belongs to that run; the rest go by time.
+    const belongs = (c: LoopCommit) => (c.session !== undefined && c.session === session) || (inWindow(c) && !(c.session !== undefined && loggedSessions.has(c.session)));
     const commits = own.filter(belongs);
     return {
       lane: lane.name,
@@ -71,7 +76,7 @@ function laneRuns(lane: RunLane, input: RunsInput): { runs: LoopRun[]; next?: st
     };
   });
   return { runs, ...(next && { next }), // A lane that never logged a run or made a commit is new, not silent.
-  missed: !lane.stopped && (everLogged.length > 0 || own.length > 0) ? missedInARow(settled) : 0 };
+  missed: !lane.stopped && !input.paused && (everLogged.length > 0 || own.length > 0) ? missedInARow(settled) : 0 };
 }
 
 const at = (c: LoopCommit) => new Date(c.at).getTime();

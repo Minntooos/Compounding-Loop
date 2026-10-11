@@ -82,8 +82,8 @@ describe('buildLiveLoop', () => {
     expect(server?.claim).toEqual({ name: 'Ada', expiresAt: '2026-10-11T09:00:00.000Z' });
     expect(server?.unanswered.map((m) => m.from)).toEqual(['core']);
     expect(core?.waitingOn).toEqual(['server']);
-    // The server lane has not committed for hours: that is the "lanes are not running" item, not a question.
-    expect(inbox.map((i) => i.kind)).toEqual(['lanes-not-running']);
+    // The server lane is stalled but claimed by Ada, so it is not reported as silent.
+    expect(inbox).toEqual([]);
     expect(checks.map((c) => [c.kind, c.ok])).toEqual([['failing-tests', true], ['lane-stalled', false], ['lane-waiting-on-finished', true]]);
     expect([core?.state, server?.state]).toEqual(['waiting', 'stalled']);
   });

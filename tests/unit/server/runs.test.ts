@@ -56,7 +56,8 @@ describe('buildRuns', () => {
     const logs = { core: line({ at: '2026-10-11T10:50:00Z', lane: 'core', session: 'https://claude.ai/code/session_ABCDEFGH', units: [], pushed: true }) };
     const commits = [commit('late', '2026-10-11T11:05:00Z', 'core', 'ABCDEFGH'), commit('other', '2026-10-11T10:10:00Z', 'core', 'ZZZZZZZZ')];
     const run = buildRuns({ lanes, logs, commits, now: NOW }).runs.find((r) => r.at === '2026-10-11T10:00:00.000Z');
-    expect(run?.commits.map((c) => c.sha)).toEqual(['late']);
+    // 'other' is inside the slot and its session is not logged, so it shows by time.
+    expect(run?.commits.map((c) => c.sha)).toEqual(['late', 'other']);
   });
 
   it('a lane without cron lists only what it logged; the newest run is the fleet card line', () => {
@@ -71,6 +72,27 @@ describe('buildRuns', () => {
   it('ignores runs older than the window and garbage lines', () => {
     const logs = { core: `not json\n${line({ at: '2026-10-01T00:00:00Z', lane: 'core', units: [], pushed: true })}` };
     expect(buildRuns({ lanes: [{ name: 'web' }, { name: 'core' }], logs, commits: [], now: NOW }).runs).toEqual([]);
+  });
+});
+
+describe('pause, claims and commit attribution (reviewer findings)', () => {
+  const lanes = [{ name: 'core', cron: '0 * * * *' }];
+  const known = [commit('old', '2026-10-01T00:00:00Z', 'core')];
+  it('a paused loop is not silent: the runs reply "Paused" and log nothing', () => {
+    expect(buildRuns({ lanes, logs: {}, commits: known, now: NOW, paused: { at: new Date('2026-10-11T03:00:00Z') } }).silentLanes).toEqual([]);
+    expect(buildRuns({ lanes, logs: {}, commits: known, now: NOW, paused: {} }).runs).toEqual([]);
+    const after = buildRuns({ lanes, logs: {}, commits: known, now: NOW, paused: { at: new Date('2026-10-11T09:30:00Z') } }).runs;
+    expect(after[0]?.at).toBe('2026-10-11T09:00:00.000Z');
+  });
+  it('a claimed lane is not silent', () => {
+    expect(buildRuns({ lanes: [{ ...lanes[0] as object, name: 'core', stopped: true }], logs: {}, commits: known, now: NOW }).silentLanes).toEqual([]);
+  });
+  it('a commit of an unlogged session still shows by time; one of another logged session does not', () => {
+    const logs = { core: line({ at: '2026-10-11T10:50:00Z', lane: 'core', session: 'sess_AAAAAAAA', units: [], pushed: true }) + line({ at: '2026-10-11T09:50:00Z', lane: 'core', session: 'sess_BBBBBBBB', units: [], pushed: true }) };
+    const commits = [commit('unlogged', '2026-10-11T10:10:00Z', 'core', 'ZZZZZZZZ'), commit('theirs', '2026-10-11T10:20:00Z', 'core', 'BBBBBBBB')];
+    const runs = buildRuns({ lanes, logs, commits, now: NOW }).runs;
+    expect(runs.find((r) => r.at === '2026-10-11T10:00:00.000Z')?.commits.map((c) => c.sha)).toEqual(['unlogged']);
+    expect(runs.find((r) => r.at === '2026-10-11T09:00:00.000Z')?.commits.map((c) => c.sha)).toEqual(['theirs']);
   });
 });
 

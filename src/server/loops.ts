@@ -10,7 +10,7 @@ import { readLoopFacts, readRunCounter } from '../core/repo.js';
 import { deriveStatus } from '../core/status.js';
 import type { ContractItem, InboxItem, LaneStatus, LoopCommit, LoopDetail } from '../core/types.js';
 import { packageVersion, releaseInboxItem, roundState } from './roundState.js';
-import { commitLane } from '../core/parse/index.js';
+import { commitLane, parsePaused } from '../core/parse/index.js';
 import { buildRuns, lastRunOf, sessionKey, silentLanesItem } from './runs.js';
 import { checkLoop } from './health.js';
 import { bulletsUnder, contractFromTask, laneNotesFromTask } from './taskBullets.js';
@@ -56,9 +56,10 @@ export async function readTimeline(dir: string, limit = 50, laneNames: readonly 
 
 async function readRuns(dir: string, lanes: readonly LaneStatus[], lanesJson: string | undefined, timeline: readonly LoopCommit[], now: Date) {
   const cron = new Map((parseLanesConfig(lanesJson ?? '').config?.lanes ?? []).map((l) => [l.name, l.cron] as const));
+  const pausedText = await readOptional(path.join(dir, '.ai', 'PAUSED'));
   const laneNames = lanes.map((l) => l.name);
   const logs = Object.fromEntries(await Promise.all(laneNames.map(async (n) => [n, await readOptional(path.join(dir, '.ai', 'lanes', n, 'runs.jsonl'))] as const)));
-  return buildRuns({ lanes: laneNames.map((name) => ({ name, ...(cron.get(name) && { cron: cron.get(name) as string }), stopped: ['done', 'blocked'].includes(lanes.find((l) => l.name === name)?.state ?? '') })), logs, commits: timeline, now });
+  return buildRuns({ lanes: laneNames.map((name) => ({ name, ...(cron.get(name) && { cron: cron.get(name) as string }), stopped: ['done', 'blocked'].includes(lanes.find((l) => l.name === name)?.state ?? '') || lanes.find((l) => l.name === name)?.claim !== undefined })), logs, commits: timeline, now, ...(pausedText !== undefined && { paused: parsePaused(pausedText).at ? { at: parsePaused(pausedText).at as Date } : {} }) });
 }
 
 /** Reads one clone into the API's LoopDetail. `now` is a parameter so tests are deterministic. */
@@ -68,7 +69,7 @@ export async function readLoop(dir: string, now: Date = new Date()): Promise<Loo
   const [baseFacts, counter, timeline, taskText, packageText, lanesJson] = await Promise.all([
     readLoopFacts(dir),
     readRunCounter(dir),
-    readTimeline(dir, 100, laneNames),
+    readTimeline(dir, 300, laneNames),
     readOptional(path.join(dir, '.ai', 'task.md')),
     readOptional(path.join(dir, 'package.json')),
     readOptional(path.join(dir, '.ai', 'lanes.json')),
@@ -130,7 +131,7 @@ async function readSilentItem(dir: string, now: Date): Promise<InboxItem | undef
   const lanes = await readLaneStatuses(dir, now);
   if (!lanes) return undefined;
   const names = lanes.map((l) => l.name);
-  const runs = await readRuns(dir, lanes, await readOptional(path.join(dir, '.ai', 'lanes.json')), await readTimeline(dir, 100, names), now);
+  const runs = await readRuns(dir, lanes, await readOptional(path.join(dir, '.ai', 'lanes.json')), await readTimeline(dir, 300, names), now);
   return silentLanesItem(path.basename(dir), runs.silentLanes, now.toISOString());
 }
 
