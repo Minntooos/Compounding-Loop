@@ -1,6 +1,6 @@
 # Lane: web — round 2 (0.2.0 "Lanes")
 
-Run: 3 / 20
+Run: 4 / 20
 Status: in progress
 Round 1 record: `.ai/lanes/web/done-v1.md` (`git show 3385cdf:.ai/lanes/web/task.md` for its Decisions).
 
@@ -48,6 +48,8 @@ Round 1 record: `.ai/lanes/web/done-v1.md` (`git show 3385cdf:.ai/lanes/web/task
 - Edit paths another lane owns, except for the "main stays green" fix. (`docs/assets/screens/**` is listed as shared in `.ai/lanes.json`, so web may write screenshots there.)
 
 ## Handoff
+Run 4: local main had unrelated history again; moved main onto origin/main (old commits kept on branch web-old-local-main). Added tests/e2e/layout.spec.ts (no overflow at 375 px, all screens) and refreshed audit rows 5, 7, 8. Next: unit 5 by-eye pass (long names/paths, empty/loading states), then motion-on-change leftover; if nothing else, run retro and write DONE.md.
+
 Run 3: demo-based lanes e2e added, screenshots refreshed (unit 4 fully done). Local clone had stale diverged history; reset to origin/main (backup branch backup-stale-main). Also shipped: SSE toasts (Toasts.tsx, toasts.spec.ts). Next: unit 5 polish pass notes in .ai/audit/web.md; then round 1 leftovers (motion on change).
 
 (earlier) Run 2 done: main-green fix (stale demo/this-repo.json), fleet counts tolerant of 6 loops, unit 4 Lanes UI (LanesTab, LaneStrip, lib/lanes.ts, fixture e2e + unit tests). Next: when server merges the sixth loop into the served demo, add demo-based assertions (lane-row x5, all Done) to lanes.spec.ts; then unit 5 polish + refreshed screenshots (`SCREENS=1 npx playwright test screenshots`), then unit 6 (toasts for SSE; Fleet status filter is done). Update .ai/audit/web.md with the lanes decisions.
