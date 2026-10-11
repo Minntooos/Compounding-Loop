@@ -15,6 +15,6 @@ None open.
 | 5 | Performance, 20 loops | `/api/loops` 228 ms cold, `/api/checks` 58 ms, one loop 11 ms (each call re-reads every clone and runs `git log`). Fine for a local tool; revisit past ~50 loops. | ok |
 | 6 | Demo scrub | `demo/five-sites.json` has no emails, home paths, tokens, or routine IDs (only the word "routine" in commit subjects). A scrub test for the sixth loop is unit 5. | ok |
 | 7 | `/api/settings` | Exists, tested, web wired. | ok |
-| 8 | Leak check | Only `netlify.toml` is inspected. Pages, Vercel, Cloudflare configs are not (unit 6). | open (planned) |
+| 8 | Leak check | Only `netlify.toml` is inspected. Pages, Vercel, Cloudflare configs are not (unit 6). | fixed (511ac42) |
 | 9 | Run log / last test | `.ai/runs.jsonl` and `.ai/last-test.json` are already read by `checkLoop`. | ok |
-| 10 | Lanes | API has no lane data yet (units 2 to 4). | open (planned) |
+| 10 | Lanes | API has no lane data yet (units 2 to 4). | fixed (396c50b) |

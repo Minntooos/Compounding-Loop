@@ -1,6 +1,6 @@
 # Lane: server — round 2 (0.2.0 "Lanes")
 
-Run: 2 / 20
+Run: 3 / 20
 Status: in progress (units 1-6 done; sixth loop now served by the demo; next: add its health check once web's health e2e allows 11 checks, then Lane finished)
 Round 1 record: `.ai/lanes/server/done-v1.md` (`git show 3385cdf:.ai/lanes/server/task.md` for its Decisions).
 
