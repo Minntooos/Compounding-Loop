@@ -1,7 +1,7 @@
 # Lane: kit — round 3 (0.3.0 "Showcase")
 
 Run: 1 / 20
-Status: not started
+Status: unit 1, 2, 3 (method) done; plugin /loop-next waits for core `loop next`
 Round 2 record: `.ai/lanes/kit/done-v2.md` (`git show 084bb9f:.ai/lanes/kit/task.md` for its Decisions).
 
 ## Contract

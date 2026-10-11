@@ -111,3 +111,14 @@ describe('unattended rules are identical everywhere', () => {
     expect(text).toContain('BLOCKED.md');
   });
 });
+
+describe('method/COMPOUNDING_LOOP.md teammates section', () => {
+  const method = read('method', 'COMPOUNDING_LOOP.md');
+
+  it('walks through clone, next, claim, run and release', () => {
+    expect(method).toContain('**Working with teammates.**');
+    for (const needle of ['loop next', 'loop claim <lane> --as <name>', '.ai/lanes/<lane>/claim', 'loop run --lane <lane>', 'loop release <lane>', 'expired claim counts as none', 'nothing private']) {
+      expect(method.toLowerCase(), needle).toContain(needle.toLowerCase());
+    }
+  });
+});

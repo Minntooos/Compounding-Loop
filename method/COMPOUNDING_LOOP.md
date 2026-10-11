@@ -408,6 +408,16 @@ A lane is one scheduled run that owns one part of the codebase. Several lanes pu
 3. Never force-push. A lane's history is the other lanes' history too.
 4. Each lane has its own task file, run counter, `DONE.md` and `BLOCKED.md`. Only the control room writes the root `DONE.md`.
 
+**Working with teammates.** A teammate joins by cloning the repository; everything their own Claude Code needs is in the repo, and nothing private is ever handed over (no keys, no chat logs, no local paths). `.ai/` is the shared memory: task files say what is open, outboxes say what is waiting, `.ai/index.md` holds what was learned.
+
+1. Clone the repo and run the install command from `CLAUDE.md`.
+2. `loop next` lists the open units across all lanes with their claims and recommends one nobody holds.
+3. `loop claim <lane> --as <name>` writes `.ai/lanes/<lane>/claim` (one line, `name · expires <UTC time>`), commits it with the trailer `Lane: <lane>` and pushes. From then on the scheduled runs of that lane reply "Nothing to do" until the claim expires, so you and a routine never edit the same lane at once.
+4. `loop run --lane <lane>` (or Claude Code with the lane prompt) does the work and pushes to `main` like any run.
+5. `loop release <lane>` removes the claim. If you forget, it expires on its own (90 minutes by default), and an expired claim counts as none.
+
+A claim protects a lane, not a file: ownership of paths still decides what a lane may edit. Do not claim a lane to keep it idle; claim it while you are working in it.
+
 **Failure modes seen when this repo was built by five lanes**
 
 - **Stale sandbox clones.** A cloud run can start from an old clone and report that someone force-pushed or that a file vanished. Check `git log` on a fresh pull before believing a run's account of history.
