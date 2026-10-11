@@ -51,3 +51,9 @@ None open.
 | 6 | Settings | Already wired to `GET /api/settings` with an e2e (`screens.spec.ts`: "settings shows the server settings"). Unit 3 is done. | ok |
 | 7 | 375 px and motion | `tests/e2e/layout.spec.ts` asserts no horizontal overflow at 375 px on all screens incl. the laned loop; `index.css` honours `prefers-reduced-motion`. Screenshots in `docs/assets/screens/`. | ok |
 | 8 | Long text | New layout e2e feeds a 140-char name, a path-like reason, commit subject and unanswered message at 375 px. It found real overflow (Fleet reason, Lanes commit line); fixed with `overflow-wrap:anywhere`. Empty and loading states are covered by `QueryState` and the "No loops yet" card (screens.spec.ts). | ok (fixed) |
+
+## Round 3 independent design review (2026-10-11, run 6)
+Reviewer subagent (did not write the UI) compared `web/design/after/*` with DESIGN.md §5/§10 and IDEA.md.
+- Its three blockers (no welcome strip, no live/snapshot chip, no lane features) were a capture fault: the screenshots ran against a live dashboard server, which hides the strip and chip by design, and showed a non-lane site. Fixed in `tests/e2e/screenshots.spec.ts` (demo mode via a 404 health route; new `self` screen for the self-build loop). Re-shot: strip, chip, lane colours, lane filter, day groups and commits-per-day chart are visible.
+- Still open, minor: loop header shows "Round 2/3 · Run 36/250" as mono text (no bar); phone tab rows clip "Settings" without a scroll cue and loop tabs wrap to two rows; self-build card story line contradicts its "Done" badge when live data is stale; fleet cards lack run bars; orphan card in the 3-up grid; the bundled snapshot has no self-build card (server's data, dated 6 Oct).
+- Not reviewed by the subagent: inbox, health, new, settings, and states (covered by axe and e2e).

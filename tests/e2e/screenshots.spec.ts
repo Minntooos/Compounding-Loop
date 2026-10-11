@@ -4,7 +4,7 @@ import { test } from '@playwright/test';
 // Not part of `npm test`. Refresh the shipped screens with `SCREENS=1 npx playwright test screenshots --project=laptop`.
 // Design-review sets (before/after, 1440 and 375 px, both themes):
 //   SCREENS=1 SCREENS_DIR=web/design/before npx playwright test screenshots --project=laptop
-const screens: Record<string, string> = { fleet: '/', loop: '/loop/proj2', inbox: '/inbox', health: '/health', settings: '/settings', new: '/new' };
+const screens: Record<string, string> = { fleet: '/', loop: '/loop/proj2', self: '/loop/compounding-loop', inbox: '/inbox', health: '/health', settings: '/settings', new: '/new' };
 const sizes: Record<string, { width: number; height: number }> = { desktop: { width: 1440, height: 900 }, phone: { width: 375, height: 812 } };
 
 test.skip(!process.env['SCREENS'], 'screenshots are generated on demand');
@@ -18,6 +18,9 @@ for (const [size, viewport] of sets) {
       test(`screenshot ${name} ${theme} ${size}`, async ({ page }, info) => {
         mkdirSync(dir, { recursive: true });
         if (viewport) await page.setViewportSize(viewport);
+        // Shoot demo mode as a visitor sees it (welcome strip, snapshot chip): no dashboard server.
+        // The self-build loop only exists on a running server (the bundled snapshot is the five sites).
+        if (name !== 'self') await page.route('**/api/health', (route) => route.fulfill({ status: 404, contentType: 'application/json', body: '{}' }));
         await page.emulateMedia({ colorScheme: theme });
         await page.goto(`/#${route}`);
         await page.waitForLoadState('networkidle');
