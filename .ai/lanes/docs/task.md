@@ -1,7 +1,7 @@
 # Lane: docs — round 4 (0.4.0 "Control")
 
-Run: 2 / 20
-Status: units 1-3, 5 done; unit 4: docs/release.md done, docs/dashboard.md controls wait on web buttons (not on main at run 2); unit 6 open
+Run: 3 / 20
+Status: units 1-3, 5 done; unit 4 done (dashboard.md Controls written run 3); unit 6 open
 Round 3 record: `.ai/lanes/docs/done-v3.md` (`git show b3b51a5:.ai/lanes/docs/task.md` for its Decisions).
 
 ## Contract
@@ -24,8 +24,8 @@ Round 3 record: `.ai/lanes/docs/done-v3.md` (`git show b3b51a5:.ai/lanes/docs/ta
 
 ## Guesses
 
-## Handoff (run 2)
-Next: when web ships the buttons, write the controls section of docs/dashboard.md and update README ('coming'); then unit 6 (fresh-install test from packed tarball into .ai/audit/docs.md, audit majors). Check `git log origin/main` for web commits touching Pause/Release.
+## Handoff (run 3)
+Next: unit 6 (fresh-install test from packed tarball into .ai/audit/docs.md, audit majors). Check `git log origin/main` for web commits touching Pause/Release.
 
 ## Tried
 

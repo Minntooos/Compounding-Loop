@@ -67,7 +67,7 @@ npx compounding-loop dashboard                 # the local dashboard
 
 Several lanes in one repo (needs an `IDEA.md` brief first): `npx compounding-loop init --lanes core,web,docs`, then `npx compounding-loop run --lane core`. Check ownership with `npx compounding-loop check-lanes`. Details: [Lanes](docs/lanes.md). Sharing a loop with a teammate: [Work on a loop with a teammate](docs/team.md).
 
-**Run the loop without tokens.** Pause every lane (`npx compounding-loop pause`, undo with `resume`), start the next round from a brief in a laned repo (`next-round --brief`), see which scheduled runs happened (`runs`) and check whether you can ship (`ship-check`). The dashboard shows paused state and the run history; its buttons for these controls are coming. Releases go through a GitHub Actions workflow with npm trusted publishing and a protected `release` environment: see [Release](docs/release.md).
+**Run the loop without tokens.** Pause every lane (`npx compounding-loop pause`, undo with `resume`), start the next round from a brief in a laned repo (`next-round --brief`), see which scheduled runs happened (`runs`) and check whether you can ship (`ship-check`). The dashboard has buttons for all of it (Pause all, Start next round, Release), each with a confirm step, plus the run history and a Ready to ship checklist: see [Dashboard](docs/dashboard.md#controls). Releases go through a GitHub Actions workflow with npm trusted publishing and a protected `release` environment: see [Release](docs/release.md).
 
 Already have a repo? `npx compounding-loop init` adds the method to it without overwriting anything. Details: [Getting started](docs/getting-started.md).
 
