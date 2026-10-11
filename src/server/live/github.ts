@@ -1,5 +1,5 @@
 // Pure mappers from GitHub API JSON to small typed records. Input is untrusted, so every field is checked.
-// Author names and emails are never read, so they cannot leak into the dashboard.
+// The author's display name is read (never an email); a name that looks like an email is dropped.
 import { parseLaneTrailer } from '../../core/parse/index.js';
 import type { LoopCommit } from '../../core/types.js';
 
@@ -20,6 +20,11 @@ export interface LiveRun {
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 const str = (v: unknown): string | undefined => (typeof v === 'string' && v !== '' ? v : undefined);
+/** A display name, never an email address (GitHub lets people use their address as `name`). */
+const displayName = (v: unknown): string | undefined => {
+  const s = str(v)?.trim();
+  return s !== undefined && s !== '' && !s.includes('@') ? s.slice(0, 80) : undefined;
+};
 const isoOrUndefined = (v: unknown): string | undefined => {
   const s = str(v);
   return s !== undefined && !Number.isNaN(Date.parse(s)) ? new Date(s).toISOString() : undefined;
@@ -37,7 +42,8 @@ export function mapCommits(json: unknown): LiveCommit[] {
     const when = dateOf(entry.commit.committer) ?? dateOf(entry.commit.author);
     if (sha === undefined || full === undefined || when === undefined) return [];
     const lane = parseLaneTrailer(full);
-    return [{ sha: sha.slice(0, 7), at: when, message: full.split(/\r?\n/)[0] ?? full, ...(lane && { lane }) }];
+    const author = isRecord(entry.commit.author) ? displayName(entry.commit.author.name) : undefined;
+    return [{ sha: sha.slice(0, 7), at: when, message: full.split(/\r?\n/)[0] ?? full, ...(author && { author }), ...(lane && { lane }) }];
   });
 }
 

@@ -4,26 +4,28 @@
     "name": "compounding-loop (this repo)",
     "url": "https://github.com/Minntooos/Compounding-Loop",
     "state": "done",
-    "reason": "rounds 1 and 2 built unattended by five parallel lanes, all done; round 3 is running now",
-    "round": 2,
-    "roundsTotal": 3,
-    "run": 36,
-    "runLimit": 250,
+    "reason": "rounds 1 to 3 built unattended by five parallel lanes, all done; round 4 is running now",
+    "round": 3,
+    "roundsTotal": 4,
+    "run": 63,
+    "runLimit": 350,
     "lastCommit": {
-      "sha": "084bb9f",
-      "at": "2026-10-11T04:01:08.000Z",
-      "message": "Release 0.2.0: version bump and CHANGELOG"
+      "sha": "b3b51a5",
+      "at": "2026-10-11T14:51:27.000Z",
+      "message": "Release 0.3.0: version bump and CHANGELOG",
+      "author": "Minntooos"
     },
+    "snapshotAt": "2026-10-11T14:51:27.000Z",
     "lanes": [
       {
         "name": "core",
         "state": "done",
-        "run": 11,
-        "limit": 50,
+        "run": 14,
+        "limit": 70,
         "lastCommit": {
-          "sha": "e1f69d2",
-          "subject": "core: lane DONE",
-          "at": "2026-10-11T03:11:33.000Z"
+          "sha": "1256361",
+          "subject": "core: round 3 lane DONE",
+          "at": "2026-10-11T07:10:24.000Z"
         },
         "locked": false,
         "unanswered": []
@@ -31,12 +33,12 @@
       {
         "name": "kit",
         "state": "done",
-        "run": 3,
-        "limit": 50,
+        "run": 9,
+        "limit": 70,
         "lastCommit": {
-          "sha": "f969e31",
-          "subject": "kit: lane DONE, handoff and outbox",
-          "at": "2026-10-08T20:44:19.000Z"
+          "sha": "5dd559c",
+          "subject": "kit: lane DONE for round 3",
+          "at": "2026-10-11T10:22:58.000Z"
         },
         "locked": false,
         "unanswered": []
@@ -44,12 +46,12 @@
       {
         "name": "server",
         "state": "done",
-        "run": 4,
-        "limit": 50,
+        "run": 6,
+        "limit": 70,
         "lastCommit": {
-          "sha": "c0e6ca4",
-          "subject": "server: audit closed, lane DONE with next improvements",
-          "at": "2026-10-11T00:33:50.000Z"
+          "sha": "d03b48a",
+          "subject": "server: round 3 lane DONE",
+          "at": "2026-10-11T07:33:57.000Z"
         },
         "locked": false,
         "unanswered": []
@@ -57,12 +59,12 @@
       {
         "name": "web",
         "state": "done",
-        "run": 13,
-        "limit": 50,
+        "run": 21,
+        "limit": 70,
         "lastCommit": {
-          "sha": "5e900de",
-          "subject": "web: wrap long text on Fleet and Lanes (375 px e2e), audit closed, lane DONE",
-          "at": "2026-10-11T01:48:00.000Z"
+          "sha": "4a797ed",
+          "subject": "web: run 8, lane DONE for round 3",
+          "at": "2026-10-11T12:46:04.000Z"
         },
         "locked": false,
         "unanswered": []
@@ -70,12 +72,12 @@
       {
         "name": "docs",
         "state": "done",
-        "run": 5,
-        "limit": 50,
+        "run": 13,
+        "limit": 70,
         "lastCommit": {
-          "sha": "eebdcc7",
-          "subject": "docs: fresh-install test 2, init --lanes needs a brief, blocking lane check in CI, lane DONE",
-          "at": "2026-10-11T00:59:08.000Z"
+          "sha": "4574135",
+          "subject": "docs: retro, dashboard page covers lanes and live demo, drop stale screenshot script, lane DONE",
+          "at": "2026-10-11T11:58:52.000Z"
         },
         "locked": false,
         "unanswered": []
@@ -83,504 +85,1168 @@
     ],
     "timeline": [
       {
+        "sha": "b3b51a5",
+        "at": "2026-10-11T14:51:27.000Z",
+        "message": "Release 0.3.0: version bump and CHANGELOG",
+        "author": "Minntooos"
+      },
+      {
+        "sha": "69cedb3",
+        "at": "2026-10-11T14:11:45.000Z",
+        "message": "control room: product DONE for round 3",
+        "author": "Claude"
+      },
+      {
+        "sha": "4a797ed",
+        "at": "2026-10-11T12:46:04.000Z",
+        "message": "web: run 8, lane DONE for round 3",
+        "author": "Claude"
+      },
+      {
+        "sha": "4574135",
+        "at": "2026-10-11T11:58:52.000Z",
+        "message": "docs: retro, dashboard page covers lanes and live demo, drop stale screenshot script, lane DONE",
+        "author": "Claude"
+      },
+      {
+        "sha": "778f216",
+        "at": "2026-10-11T11:48:41.000Z",
+        "message": "web: loop header shows the run budget as a bar",
+        "author": "Claude"
+      },
+      {
+        "sha": "e3bb7b4",
+        "at": "2026-10-11T10:58:04.000Z",
+        "message": "docs: dashboard page uses the refreshed fleet screenshot, run 7 handoff",
+        "author": "Claude"
+      },
+      {
+        "sha": "e1e36c2",
+        "at": "2026-10-11T10:51:46.000Z",
+        "message": "web: loop tabs scroll in one row, run 6 handoff, outbox for docs",
+        "author": "Claude"
+      },
+      {
+        "sha": "97233f6",
+        "at": "2026-10-11T10:48:41.000Z",
+        "message": "web: after screenshots in demo mode (strip, chip, self-build loop), design review recorded",
+        "author": "Claude"
+      },
+      {
+        "sha": "5dd559c",
+        "at": "2026-10-11T10:22:58.000Z",
+        "message": "kit: lane DONE for round 3",
+        "author": "Claude"
+      },
+      {
+        "sha": "cd1e191",
+        "at": "2026-10-11T09:56:29.000Z",
+        "message": "docs: run 6 handoff, still waiting on web screenshots",
+        "author": "Claude"
+      },
+      {
+        "sha": "6be797c",
+        "at": "2026-10-11T09:54:52.000Z",
+        "message": "web: lane progress on building cards, hide empty run bars, CI and live-site rows for the self card",
+        "author": "Claude"
+      },
+      {
+        "sha": "8745e76",
+        "at": "2026-10-11T09:23:51.000Z",
+        "message": "kit: lane-aware retro and handoff wording, tested",
+        "author": "Claude"
+      },
+      {
+        "sha": "9878884",
+        "at": "2026-10-11T08:56:11.000Z",
+        "message": "docs: run 5 handoff, still waiting on web screenshots",
+        "author": "Claude"
+      },
+      {
+        "sha": "e42b59f",
+        "at": "2026-10-11T08:25:10.000Z",
+        "message": "kit: systemd units get PATH, linger and verify notes from review; handoff",
+        "author": "Claude"
+      },
+      {
+        "sha": "041ea27",
+        "at": "2026-10-11T08:24:35.000Z",
+        "message": "kit: systemd user service and timer for the local runner, tested",
+        "author": "Claude"
+      },
+      {
+        "sha": "52fb0b9",
+        "at": "2026-10-11T07:56:15.000Z",
+        "message": "docs: run 4 handoff, waiting on web screenshots",
+        "author": "Claude"
+      },
+      {
+        "sha": "1c6e51a",
+        "at": "2026-10-11T07:51:16.000Z",
+        "message": "web: review fixes (note role, safe reset time, notice under h1), handoff",
+        "author": "Claude"
+      },
+      {
+        "sha": "03be106",
+        "at": "2026-10-11T07:51:16.000Z",
+        "message": "web: shared Notice, paused-live note when rate limited, sticky day headings",
+        "author": "Claude"
+      },
+      {
+        "sha": "2c4db3a",
+        "at": "2026-10-11T07:51:06.000Z",
+        "message": "control: owner review notes for web (self card progress, run bars, CI row)",
+        "author": "Minntooos"
+      },
+      {
+        "sha": "d03b48a",
+        "at": "2026-10-11T07:33:57.000Z",
+        "message": "server: round 3 lane DONE",
+        "author": "Claude"
+      },
+      {
+        "sha": "21dab1c",
+        "at": "2026-10-11T07:24:44.000Z",
+        "message": "kit: optional control-room job in the lanes workflow",
+        "author": "Claude"
+      },
+      {
+        "sha": "1256361",
+        "at": "2026-10-11T07:10:24.000Z",
+        "message": "core: round 3 lane DONE",
+        "author": "Claude"
+      },
+      {
+        "sha": "40e499c",
+        "at": "2026-10-11T06:59:17.000Z",
+        "message": "docs: handoff and outbox",
+        "author": "Claude"
+      },
+      {
+        "sha": "d5ae9ea",
+        "at": "2026-10-11T06:59:08.000Z",
+        "message": "docs: record the fresh-install test in the Round 3 audit",
+        "author": "Claude"
+      },
+      {
+        "sha": "8aa4fa6",
+        "at": "2026-10-11T06:58:26.000Z",
+        "message": "docs: launch drafts lead with the live self-build; honest check-lanes FAQ; CHANGELOG",
+        "author": "Claude"
+      },
+      {
+        "sha": "bb8ee3f",
+        "at": "2026-10-11T06:58:01.000Z",
+        "message": "docs: README live-demo link, snapshot FAQ, /loop-lanes in getting-started",
+        "author": "Claude"
+      },
+      {
+        "sha": "8a34f9b",
+        "at": "2026-10-11T06:52:45.000Z",
+        "message": "web: live GitHub mode with snapshot fallback, live/snapshot chip, mocked-GitHub e2e",
+        "author": "Claude"
+      },
+      {
+        "sha": "919a9ad",
+        "at": "2026-10-11T06:45:46.000Z",
+        "message": "server: self snapshot covers rounds 1 and 2; handoff",
+        "author": "Claude"
+      },
+      {
+        "sha": "fe8bb16",
+        "at": "2026-10-11T06:42:09.000Z",
+        "message": "server: live commits fall back to the author date",
+        "author": "Claude"
+      },
+      {
+        "sha": "60f87eb",
+        "at": "2026-10-11T06:39:56.000Z",
+        "message": "server: live GitHub mappers, static CSP meta and live.json, round 3 audit",
+        "author": "Claude"
+      },
+      {
+        "sha": "72cacc3",
+        "at": "2026-10-11T06:30:42.000Z",
+        "message": "control: nudge server lane (Run 0/20 in round 3)",
+        "author": "Claude"
+      },
+      {
+        "sha": "3174cd5",
+        "at": "2026-10-11T06:25:38.000Z",
+        "message": "kit: plugin /loop-lanes command",
+        "author": "Claude"
+      },
+      {
+        "sha": "cfbd75a",
+        "at": "2026-10-11T06:15:21.000Z",
+        "message": "core: trust a dead lock pid only on the host that wrote it; handoff",
+        "author": "Claude"
+      },
+      {
+        "sha": "b32b85d",
+        "at": "2026-10-11T06:13:42.000Z",
+        "message": "core: a session lock records its pid; a dead holder is stale at once",
+        "author": "Claude"
+      },
+      {
+        "sha": "963491e",
+        "at": "2026-10-11T06:11:59.000Z",
+        "message": "core: loop run --as lets a claimant's own run proceed",
+        "author": "Claude"
+      },
+      {
+        "sha": "eca435d",
+        "at": "2026-10-11T06:00:59.000Z",
+        "message": "web: skeleton loading state, handoff and outbox",
+        "author": "Claude"
+      },
+      {
+        "sha": "1fff83d",
+        "at": "2026-10-11T05:59:26.000Z",
+        "message": "web: lane claims and run bars in the Lanes tab, commits-per-day chart with table alternative",
+        "author": "Claude"
+      },
+      {
+        "sha": "fd3b16c",
+        "at": "2026-10-11T05:59:06.000Z",
+        "message": "docs: handoff and outbox for run 2",
+        "author": "Claude"
+      },
+      {
+        "sha": "a4e66b9",
+        "at": "2026-10-11T05:58:57.000Z",
+        "message": "docs: changelog Unreleased for 0.3.0 so far",
+        "author": "Claude"
+      },
+      {
+        "sha": "345a243",
+        "at": "2026-10-11T05:58:40.000Z",
+        "message": "docs: add team workflow page (claim, next, release), link it from README, lanes and getting started",
+        "author": "Claude"
+      },
+      {
+        "sha": "be07c68",
+        "at": "2026-10-11T05:53:03.000Z",
+        "message": "web: timeline grouped by day with lane colours, lane filter and UTC times",
+        "author": "Claude"
+      },
+      {
+        "sha": "2fe5ee8",
+        "at": "2026-10-11T05:49:27.000Z",
+        "message": "web: card edge cases (no total hides the bar, raw numbers in text), surface-2 token, handoff",
+        "author": "Claude"
+      },
+      {
+        "sha": "759cd35",
+        "at": "2026-10-11T05:47:38.000Z",
+        "message": "web: fleet cards with round and run-budget bars, self-build card first, empty rows omitted",
+        "author": "Claude"
+      },
+      {
+        "sha": "66b4d56",
+        "at": "2026-10-11T05:25:24.000Z",
+        "message": "core: note the last-test.json writer question",
+        "author": "Claude"
+      },
+      {
+        "sha": "ddd2bcd",
+        "at": "2026-10-11T05:25:14.000Z",
+        "message": "core: claim rule in the lane prompt that loop run prepends",
+        "author": "Claude"
+      },
+      {
+        "sha": "18efe52",
+        "at": "2026-10-11T05:24:05.000Z",
+        "message": "kit: /loop-next plugin command; handoff",
+        "author": "Claude"
+      },
+      {
+        "sha": "c435234",
+        "at": "2026-10-11T05:23:41.000Z",
+        "message": "kit: method chapter on working with teammates",
+        "author": "Claude"
+      },
+      {
+        "sha": "59af400",
+        "at": "2026-10-11T05:23:35.000Z",
+        "message": "core: loop next, claims in loop status and LaneStatus",
+        "author": "Claude"
+      },
+      {
+        "sha": "1a368ef",
+        "at": "2026-10-11T05:23:13.000Z",
+        "message": "kit: lane prompts and template honour lane claims",
+        "author": "Claude"
+      },
+      {
+        "sha": "ee95e1a",
+        "at": "2026-10-11T05:19:08.000Z",
+        "message": "core: loop claim and loop release, claim parser",
+        "author": "Claude"
+      },
+      {
+        "sha": "52ae3a9",
+        "at": "2026-10-11T05:15:11.000Z",
+        "message": "core: browser-safe parsers (src/core/parse), Round 3 audit, handoff",
+        "author": "Claude"
+      },
+      {
+        "sha": "cceb048",
+        "at": "2026-10-11T05:02:57.000Z",
+        "message": "web: live cache and indicator wording (tested); fix typecheck of format.ts under tests; handoff",
+        "author": "Claude"
+      },
+      {
+        "sha": "37928d9",
+        "at": "2026-10-11T05:01:07.000Z",
+        "message": "web: welcome strip and snapshot indicator replace the grey banner",
+        "author": "Claude"
+      },
+      {
+        "sha": "9b89537",
+        "at": "2026-10-11T04:58:11.000Z",
+        "message": "docs: round 3 re-audit; Pages deploy also triggers on src/core changes",
+        "author": "Claude"
+      },
+      {
+        "sha": "354c11e",
+        "at": "2026-10-11T04:54:33.000Z",
+        "message": "web: phone nav on one row, no 404 probe on static hosting",
+        "author": "Claude"
+      },
+      {
+        "sha": "8756452",
+        "at": "2026-10-11T04:48:52.000Z",
+        "message": "web: DESIGN.md spec for the 0.3.0 dashboard",
+        "author": "Claude"
+      },
+      {
+        "sha": "cffbe9e",
+        "at": "2026-10-11T04:47:06.000Z",
+        "message": "web: round 3 re-audit and before screenshots",
+        "author": "Claude"
+      },
+      {
+        "sha": "1fa8b73",
+        "at": "2026-10-11T04:34:40.000Z",
+        "message": "Round 3 start time in UTC (was local time)",
+        "author": "Minntooos"
+      },
+      {
+        "sha": "693243e",
+        "at": "2026-10-11T04:31:35.000Z",
+        "message": "Start round 3: 0.3.0 \"Showcase\" brief, lane contracts, claims rule",
+        "author": "Minntooos"
+      },
+      {
         "sha": "084bb9f",
         "at": "2026-10-11T04:01:08.000Z",
-        "message": "Release 0.2.0: version bump and CHANGELOG"
+        "message": "Release 0.2.0: version bump and CHANGELOG",
+        "author": "Minntooos"
       },
       {
         "sha": "c959167",
         "at": "2026-10-11T03:30:56.000Z",
-        "message": "control: Round 2 done, root DONE.md"
+        "message": "control: Round 2 done, root DONE.md",
+        "author": "Claude"
       },
       {
         "sha": "e1f69d2",
         "at": "2026-10-11T03:11:33.000Z",
-        "message": "core: lane DONE"
+        "message": "core: lane DONE",
+        "author": "Claude"
       },
       {
         "sha": "82eceb9",
         "at": "2026-10-11T03:11:21.000Z",
-        "message": "core: start Claude Code from pnpm-style .cmd shims via the script they name"
+        "message": "core: start Claude Code from pnpm-style .cmd shims via the script they name",
+        "author": "Claude"
       },
       {
         "sha": "0da6d7e",
         "at": "2026-10-11T02:10:45.000Z",
-        "message": "core: init --lanes and lanes add also merge the lane section into an existing AGENTS.md"
+        "message": "core: init --lanes and lanes add also merge the lane section into an existing AGENTS.md",
+        "author": "Claude"
       },
       {
         "sha": "dc20ba4",
         "at": "2026-10-11T01:56:34.000Z",
-        "message": "control: round 2 status, only core left, local runner may stop"
+        "message": "control: round 2 status, only core left, local runner may stop",
+        "author": "Minntooos"
       },
       {
         "sha": "5e900de",
         "at": "2026-10-11T01:48:00.000Z",
-        "message": "web: wrap long text on Fleet and Lanes (375 px e2e), audit closed, lane DONE"
+        "message": "web: wrap long text on Fleet and Lanes (375 px e2e), audit closed, lane DONE",
+        "author": "Claude"
       },
       {
         "sha": "8b03b7a",
         "at": "2026-10-11T01:10:58.000Z",
-        "message": "core: check-lanes says 'no commits yet' in an empty repo"
+        "message": "core: check-lanes says 'no commits yet' in an empty repo",
+        "author": "Claude"
       },
       {
         "sha": "eebdcc7",
         "at": "2026-10-11T00:59:08.000Z",
-        "message": "docs: fresh-install test 2, init --lanes needs a brief, blocking lane check in CI, lane DONE"
+        "message": "docs: fresh-install test 2, init --lanes needs a brief, blocking lane check in CI, lane DONE",
+        "author": "Claude"
       },
       {
         "sha": "0026ad7",
         "at": "2026-10-11T00:50:41.000Z",
-        "message": "web: 375 px overflow e2e, audit rows refreshed, run 4 handoff"
+        "message": "web: 375 px overflow e2e, audit rows refreshed, run 4 handoff",
+        "author": "Claude"
       },
       {
         "sha": "c0e6ca4",
         "at": "2026-10-11T00:33:50.000Z",
-        "message": "server: audit closed, lane DONE with next improvements"
+        "message": "server: audit closed, lane DONE with next improvements",
+        "author": "Claude"
       },
       {
         "sha": "fb21555",
         "at": "2026-10-11T00:32:42.000Z",
-        "message": "control: lane crossings and kit stalled notes"
+        "message": "control: lane crossings and kit stalled notes",
+        "author": "Claude"
       },
       {
         "sha": "29c43e8",
         "at": "2026-10-11T00:13:33.000Z",
-        "message": "core: a second Ctrl-C releases the lock and exits at once"
+        "message": "core: a second Ctrl-C releases the lock and exits at once",
+        "author": "Claude"
       },
       {
         "sha": "3ba1731",
         "at": "2026-10-11T00:11:59.000Z",
-        "message": "core: keep the session lock until the claude child settles after Ctrl-C"
+        "message": "core: keep the session lock until the claude child settles after Ctrl-C",
+        "author": "Claude"
       },
       {
         "sha": "13ebeff",
         "at": "2026-10-10T23:59:05.000Z",
-        "message": "docs: README screenshots, launch drafts for 0.2.0 with objections, CHANGELOG, handoff"
+        "message": "docs: README screenshots, launch drafts for 0.2.0 with objections, CHANGELOG, handoff",
+        "author": "Claude"
       },
       {
         "sha": "7f77381",
         "at": "2026-10-10T23:49:02.000Z",
-        "message": "web: toasts for server-sent events"
+        "message": "web: toasts for server-sent events",
+        "author": "Claude"
       },
       {
         "sha": "6f94a5c",
         "at": "2026-10-10T23:47:36.000Z",
-        "message": "web: demo-based Lanes e2e, refreshed docs screenshots"
+        "message": "web: demo-based Lanes e2e, refreshed docs screenshots",
+        "author": "Claude"
       },
       {
         "sha": "f10f088",
         "at": "2026-10-10T23:35:37.000Z",
-        "message": "server: serve the sixth demo loop (this repo); demo-self rebuild test skips on shallow clones"
+        "message": "server: serve the sixth demo loop (this repo); demo-self rebuild test skips on shallow clones",
+        "author": "Claude"
       },
       {
         "sha": "a85c3a0",
         "at": "2026-10-10T23:10:25.000Z",
-        "message": "core: run 4 handoff"
+        "message": "core: run 4 handoff",
+        "author": "Claude"
       },
       {
         "sha": "5a35d94",
         "at": "2026-10-10T23:10:16.000Z",
-        "message": "core: prefer the matching bin key when reading an npm shim's package"
+        "message": "core: prefer the matching bin key when reading an npm shim's package",
+        "author": "Claude"
       },
       {
         "sha": "17881dc",
         "at": "2026-10-10T23:09:17.000Z",
-        "message": "core: run claude via its npm package entry when only claude.cmd exists on Windows"
+        "message": "core: run claude via its npm package entry when only claude.cmd exists on Windows",
+        "author": "Claude"
       },
       {
         "sha": "82b38ae",
         "at": "2026-10-10T22:28:38.000Z",
-        "message": "control: vitest hookTimeout 20s and half the cores on Windows"
+        "message": "control: vitest hookTimeout 20s and half the cores on Windows",
+        "author": "read"
       },
       {
         "sha": "4a3535d",
         "at": "2026-10-10T22:15:36.000Z",
-        "message": "control: note for core about npm-installed claude.cmd on Windows"
+        "message": "control: note for core about npm-installed claude.cmd on Windows",
+        "author": "read"
       },
       {
         "sha": "fa3952f",
         "at": "2026-10-10T21:53:11.000Z",
-        "message": "core: shared paths pass check-lanes even inside another lane's glob"
+        "message": "core: shared paths pass check-lanes even inside another lane's glob",
+        "author": "read"
       },
       {
         "sha": "7d57b7a",
         "at": "2026-10-10T21:53:11.000Z",
-        "message": "control: make npm test pass on Windows; web owns tests/unit/web"
+        "message": "control: make npm test pass on Windows; web owns tests/unit/web",
+        "author": "read"
       },
       {
         "sha": "dff830c",
         "at": "2026-10-08T21:10:06.000Z",
-        "message": "core: handoff and outbox order"
+        "message": "core: handoff and outbox order",
+        "author": "Claude"
       },
       {
         "sha": "5ad8373",
         "at": "2026-10-08T21:09:57.000Z",
-        "message": "core: lane stall threshold from cron, hide lanes from loop new templates"
+        "message": "core: lane stall threshold from cron, hide lanes from loop new templates",
+        "author": "Claude"
       },
       {
         "sha": "a4fbb78",
         "at": "2026-10-08T20:59:16.000Z",
-        "message": "docs: outbox note and handoff"
+        "message": "docs: outbox note and handoff",
+        "author": "Claude"
       },
       {
         "sha": "64594d2",
         "at": "2026-10-08T20:59:03.000Z",
-        "message": "docs: check 7 covers subcommands, advisory check-lanes CI step, softer lanes claim, outbox and handoff"
+        "message": "docs: check 7 covers subcommands, advisory check-lanes CI step, softer lanes claim, outbox and handoff",
+        "author": "Claude"
       },
       {
         "sha": "e5258c5",
         "at": "2026-10-08T20:57:12.000Z",
-        "message": "docs: README lanes story, comparison table, FAQ; docs/lanes.md; check-lanes in CI"
+        "message": "docs: README lanes story, comparison table, FAQ; docs/lanes.md; check-lanes in CI",
+        "author": "Claude"
       },
       {
         "sha": "4d52e0f",
         "at": "2026-10-08T20:53:50.000Z",
-        "message": "web: Fleet filter by status"
+        "message": "web: Fleet filter by status",
+        "author": "Claude"
       },
       {
         "sha": "a5706b8",
         "at": "2026-10-08T20:51:30.000Z",
-        "message": "web: count blocked lanes in Needs you, handoff and outbox"
+        "message": "web: count blocked lanes in Needs you, handoff and outbox",
+        "author": "Claude"
       },
       {
         "sha": "b497604",
         "at": "2026-10-08T20:50:02.000Z",
-        "message": "web: Lanes tab, Fleet lane strip and lane-aware Needs-you count, with fixture e2e and unit tests"
+        "message": "web: Lanes tab, Fleet lane strip and lane-aware Needs-you count, with fixture e2e and unit tests",
+        "author": "Claude"
       },
       {
         "sha": "27eb065",
         "at": "2026-10-08T20:46:44.000Z",
-        "message": "web: fleet e2e tolerates a sixth demo loop; regenerate stale demo/this-repo.json (built from a shallow clone)"
+        "message": "web: fleet e2e tolerates a sixth demo loop; regenerate stale demo/this-repo.json (built from a shallow clone)",
+        "author": "Claude"
       },
       {
         "sha": "f969e31",
         "at": "2026-10-08T20:44:19.000Z",
-        "message": "kit: lane DONE, handoff and outbox"
+        "message": "kit: lane DONE, handoff and outbox",
+        "author": "Claude"
       },
       {
         "sha": "b458e98",
         "at": "2026-10-08T20:44:19.000Z",
-        "message": "demo: regenerate this-repo.json so the up-to-date test passes again (main-stays-green fix, server owns it)"
+        "message": "demo: regenerate this-repo.json so the up-to-date test passes again (main-stays-green fix, server owns it)",
+        "author": "Claude"
       },
       {
         "sha": "cba3a50",
         "at": "2026-10-08T20:42:30.000Z",
-        "message": "kit: launchd plist notes on permissions and PATH"
+        "message": "kit: launchd plist notes on permissions and PATH",
+        "author": "Claude"
       },
       {
         "sha": "4a25201",
         "at": "2026-10-08T20:42:30.000Z",
-        "message": "kit: two more example knowledge entries"
+        "message": "kit: two more example knowledge entries",
+        "author": "Claude"
       },
       {
         "sha": "012d930",
         "at": "2026-10-08T20:42:30.000Z",
-        "message": "kit: chrome-extension icons and a macOS launchd plist"
+        "message": "kit: chrome-extension icons and a macOS launchd plist",
+        "author": "Claude"
       },
       {
         "sha": "511ac42",
         "at": "2026-10-08T20:41:00.000Z",
-        "message": "server: leak check covers Vercel, Cloudflare Pages and GitHub Pages configs"
+        "message": "server: leak check covers Vercel, Cloudflare Pages and GitHub Pages configs",
+        "author": "Claude"
       },
       {
         "sha": "f9d4768",
         "at": "2026-10-08T20:39:34.000Z",
-        "message": "server: sixth demo loop data (this repo) with scrub test"
+        "message": "server: sixth demo loop data (this repo) with scrub test",
+        "author": "Claude"
       },
       {
         "sha": "889dadc",
         "at": "2026-10-08T20:38:49.000Z",
-        "message": "kit: say how a lane fixes a red main without failing check-lanes; note 0.2.0 requirement"
+        "message": "kit: say how a lane fixes a red main without failing check-lanes; note 0.2.0 requirement",
+        "author": "Claude"
       },
       {
         "sha": "1c361da",
         "at": "2026-10-08T20:38:49.000Z",
-        "message": "kit: Lanes chapter in the method (Part B, section 16)"
+        "message": "kit: Lanes chapter in the method (Part B, section 16)",
+        "author": "Claude"
       },
       {
         "sha": "8a1bfc2",
         "at": "2026-10-08T20:37:48.000Z",
-        "message": "server: handoff notes, cron finding for core"
+        "message": "server: handoff notes, cron finding for core",
+        "author": "Claude"
       },
       {
         "sha": "396c50b",
         "at": "2026-10-08T20:37:48.000Z",
-        "message": "server: lanes in the API, lane health checks, contracts"
+        "message": "server: lanes in the API, lane health checks, contracts",
+        "author": "Claude"
       },
       {
         "sha": "00ff6ca",
         "at": "2026-10-08T20:37:48.000Z",
-        "message": "server: round 2 audit"
+        "message": "server: round 2 audit",
+        "author": "Claude"
       },
       {
         "sha": "36b2f53",
         "at": "2026-10-08T20:35:11.000Z",
-        "message": "kit: lanes.yml matrix workflow with test; prompt and README fixes from review"
+        "message": "kit: lanes.yml matrix workflow with test; prompt and README fixes from review",
+        "author": "Claude"
       },
       {
         "sha": "7877df6",
         "at": "2026-10-08T20:32:39.000Z",
-        "message": "kit: align lane templates with loop init --lanes; lane and control-room prompts with README"
+        "message": "kit: align lane templates with loop init --lanes; lane and control-room prompts with README",
+        "author": "Claude"
       },
       {
         "sha": "05859b0",
         "at": "2026-10-08T20:30:36.000Z",
-        "message": "core: clearer answer --push failures; handoff"
+        "message": "core: clearer answer --push failures; handoff",
+        "author": "Claude"
       },
       {
         "sha": "090b145",
         "at": "2026-10-08T20:30:36.000Z",
-        "message": "core: answer --push, loop new keeps the folder when gh fails, idle icon is - ; audit updated"
+        "message": "core: answer --push, loop new keeps the folder when gh fails, idle icon is - ; audit updated",
+        "author": "Claude"
       },
       {
         "sha": "6345418",
         "at": "2026-10-08T20:28:52.000Z",
-        "message": "kit: lane templates survive first push, are idempotent, carry the unattended rules"
+        "message": "kit: lane templates survive first push, are idempotent, carry the unattended rules",
+        "author": "Claude"
       },
       {
         "sha": "8c33b8e",
         "at": "2026-10-08T20:28:51.000Z",
-        "message": "kit: templates/lanes with documented placeholders and tests"
+        "message": "kit: templates/lanes with documented placeholders and tests",
+        "author": "Claude"
       },
       {
         "sha": "e2095e3",
         "at": "2026-10-08T20:27:08.000Z",
-        "message": "core: lanes add normalizes and validates globs; outbox for kit, server, web"
+        "message": "core: lanes add normalizes and validates globs; outbox for kit, server, web",
+        "author": "Claude"
       },
       {
         "sha": "5d78151",
         "at": "2026-10-08T20:27:08.000Z",
-        "message": "core: loop init --lanes and loop lanes add"
+        "message": "core: loop init --lanes and loop lanes add",
+        "author": "Claude"
       },
       {
         "sha": "89b9431",
         "at": "2026-10-08T20:24:47.000Z",
-        "message": "kit: keep shipped prompt, default prompt and gitignore test in sync"
+        "message": "kit: keep shipped prompt, default prompt and gitignore test in sync",
+        "author": "Claude"
       },
       {
         "sha": "2cda5e2",
         "at": "2026-10-08T20:24:47.000Z",
-        "message": "kit: audit; runner's own session lock no longer stops the prompt"
+        "message": "kit: audit; runner's own session lock no longer stops the prompt",
+        "author": "Claude"
       },
       {
         "sha": "0c7c8b6",
         "at": "2026-10-08T20:22:58.000Z",
-        "message": "core: lane status counts a later commit as a reply and falls back to subject prefix"
+        "message": "core: lane status counts a later commit as a reply and falls back to subject prefix",
+        "author": "Claude"
       },
       {
         "sha": "6e713c4",
         "at": "2026-10-08T20:21:23.000Z",
-        "message": "core: per-lane state and loop status lane rows; LaneStatus type"
+        "message": "core: per-lane state and loop status lane rows; LaneStatus type",
+        "author": "Claude"
       },
       {
         "sha": "17605b8",
         "at": "2026-10-08T20:19:26.000Z",
-        "message": "core: lock handles SIGHUP, failed rounds are recorded, doctor explains claude.cmd; outbox"
+        "message": "core: lock handles SIGHUP, failed rounds are recorded, doctor explains claude.cmd; outbox",
+        "author": "Claude"
       },
       {
         "sha": "592bd6d",
         "at": "2026-10-08T20:17:39.000Z",
-        "message": "core: loop run --lane with session lock written and cleared (also on failure and Ctrl-C)"
+        "message": "core: loop run --lane with session lock written and cleared (also on failure and Ctrl-C)",
+        "author": "Claude"
       },
       {
         "sha": "8606f29",
         "at": "2026-10-08T20:15:38.000Z",
-        "message": "core: loop doctor with injectable probes"
+        "message": "core: loop doctor with injectable probes",
+        "author": "Claude"
       },
       {
         "sha": "1e80b43",
         "at": "2026-10-08T20:14:04.000Z",
-        "message": "core: loop check-lanes (merges, shallow clones, non-ASCII paths handled)"
+        "message": "core: loop check-lanes (merges, shallow clones, non-ASCII paths handled)",
+        "author": "Claude"
       },
       {
         "sha": "c1e8faf",
         "at": "2026-10-08T20:10:57.000Z",
-        "message": "core: lanes config parser, validator and ownership check (pure); core audit"
+        "message": "core: lanes config parser, validator and ownership check (pure); core audit",
+        "author": "Claude"
       },
       {
         "sha": "a373e23",
         "at": "2026-10-08T20:09:49.000Z",
-        "message": "check: run docs-vs-help check from source so npm test works on a fresh checkout"
+        "message": "check: run docs-vs-help check from source so npm test works on a fresh checkout",
+        "author": "Claude"
       },
       {
         "sha": "53bb653",
         "at": "2026-10-08T19:58:55.000Z",
-        "message": "docs: audit, fresh-install test, docs-vs-help check"
+        "message": "docs: audit, fresh-install test, docs-vs-help check",
+        "author": "Claude"
       },
       {
         "sha": "8a322c5",
         "at": "2026-10-08T19:47:57.000Z",
-        "message": "web: screenshot generator and docs screenshots; request lane data shape"
+        "message": "web: screenshot generator and docs screenshots; request lane data shape",
+        "author": "Claude"
       },
       {
         "sha": "48ce16a",
         "at": "2026-10-08T19:46:36.000Z",
-        "message": "web: audit, axe accessibility e2e on all screens and themes"
+        "message": "web: audit, axe accessibility e2e on all screens and themes",
+        "author": "Claude"
       },
       {
         "sha": "e979881",
         "at": "2026-10-08T19:38:28.000Z",
-        "message": "Start round 2: 0.2.0 \"Lanes\" brief, lane contracts and audits"
+        "message": "Start round 2: 0.2.0 \"Lanes\" brief, lane contracts and audits",
+        "author": "Minntooos"
       },
       {
         "sha": "c9bff21",
         "at": "2026-10-08T19:09:20.000Z",
-        "message": "CI on Windows and Node 20/24; Pages demo deploys on change; link the live demo"
+        "message": "CI on Windows and Node 20/24; Pages demo deploys on change; link the live demo",
+        "author": "Minntooos"
       },
       {
         "sha": "a10709e",
         "at": "2026-10-08T19:05:55.000Z",
-        "message": "Make the Pages demo work under a subpath; add Dependabot and package links"
+        "message": "Make the Pages demo work under a subpath; add Dependabot and package links",
+        "author": "Minntooos"
       },
       {
         "sha": "3385cdf",
         "at": "2026-10-08T17:58:34.000Z",
-        "message": "Release 0.1.0"
+        "message": "Release 0.1.0",
+        "author": "unknown"
       },
       {
         "sha": "36953a0",
         "at": "2026-10-08T15:29:55.000Z",
-        "message": "control room: product DONE"
+        "message": "control room: product DONE",
+        "author": "Claude"
       },
       {
         "sha": "b85e7d3",
         "at": "2026-10-08T14:30:53.000Z",
-        "message": "Close three launch gaps: settings route, recorded test results, full Code of Conduct"
+        "message": "Close three launch gaps: settings route, recorded test results, full Code of Conduct",
+        "author": "unknown"
       },
       {
         "sha": "6bfd42b",
         "at": "2026-10-08T14:20:51.000Z",
-        "message": "Fix tests on Windows: run tsx through node, use an absolute missing-file URL"
+        "message": "Fix tests on Windows: run tsx through node, use an absolute missing-file URL",
+        "author": "unknown"
       },
       {
         "sha": "7555d39",
         "at": "2026-10-08T12:45:28.000Z",
-        "message": "web: run 8, lane DONE"
+        "message": "web: run 8, lane DONE",
+        "author": "Claude"
       },
       {
         "sha": "346d25d",
         "at": "2026-10-08T12:31:01.000Z",
-        "message": "control room: tell web to finish with DONE"
+        "message": "control room: tell web to finish with DONE",
+        "author": "Claude"
       },
       {
         "sha": "e874baa",
         "at": "2026-10-08T11:45:26.000Z",
-        "message": "web: record run 7, request GET /api/settings"
+        "message": "web: record run 7, request GET /api/settings",
+        "author": "Claude"
       },
       {
         "sha": "3e123ef",
         "at": "2026-10-08T10:46:01.000Z",
-        "message": "web: unit tests for Loading and LoadError (busy state), jsx in root tsconfig"
+        "message": "web: unit tests for Loading and LoadError (busy state), jsx in root tsconfig",
+        "author": "Claude"
       },
       {
         "sha": "11c7e75",
         "at": "2026-10-08T09:47:21.000Z",
-        "message": "web: record run 5 attempt and handoff"
+        "message": "web: record run 5 attempt and handoff",
+        "author": "Claude"
       },
       {
         "sha": "04a32c2",
         "at": "2026-10-08T08:48:05.000Z",
-        "message": "web: record run 4 attempt and handoff"
+        "message": "web: record run 4 attempt and handoff",
+        "author": "Claude"
       },
       {
         "sha": "1fa8db2",
         "at": "2026-10-08T07:46:38.000Z",
-        "message": "web: disable retry while refetching, error tests for health, inbox, loop detail"
+        "message": "web: disable retry while refetching, error tests for health, inbox, loop detail",
+        "author": "Claude"
       },
       {
         "sha": "01d2526",
         "at": "2026-10-08T07:10:35.000Z",
-        "message": "core: DONE, handoff, outbox"
+        "message": "core: DONE, handoff, outbox",
+        "author": "Claude"
       },
       {
         "sha": "0f037ac",
         "at": "2026-10-08T06:46:26.000Z",
-        "message": "web: shared loading and error states with retry"
+        "message": "web: shared loading and error states with retry",
+        "author": "Claude"
       },
       {
         "sha": "cbf9e96",
         "at": "2026-10-08T06:22:28.000Z",
-        "message": "kit: outbox"
+        "message": "kit: outbox",
+        "author": "Claude"
       },
       {
         "sha": "f3d3f4b",
         "at": "2026-10-08T06:22:20.000Z",
-        "message": "kit: ship template gitignore as gitignore, ignore loop runtime files, DONE"
+        "message": "kit: ship template gitignore as gitignore, ignore loop runtime files, DONE",
+        "author": "Claude"
       },
       {
         "sha": "9ee6e75",
         "at": "2026-10-08T06:11:23.000Z",
-        "message": "core: handoff, outbox"
+        "message": "core: handoff, outbox",
+        "author": "Claude"
       },
       {
         "sha": "6ac5aff",
         "at": "2026-10-08T06:11:14.000Z",
-        "message": "core: loop new writes gitignore as .gitignore and {{host}}; loop run honours session.lock and records runs.jsonl; DEFAULT_PROMPT mirrors routine prompt"
+        "message": "core: loop new writes gitignore as .gitignore and {{host}}; loop run honours session.lock and records runs.jsonl; DEFAULT_PROMPT mirrors routine prompt",
+        "author": "Claude"
       },
       {
         "sha": "a3b6e4c",
         "at": "2026-10-08T06:02:45.000Z",
-        "message": "docs: demo pages workflow, DONE"
+        "message": "docs: demo pages workflow, DONE",
+        "author": "Claude"
       },
       {
         "sha": "8ff8c26",
         "at": "2026-10-08T06:02:04.000Z",
-        "message": "docs: dashboard screenshot, command options"
+        "message": "docs: dashboard screenshot, command options",
+        "author": "Claude"
       },
       {
         "sha": "72dab42",
         "at": "2026-10-08T06:01:11.000Z",
-        "message": "docs: social preview image"
+        "message": "docs: social preview image",
+        "author": "Claude"
       },
       {
         "sha": "6f4d759",
         "at": "2026-10-08T06:00:18.000Z",
-        "message": "docs: handoff"
+        "message": "docs: handoff",
+        "author": "Claude"
       },
       {
         "sha": "a7d2cdd",
         "at": "2026-10-08T06:00:18.000Z",
-        "message": "docs: launch drafts"
+        "message": "docs: launch drafts",
+        "author": "Claude"
       },
       {
         "sha": "5456d6d",
         "at": "2026-10-08T05:59:32.000Z",
-        "message": "docs: README with proof table, docs pages, README/link checks"
+        "message": "docs: README with proof table, docs pages, README/link checks",
+        "author": "Claude"
       },
       {
         "sha": "926133b",
         "at": "2026-10-08T05:57:27.000Z",
-        "message": "docs: CI workflow, contributing, conduct, security, changelog, templates, marketplace"
+        "message": "docs: CI workflow, contributing, conduct, security, changelog, templates, marketplace",
+        "author": "Claude"
       },
       {
         "sha": "73bafcb",
         "at": "2026-10-08T05:53:24.000Z",
-        "message": "web: tab arrow keys, contrast test, read-only inbox without a server, AA-safe accent buttons"
+        "message": "web: tab arrow keys, contrast test, read-only inbox without a server, AA-safe accent buttons",
+        "author": "Claude"
       },
       {
         "sha": "c4520a5",
         "at": "2026-10-08T05:52:21.000Z",
-        "message": "web: new-loop wizard with live brief score and first-run state"
+        "message": "web: new-loop wizard with live brief score and first-run state",
+        "author": "Claude"
       },
       {
         "sha": "185bff3",
         "at": "2026-10-08T05:51:29.000Z",
-        "message": "web: loop detail, inbox, health, settings, live updates; e2e on the demo server"
+        "message": "web: loop detail, inbox, health, settings, live updates; e2e on the demo server",
+        "author": "Claude"
       },
       {
         "sha": "360ae18",
         "at": "2026-10-08T05:48:00.000Z",
-        "message": "web: app shell, command palette, theme, hash router and Fleet with e2e"
+        "message": "web: app shell, command palette, theme, hash router and Fleet with e2e",
+        "author": "Claude"
       },
       {
         "sha": "bcc83ca",
         "at": "2026-10-08T05:46:45.000Z",
-        "message": "server: lane DONE, retro, knowledge entry"
+        "message": "server: lane DONE, retro, knowledge entry",
+        "author": "Claude"
       },
       {
         "sha": "bee870d",
         "at": "2026-10-08T05:45:20.000Z",
-        "message": "server: serve the built dashboard with a strict CSP; static demo API export"
+        "message": "server: serve the built dashboard with a strict CSP; static demo API export",
+        "author": "Claude"
+      },
+      {
+        "sha": "c6faf17",
+        "at": "2026-10-08T05:43:30.000Z",
+        "message": "server: health checks (leak, stale lock, short runs, failing tests, runner silent) feed status and /api/checks",
+        "author": "Claude"
+      },
+      {
+        "sha": "55749c0",
+        "at": "2026-10-08T05:41:10.000Z",
+        "message": "server: SSE /api/events with a polling clone watcher and periodic git fetch",
+        "author": "Claude"
+      },
+      {
+        "sha": "a75365c",
+        "at": "2026-10-08T05:39:19.000Z",
+        "message": "server: answer endpoint with host/origin/content-type guard",
+        "author": "Claude"
+      },
+      {
+        "sha": "8955f5c",
+        "at": "2026-10-08T05:37:30.000Z",
+        "message": "server: read real loops, inbox and detail from a projects folder",
+        "author": "Claude"
+      },
+      {
+        "sha": "803d0db",
+        "at": "2026-10-08T05:35:49.000Z",
+        "message": "server: createApp, startServer and read routes from the demo snapshot",
+        "author": "Claude"
+      },
+      {
+        "sha": "88eeea0",
+        "at": "2026-10-08T05:34:46.000Z",
+        "message": "server: demo snapshot builder, scrubbed five-sites.json, shared API types",
+        "author": "Claude"
+      },
+      {
+        "sha": "1abf8d9",
+        "at": "2026-10-08T05:31:46.000Z",
+        "message": "kit: method protocol files, lock rule in static-site loop prompt, stricter consistency tests",
+        "author": "Claude"
+      },
+      {
+        "sha": "d48aab3",
+        "at": "2026-10-08T05:29:55.000Z",
+        "message": "kit: outbox requests for core (gitignore in tarball) and docs (marketplace.json)",
+        "author": "Claude"
+      },
+      {
+        "sha": "aaf8ab9",
+        "at": "2026-10-08T05:29:09.000Z",
+        "message": "kit: Chrome extension template with check script and Playwright extension test",
+        "author": "Claude"
+      },
+      {
+        "sha": "c8ddbae",
+        "at": "2026-10-08T05:28:05.000Z",
+        "message": "kit: Claude Code plugin with loop-init, handoff, retro and stuck commands",
+        "author": "Claude"
+      },
+      {
+        "sha": "3c0b4c8",
+        "at": "2026-10-08T05:27:20.000Z",
+        "message": "kit: fix runner review findings (github_token, allowedTools, XML encoding, lock wording)",
+        "author": "Claude"
+      },
+      {
+        "sha": "8201e6e",
+        "at": "2026-10-08T05:26:35.000Z",
+        "message": "kit: GitHub Actions workflow and local scheduler configs with tests",
+        "author": "Claude"
+      },
+      {
+        "sha": "d8cc97d",
+        "at": "2026-10-08T05:25:56.000Z",
+        "message": "kit: routine runner prompt and README; loop run test accepts the shipped prompt",
+        "author": "Claude"
+      },
+      {
+        "sha": "2b919a7",
+        "at": "2026-10-08T05:25:03.000Z",
+        "message": "kit: static-site check rejects invalid hostnames; flag underscore-name bug to core",
+        "author": "Claude"
+      },
+      {
+        "sha": "61467c3",
+        "at": "2026-10-08T05:25:03.000Z",
+        "message": "kit: static-site template passes its own checks when freshly generated",
+        "author": "Claude"
+      },
+      {
+        "sha": "ea9869d",
+        "at": "2026-10-08T05:23:30.000Z",
+        "message": "core: dashboard shutdown, busy-port hint, handoff",
+        "author": "Claude"
+      },
+      {
+        "sha": "d6c7a02",
+        "at": "2026-10-08T05:23:30.000Z",
+        "message": "core: loop dashboard command with lazy server import",
+        "author": "Claude"
+      },
+      {
+        "sha": "0e0d08f",
+        "at": "2026-10-08T05:22:11.000Z",
+        "message": "kit: fix review findings (empty shipped index, prefilled goal, lock file named)",
+        "author": "Claude"
+      },
+      {
+        "sha": "d4f7299",
+        "at": "2026-10-08T05:22:10.000Z",
+        "message": "kit: operating card, task template, knowledge index and unattended rules with tests",
+        "author": "Claude"
+      },
+      {
+        "sha": "0596cfe",
+        "at": "2026-10-08T05:21:44.000Z",
+        "message": "core: loop run allows the tools a round needs, handles Windows claude lookup",
+        "author": "Claude"
+      },
+      {
+        "sha": "039455a",
+        "at": "2026-10-08T05:20:45.000Z",
+        "message": "core: loop run builds the scheduler prompt and starts claude with an argument array",
+        "author": "Claude"
+      },
+      {
+        "sha": "936fee6",
+        "at": "2026-10-08T05:19:46.000Z",
+        "message": "core: answer commits only its files and extends a spent run budget; wider next-list headings",
+        "author": "Claude"
+      },
+      {
+        "sha": "b8aaa33",
+        "at": "2026-10-08T05:18:27.000Z",
+        "message": "core: loop status, next-round and answer",
+        "author": "Claude"
+      },
+      {
+        "sha": "7a1ecb0",
+        "at": "2026-10-08T05:16:47.000Z",
+        "message": "core: loop new cleans up when gh fails, git identity fallback",
+        "author": "Claude"
+      },
+      {
+        "sha": "4e9b6ce",
+        "at": "2026-10-08T05:15:52.000Z",
+        "message": "core: loop new with template copier and Gh interface",
+        "author": "Claude"
+      },
+      {
+        "sha": "f8eaff3",
+        "at": "2026-10-08T05:14:38.000Z",
+        "message": "core: init never overwrites loop state, rejects broken card markers",
+        "author": "Claude"
+      },
+      {
+        "sha": "2aeee01",
+        "at": "2026-10-08T05:13:40.000Z",
+        "message": "core: loop init with brief gate, idempotent card merge",
+        "author": "Claude"
+      },
+      {
+        "sha": "a12a3ea",
+        "at": "2026-10-08T05:12:29.000Z",
+        "message": "core: anchor brief heading matching, nest sub-headings, accept bold labels",
+        "author": "Claude"
+      },
+      {
+        "sha": "947d666",
+        "at": "2026-10-08T05:11:25.000Z",
+        "message": "core: brief linter with named gaps",
+        "author": "Claude"
+      },
+      {
+        "sha": "abed9af",
+        "at": "2026-10-08T05:10:44.000Z",
+        "message": "core: harden repo readers, update task file",
+        "author": "Claude"
+      },
+      {
+        "sha": "0db189d",
+        "at": "2026-10-08T05:09:58.000Z",
+        "message": "core: read a loop's facts from a folder (repo.ts)",
+        "author": "Claude"
+      },
+      {
+        "sha": "6706123",
+        "at": "2026-10-08T05:09:20.000Z",
+        "message": "Fix green: stop favicon 404 failing the dashboard smoke test",
+        "author": "Claude"
+      },
+      {
+        "sha": "74b8626",
+        "at": "2026-10-08T04:58:48.000Z",
+        "message": "Add control room notes file that every lane reads",
+        "author": "unknown"
+      },
+      {
+        "sha": "0c397a2",
+        "at": "2026-10-08T04:55:53.000Z",
+        "message": "Set up Compounding Loop for five parallel build lanes",
+        "author": "unknown"
+      },
+      {
+        "sha": "2539ddd",
+        "at": "2026-10-05T22:14:08.000Z",
+        "message": "Add the Compounding Loop method",
+        "author": "unknown"
       }
     ],
     "contract": [
@@ -615,7 +1281,7 @@
       "kind": "failing-tests",
       "ok": true,
       "reason": "all tests pass",
-      "proof": "npm test was green at 084bb9f"
+      "proof": "npm test was green at b3b51a5"
     }
   ]
 }

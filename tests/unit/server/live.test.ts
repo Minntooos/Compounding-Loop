@@ -3,7 +3,7 @@ const read = readFileSync;
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { buildLiveLoop, countRoundFiles, isRepoSlug, laneFilePaths, latestFinishedRun, liveUrls, mapCommits, mapRuns, rawUrl } from '../../../src/server/live/index.js';
+import { buildLiveLoop, commitsSinceUrl, countRoundFiles, hasMoreCommits, mergeCommits, snapshotSince, isRepoSlug, laneFilePaths, latestFinishedRun, liveUrls, mapCommits, mapRuns, rawUrl } from '../../../src/server/live/index.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const fixture = (name: string): unknown => JSON.parse(readFileSync(path.join(here, 'fixtures', 'live', name), 'utf8'));
@@ -40,7 +40,7 @@ describe('mappers', () => {
       ['9f8e7d6', 'docs: readme', undefined],
     ]);
     expect(commits[0]?.at).toBe('2026-10-11T05:35:00.000Z');
-    expect(JSON.stringify(commits)).not.toMatch(/someone|@/);
+    expect(JSON.stringify(commits)).not.toMatch(/@/);
   });
   it('falls back to the author date when the committer is null', () => {
     expect(mapCommits([{ sha: 'abcdef012', commit: { message: 'x', committer: null, author: { date: '2026-10-11T01:00:00Z' } } }])[0]?.at).toBe('2026-10-11T01:00:00.000Z');
@@ -125,5 +125,55 @@ describe('browser safety', () => {
 describe('buildLiveLoop id', () => {
   it('uses the id from live.json when given', () => {
     expect(buildLiveLoop({ slug: 'a/b', id: 'compounding-loop', commits: [], runs: {}, files: {}, now: NOW }).detail.id).toBe('compounding-loop');
+  });
+});
+
+describe('commit history beyond one page (regression: the timeline stopped at 100 commits)', () => {
+  const commit = (n: number, extra: object = {}) => ({ sha: `c${String(n).padStart(6, '0')}`, at: new Date(Date.UTC(2026, 9, 1, 0, n)).toISOString(), message: `commit ${n}`, ...extra });
+
+  it('builds the paged `since` URL from the snapshot head', () => {
+    expect(commitsSinceUrl('a/b', '2026-10-11T14:51:27Z', 2)).toBe('https://api.github.com/repos/a/b/commits?sha=main&since=2026-10-11T14%3A51%3A27.000Z&per_page=100&page=2');
+    expect(() => commitsSinceUrl('../x', '2026-10-11T00:00:00Z')).toThrow(/slug/);
+    expect(() => commitsSinceUrl('a/b', 'yesterday')).toThrow(/date/);
+    expect(hasMoreCommits(100)).toBe(true);
+    expect(hasMoreCommits(99)).toBe(false);
+  });
+
+  it('takes `since` from the newest snapshot commit', () => {
+    expect(snapshotSince([commit(1), commit(5), commit(3)])).toBe(commit(5).at);
+    expect(snapshotSince([])).toBeUndefined();
+  });
+
+  it('merges 150 snapshot commits with 120 live ones (30 shared) into 240 unique, newest first', () => {
+    const snapshot = Array.from({ length: 150 }, (_, i) => commit(i));
+    const live = Array.from({ length: 120 }, (_, i) => commit(i + 120));
+    const merged = mergeCommits(snapshot, live);
+    expect(merged).toHaveLength(240);
+    expect(new Set(merged.map((c) => c.sha)).size).toBe(240);
+    expect(merged[0]?.message).toBe('commit 239');
+    expect(merged.at(-1)?.message).toBe('commit 0');
+  });
+
+  it('keeps the live copy of a shared commit and never copies the lane hint into the timeline', () => {
+    const merged = mergeCommits([commit(1)], [{ ...commit(1), message: 'live copy', author: 'Ada', lane: 'core' } as never]);
+    expect(merged).toEqual([{ ...commit(1), message: 'live copy', author: 'Ada' }]);
+  });
+
+  it('buildLiveLoop shows the snapshot history under the live commits', () => {
+    const snapshotCommits = Array.from({ length: 130 }, (_, i) => commit(i));
+    const live = buildLiveLoop({ slug: 'o/n', commits: fixture('commits.json'), runs: fixture('runs.json'), files: {}, now: NOW, snapshotCommits });
+    expect(live.detail.timeline).toHaveLength(133);
+    expect(live.detail.timeline[0]?.sha).toBe('b3c1d2e');
+    expect(live.detail.timeline.at(-1)?.sha).toBe(commit(0).sha);
+  });
+});
+
+describe('commit authors', () => {
+  const entry = (name: unknown) => [{ sha: 'abcdef012', commit: { message: 'x', committer: { date: '2026-10-11T01:00:00Z' }, author: { name, email: 'a@b.co' } } }];
+  it('reads the display name and never an email', () => {
+    expect(mapCommits(entry('Ada Lovelace'))[0]?.author).toBe('Ada Lovelace');
+    expect(mapCommits(entry('ada@example.com'))[0]?.author).toBeUndefined();
+    expect(mapCommits(entry(42))[0]?.author).toBeUndefined();
+    expect(JSON.stringify(mapCommits(entry('Ada')))).not.toContain('a@b.co');
   });
 });

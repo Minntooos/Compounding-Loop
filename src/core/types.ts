@@ -67,6 +67,8 @@ export interface LoopSummary {
   ci?: { ok: boolean; reason: string };
   /** Public demo site, e.g. the repo's GitHub Pages (live mode only; added by the web lane). */
   demoUrl?: string;
+  /** ISO time of the newest commit a bundled snapshot contains; absent on live and local data (added by the server lane, Round 4). */
+  snapshotAt?: string;
   lastCommit?: LoopCommit;
   /** Present only for loops with `.ai/lanes.json` (added by the server lane). */
   lanes?: LaneStatus[];

@@ -47,6 +47,23 @@ export function liveUrls(slug: string, branch = 'main'): LiveUrls {
   };
 }
 
+/** GitHub's page size for the commits endpoint; a full page means there may be another. */
+export const COMMITS_PAGE_SIZE = 100;
+
+/**
+ * Commits newer than the snapshot: `since` is the snapshot head's commit date (ISO 8601). GitHub treats it as
+ * inclusive, which is fine because `mergeCommits` drops the duplicate. Page 1 is the same call as `liveUrls().commits`
+ * plus `since`; keep requesting the next page while `hasMoreCommits` says the last one was full.
+ */
+export function commitsSinceUrl(slug: string, since: string, page = 1, branch = 'main'): string {
+  if (!isRepoSlug(slug)) throw new Error(`not a GitHub repo slug: ${slug}`);
+  if (Number.isNaN(Date.parse(since))) throw new Error(`not a date: ${since}`);
+  const query = `sha=${encodeURIComponent(branch)}&since=${encodeURIComponent(new Date(since).toISOString())}&per_page=${COMMITS_PAGE_SIZE}&page=${page}`;
+  return `${GITHUB_API}/repos/${slug}/commits?${query}`;
+}
+
+export const hasMoreCommits = (pageLength: number): boolean => pageLength >= COMMITS_PAGE_SIZE;
+
 /** Number of `.ai/done-vN.md` files present, counted from the fetched files. */
 export function countRoundFiles(files: Readonly<Record<string, string | undefined>>): number {
   return Array.from({ length: MAX_ROUND_FILES }, (_, i) => files[`.ai/done-v${i + 1}.md`]).filter((t) => t !== undefined).length;

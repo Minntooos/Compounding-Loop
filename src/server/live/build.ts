@@ -4,10 +4,11 @@ import { activeClaim, parseLanesConfig, parseOutbox, parseRunCounter, parseTaskF
 import type { OutboxMessage } from '../../core/parse/index.js';
 import { deriveLaneState, stallMinutesFor, summarizeOutboxes } from '../../core/laneStatus.js';
 import { deriveStatus } from '../../core/status.js';
-import type { HealthCheck, InboxItem, LaneStatus, LoopDetail } from '../../core/types.js';
+import type { HealthCheck, InboxItem, LaneStatus, LoopCommit, LoopDetail } from '../../core/types.js';
 import { laneChecks } from '../laneChecks.js';
 import { bulletsUnder, contractFromTask } from '../taskBullets.js';
 import { latestFinishedRun, mapCommits, mapRuns, type LiveCommit } from './github.js';
+import { mergeCommits } from './merge.js';
 import { countRoundFiles } from './urls.js';
 
 export interface LiveInput {
@@ -15,8 +16,10 @@ export interface LiveInput {
   slug: string;
   /** Loop id to use instead of the repo name (the `loop` field of `live.json`). */
   id?: string;
-  /** Parsed JSON of the commits and Actions runs responses (any shape; bad data maps to empty). */
+  /** Parsed JSON of the commits (concatenate the pages) and Actions runs responses (any shape; bad data maps to empty). */
   commits: unknown;
+  /** Commits of the bundled snapshot (full history up to its pin); merged under the live ones without duplicates. */
+  snapshotCommits?: readonly LoopCommit[];
   runs: unknown;
   /** Raw file text by repo-relative path; a file that 404ed is absent or undefined. */
   files: Readonly<Record<string, string | undefined>>;
@@ -78,7 +81,8 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
   }
   if (lanes) checks.push(...laneChecks(lanes).map((c) => ({ ...c, loopId: id })));
   const roundsDone = countRoundFiles(input.files);
-  const newest = commits[0];
+  const timeline = mergeCommits(input.snapshotCommits ?? [], commits);
+  const newest = timeline[0];
   const status = deriveStatus({
     hasBlocked,
     hasDone: input.files['DONE.md'] !== undefined,
@@ -87,7 +91,6 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
     healthFailures: checks.filter((c) => !c.ok).map((c) => c.reason),
   }, input.now);
   const round = roundsDone + 1;
-  const timeline = commits.map(({ sha, at, message }) => ({ sha, at, message }));
   const detail: LoopDetail = {
     id,
     name: id,

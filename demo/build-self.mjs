@@ -1,6 +1,7 @@
 // Builds demo/this-repo.json: the sixth demo loop, "compounding-loop (this repo)", from rounds 1 and 2 of this
-// repository's history (pinned at the 0.2.0 release commit, so the output never changes). It keeps only commit
-// hashes, dates and subjects plus the lane files' run counters: no author names or emails, no paths.
+// repository's history (pinned at the 0.3.0 release commit, so the output never changes). It keeps the full history
+// up to the pin: commit hashes, dates, subjects and author display names, plus the lane files' run counters. No
+// emails, no paths. Live mode fetches only what came after the pin and merges it (src/server/live/merge.ts).
 import { execFile } from 'node:child_process';
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -11,7 +12,9 @@ import { scrubText } from './build-demo.mjs';
 const execFileAsync = promisify(execFile);
 export const ROUND_ONE_COMMIT = '3385cdf';
 export const ROUND_TWO_COMMIT = '084bb9f';
-export const TIMELINE_LENGTH = 100;
+export const ROUND_THREE_COMMIT = 'b3b51a5';
+/** Last commit in the snapshot; its date is `snapshotAt` and the `since` of the live fetch. */
+export const SNAPSHOT_COMMIT = ROUND_THREE_COMMIT;
 export const ROUND_ONE_LANES = ['core', 'kit', 'server', 'web', 'docs'];
 
 const git = async (cwd, ...args) => (await execFileAsync('git', args, { cwd, maxBuffer: 16 * 1024 * 1024 })).stdout;
@@ -31,30 +34,30 @@ export function laneOfCommit(subject, body = '') {
 }
 
 export async function buildSelf(repoDir) {
-  const log = await git(repoDir, 'log', `-${TIMELINE_LENGTH}`, '--format=%h%x1f%cI%x1f%s%x1f%b%x1e', ROUND_TWO_COMMIT);
+  const log = await git(repoDir, 'log', '--format=%h%x1f%cI%x1f%an%x1f%s%x1f%b%x1e', SNAPSHOT_COMMIT);
   const commits = log.split('\x1e').map((r) => r.trim()).filter(Boolean).map((r) => {
-    const [sha, at, subject, body = ''] = r.split('\x1f');
-    return { sha, at: new Date(at).toISOString(), message: scrubText(subject), lane: laneOfCommit(subject, body) };
+    const [sha, at, name, subject, body = ''] = r.split('\x1f');
+    const author = scrubText(name.trim());
+    return { sha, at: new Date(at).toISOString(), message: scrubText(subject), ...(author && !author.includes('@') && { author }), lane: laneOfCommit(subject, body) };
   });
   const lanes = [];
   for (const name of ROUND_ONE_LANES) {
-    // Total effort over both rounds: round 1's counter lives in done-v1, round 2's in the task file.
-    const [one, two] = await Promise.all([
-      git(repoDir, 'show', `${ROUND_ONE_COMMIT}:.ai/lanes/${name}/task.md`).then(parseRun),
-      git(repoDir, 'show', `${ROUND_TWO_COMMIT}:.ai/lanes/${name}/task.md`).then(parseRun),
-    ]);
+    // Total effort over all rounds: each round's counter is the lane's task.md at that round's last commit.
+    const [one, two, three] = await Promise.all(
+      [ROUND_ONE_COMMIT, ROUND_TWO_COMMIT, ROUND_THREE_COMMIT].map((commit) => git(repoDir, 'show', `${commit}:.ai/lanes/${name}/task.md`).then(parseRun)),
+    );
     const last = commits.find((c) => c.lane === name);
     lanes.push({
       name,
       state: 'done',
-      run: one.run + two.run,
-      limit: one.limit + two.limit,
+      run: one.run + two.run + three.run,
+      limit: one.limit + two.limit + three.limit,
       ...(last && { lastCommit: { sha: last.sha, subject: last.message, at: last.at } }),
       locked: false,
       unanswered: [],
     });
   }
-  const timeline = commits.map(({ sha, at, message }) => ({ sha, at, message }));
+  const timeline = commits.map(({ sha, at, message, author }) => ({ sha, at, message, ...(author && { author }) }));
   const run = lanes.reduce((n, l) => n + l.run, 0);
   const runLimit = lanes.reduce((n, l) => n + l.limit, 0);
   const detail = {
@@ -62,12 +65,13 @@ export async function buildSelf(repoDir) {
     name: 'compounding-loop (this repo)',
     url: 'https://github.com/Minntooos/Compounding-Loop',
     state: 'done',
-    reason: 'rounds 1 and 2 built unattended by five parallel lanes, all done; round 3 is running now',
-    round: 2,
-    roundsTotal: 3,
+    reason: 'rounds 1 to 3 built unattended by five parallel lanes, all done; round 4 is running now',
+    round: 3,
+    roundsTotal: 4,
     run,
     runLimit,
     lastCommit: timeline[0],
+    snapshotAt: timeline[0].at,
     lanes,
     timeline,
     contract: lanes.map((l) => ({ text: `${l.name} lane: every done-when passes`, pass: true })),
@@ -75,7 +79,7 @@ export async function buildSelf(repoDir) {
     decisions: [],
     history: [],
   };
-  const checks = [{ loopId: detail.id, kind: 'failing-tests', ok: true, reason: 'all tests pass', proof: `npm test was green at ${ROUND_TWO_COMMIT}` }];
+  const checks = [{ loopId: detail.id, kind: 'failing-tests', ok: true, reason: 'all tests pass', proof: `npm test was green at ${SNAPSHOT_COMMIT}` }];
   return { loop: detail, checks };
 }
 
