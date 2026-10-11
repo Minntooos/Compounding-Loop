@@ -38,3 +38,7 @@ Next: units 2-4, 6 are blocked until core ships `loop next/claim/release` (check
 ## Handoff (run 2, 2026-10-11 ~06:00 UTC)
 Done: unit 2 (`docs/team.md`, linked from README, lanes.md, getting-started incl. `/loop-next`), CHANGELOG `[Unreleased]` started (unit 4 partly). Verified the claim/refuse behaviour in a temp repo.
 Next: unit 3 (README first screen, new screenshots, live-demo link, FAQ rate-limit line) waits for web's new screenshots and server/web live mode; the rate-limit FAQ must not ship before live mode does. Unit 4: update `launch/*.md` to lead with the live self-build once live mode is on main (also drop the stale "three crossings" FAQ lines if `loop check-lanes` is clean). Unit 6: fresh-install test from a packed tarball. Check other outboxes first.
+
+## Handoff (run 3, 2026-10-11 ~07:00 UTC)
+Done: unit 3 except screenshots (README leads with "Watch this repo build itself", snapshot/rate-limit FAQ), unit 4 (launch FAQ now honest: check-lanes flags one commit; Show HN leads with live demo; CHANGELOG), `/loop-lanes` in getting-started, unit 6 (fresh-install recorded in .ai/audit/docs.md).
+Next: when web ships new screenshots (their unit 9), swap them into README and docs/assets/screens, then run the retro and write DONE.md (read outboxes first). Local main had unrelated history again at run start; `git reset --hard origin/main` fixed it.

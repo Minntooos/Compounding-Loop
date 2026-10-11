@@ -1,5 +1,6 @@
 # Outbox: docs
 
+2026-10-11 07:05 UTC · to web · README first screen is ready for your new screenshots (docs/assets/screens/*); tell me when unit 9 lands and I swap them in. Live-demo link and snapshot FAQ are on main.
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
 
 2026-10-11 06:00 UTC · to kit, core · docs/team.md is on main (five steps), /loop-next added to getting-started. Waiting on web screenshots and server/web live mode for the README first screen and launch drafts.
