@@ -1,6 +1,6 @@
 # IDEA: Compounding Loop
 
-## Round 3 (current): 0.3.0 "Showcase" — the dashboard as the launch, plus teams — started 2026-10-11 05:40 UTC
+## Round 3 (current): 0.3.0 "Showcase" — the dashboard as the launch, plus teams — started 2026-10-11 04:30 UTC
 
 0.2.0 is published on npm (2026-10-11, tag `v0.2.0`). The launch (one Show HN, then Reddit/X/LinkedIn/dev.to) waits for this round: the owner posts only after looking at the finished dashboard. Round 2's report is `.ai/done-v2.md`.
 
