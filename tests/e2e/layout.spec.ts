@@ -49,3 +49,16 @@ test('long loop names and lane messages do not overflow at 375 px', async ({ pag
     expect(scroll, hash).toBeLessThanOrEqual(client);
   }
 });
+
+// The nav is one scrollable row below the brand; labels never wrap and the theme toggle shares the brand row.
+test('phone nav keeps labels on one line and the theme toggle beside the brand', async ({ page }) => {
+  await page.goto('/#/');
+  const links = page.getByRole('navigation', { name: 'Main' }).getByRole('link');
+  await expect(links.first()).toBeVisible();
+  const heights = await links.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height));
+  expect(Math.max(...heights)).toBeLessThan(60); // a wrapped label would be about twice as tall
+  expect(Math.min(...heights)).toBeGreaterThanOrEqual(44);
+  const brand = await page.getByRole('link', { name: 'Compounding Loop' }).first().boundingBox();
+  const toggle = await page.getByRole('button', { name: /theme/ }).boundingBox();
+  expect(Math.abs((toggle?.y ?? 0) - (brand?.y ?? 99))).toBeLessThan(20);
+});

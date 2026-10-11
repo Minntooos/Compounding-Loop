@@ -1,4 +1,5 @@
 import type { DashboardSettings, HealthCheck, InboxItem, LoopDetail, LoopSummary } from '@core/types';
+import { probeOrder } from '../lib/probe';
 import { mockSnapshot } from './mock';
 
 async function fetchJson(path: string): Promise<Response | undefined> {
@@ -11,9 +12,18 @@ async function fetchJson(path: string): Promise<Response | undefined> {
 }
 
 let serverProbe: Promise<boolean> | undefined;
-/** True when a dashboard server answers /api/health with JSON. Without one (static preview) the demo snapshot is shown, labelled as sample data. */
+/** True when a dashboard server answers /api/health with JSON. Without one (static export, preview) the demo snapshot is shown, labelled as sample data. */
 export function hasServer(): Promise<boolean> {
-  serverProbe ??= fetchJson('/health').then((res) => res?.ok === true);
+  serverProbe ??= (async () => {
+    for (const probe of probeOrder(window.location.hostname)) {
+      if (probe === 'static') {
+        // Relative to the page, so it also works under /Compounding-Loop/. A hit means static hosting: no server.
+        const res = await fetch('api/health.json', { headers: { accept: 'application/json' } }).catch(() => undefined);
+        if (res?.ok && (res.headers.get('content-type') ?? '').includes('json')) return false;
+      } else if ((await fetchJson('/health'))?.ok === true) return true;
+    }
+    return false;
+  })();
   return serverProbe;
 }
 
