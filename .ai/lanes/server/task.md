@@ -1,7 +1,7 @@
 # Lane: server — round 3 (0.3.0 "Showcase")
 
-Run: 1 / 20
-Status: run 1: units 1-4 done (audit, rounds 1+2 snapshot pinned 084bb9f, live mappers, static CSP + live.json); unit 5 open (claims in live already; audit majors none)
+Run: 2 / 20
+Status: DONE (run 2): all units done, npm test green
 Round 2 record: `.ai/lanes/server/done-v2.md` (`git show 084bb9f:.ai/lanes/server/task.md` for its Decisions).
 
 ## Contract
@@ -35,3 +35,6 @@ Round 3 starts here. Brief: IDEA.md "Round 3". Commits carry a `Lane: server` tr
 
 ## Handoff (run 1)
 Units 1-4 done; unit 5 claims are already in types/reader (core) and the live mapper. Remaining: confirm web's live fetch uses `src/server/live` and field gaps web reports in its outbox; `tests` result for the self loop is not in the snapshot (no count recorded at the pin). Done: units 1, 2, 3, 4, 5.
+
+## Handoff (run 2)
+Fresh pull green; contract passes; wrote DONE.md. Local main had been an unrelated stale history; reset to origin/main.
