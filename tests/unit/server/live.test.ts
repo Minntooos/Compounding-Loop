@@ -42,6 +42,9 @@ describe('mappers', () => {
     expect(commits[0]?.at).toBe('2026-10-11T05:35:00.000Z');
     expect(JSON.stringify(commits)).not.toMatch(/someone|@/);
   });
+  it('falls back to the author date when the committer is null', () => {
+    expect(mapCommits([{ sha: 'abcdef012', commit: { message: 'x', committer: null, author: { date: '2026-10-11T01:00:00Z' } } }])[0]?.at).toBe('2026-10-11T01:00:00.000Z');
+  });
   it('returns nothing for wrong shapes', () => {
     expect(mapCommits({})).toEqual([]);
     expect(mapRuns([])).toEqual([]);

@@ -32,7 +32,9 @@ export function mapCommits(json: unknown): LiveCommit[] {
     if (!isRecord(entry) || !isRecord(entry.commit)) return [];
     const sha = str(entry.sha);
     const full = str(entry.commit.message);
-    const when = isRecord(entry.commit.committer) ? isoOrUndefined(entry.commit.committer.date) : undefined;
+    // GitHub can send a null committer; the author date is the fallback (only the date is read, never a name).
+    const dateOf = (who: unknown) => (isRecord(who) ? isoOrUndefined(who.date) : undefined);
+    const when = dateOf(entry.commit.committer) ?? dateOf(entry.commit.author);
     if (sha === undefined || full === undefined || when === undefined) return [];
     const lane = parseLaneTrailer(full);
     return [{ sha: sha.slice(0, 7), at: when, message: full.split(/\r?\n/)[0] ?? full, ...(lane && { lane }) }];
