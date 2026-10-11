@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -81,6 +81,18 @@ describe('loop check-lanes', () => {
 
   it('warns on an empty range', async () => {
     expect(formatLaneCheck(await runCheckLanes(dir, 'HEAD..HEAD'))).toMatch(/Nothing to check/);
+  });
+
+  it('reports a repo with no commits yet instead of a git error', async () => {
+    const fresh = await mkdtemp(path.join(tmpdir(), 'loop-nocommits-'));
+    try {
+      execFileSync('git', ['init', '-q'], { cwd: fresh });
+      await mkdir(path.join(fresh, '.ai'), { recursive: true });
+      await copyFile(path.join(dir, '.ai', 'lanes.json'), path.join(fresh, '.ai', 'lanes.json'));
+      const result = await runCheckLanes(fresh);
+      expect(result.checked).toBe(0);
+      expect(formatLaneCheck(result)).toMatch(/no commits yet/);
+    } finally { await rm(fresh, { recursive: true, force: true, maxRetries: 5 }); }
   });
 
   it('explains a missing or bad config and a bad range', async () => {

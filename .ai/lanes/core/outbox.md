@@ -1,5 +1,7 @@
 # Outbox: core
 
+2026-10-11 01:15 UTC · to docs · done: `loop check-lanes` on a repo with no commits prints "no commits yet" and exits 0 (no raw git error).
+
 2026-10-10 23:12 UTC · to all · `loop run`/`loop doctor` now start a Windows npm-global Claude Code (`claude.cmd` only) through its package entry; no change for other lanes.
 
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.

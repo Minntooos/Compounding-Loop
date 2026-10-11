@@ -27,6 +27,9 @@ export async function runCheckLanes(dir: string, range?: string): Promise<LaneCh
   const { config, errors } = parseLanesConfig(text);
   if (!config) throw new Error(`.ai/lanes.json is invalid:\n- ${errors.join('\n- ')}`);
 
+  if (!range && !(await git(dir, 'rev-parse', '--verify', '--quiet', 'HEAD').then(() => true, () => false))) {
+    return { checked: 0, untagged: [], skipped: [], problems: [] };
+  }
   const log = await git(dir, 'log', '--no-merges', `--format=${RECORD}%H%n%B`, ...(range ? [range] : ['-n', '50'])).catch((error: unknown) => {
     throw new Error(`git could not read ${range ?? 'the history'}: ${error instanceof Error ? error.message.split('\n')[0] : String(error)}. Check the range (for example origin/main..HEAD).`);
   });
@@ -54,7 +57,7 @@ export async function runCheckLanes(dir: string, range?: string): Promise<LaneCh
 
 export function formatLaneCheck(result: LaneCheckResult): string {
   const lines = [`Checked ${result.checked} commit(s).`];
-  if (result.checked === 0) lines.push('Nothing to check: the range has no commits. Is it the right range (for example origin/main..HEAD)?');
+  if (result.checked === 0) lines.push('Nothing to check: no commits in the range (or no commits yet). If you passed --range, is it right (for example origin/main..HEAD)?');
   if (result.skipped.length > 0) lines.push(`${result.skipped.length} skipped because this is a shallow clone (${result.skipped.join(', ')}). Use fetch-depth: 0 to check them.`);
   if (result.untagged.length > 0) lines.push(`${result.untagged.length} without a Lane: trailer (not an error): ${result.untagged.join(', ')}`);
   if (result.problems.length === 0) lines.push('All lane-tagged commits stayed in their lane.');
