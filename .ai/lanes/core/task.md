@@ -1,7 +1,7 @@
 # Lane: core — round 4 (0.4.0 "Control")
 
 Run: 1 / 20
-Status: in progress
+Status: all units done (run 1)
 Round 3 record: `.ai/lanes/core/done-v3.md` (`git show b3b51a5:.ai/lanes/core/task.md` for its Decisions).
 
 ## Contract
@@ -32,3 +32,6 @@ Round 3 record: `.ai/lanes/core/done-v3.md` (`git show b3b51a5:.ai/lanes/core/ta
 ## Don't
 - Edit paths another lane owns, except for the "main stays green" fix.
 - Change `version`, publish, dispatch `release.yml`, create tags, or change repo/npm settings.
+
+## Handoff
+Units 1-7 done in run 1 (audit, pause/resume, run log + `loop runs`, `next-round --brief`, `ship-check` + CHANGELOG parser, commit author/`commitLane`/`latestControlNotes`, check-lanes release/control rules). Audit R4-1..R4-5 all FIXED. Remaining: only the open minors below. Read src/cli/index.ts first for the command list.

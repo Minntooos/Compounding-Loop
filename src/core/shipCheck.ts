@@ -52,7 +52,7 @@ const NONE = /^(none|nothing|n\/a|no (?:open )?findings?)\b/i;
 
 export function shipCheck(facts: ShipFacts): ShipCheck {
   const findings = facts.doneText === undefined ? [] : openFindings(facts.doneText).filter((f) => !NONE.test(f));
-  const blockers = findings.filter((f) => /\bblocker\b/i.test(f));
+  const blockers = findings.filter((f) => /\bblocker\b/i.test(f) && !/\b(?:no|not an?|non-?|zero|without)\s+(?:open\s+)?blockers?\b/i.test(f));
   const release = facts.changelogText === undefined ? undefined : releaseFor(parseChangelog(facts.changelogText), facts.version);
   const unreleased = facts.changelogText === undefined ? undefined : releaseFor(parseChangelog(facts.changelogText), 'Unreleased');
   const changelogOk = (release !== undefined && release.items.length > 0) || (unreleased !== undefined && unreleased.items.length > 0);
@@ -72,7 +72,7 @@ export function shipCheck(facts: ShipFacts): ShipCheck {
     { id: 'clean', label: 'Working tree is clean', ok: facts.treeClean, detail: facts.treeClean ? 'No uncommitted changes.' : 'Uncommitted changes: commit or discard them.' },
     {
       id: 'tests', label: 'Tests pass', ok: tests !== undefined && tests.failed === 0 && tests.passed > 0,
-      detail: tests === undefined ? 'No test result in the run log.' : tests.failed > 0 ? `${tests.failed} failing in the latest result${tests.at ? ` (${tests.at})` : ''}.` : tests.passed === 0 ? 'The latest result ran no tests.' : `${tests.passed} passed${tests.at ? ` (${tests.at})` : ''}.`,
+      detail: tests === undefined ? 'No test result yet: lane runs record one with `loop runs log --passed N --failed N`, or `npm test` can write .ai/last-test.json.' : tests.failed > 0 ? `${tests.failed} failing in the latest result${tests.at ? ` (${tests.at})` : ''}.` : tests.passed === 0 ? 'The latest result ran no tests.' : `${tests.passed} passed${tests.at ? ` (${tests.at})` : ''}.`,
     },
   ];
   return { ready: items.every((i) => i.ok), items, openFindings: findings };

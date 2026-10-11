@@ -64,6 +64,10 @@ describe('shipCheck', () => {
     expect(ids({ ...ready, tests: { passed: 0, failed: 0 } })).toEqual(['tests']);
     expect(ids({ ...ready, doneText: '## Open findings\n- Blocker: x breaks\n' })).toEqual(['findings']);
   });
+  it('does not read "not a blocker" as a blocker', () => {
+    const r = shipCheck({ ...ready, doneText: '## Open findings\n- Not a blocker: stale lock\n- No blockers found\n' });
+    expect(r.items.find((i) => i.id === 'findings')?.ok).toBe(true);
+  });
   it('lists non-blocking findings without failing', () => {
     const r = shipCheck({ ...ready, doneText: '## Minor findings left open\n- stale lock\n' });
     expect(r.ready).toBe(true);
