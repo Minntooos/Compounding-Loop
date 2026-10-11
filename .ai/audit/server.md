@@ -1,3 +1,25 @@
+# Round 4 (2026-10-11)
+
+Method: fresh `origin/main` (local clone had unrelated history; reset), `npm test` green (120 e2e pass). Read `src/server/live/*`, `demo/build-self.mjs`, `src/server/data.ts`, the owner's brief A to D.
+
+## Blockers
+None open (the items below are this round's units, not defects hiding in shipped behaviour).
+
+## Findings
+| # | Area | Result | Severity |
+|---|---|---|---|
+| 1 | History cap | `demo/build-self.mjs` slices `TIMELINE_LENGTH = 100` and `liveUrls` fetches one page of 100, so the timeline loses round 1 (A1). Fix: full snapshot history, live `since` the snapshot head, paged, pure merge (unit 2). | major |
+| 2 | Release waiting | `buildLiveLoop` ignores root `DONE.md` for state/inbox (A2). Fix: attention item + state (unit 3). | major |
+| 3 | Settings | Live loop reports `runLimit` from root task (0) and url = repo (A3). Fix: sum lane limits, Pages URL from live config (unit 3). | major |
+| 4 | Contract/Decisions | `contractFromTask` reads only the root task file; laned loops show nothing (A4). Fix: per-lane groups (unit 3). | major |
+| 5 | Health labels | `HealthCheck` has `kind` only, the label is the check name (A5). Fix: result-stating `label`, formatted `proofAt` (unit 3). | major |
+| 6 | Snapshot date | No `snapshotAt` on snapshot loops (A6). Fix in unit 3. | major |
+| 7 | Static export | `api/settings.json` is not exported, so the static site 404s (A8). Fix in unit 3. | minor |
+| 8 | Author | Mappers never read author names; core added `LoopCommit.author` (unit 2). | minor |
+| 9 | Lane of commit | `parseLaneTrailer` only; release commit reads "other" (A8). Core's `commitLane` is now available (unit 3). | minor |
+
+Other lanes: nothing to report this round.
+
 # Audit: server (round 2, 2026-10-08)
 
 Method: read `src/server/*`, probed `createApp` with 20 fixture loops (git repos with `.ai/task.md`), grepped `demo/five-sites.json`, ran `npm test` (green on a fresh pull).

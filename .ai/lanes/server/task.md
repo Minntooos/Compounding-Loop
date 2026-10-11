@@ -1,7 +1,7 @@
 # Lane: server — round 4 (0.4.0 "Control")
 
-Run: 0 / 20
-Status: not started
+Run: 1 / 20
+Status: in progress
 Round 3 record: `.ai/lanes/server/done-v3.md` (`git show b3b51a5:.ai/lanes/server/task.md` for its Decisions).
 
 ## Contract
