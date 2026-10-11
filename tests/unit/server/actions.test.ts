@@ -18,6 +18,7 @@ beforeAll(() => {
   writeFileSync(path.join(dir, '.ai', 'task.md'), '# Task\n\nRun: 1 / 5\n');
   writeFileSync(path.join(dir, 'IDEA.md'), '# Idea\n\nOld brief.\n');
   git('init', '-q');
+  git('config', 'user.name', 't'); // runPause reads user.name; CI runners have none
   git('add', '-A');
   git('commit', '-qm', 'first');
 });
