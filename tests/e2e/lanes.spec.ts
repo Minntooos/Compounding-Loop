@@ -12,6 +12,11 @@ const LANES = [
   lane('kit', 'waiting', { waitingOn: ['core'] }),
 ];
 
+const LANE_NOTES = [
+  { lane: 'core', contract: [{ text: 'npm test passes', pass: true }], decisions: ['Keep parsers browser-safe'], knowledge: [] },
+  { lane: 'web', contract: [], decisions: [], knowledge: ['e2e runs against dist/web'] },
+];
+
 // Serve the demo with a laned loop added: the dashboard must show lanes whenever the API sends them.
 async function withLanedLoop(page: Page) {
   await page.route('**/api/loops', async (route) => {
@@ -22,7 +27,7 @@ async function withLanedLoop(page: Page) {
   await page.route('**/api/loops/laned', async (route) => {
     const res = await route.fetch({ url: route.request().url().replace('/laned', '/proj2') });
     const loop = (await res.json()) as Record<string, unknown>;
-    await route.fulfill({ response: res, json: { ...loop, id: 'laned', name: 'laned-loop', state: 'failing', lanes: LANES } });
+    await route.fulfill({ response: res, json: { ...loop, id: 'laned', name: 'laned-loop', state: 'failing', lanes: LANES, laneNotes: LANE_NOTES } });
   });
 }
 
@@ -196,4 +201,21 @@ test('control buttons confirm what changes and open the exact prefilled GitHub p
   await expect(dialog).toHaveCount(0);
   const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
   expect(axe.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')).toEqual([]);
+});
+
+test('Contract, Decisions and Knowledge group by lane, with an empty state per lane', async ({ page }) => {
+  await withLanedLoop(page);
+  await page.goto('/#/loop/laned');
+  await page.getByRole('tab', { name: 'Contract' }).click();
+  const groups = page.getByTestId('lane-notes');
+  await expect(groups).toHaveCount(2);
+  await expect(groups.nth(0)).toContainText('npm test passes');
+  await expect(groups.nth(1)).toContainText('No contract lines for this lane yet.');
+  await page.getByRole('tab', { name: 'Decisions' }).click();
+  await expect(page.getByTestId('lane-notes').nth(0)).toContainText('Keep parsers browser-safe');
+  await expect(page.getByTestId('lane-notes').nth(1)).toContainText('No decisions recorded for this lane.');
+  await page.getByRole('tab', { name: 'Knowledge' }).click();
+  await expect(page.getByTestId('lane-notes').nth(1)).toContainText('e2e runs against dist/web');
+  const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')).toEqual([]);
 });

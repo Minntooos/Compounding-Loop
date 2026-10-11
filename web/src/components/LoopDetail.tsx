@@ -8,6 +8,7 @@ import { LanesTab } from './LanesTab';
 import { RunsTab } from './RunsTab';
 import { TestsTab } from './TestsTab';
 import { ReleasesTab } from './ReleasesTab';
+import { LaneNotesView } from './LaneNotesView';
 import { ShipPanel } from './ShipPanel';
 import { ControlBar } from './ControlBar';
 import { StatusBadge } from './StatusBadge';
@@ -36,6 +37,7 @@ function TabBody({ tab, loop }: { tab: Tab; loop: Detail }) {
     case 'Tests': return <TestsTab runs={loop.runs ?? []} />;
     case 'Releases': return <ReleasesTab releases={loop.releases ?? []} />;
     case 'Contract':
+      if (loop.laneNotes?.length) return <LaneNotesView notes={loop.laneNotes} kind="contract" />;
       if (loop.contract.length === 0) return <p style={{ color: 'var(--muted)' }}>No contract lines yet. They appear when the task file has a Done-when list.</p>;
       return (
         <ul className="space-y-2">
@@ -46,8 +48,12 @@ function TabBody({ tab, loop }: { tab: Tab; loop: Detail }) {
           ))}
         </ul>
       );
-    case 'Knowledge': return <TextList items={loop.knowledge} empty="No knowledge entries yet." />;
-    case 'Decisions': return <TextList items={loop.decisions} empty="No decisions recorded." />;
+    case 'Knowledge':
+      if (loop.laneNotes?.length) return <LaneNotesView notes={loop.laneNotes} kind="knowledge" />;
+      return <TextList items={loop.knowledge} empty="No knowledge entries yet." />;
+    case 'Decisions':
+      if (loop.laneNotes?.length) return <LaneNotesView notes={loop.laneNotes} kind="decisions" />;
+      return <TextList items={loop.decisions} empty="No decisions recorded." />;
     case 'Settings':
       return (
         <dl className="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 font-mono text-[13px]">
