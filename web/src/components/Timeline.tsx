@@ -37,6 +37,7 @@ export function Timeline({ commits }: { commits: LoopCommit[] }) {
                   <li key={c.sha} data-lane={lane} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 border-l-[3px] py-1 pl-3" style={{ borderColor: laneColor(lane) }}>
                     <span className="min-w-0 flex-1 basis-full [overflow-wrap:anywhere] sm:basis-0">{c.message}</span>
                     <span className="font-mono text-[12px]" style={{ color: laneColor(lane) }}>{lane}</span>
+                    {c.author && <span className="text-[12px]" style={{ color: 'var(--muted)' }}>{c.author}</span>}
                     <time dateTime={c.at} title={relativeTime(c.at)} className="font-mono text-[12px] tabular-nums" style={{ color: 'var(--muted)' }}>{timeUtc(c.at)}</time>
                     <code className="font-mono text-[12px]" style={{ color: 'var(--muted)' }}>{c.sha.slice(0, 7)}</code>
                   </li>

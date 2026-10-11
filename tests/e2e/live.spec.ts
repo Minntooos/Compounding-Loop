@@ -40,6 +40,18 @@ test('live mode: the header says Live and the fleet shows the mocked GitHub stat
   expect(misses).toEqual([]);
 });
 
+test('full history: a 109-commit snapshot plus paged live commits all show, release commit has the release lane (round 4 A1, A8)', async ({ page }) => {
+  await mockLive(page, 'ok');
+  const old = Array.from({ length: 109 }, (_, i) => ({ sha: `a${String(i).padStart(6, '0')}`, at: new Date(Date.UTC(2026, 9, 6 + Math.floor(i / 40), i % 24, i % 60)).toISOString(), message: i === 108 ? 'Release 0.3.0' : `web: old ${i}` }));
+  const detail = { id: 'compounding-loop', name: 'compounding-loop', state: 'done', timeline: old };
+  await page.route('**/api/loops/compounding-loop.json', (route) => route.fulfill({ json: detail }));
+  await page.goto('/#/loop/compounding-loop');
+  await page.getByRole('tab', { name: /timeline/i }).click().catch(() => undefined);
+  await expect(page.getByText('live mocked commit').first()).toBeVisible();
+  await expect(page.getByTestId('timeline').locator('li')).toHaveCount(110);
+  await expect(page.getByTestId('timeline').locator('li[data-lane="release"]')).toHaveCount(1);
+});
+
 test('rate limited: falls back to the snapshot with a calm explanation', async ({ page }) => {
   await mockLive(page, 'rate-limited');
   await page.goto('/#/');

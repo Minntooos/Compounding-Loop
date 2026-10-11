@@ -36,6 +36,40 @@ describe('readLiveConfig', () => {
   });
 });
 
+describe('loadLive history (round 4 A1)', () => {
+  const snap = (n: number) => ({ sha: `a${String(n).padStart(6, '0')}`, at: new Date(Date.UTC(2026, 9, 6, 0, n)).toISOString(), message: `old ${n}` });
+  const raw = (n: number) => ({ sha: `e${String(n).padStart(6, '0')}${'0'.repeat(33)}`, commit: { message: `web: new ${n}`, committer: { date: new Date(Date.UTC(2026, 9, 11, 0, n % 60, n)).toISOString() } } });
+
+  it('fetches commits since the snapshot, every page, and merges them with the snapshot history', async () => {
+    const snapshot = Array.from({ length: 109 }, (_, i) => snap(i));
+    const pages: string[] = [];
+    const gh = fakeGitHub({ '/commits': () => json([]) });
+    const fetchFn: Fetch = async (url, init) => {
+      if (!url.includes('/commits')) return gh.fetch(url, init);
+      pages.push(url);
+      const page = Number(new URL(url).searchParams.get('page'));
+      return json(page === 1 ? Array.from({ length: 100 }, (_, i) => raw(i)) : [raw(100), raw(101)]);
+    };
+    const live = await loadLive(fetchFn, { repo: 'a/b', loop: 'me' }, NOW, snapshot);
+    expect(pages).toHaveLength(2);
+    expect(pages[0]).toContain('since=2026-10-06T');
+    expect(live.detail.timeline).toHaveLength(109 + 102);
+    expect(new Set(live.detail.timeline.map((c) => c.sha)).size).toBe(211);
+  });
+
+  it('keeps the old single-call fetch when there is no snapshot', async () => {
+    const gh = fakeGitHub();
+    await loadLive(gh.fetch, { repo: 'a/b' }, NOW);
+    expect(gh.urls.filter((u) => u.includes('/commits'))).toHaveLength(1);
+    expect(gh.urls.find((u) => u.includes('/commits'))).not.toContain('since=');
+  });
+
+  it('a rate limit while paging rejects, so the caller shows the snapshot alone', async () => {
+    const gh = fakeGitHub({ '/commits': () => new Response('{}', { status: 403 }) });
+    await expect(loadLive(gh.fetch, { repo: 'a/b' }, NOW, [snap(1)])).rejects.toBeInstanceOf(RateLimitedError);
+  });
+});
+
 describe('loadLive', () => {
   it('fetches lane files after lanes.json and builds the loop', async () => {
     const gh = fakeGitHub();

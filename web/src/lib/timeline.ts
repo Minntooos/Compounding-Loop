@@ -3,8 +3,9 @@ import type { LoopCommit } from '../../../src/core/types.js';
 const PREFIX = /^([a-z][a-z0-9-]*)(?::|\s)/;
 const KNOWN = ['core', 'kit', 'server', 'web', 'docs'];
 
-/** Lane of a commit: a known lane name or "control" as the subject's prefix ("web: …"), else "other". */
+/** Lane of a commit: a known lane name or "control" as the subject's prefix ("web: …"), `Release x.y.z` subjects are "release", else "other". */
 export function laneOfCommit(message: string): string {
+  if (/^Release \d+\.\d+\.\d+/.test(message)) return 'release';
   const name = PREFIX.exec(message)?.[1];
   if (!name) return 'other';
   return name === 'control' || (KNOWN.includes(name) && message.startsWith(`${name}:`)) ? name : 'other';
@@ -45,7 +46,7 @@ export function timeUtc(iso: string): string {
 /** Lanes present in the commits, in first-seen order of a fixed lane order. */
 export function lanesIn(commits: LoopCommit[]): string[] {
   const present = new Set(commits.map((c) => laneOfCommit(c.message)));
-  return [...KNOWN, 'control', 'other'].filter((l) => present.has(l));
+  return [...KNOWN, 'control', 'release', 'other'].filter((l) => present.has(l));
 }
 
 /** Commits per UTC day, oldest first, with empty days between filled in (a gap is information). Only the newest `maxDays` days. */

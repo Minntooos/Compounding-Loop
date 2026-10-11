@@ -1,8 +1,14 @@
 import type { LiveLoop } from '../../../src/server/live/index.js';
+import type { LoopCommit } from '@core/types';
 import { LIVE_TTL_MS, readCache, writeCache, type LiveState } from '../lib/liveCache';
 import { loadLive, RateLimitedError, readLiveConfig, type LiveConfig } from '../lib/liveFetch';
 
-const CACHE_KEY = 'live-loop-v1';
+const CACHE_KEY = 'live-loop-v2';
+
+/** Reads the bundled snapshot's commit history for a loop id, so live mode fetches only newer commits. */
+type SnapshotLoader = (loopId: string) => Promise<LoopCommit[]>;
+let loadSnapshot: SnapshotLoader = async () => [];
+export function setSnapshotLoader(loader: SnapshotLoader): void { loadSnapshot = loader; }
 const listeners = new Set<() => void>();
 let state: LiveState | undefined;
 let current: LiveLoop | undefined;
@@ -36,7 +42,8 @@ export function getLive(snapshotDate: string, force = false): Promise<LiveLoop |
     const config = await configPromise;
     if (!config) return undefined; // static hosting without live.json: plain snapshot, no chip change
     try {
-      const loop = await loadLive((u, i) => fetch(u, i), config, new Date());
+      const snapshot = await loadSnapshot(config.loop ?? config.repo.split('/')[1] ?? '').catch(() => []);
+      const loop = await loadLive((u, i) => fetch(u, i), config, new Date(), snapshot);
       if (store) writeCache(store, CACHE_KEY, loop, Date.now());
       set({ kind: 'live', updatedAt: Date.now() }, loop);
       return loop;

@@ -1,8 +1,8 @@
 import type { DashboardSettings, HealthCheck, InboxItem, LoopDetail, LoopSummary } from '@core/types';
 import { probeOrder } from '../lib/probe';
 import { newestActivity, shortDateUtc } from '../lib/format';
-import { mergeFacts, mergeLoops } from '../lib/liveMerge';
-import { getLive } from './live';
+import { mergeFacts, mergeLoops, pagesUrl } from '../lib/liveMerge';
+import { getLive, setSnapshotLoader } from './live';
 import { mockSnapshot } from './mock';
 
 async function fetchJson(path: string): Promise<Response | undefined> {
@@ -75,11 +75,19 @@ async function withLive<T>(snapshot: T, merge: (rows: T, live: NonNullable<Await
   return live ? merge(snapshot, live) : snapshot;
 }
 
+/** The live loop's Pages site, derived from its repo URL like the fleet card's. */
+const withDemoUrl = (d: LoopDetail): LoopDetail => { const demoUrl = pagesUrl(d.url); return demoUrl ? { ...d, demoUrl } : d; };
+
+setSnapshotLoader(async (id) => {
+  const detail = await staticJson<LoopDetail | null>(`/loops/${encodeURIComponent(id)}`, () => mockSnapshot.loops.find((l) => l.id === id) ?? null);
+  return detail?.timeline ?? [];
+});
+
 export const api = {
   loops: () => getJson<LoopSummary[]>('/loops', () => mockSnapshot.loops)
     .then((rows) => withLive(rows, (r, live) => mergeLoops(r, live.detail, live.checks))).then(sortByAttention),
   loop: (id: string) => getJson<LoopDetail | null>(`/loops/${encodeURIComponent(id)}`, () => mockSnapshot.loops.find((l) => l.id === id) ?? null, null)
-    .then((row) => withLive(row, (r, live) => (live.detail.id === id ? live.detail : r))),
+    .then((row) => withLive(row, (r, live) => (live.detail.id === id ? withDemoUrl(live.detail) : r))),
   inbox: () => getJson<InboxItem[]>('/inbox', () => mockSnapshot.inbox)
     .then((rows) => withLive(rows, (r, live) => mergeFacts(r, live.detail.id, live.inbox))),
   checks: () => getJson<HealthCheck[]>('/checks', () => mockSnapshot.checks)

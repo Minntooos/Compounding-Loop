@@ -8,6 +8,7 @@ import { LanesTab } from './LanesTab';
 import { StatusBadge } from './StatusBadge';
 import { LoadError, Loading } from './QueryState';
 import { ProgressBar } from './ProgressBar';
+import { runLimitText, siteOf } from '../lib/settings';
 
 const BASE_TABS = ['Timeline', 'Contract', 'Knowledge', 'Decisions', 'Settings'] as const;
 type Tab = (typeof BASE_TABS)[number] | 'Lanes';
@@ -26,6 +27,7 @@ function TabBody({ tab, loop }: { tab: Tab; loop: Detail }) {
       return <Timeline commits={loop.timeline} />;
     case 'Lanes': return <LanesTab lanes={loop.lanes ?? []} />;
     case 'Contract':
+      if (loop.contract.length === 0) return <p style={{ color: 'var(--muted)' }}>No contract lines yet. They appear when the task file has a Done-when list.</p>;
       return (
         <ul className="space-y-2">
           {loop.contract.map((c, i) => (
@@ -40,9 +42,9 @@ function TabBody({ tab, loop }: { tab: Tab; loop: Detail }) {
     case 'Settings':
       return (
         <dl className="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 font-mono text-[13px]">
-          <dt style={{ color: 'var(--muted)' }}>Run limit</dt><dd>{loop.runLimit}</dd>
+          <dt style={{ color: 'var(--muted)' }}>Run limit</dt><dd>{runLimitText(loop)}</dd>
           <dt style={{ color: 'var(--muted)' }}>Rounds</dt><dd>{loop.roundsTotal}</dd>
-          <dt style={{ color: 'var(--muted)' }}>Site</dt><dd className="break-all">{loop.url ?? 'none'}</dd>
+          <dt style={{ color: 'var(--muted)' }}>Site</dt><dd className="break-all">{siteOf(loop) ?? 'none'}</dd>
         </dl>
       );
   }

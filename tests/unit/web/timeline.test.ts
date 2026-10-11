@@ -8,8 +8,9 @@ describe('timeline helpers', () => {
     expect(laneOfCommit('web: fleet cards')).toBe('web');
     expect(laneOfCommit('control room: product DONE')).toBe('control');
     expect(laneOfCommit('control: tidy')).toBe('control');
+    expect(laneOfCommit('Release 0.3.0')).toBe('release');
+    expect(lanesIn([{ sha: 'a', at: '2026-10-11T00:00:00Z', message: 'Release 0.3.0' }])).toEqual(['release']);
     expect(laneOfCommit('webinar: x')).toBe('other');
-    expect(laneOfCommit('Release 0.1.0')).toBe('other');
     expect(laneOfCommit('web fix')).toBe('other');
   });
   it('colours known lanes and falls back to the quiet token', () => {

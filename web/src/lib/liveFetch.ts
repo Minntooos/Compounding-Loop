@@ -1,5 +1,6 @@
-import { buildLiveLoop, GITHUB_API, isRepoSlug, laneFilePaths, liveUrls, rawUrl, BASE_FILES, type LiveLoop } from '../../../src/server/live/index.js';
+import { buildLiveLoop, commitsSinceUrl, GITHUB_API, hasMoreCommits, snapshotSince, isRepoSlug, laneFilePaths, liveUrls, rawUrl, BASE_FILES, type LiveLoop } from '../../../src/server/live/index.js';
 import { parseLanesConfig } from '../../../src/core/parse/index.js';
+import type { LoopCommit } from '../../../src/core/types.js';
 
 export type Fetch = (url: string, init?: RequestInit) => Promise<Response>;
 
@@ -56,12 +57,28 @@ async function fetchFiles(fetchFn: Fetch, slug: string, paths: readonly string[]
   return Object.fromEntries(paths.map((p, i) => [p, texts[i]]));
 }
 
+/** Safety stop for the paged commit fetch: 10 pages is 1000 commits, far more than a snapshot is ever behind. */
+const MAX_COMMIT_PAGES = 10;
+
+/** Commits newer than the snapshot's head, every page concatenated; without a snapshot, just the newest 100. */
+async function fetchCommits(fetchFn: Fetch, slug: string, firstPageUrl: string, snapshot: readonly LoopCommit[]): Promise<unknown[]> {
+  const since = snapshotSince(snapshot);
+  if (since === undefined) return (await apiJson(fetchFn, firstPageUrl)) as unknown[];
+  const all: unknown[] = [];
+  for (let page = 1; page <= MAX_COMMIT_PAGES; page++) {
+    const entries = (await apiJson(fetchFn, commitsSinceUrl(slug, since, page))) as unknown[];
+    all.push(...entries);
+    if (!Array.isArray(entries) || !hasMoreCommits(entries.length)) break;
+  }
+  return all;
+}
+
 /** Fetches a repo's public state from GitHub and maps it with the server's pure builder. */
-export async function loadLive(fetchFn: Fetch, config: LiveConfig, now: Date): Promise<LiveLoop> {
+export async function loadLive(fetchFn: Fetch, config: LiveConfig, now: Date, snapshot: readonly LoopCommit[] = []): Promise<LiveLoop> {
   const urls = liveUrls(config.repo);
   const present = await listFiles(fetchFn, config.repo);
   const [commits, runs, base] = await Promise.all([
-    apiJson(fetchFn, urls.commits),
+    fetchCommits(fetchFn, config.repo, urls.commits, snapshot),
     // The runs list is optional garnish: losing it must not lose the page.
     apiJson(fetchFn, urls.runs).catch((e: unknown) => { if (e instanceof RateLimitedError) throw e; return {}; }),
     fetchFiles(fetchFn, config.repo, BASE_FILES, present),
@@ -69,5 +86,5 @@ export async function loadLive(fetchFn: Fetch, config: LiveConfig, now: Date): P
   const lanesText = base['.ai/lanes.json'];
   const lanes = lanesText === undefined ? [] : (parseLanesConfig(lanesText).config?.lanes ?? []);
   const laneFiles = await fetchFiles(fetchFn, config.repo, laneFilePaths(lanes.map((l) => l.name)), present);
-  return buildLiveLoop({ slug: config.repo, ...(config.loop && { id: config.loop }), commits, runs, files: { ...base, ...laneFiles }, now });
+  return buildLiveLoop({ slug: config.repo, ...(config.loop && { id: config.loop }), commits, runs, ...(snapshot.length > 0 && { snapshotCommits: snapshot }), files: { ...base, ...laneFiles }, now });
 }
