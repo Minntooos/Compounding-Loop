@@ -8,7 +8,7 @@ npx compounding-loop init
 
 [![npm](https://img.shields.io/npm/v/compounding-loop)](https://www.npmjs.com/package/compounding-loop) [![CI](https://github.com/Minntooos/Compounding-Loop/actions/workflows/ci.yml/badge.svg)](https://github.com/Minntooos/Compounding-Loop/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**[Live demo](https://minntooos.github.io/Compounding-Loop/)**: the dashboard on the real five-site data, in your browser.
+**[Watch this repo build itself](https://minntooos.github.io/Compounding-Loop/)**: the live demo reads this repo's commits from GitHub in your browser, next to the real five-site data. Working with a teammate? [Five steps](docs/team.md).
 
 ![The Compounding Loop fleet screen: six loops, one with lanes](docs/assets/screens/fleet-light-laptop.png)
 
@@ -116,6 +116,8 @@ If you work at the keyboard and want to watch agents in parallel, those tools ar
 **Is my code sent anywhere?** Only what Claude Code and git already send. Compounding Loop has no telemetry and no call home, the dashboard binds to loopback, and tokens come from your environment or `gh` and are never stored. See [SECURITY.md](SECURITY.md).
 
 **What won't it do?** It will not publish, spend money, create accounts or change repo settings on its own, and it stops and asks (`BLOCKED.md`) rather than guess.
+
+**Why does the live demo sometimes say "Snapshot"?** The demo page reads this repo from GitHub's public API without a login, which allows 60 requests an hour per IP address (a page load uses about three). When that runs out, or you are offline, it shows the bundled snapshot and the header chip says so; it switches back to live on the next refresh once GitHub allows requests again. Nothing is sent anywhere else.
 
 **Does it need a GitHub login?** Only to create a private repo with `loop new`; `--dry-run` and every test work offline.
 
