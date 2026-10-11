@@ -4,6 +4,11 @@ All notable changes are listed here. Format follows [Keep a Changelog](https://k
 
 ## [Unreleased]
 
+### Added ("Showcase", in progress)
+- Teams: `loop next [--json]`, `loop claim <lane>` and `loop release <lane>`; claims in `loop status`; lane prompts stand down on someone else's unexpired claim; plugin command `/loop-next`.
+- Docs: [Work on a loop with a teammate](docs/team.md).
+- Dashboard: welcome strip for first-time demo visitors, fleet cards with progress bars, Timeline grouped by day with lane colours.
+
 ## [0.2.0] - 2026-10-11
 
 ### Fixed
