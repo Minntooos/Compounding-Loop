@@ -1,0 +1,73 @@
+import { AlertTriangle, CheckCircle2, Circle, CircleDashed, XCircle } from 'lucide-react';
+import { useState } from 'react';
+import type { LoopRun } from '@core/types';
+import { dayHeading, laneColor, timeUtc } from '../lib/timeline';
+import { filterRuns, groupRunsByDay, OUTCOME_HINT, OUTCOME_LABEL, silentLanes, testsText, type RunOutcome } from '../lib/runs';
+
+const ICON = { pushed: CheckCircle2, 'nothing-pushed': Circle, 'tests-failed': XCircle, 'no-run-recorded': CircleDashed } as const;
+const COLOR: Record<RunOutcome, string> = {
+  pushed: 'var(--done)', 'nothing-pushed': 'var(--muted)', 'tests-failed': 'var(--failing)', 'no-run-recorded': 'var(--blocked)',
+};
+
+// Lane names, units and notes come from repo files: rendered as text nodes only.
+function RunRow({ run }: { run: LoopRun }) {
+  const Icon = ICON[run.outcome];
+  const tests = testsText(run.tests);
+  const hint = OUTCOME_HINT[run.outcome];
+  return (
+    <li data-testid="run-row" data-outcome={run.outcome} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 border-l-[3px] py-1 pl-3" style={{ borderColor: laneColor(run.lane) }}>
+      <span className="font-mono text-[12px]" style={{ color: laneColor(run.lane) }}>{run.lane}</span>
+      <time dateTime={run.at} className="font-mono text-[12px] tabular-nums" style={{ color: 'var(--muted)' }}>{timeUtc(run.at)}</time>
+      <span className="inline-flex items-center gap-1.5 text-[13px] font-medium" style={{ color: COLOR[run.outcome] }}>
+        <Icon aria-hidden size={15} />{OUTCOME_LABEL[run.outcome]}
+      </span>
+      {hint && <span className="text-[12px]" style={{ color: 'var(--muted)' }}>{hint}</span>}
+      {run.units.length > 0 && <span className="min-w-0 [overflow-wrap:anywhere]">{run.units.join(', ')}</span>}
+      {run.commits.length > 0 && <span className="text-[12px]" style={{ color: 'var(--muted)' }}>{run.commits.length} {run.commits.length === 1 ? 'commit' : 'commits'}</span>}
+      {tests && <span className="font-mono text-[12px]" style={{ color: run.tests && run.tests.failed > 0 ? 'var(--failing)' : 'var(--muted)' }}>{tests}</span>}
+      {run.note && <span className="basis-full text-[12px] [overflow-wrap:anywhere]" style={{ color: 'var(--muted)' }}>{run.note}</span>}
+    </li>
+  );
+}
+
+export function RunsTab({ runs, nextRuns }: { runs: LoopRun[]; nextRuns?: { lane: string; at: string }[] }) {
+  const [active, setActive] = useState<ReadonlySet<string>>(new Set());
+  const lanes = [...new Set(runs.map((r) => r.lane))];
+  const shown = filterRuns(runs, active);
+  const silent = silentLanes(runs);
+  const toggle = (lane: string) => setActive((prev) => { const next = new Set(prev); if (!next.delete(lane)) next.add(lane); return next; });
+  if (runs.length === 0) return <p style={{ color: 'var(--muted)' }}>No runs recorded yet. Runners call <code className="font-mono">loop runs log</code> at the end of each run.</p>;
+  return (
+    <div className="space-y-4">
+      {silent.length > 0 && (
+        <p role="status" data-testid="runs-silent" className="flex items-start gap-2 rounded-lg border p-3" style={{ borderColor: 'var(--blocked)', background: 'var(--surface)' }}>
+          <AlertTriangle aria-hidden size={16} className="mt-0.5 shrink-0" style={{ color: 'var(--blocked)' }} />
+          <span>Lanes are not running ({silent.join(', ')}): check your plan's usage limit.</span>
+        </p>
+      )}
+      {nextRuns && nextRuns.length > 0 && (
+        <p className="text-[13px]" style={{ color: 'var(--muted)' }}>Next scheduled: {nextRuns.map((n) => `${n.lane} ${timeUtc(n.at)}`).join(' · ')}</p>
+      )}
+      {lanes.length > 1 && (
+        <div role="group" aria-label="Filter runs by lane" className="flex gap-1.5 overflow-x-auto pb-1">
+          <button type="button" aria-pressed={active.size === 0} onClick={() => setActive(new Set())} className="shrink-0 rounded-full border px-3 py-1 text-[13px] min-h-11 sm:min-h-8 aria-pressed:font-semibold aria-pressed:underline" style={{ borderColor: 'var(--border)' }}>All</button>
+          {lanes.map((l) => (
+            <button key={l} type="button" aria-pressed={active.has(l)} onClick={() => toggle(l)} className="inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-[13px] min-h-11 sm:min-h-8 aria-pressed:font-semibold aria-pressed:underline" style={{ borderColor: 'var(--border)' }}>
+              <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: laneColor(l) }} />{l}
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="space-y-5" data-testid="runs">
+        {groupRunsByDay(shown).map((g) => (
+          <section key={g.day} aria-label={dayHeading(g.day)}>
+            <h3 className="sticky top-0 z-10 flex items-baseline gap-2 py-1 text-[13px] font-semibold" style={{ background: 'var(--bg)' }}>
+              {dayHeading(g.day)}<span className="font-normal" style={{ color: 'var(--muted)' }}>{g.runs.length} {g.runs.length === 1 ? 'run' : 'runs'}</span>
+            </h3>
+            <ol className="space-y-1">{g.runs.map((r, i) => <RunRow key={`${r.lane}-${r.at}-${i}`} run={r} />)}</ol>
+          </section>
+        ))}
+      </div>
+    </div>
+  );
+}

@@ -5,15 +5,16 @@ import type { LoopDetail as Detail } from '@core/types';
 import { api } from '../api/client';
 import { Timeline } from './Timeline';
 import { LanesTab } from './LanesTab';
+import { RunsTab } from './RunsTab';
 import { StatusBadge } from './StatusBadge';
 import { LoadError, Loading } from './QueryState';
 import { ProgressBar } from './ProgressBar';
 import { runLimitText, siteOf } from '../lib/settings';
 
 const BASE_TABS = ['Timeline', 'Contract', 'Knowledge', 'Decisions', 'Settings'] as const;
-type Tab = (typeof BASE_TABS)[number] | 'Lanes';
-/** The Lanes tab appears (after Timeline) only for loops that have lanes. */
-const tabsFor = (loop: Detail): Tab[] => (loop.lanes ? ['Timeline', 'Lanes', ...BASE_TABS.slice(1)] : [...BASE_TABS]);
+type Tab = (typeof BASE_TABS)[number] | 'Lanes' | 'Runs';
+/** Lanes (after Timeline) and Runs (after Lanes) appear only for loops that send them. */
+const tabsFor = (loop: Detail): Tab[] => ['Timeline', ...(loop.lanes ? ['Lanes' as const] : []), ...(loop.runs ? ['Runs' as const] : []), ...BASE_TABS.slice(1)];
 
 // Entries are plain text from repo files: rendered as text nodes only, never as HTML.
 function TextList({ items, empty }: { items: string[]; empty: string }) {
@@ -26,6 +27,7 @@ function TabBody({ tab, loop }: { tab: Tab; loop: Detail }) {
     case 'Timeline':
       return <Timeline commits={loop.timeline} />;
     case 'Lanes': return <LanesTab lanes={loop.lanes ?? []} />;
+    case 'Runs': return <RunsTab runs={loop.runs ?? []} {...(loop.nextRuns && { nextRuns: loop.nextRuns })} />;
     case 'Contract':
       if (loop.contract.length === 0) return <p style={{ color: 'var(--muted)' }}>No contract lines yet. They appear when the task file has a Done-when list.</p>;
       return (

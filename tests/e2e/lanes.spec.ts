@@ -80,3 +80,43 @@ test('the demo serves this repo as a laned loop with five finished lanes', async
   await expect(rows).toHaveCount(5);
   for (let i = 0; i < 5; i++) await expect(rows.nth(i)).toContainText('Done');
 });
+
+const iso = (minsAgo: number) => new Date(Date.now() - minsAgo * 60_000).toISOString();
+const run = (lane: string, minsAgo: number, outcome: string, extra: object = {}) => ({ lane, at: iso(minsAgo), outcome, units: [], commits: [], ...extra });
+
+async function withRuns(page: Page, runs: object[]) {
+  await page.route('**/api/loops/laned', async (route) => {
+    const res = await route.fetch({ url: route.request().url().replace('/laned', '/proj2') });
+    const loop = (await res.json()) as Record<string, unknown>;
+    await route.fulfill({ response: res, json: { ...loop, id: 'laned', name: 'laned-loop', lanes: LANES, runs, nextRuns: [{ lane: 'web', at: iso(-30) }] } });
+  });
+}
+
+test('Runs tab shows all four outcomes by word, filters by lane and warns after three missed slots', async ({ page }) => {
+  await withRuns(page, [
+    run('web', 10, 'pushed', { units: ['Runs tab'], tests: { passed: 40, failed: 0 }, commits: [{}] }),
+    run('core', 70, 'nothing-pushed'),
+    run('server', 130, 'tests-failed', { tests: { passed: 38, failed: 2 } }),
+    run('kit', 190, 'no-run-recorded'), run('kit', 250, 'no-run-recorded'), run('kit', 310, 'no-run-recorded'),
+  ]);
+  await page.goto('/#/loop/laned');
+  await page.getByRole('tab', { name: 'Runs' }).click();
+  const rows = page.getByTestId('run-row');
+  await expect(rows).toHaveCount(6);
+  for (const word of ['Pushed', 'Ran, pushed nothing', 'Tests failed', 'No run recorded']) await expect(page.getByText(word).first()).toBeVisible();
+  await expect(page.getByText('2 failed, 38 passed')).toBeVisible();
+  await expect(page.getByTestId('runs-silent')).toContainText('kit');
+  await page.getByRole('button', { name: 'web', exact: true }).click();
+  await expect(rows).toHaveCount(1);
+  const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(axe.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')).toEqual([]);
+});
+
+test('Runs tab explains an empty log and is absent for loops without runs', async ({ page }) => {
+  await withRuns(page, []);
+  await page.goto('/#/loop/laned');
+  await page.getByRole('tab', { name: 'Runs' }).click();
+  await expect(page.getByText('No runs recorded yet')).toBeVisible();
+  await page.goto('/#/loop/proj2');
+  await expect(page.getByRole('tab', { name: 'Runs' })).toHaveCount(0);
+});

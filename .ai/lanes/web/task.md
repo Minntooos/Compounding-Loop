@@ -1,7 +1,7 @@
 # Lane: web — round 4 (0.4.0 "Control")
 
 Run: 2 / 20
-Status: units 1 (audit, partial), 2 (DESIGN.md), 3 (A1 A2 A5 A6-card A7 A8-release/author) shipped; 4-8 open
+Status: units 1 (partial), 2, 3 (most), 4 (Runs tab) shipped; fleet-card run line, 5-8 open
 Round 3 record: `.ai/lanes/web/done-v3.md` (`git show b3b51a5:.ai/lanes/web/task.md` for its Decisions).
 
 ## Contract
