@@ -65,7 +65,7 @@ npx compounding-loop run                       # one round now
 npx compounding-loop dashboard                 # the local dashboard
 ```
 
-Several lanes in one repo: `npx compounding-loop init --lanes core,web,docs`, then `npx compounding-loop run --lane core`. Check ownership with `npx compounding-loop check-lanes`. Details: [Lanes](docs/lanes.md).
+Several lanes in one repo (needs an `IDEA.md` brief first): `npx compounding-loop init --lanes core,web,docs`, then `npx compounding-loop run --lane core`. Check ownership with `npx compounding-loop check-lanes`. Details: [Lanes](docs/lanes.md).
 
 Already have a repo? `npx compounding-loop init` adds the method to it without overwriting anything. Details: [Getting started](docs/getting-started.md).
 

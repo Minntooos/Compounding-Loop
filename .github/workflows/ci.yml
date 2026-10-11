@@ -34,6 +34,12 @@ jobs:
       - run: npm test
       - name: Lane ownership
         if: matrix.os == 'ubuntu-latest' && matrix.node == 24
-        # Advisory until older lane commits that predate the ownership rules age out of the range.
-        continue-on-error: true
-        run: node bin/loop.js check-lanes --range origin/main~20..HEAD
+        # Only the commits this push or PR adds, so older history cannot fail it.
+        env:
+          RANGE_BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ -z "$RANGE_BASE" ] || [ "$RANGE_BASE" = "0000000000000000000000000000000000000000" ]; then
+            echo "No base commit to compare against; skipping."
+          else
+            node bin/loop.js check-lanes --range "$RANGE_BASE..HEAD"
+          fi

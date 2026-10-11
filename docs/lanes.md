@@ -4,6 +4,8 @@ A lane is one scheduled run that owns one part of the codebase. Several lanes pu
 
 ## Set up
 
+Run this in a repo that has an `IDEA.md` brief (in a new repo, `npx compounding-loop new` writes one). `init` refuses a missing or thin brief; `--force` skips that check.
+
 ```sh
 npx compounding-loop init --lanes core,web,docs
 ```
