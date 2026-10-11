@@ -47,10 +47,10 @@ function LoopCard({ loop }: { loop: LoopSummary }) {
           <StatusBadge state={loop.state} />
         </div>
         <p className="mt-1 [overflow-wrap:anywhere]" style={{ color: 'var(--muted)' }}>{loop.reason}</p>
-        <div className="mt-3 space-y-2">
-          <ProgressBar label="Rounds" {...rounds} color={STATE_COLOR[loop.state]} />
-          <ProgressBar label="Run budget" {...runs} color="var(--muted)" />
-        </div>
+        {(rounds || runs) && <div className="mt-3 space-y-2">
+          {rounds && <ProgressBar label="Rounds" {...rounds} color={STATE_COLOR[loop.state]} />}
+          {runs && <ProgressBar label="Run budget" {...runs} color="var(--accent)" />}
+        </div>}
         {facts.length > 0 && (
           <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 font-mono text-[12px]">
             {facts.map((f) => <Fragment key={f.label}><dt style={{ color: 'var(--muted)' }}>{f.label}</dt><dd>{f.value}</dd></Fragment>)}

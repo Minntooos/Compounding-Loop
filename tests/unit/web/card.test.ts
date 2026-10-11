@@ -7,13 +7,16 @@ describe('fleet card model', () => {
     expect(selfFirst([{ id: 'a' }]).map((l) => l.id)).toEqual(['a']);
   });
   it('tells the round story and clamps', () => {
-    expect(roundProgress({ round: 2, roundsTotal: 2, state: 'done' }).text).toBe('Round 2 of 2 done');
+    expect(roundProgress({ round: 2, roundsTotal: 2, state: 'done' })?.text).toBe('Round 2 of 2 done');
     expect(roundProgress({ round: 1, roundsTotal: 3, state: 'building' })).toEqual({ value: 1, max: 3, text: 'Round 1 of 3' });
-    expect(roundProgress({ round: 9, roundsTotal: 2, state: 'building' }).value).toBe(2);
+    expect(roundProgress({ round: 9, roundsTotal: 2, state: 'building' })).toEqual({ value: 2, max: 2, text: 'Round 9 of 2' });
+    expect(roundProgress({ round: 1, roundsTotal: 0, state: 'building' })).toBeUndefined();
+    expect(roundProgress({ round: NaN, roundsTotal: 2, state: 'building' })?.text).toBe('Round 0 of 2');
   });
   it('shows the run budget as text and a bar value', () => {
     expect(runBudget({ run: 15, runLimit: 150 })).toEqual({ value: 15, max: 150, text: '15 of 150 runs' });
-    expect(runBudget({ run: 0, runLimit: 0 }).max).toBe(1);
+    expect(runBudget({ run: 0, runLimit: 0 })).toBeUndefined();
+    expect(runBudget({ run: 40, runLimit: 30 })).toEqual({ value: 30, max: 30, text: '40 of 30 runs' });
   });
   it('formats activity in absolute UTC', () => {
     expect(activityStamp('2026-10-11T14:05:00Z')).toBe('11 Oct 14:05 UTC');

@@ -8,18 +8,22 @@ export function selfFirst<T extends { id: string }>(loops: T[]): T[] {
   return [...loops.filter((l) => l.id === SELF_BUILD_ID), ...loops.filter((l) => l.id !== SELF_BUILD_ID)];
 }
 
-/** Round progress for the card: "Round 2 of 3", or "Round 2 of 2 done" once the loop is finished. */
-export function roundProgress(loop: Pick<LoopSummary, 'round' | 'roundsTotal' | 'state'>): { value: number; max: number; text: string } {
-  const max = Math.max(loop.roundsTotal, 1);
-  const value = Math.min(Math.max(loop.round, 0), max);
-  return { value, max, text: `Round ${value} of ${max}${loop.state === 'done' ? ' done' : ''}` };
+const count = (n: number) => (Number.isFinite(n) && n > 0 ? Math.floor(n) : 0);
+
+/** Round progress: "Round 2 of 3", "Round 2 of 2 done". Text keeps the real numbers; only the bar width is clamped. Undefined without a round total. */
+export function roundProgress(loop: Pick<LoopSummary, 'round' | 'roundsTotal' | 'state'>): { value: number; max: number; text: string } | undefined {
+  const total = count(loop.roundsTotal);
+  if (total === 0) return undefined;
+  const round = count(loop.round);
+  return { value: Math.min(round, total), max: total, text: `Round ${round} of ${total}${loop.state === 'done' ? ' done' : ''}` };
 }
 
-/** Run-budget progress: "15 of 150 runs". */
-export function runBudget(loop: Pick<LoopSummary, 'run' | 'runLimit'>): { value: number; max: number; text: string } {
-  const max = Math.max(loop.runLimit, 1);
-  const value = Math.min(Math.max(loop.run, 0), max);
-  return { value, max, text: `${value} of ${loop.runLimit} runs` };
+/** Run-budget progress: "15 of 150 runs". Undefined without a limit. */
+export function runBudget(loop: Pick<LoopSummary, 'run' | 'runLimit'>): { value: number; max: number; text: string } | undefined {
+  const limit = count(loop.runLimit);
+  if (limit === 0) return undefined;
+  const run = count(loop.run);
+  return { value: Math.min(run, limit), max: limit, text: `${run} of ${limit} runs` };
 }
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
