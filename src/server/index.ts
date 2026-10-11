@@ -27,6 +27,9 @@ export interface AppOptions {
 
 const pkg = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')) as { version: string };
 
+/** Briefs fit in a GitHub URL (~7.5 KB), so 64 KB is generous. */
+const MAX_ACTION_BODY = 64 * 1024;
+
 const LOOPBACK_HOST = /^(?:127\.0\.0\.1|localhost|\[::1\])(?::\d+)?$/i;
 
 /** True for a Host header or Origin URL that names this machine. */
@@ -96,6 +99,7 @@ export async function createApp(options: AppOptions): Promise<Hono> {
   // pause, resume and next-round change the clone's git history; the same loopback/JSON guards as `answer` apply.
   const control = async <T>(c: Context, run: (controls: LoopControls, body: Record<string, unknown>) => Promise<T | undefined>) => {
     if (!source.control) return c.json({ error: 'demo is read-only' }, 409);
+    if (Number(c.req.header('content-length') ?? 0) > MAX_ACTION_BODY) return c.json({ error: 'body too large' }, 413);
     const body: unknown = await c.req.json().catch(() => ({}));
     try {
       const result = await run(source.control, typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {});
@@ -109,6 +113,7 @@ export async function createApp(options: AppOptions): Promise<Hono> {
   );
   app.post('/api/loops/:id/resume', (c) => control(c, (controls) => controls.resume(c.req.param('id'))));
   app.post('/api/loops/:id/next-round', async (c) => {
+    if (Number(c.req.header('content-length') ?? 0) > MAX_ACTION_BODY) return c.json({ error: 'body too large' }, 413);
     const body: unknown = await c.req.raw.clone().json().catch(() => undefined);
     const brief = (body as { brief?: unknown } | undefined)?.brief;
     if (typeof brief !== 'string' || brief.trim() === '') return c.json({ error: 'brief must be a non-empty string' }, 400);

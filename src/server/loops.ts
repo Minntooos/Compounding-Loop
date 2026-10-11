@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process';
-import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { runAnswer } from '../cli/loops.js';
@@ -164,6 +164,17 @@ const pushQuietly = (dir: string) =>
 export function projectsSource(projectsDir: string, now: () => Date = () => new Date()): DataSource {
   const all = async () => Promise.all((await findLoopDirs(projectsDir)).map((dir) => readLoop(dir, now())));
   // Match the id against folder names; never build a path from it.
+  // One git-changing action per clone at a time: a double click must not race on index.lock.
+  const busy = new Set<string>();
+  const exclusive = async <T>(dir: string, run: () => Promise<T>): Promise<T> => {
+    if (busy.has(dir)) throw new Error('Another action on this loop is still running; try again in a moment.');
+    busy.add(dir);
+    try {
+      return await run();
+    } finally {
+      busy.delete(dir);
+    }
+  };
   const loopDir = async (id: string) => (await findLoopDirs(projectsDir)).find((d) => path.basename(d) === id);
   return {
     loops: async () => sortByAttention((await all()).map(toSummary)),
@@ -190,13 +201,13 @@ export function projectsSource(projectsDir: string, now: () => Date = () => new 
       pause: async (id, reason) => {
         const dir = await loopDir(id);
         if (dir === undefined) return undefined;
-        const { changed, by, pushed, pushError } = await runPause(dir, reason === undefined ? {} : { reason });
+        const { changed, by, pushed, pushError } = await exclusive(dir, () => runPause(dir, reason === undefined ? {} : { reason }));
         return { changed, ...(by !== undefined && { by }), ...(pushed !== undefined && { pushed }), ...(pushError !== undefined && { pushError }) };
       },
       resume: async (id) => {
         const dir = await loopDir(id);
         if (dir === undefined) return undefined;
-        const { changed, pushed, pushError } = await runResume(dir);
+        const { changed, pushed, pushError } = await exclusive(dir, () => runResume(dir));
         return { changed, ...(pushed !== undefined && { pushed }), ...(pushError !== undefined && { pushError }) };
       },
       nextRound: async (id, brief) => {
@@ -205,7 +216,8 @@ export function projectsSource(projectsDir: string, now: () => Date = () => new 
         // The brief lands where the web buttons put it; runLaneRound archives and deletes it.
         const briefFile = path.join(dir, '.ai', 'next-round.md');
         await writeFile(briefFile, brief.endsWith('\n') ? brief : `${brief}\n`);
-        const { committed } = await runLaneRound(dir, { briefFile, dryRun: false, commit: true, now: now() });
+        // A failed round must not leave the brief behind for a lane's `git add -A`.
+        const { committed } = await exclusive(dir, () => runLaneRound(dir, { briefFile, dryRun: false, commit: true, now: now() })).finally(() => rm(briefFile, { force: true }));
         const pushed = committed ? await pushQuietly(dir) : undefined;
         return { changed: true, committed, ...(pushed !== undefined && { pushed }) };
       },

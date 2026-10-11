@@ -67,6 +67,16 @@ describe('POST /api/loops/:id/next-round', () => {
     const res = await post('next-round', { brief: '# Round 2\n\nShip it.' });
     expect(res.status).toBe(422);
     expect(((await res.json()) as { error: string }).error).toMatch(/lanes\.json/);
+    expect(existsSync(path.join(dir, '.ai', 'next-round.md'))).toBe(false);
+  });
+});
+
+describe('action limits', () => {
+  it('refuses an oversized body', async () => {
+    const app = await createApp({ demo: false, projectsDir: root });
+    const big = JSON.stringify({ brief: 'x'.repeat(70_000) });
+    const res = await app.request('http://127.0.0.1:4321/api/loops/laned/next-round', { method: 'POST', body: big, headers: { 'content-type': 'application/json', 'content-length': String(big.length) } });
+    expect(res.status).toBe(413);
   });
 });
 
