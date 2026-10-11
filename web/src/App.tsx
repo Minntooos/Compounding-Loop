@@ -72,7 +72,8 @@ function SourceChip({ snapshotDate }: { snapshotDate: string }) {
 function PausedLiveNotice() {
   const live = useSyncExternalStore(liveStore.subscribe, liveStore.get);
   if (live?.kind !== 'rate-limited') return null;
-  const resume = live.resetAt ? ` The live view resumes about ${new Date(live.resetAt).toISOString().slice(11, 16)} UTC.` : '';
+  const at = live.resetAt ? new Date(live.resetAt) : undefined;
+  const resume = at && !Number.isNaN(at.getTime()) ? ` The live view resumes about ${at.toISOString().slice(11, 16)} UTC.` : '';
   return <Notice>Live view paused: GitHub lets a browser make 60 requests an hour without signing in. The snapshot below is complete, just older.{resume}</Notice>;
 }
 
@@ -131,8 +132,8 @@ function Shell() {
       </header>
       <main className="mx-auto max-w-6xl px-4 py-6">
         {server.data === false && route.name === 'fleet' && <WelcomeStrip />}
-        <PausedLiveNotice />
         <h1 className="mb-5 text-[28px] font-semibold">{route.name === 'fleet' ? 'Compounding Loop' : route.name === 'loop' ? route.id : NAV.find((n) => n.route.name === route.name)?.label}</h1>
+        <PausedLiveNotice />
         <Page route={route} theme={theme} setTheme={setTheme} />
       </main>
       <Toasts toasts={toasts} />
