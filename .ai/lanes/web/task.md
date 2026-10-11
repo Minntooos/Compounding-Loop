@@ -1,7 +1,7 @@
 # Lane: web — round 4 (0.4.0 "Control")
 
-Run: 1 / 20
-Status: units 1 (audit, partial), 3 (A1 A2 A5 A6-card A7 A8-release/author) shipped; 2 (DESIGN.md) and 4-8 open
+Run: 2 / 20
+Status: units 1 (audit, partial), 2 (DESIGN.md), 3 (A1 A2 A5 A6-card A7 A8-release/author) shipped; 4-8 open
 Round 3 record: `.ai/lanes/web/done-v3.md` (`git show b3b51a5:.ai/lanes/web/task.md` for its Decisions).
 
 ## Contract
@@ -29,7 +29,6 @@ Round 3 record: `.ai/lanes/web/done-v3.md` (`git show b3b51a5:.ai/lanes/web/task
 - `demo/this-repo.json` loop is `done` + has lanes, so the demo fleet now says "1 thing needs you · release waiting on you" (e2e updated).
 
 ## Next run starts here
-1. Unit 2: extend `web/DESIGN.md` (Runs, Tests, Releases, Ready to ship, action buttons, paused, snapshot labels, 5-second card).
 2. Remaining A: loop-page snapshot label, per-lane Contract/Decisions (ask server for lane task data in LoopDetail), page count + live link for site loops, `api/settings.json` console 404, phone theme button.
 3. Units 4-8 (Runs tab via `parseRunLog`/`matchSlots` from `src/core/parse/index.ts`, action buttons with pure GitHub URL builders, Ready to ship via `shipCheck`, Releases via `parseChangelog`).
 
