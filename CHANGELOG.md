@@ -6,6 +6,7 @@ All notable changes are listed here. Format follows [Keep a Changelog](https://k
 
 ### Added ("Showcase", in progress)
 - Teams: `loop next [--json]`, `loop claim <lane>` and `loop release <lane>`; claims in `loop status`; lane prompts stand down on someone else's unexpired claim; plugin command `/loop-next`.
+- Live demo: the Pages dashboard reads this repo's commits, lanes and claims from GitHub in the browser, with a snapshot fallback and a header chip; README leads with it.
 - Docs: [Work on a loop with a teammate](docs/team.md).
 - Dashboard: welcome strip for first-time demo visitors, fleet cards with progress bars, Timeline grouped by day with lane colours.
 

@@ -6,6 +6,8 @@ Note for the owner: publish `compounding-loop` 0.2.0 to npm before posting, or t
 
 **First comment:**
 
+The demo link shows this repo building itself: five lanes pushing to one `main`, read live from GitHub in your browser (it falls back to a snapshot if GitHub's 60 requests/hour limit is hit). https://minntooos.github.io/Compounding-Loop/
+
 I let scheduled Claude Code runs build five calculator sites with nobody watching: 215 pages, 2,125 passing tests, 464 commits, roughly 18–22 hours of wall-clock time each (data in `demo/five-sites.json`). I wrote five briefs and answered a few questions.
 
 The part that mattered was what stops the loop, not the loop. "Done" is a command, not the model's opinion. A reviewer subagent that did not write the code checks each diff before it is pushed. A session lock stops overlapping runs, a run budget caps them, and a stuck run writes `BLOCKED.md` instead of guessing.
@@ -24,5 +26,5 @@ Where it is weak: five sites by one person is a small sample, and lanes are youn
 - **"What does it cost?"** Depends on your Claude plan or API use; the tool adds no cost of its own and I have no cost-per-site figure to quote. Do not invent one.
 - **"Why not agent teams / worktrees?"** Those fit one interactive session. This is for scheduled runs with nobody watching, where ownership is checked per commit. The README comparison table lists sources; do not claim the others lack features beyond what it cites.
 - **"What if it goes wrong?"** Runs stop at the budget or write `BLOCKED.md`; `main` is protected only by the repo's own tests. A bad round is a revert away. Say so plainly.
-- **"Do the lanes really stay in their paths?"** Mostly. `loop check-lanes` on the last 50 commits reports three crossings (web regenerating `demo/this-repo.json`, kit editing `src/core/runPrompt.ts`, core leaving a stray `.tmp-t.mts`). Say so; it shows the check works, and the CI step is advisory until they are cleaned up.
+- **"Do the lanes really stay in their paths?"** Nearly. `loop check-lanes` on the last 50 commits of this repo flags one commit: the docs lane deleting a stray `.tmp-t.mts` another lane had left behind, a file no lane owns. Earlier rounds had real crossings (web regenerating `demo/this-repo.json`, kit editing `src/core/runPrompt.ts`); the check caught them and the CI step is now blocking. Run it yourself: `npx compounding-loop check-lanes --range origin/main~50..HEAD`.
 - **"Is the sample size five sites?"** Yes, built by one person on calculator sites. It is evidence, not a benchmark.

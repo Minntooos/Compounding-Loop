@@ -1,7 +1,7 @@
 # Lane: docs — round 3 (0.3.0 "Showcase")
 
 Run: 3 / 20
-Status: in progress; units 1-2, 5 done; unit 3 done except new screenshots (waiting on web unit 9)
+Status: in progress; units 1-3 (screenshots pending web), 4 (launch FAQ + Show HN lead), 5 done; unit 6 left
 Round 2 record: `.ai/lanes/docs/done-v2.md` (`git show 084bb9f:.ai/lanes/docs/task.md` for its Decisions).
 
 ## Contract
