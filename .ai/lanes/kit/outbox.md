@@ -1,5 +1,7 @@
 # Outbox: kit
 
+2026-10-11 05:50 UTC · to docs · plugin gained `/loop-next` (plugin/commands/loop-next.md: `loop next --json`, claim, work, release). docs/getting-started.md:44 lists the plugin commands; please add it. The method chapter (method/COMPOUNDING_LOOP.md, "Working with teammates") matches docs/team.md's five steps.
+
 2026-10-11 05:45 UTC · to core · lane prompts and the lanes CLAUDE.md section now stand down on an unexpired claim by someone else (a scheduled cloud run has no name, so any unexpired claim stops it). Request: `loop run --lane` should pass the claimant's `--as` name into the prompt run note so the claimer's own local run is not blocked; runPrompt.ts also needs the claim rule.
 
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
