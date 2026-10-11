@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildLiveLoop, deleteFileUrl, editFileUrl, latestReleaseRunApiUrl, newFileUrl, nextRoundUrl, pauseUrl, releaseWorkflowUrl, resumeUrl, tagsApiUrl } from '../../../src/server/live/index.js';
+import { briefFitsUrl, buildLiveLoop, deleteFileUrl, editFileUrl, latestReleaseRunApiUrl, newFileUrl, nextRoundUrl, pauseUrl, releaseWorkflowUrl, resumeUrl, tagsApiUrl } from '../../../src/server/live/index.js';
 
 const SLUG = 'Minntooos/Compounding-Loop';
 const NOW = new Date('2026-10-11T12:00:00Z');
@@ -33,6 +33,24 @@ describe('GitHub URL builders', () => {
     expect(() => releaseWorkflowUrl('a/b/c')).toThrow(/slug/);
     for (const bad of ['', '/etc/passwd', '../x', 'a/../b', 'a\\b', 'a//b']) expect(() => deleteFileUrl(SLUG, bad)).toThrow(/path/);
     expect(() => newFileUrl(SLUG, '../x', 'y')).toThrow(/path/);
+  });
+});
+
+describe('URL limits and clean content', () => {
+  it('refuses a brief that would not fit a URL, and says so ahead of time', () => {
+    const long = 'x'.repeat(9000);
+    expect(briefFitsUrl(SLUG, 'short brief')).toBe(true);
+    expect(briefFitsUrl(SLUG, long)).toBe(false);
+    expect(() => nextRoundUrl(SLUG, long)).toThrow(RangeError);
+    expect(() => briefFitsUrl('../x', 'a')).toThrow(/slug/);
+  });
+  it('keeps PAUSED to one line and branch names with slashes', () => {
+    expect(new URL(pauseUrl(SLUG, 'Ada\nLovelace', NOW, 'a\nb')).searchParams.get('value')).toBe('Ada Lovelace · paused 2026-10-11T12:00:00.000Z · a b\n');
+    expect(editFileUrl(SLUG, 'x.md', 'feature/x')).toBe(`https://github.com/${SLUG}/edit/feature/x/x.md`);
+  });
+  it('shows no ship-check when the version is unknown', () => {
+    const lanes = JSON.stringify({ lanes: [{ name: 'core', owns: ['src/**'] }], shared: [] });
+    expect(buildLiveLoop({ slug: SLUG, commits: [], runs: {}, now: NOW, files: { '.ai/lanes.json': lanes, 'DONE.md': 'x' } }).detail.ship).toBeUndefined();
   });
 });
 

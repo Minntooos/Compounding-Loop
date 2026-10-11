@@ -133,12 +133,12 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
   const notes = controlText === undefined || !lanes ? [] : Object.entries(latestControlNotes(controlText, laneNames)).map(([lane, n]) => ({ lane, at: n.at, text: n.text }));
   const changelogText = input.files['CHANGELOG.md'];
   const newestTests = runsData?.runs.find((r) => r.tests && r.endedAt);
-  const ship = hasDone && lanes
+  const ship = hasDone && lanes && version
     ? shipCheck({
-        version: version ?? '0.0.0',
+        version,
         doneText: input.files['DONE.md'] as string,
         ...(changelogText !== undefined && { changelogText }),
-        tagExists: tagNames(input.tags).includes(`v${version ?? ''}`),
+        tagExists: tagNames(input.tags).includes(`v${version}`),
         // A remote repo has no working tree to be dirty.
         treeClean: true,
         ...(newestTests?.tests && { tests: { ...newestTests.tests, ...(newestTests.endedAt && { at: newestTests.endedAt }) } }),

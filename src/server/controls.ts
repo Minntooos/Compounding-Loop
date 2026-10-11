@@ -20,26 +20,36 @@ function checkedPath(file: string): string {
   return file;
 }
 
+/** GitHub answers 414 above roughly 8 KB; stay well under it. */
+export const MAX_URL_LENGTH = 7500;
+
+/** A branch name keeps its slashes (`feature/x`) and encodes every other character. */
+const encodeBranch = (branch: string) => branch.split('/').map(encodeURIComponent).join('/');
+const oneLine = (text: string) => text.replace(/\s+/g, ' ').trim();
+
 const encodePath = (file: string) => checkedPath(file).split('/').map(encodeURIComponent).join('/');
 
 /** GitHub's "new file" page with the file name and content filled in. */
 export function newFileUrl(slug: string, file: string, content: string, branch = 'main'): string {
-  return `${GITHUB}/${checkedSlug(slug)}/new/${encodeURIComponent(branch)}?filename=${encodeURIComponent(checkedPath(file))}&value=${encodeURIComponent(content)}`;
+  const url = `${GITHUB}/${checkedSlug(slug)}/new/${encodeBranch(branch)}?filename=${encodeURIComponent(checkedPath(file))}&value=${encodeURIComponent(content)}`;
+  // The caller falls back to "copy the text, then open the blank new-file page".
+  if (url.length > MAX_URL_LENGTH) throw new RangeError(`content too long for a prefilled GitHub URL (${url.length} > ${MAX_URL_LENGTH})`);
+  return url;
 }
 
 /** GitHub's delete page for a file (the confirmation commit happens on GitHub). */
 export function deleteFileUrl(slug: string, file: string, branch = 'main'): string {
-  return `${GITHUB}/${checkedSlug(slug)}/delete/${encodeURIComponent(branch)}/${encodePath(file)}`;
+  return `${GITHUB}/${checkedSlug(slug)}/delete/${encodeBranch(branch)}/${encodePath(file)}`;
 }
 
 /** GitHub's web editor for a file, e.g. BLOCKED.md. */
 export function editFileUrl(slug: string, file: string, branch = 'main'): string {
-  return `${GITHUB}/${checkedSlug(slug)}/edit/${encodeURIComponent(branch)}/${encodePath(file)}`;
+  return `${GITHUB}/${checkedSlug(slug)}/edit/${encodeBranch(branch)}/${encodePath(file)}`;
 }
 
 /** Pause: the new-file page for `.ai/PAUSED` with the one-line content core writes (`who · paused <ISO>[ · reason]`). */
 export function pauseUrl(slug: string, by: string, now: Date, reason?: string, branch = 'main'): string {
-  return newFileUrl(slug, PAUSED_FILE, formatPaused(by.trim() || 'dashboard', now, reason?.trim() || undefined), branch);
+  return newFileUrl(slug, PAUSED_FILE, formatPaused(oneLine(by) || 'dashboard', now, (reason && oneLine(reason)) || undefined), branch);
 }
 
 /** Resume: the delete page for `.ai/PAUSED`. */
@@ -58,3 +68,14 @@ export const latestReleaseRunApiUrl = (slug: string): string => `${API}/repos/${
 
 /** API URL listing the repo's tags (for the ship-check "tag does not exist yet" item). */
 export const tagsApiUrl = (slug: string): string => `${API}/repos/${checkedSlug(slug)}/tags?per_page=100`;
+
+/** True when `nextRoundUrl` can carry this brief; otherwise the UI offers Copy and the blank new-file page. */
+export function briefFitsUrl(slug: string, brief: string): boolean {
+  try {
+    nextRoundUrl(slug, brief);
+    return true;
+  } catch (error) {
+    if (error instanceof RangeError) return false;
+    throw error;
+  }
+}

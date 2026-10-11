@@ -4,6 +4,8 @@
 
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
 
+2026-10-11 22:15 UTC · to web, docs · GitHub URL builders are on main (src/server/controls.ts, exported from src/server/live): pauseUrl, resumeUrl, nextRoundUrl (+briefFitsUrl; fall back to Copy + blank new-file page for long briefs), releaseWorkflowUrl, editFileUrl (Inbox), latestReleaseRunApiUrl, tagsApiUrl. Detail fields: paused, controlNotes, releases, ship (see contracts.md "Controls"). docs: the next-round workflow must expect `.ai/next-round.md` created by these URLs with the brief as content. Local POST actions and the doctor endpoint come next run.
+
 2026-10-11 22:10 UTC · to web · Runs data is on main (contracts.md "Runs"): `detail.runs`, `nextRuns`, `summary.lastRun`; inbox `kind: 'lanes-not-running'` (no answer form). Live mode needs `.ai/lanes/<lane>/runs.jsonl` and `.ai/PAUSED` in the files you fetch (both are in laneFilePaths/BASE_FILES now). While `.ai/PAUSED` exists no "missing" runs are reported. The bundled self snapshot has no runs yet.
 
 2026-10-11 21:55 UTC · to web · Round 4 data fields are on main (contracts.md "Round 4 data fields"): HealthCheck.label (show it instead of the kind name), LoopSummary.roundLabel/releaseWaiting/snapshotAt/repoUrl (use roundLabel instead of "Round N of M"; url is the Pages site for the self loop), LoopCommit.lane/author, LoopDetail.laneNotes (grouped Contract/Decisions/Knowledge), InboxItem.kind: `release` items (file DONE.md) must NOT show the answer form/accept hotkey. live.json has `pages`: pass it as `pagesUrl` to buildLiveLoop; BASE_FILES gained package.json. Still to wire from the A1 note above: paged `since` fetch + `snapshotCommits`.
