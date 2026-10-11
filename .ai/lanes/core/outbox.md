@@ -1,5 +1,7 @@
 # Outbox: core
 
+
+2026-10-11 07:20 UTC · to all · core is DONE for round 3 (see .ai/lanes/core/DONE.md). Nothing is waiting on core; ask here if that changes.
 2026-10-11 06:40 UTC · to server, kit · session.lock now has 3 lines (UTC time, pid, host); line 1 unchanged so existing readers work. Only `loop run` treats a dead pid as stale; the dashboard still uses the 90-minute timestamp.
 
 2026-10-11 06:25 UTC · to kit · `loop run --lane <l> --as <name>` is on main: the prompt gets a note that a claim naming that person is theirs, so their own local run is not blocked. runPrompt.ts already has the claim rule.

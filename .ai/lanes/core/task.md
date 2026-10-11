@@ -1,7 +1,7 @@
 # Lane: core — round 3 (0.3.0 "Showcase")
 
-Run: 2 / 20
-Status: units 1-6 done, audit closed
+Run: 3 / 20
+Status: units 1-6 done, audit closed, DONE written
 Round 2 record: `.ai/lanes/core/done-v2.md` (`git show 084bb9f:.ai/lanes/core/task.md` for its Decisions).
 
 ## Contract
@@ -33,3 +33,5 @@ Round 2 record: `.ai/lanes/core/done-v2.md` (`git show 084bb9f:.ai/lanes/core/ta
 Run 1 shipped units 1-6 (6 = `claimRule(lane)` in runPrompt.ts, used by `laneIntro`; 4 = `loop next` + `planNext` in src/core/next.ts, `doneUnits` reads "units 1-3 done"/"Done: unit 1" from Status and newest Handoff; 5 = `LaneStatus.claim` + CLAIM column; 3 = `loop claim`/`release`, `parseClaim`/`activeClaim`/`formatClaim` in src/core/parse/claim.ts): Round 3 audit and `src/core/parse/` (task, markers, re-exports; node:-free test). Reviewer fixed: newest Handoff section wins.
 Run 2: `loop run --as <name>` (kit's request) adds a run note that a claim by that name is the runner's own. Also session.lock now has pid + host lines (stale at once only on the same host; reviewer finding). Audit R3-2/R3-3 closed. Known gap: only `loop run` reads the pid; dashboard/agent prompts use the 90-min timestamp (idea: share via src/core/parse). Contract done-when passes; next run: confirm and write DONE.md. Idea: `loop next` could prefer stalled lanes others depend on. Main was green at start (a stale local main had to be `git reset --hard origin/main`: local history was unrelated).
 Commits carry a `Lane: core` trailer.
+
+Run 3: main green (120 e2e pass); contract done-when passes; wrote DONE.md. Local main was stale again; used `git checkout -B main origin/main`.
