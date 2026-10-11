@@ -34,3 +34,8 @@ export function needsYouCount(loops: LoopSummary[], inbox: { loopId: string }[])
 export function describeUnanswered(u: { from: string; to: string; text: string }): string {
   return `${u.from} → ${u.to}: ${u.text}`;
 }
+
+/** "name · expires 16:30 UTC" for a claimed lane, "Unclaimed" otherwise. */
+export function claimText(claim: { name: string; expiresAt: string } | undefined): string {
+  return claim ? `${claim.name} · expires ${claim.expiresAt.slice(11, 16)} UTC` : 'Unclaimed';
+}

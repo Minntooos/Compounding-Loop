@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { LoopCommit } from '@core/types';
+import { ActivityChart } from './ActivityChart';
 import { relativeTime } from '../lib/format';
 import { dayHeading, groupByDay, laneColor, laneOfCommit, lanesIn, timeUtc } from '../lib/timeline';
 
@@ -12,6 +13,7 @@ export function Timeline({ commits }: { commits: LoopCommit[] }) {
   if (commits.length === 0) return <p style={{ color: 'var(--muted)' }}>No commits yet. Start a run and they appear here.</p>;
   return (
     <div className="space-y-4">
+      <ActivityChart commits={commits} />
       {lanes.length > 1 && (
         <div role="group" aria-label="Filter by lane" className="flex gap-1.5 overflow-x-auto pb-1">
           <button type="button" aria-pressed={active.size === 0} onClick={() => setActive(new Set())} className="shrink-0 rounded-full border px-3 py-1 text-[13px] min-h-11 sm:min-h-8 aria-pressed:font-semibold aria-pressed:underline" style={{ borderColor: 'var(--border)' }}>All</button>

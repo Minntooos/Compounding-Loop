@@ -45,6 +45,8 @@ test('loop detail has a Lanes tab with a row per lane, run counters, lock and un
   await expect(rows).toHaveCount(4);
   await expect(rows.nth(1)).toContainText('Building');
   await expect(rows.nth(1)).toContainText('Run 7/30');
+  await expect(rows.nth(1).getByTestId('lane-claim')).toHaveText('Unclaimed');
+  await expect(rows.nth(1).getByRole('progressbar')).toHaveAttribute('aria-valuenow', '7');
   await expect(rows.nth(1)).toContainText('Locked');
   await expect(rows.nth(2)).toContainText('Stalled');
   await expect(rows.nth(2)).toContainText('web → server: need the lanes route');

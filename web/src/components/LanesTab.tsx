@@ -1,8 +1,9 @@
 import type { LaneStatus } from '@core/types';
 import { Lock, LockOpen } from 'lucide-react';
 import { relativeTime } from '../lib/format';
-import { describeUnanswered } from '../lib/lanes';
+import { claimText, describeUnanswered } from '../lib/lanes';
 import { LaneBadge } from './LaneBadge';
+import { ProgressBar } from './ProgressBar';
 
 // Lane names, commit subjects and message text come from repo files: rendered as text nodes only.
 function LaneRow({ lane }: { lane: LaneStatus }) {
@@ -12,10 +13,12 @@ function LaneRow({ lane }: { lane: LaneStatus }) {
         <h3 className="break-all font-mono text-[14px] font-semibold">{lane.name}</h3>
         <LaneBadge state={lane.state} />
         <span className="font-mono text-[12px]">Run {lane.run}/{lane.limit}</span>
+        <span data-testid="lane-claim" className="font-mono text-[12px]" style={{ color: lane.claim ? 'var(--text)' : 'var(--muted)' }}>{claimText(lane.claim)}</span>
         <span className="inline-flex items-center gap-1 text-[12px]" style={{ color: 'var(--muted)' }}>
           {lane.locked ? <Lock aria-hidden size={13} /> : <LockOpen aria-hidden size={13} />}{lane.locked ? 'Locked' : 'No lock'}
         </span>
       </div>
+      {lane.limit > 0 && <div className="mt-2"><ProgressBar label={`${lane.name} run budget`} value={Math.min(lane.run, lane.limit)} max={lane.limit} text={`${lane.run} of ${lane.limit} runs`} color="var(--accent)" /></div>}
       <p className="mt-1 [overflow-wrap:anywhere]" style={{ color: 'var(--muted)' }}>
         {lane.lastCommit
           ? <><code className="font-mono text-[12px]">{lane.lastCommit.sha.slice(0, 7)}</code> {lane.lastCommit.subject} · {relativeTime(lane.lastCommit.at)}</>

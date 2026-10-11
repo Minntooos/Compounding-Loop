@@ -47,3 +47,20 @@ export function lanesIn(commits: LoopCommit[]): string[] {
   const present = new Set(commits.map((c) => laneOfCommit(c.message)));
   return [...KNOWN, 'control', 'other'].filter((l) => present.has(l));
 }
+
+/** Commits per UTC day, oldest first, with empty days between filled in (a gap is information). Only the newest `maxDays` days. */
+export function commitsPerDay(commits: LoopCommit[], maxDays = 60): { day: string; count: number }[] {
+  if (commits.length === 0) return [];
+  const counts = new Map<string, number>();
+  for (const c of commits) counts.set(c.at.slice(0, 10), (counts.get(c.at.slice(0, 10)) ?? 0) + 1);
+  const days = [...counts.keys()].filter((d) => /^\d{4}-\d\d-\d\d$/.test(d)).sort();
+  if (days.length === 0) return [];
+  const out: { day: string; count: number }[] = [];
+  const end = Date.parse(`${days[days.length - 1]}T00:00:00Z`);
+  const start = Math.max(Date.parse(`${days[0]}T00:00:00Z`), end - (maxDays - 1) * 86_400_000);
+  for (let t = start; t <= end; t += 86_400_000) {
+    const day = new Date(t).toISOString().slice(0, 10);
+    out.push({ day, count: counts.get(day) ?? 0 });
+  }
+  return out;
+}

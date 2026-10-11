@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { LaneStatus, LoopSummary } from '../../../src/core/types.js';
-import { describeUnanswered, lanesNeedingYou, needsYouCount, waitingOnFinished } from '../../../web/src/lib/lanes.js';
+import { claimText, describeUnanswered, lanesNeedingYou, needsYouCount, waitingOnFinished } from '../../../web/src/lib/lanes.js';
 
 const lane = (name: string, state: LaneStatus['state'], waitingOn?: string[]): LaneStatus => ({ name, state, run: 1, limit: 30, locked: false, unanswered: [], ...(waitingOn ? { waitingOn } : {}) });
 const loop = (state: LoopSummary['state'], lanes?: LaneStatus[]): LoopSummary => ({ id: 'x', name: 'x', state, ...(lanes ? { lanes } : {}) }) as LoopSummary;
@@ -32,5 +32,9 @@ describe('lane attention', () => {
 
   it('describeUnanswered reads "web → server: text"', () => {
     expect(describeUnanswered({ from: 'web', to: 'server', text: 'need X' })).toBe('web → server: need X');
+  });
+  it('claimText names the claimant and expiry in UTC, or says unclaimed', () => {
+    expect(claimText({ name: 'sam', expiresAt: '2026-10-11T16:30:00Z' })).toBe('sam · expires 16:30 UTC');
+    expect(claimText(undefined)).toBe('Unclaimed');
   });
 });
