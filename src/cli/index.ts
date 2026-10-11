@@ -13,6 +13,7 @@ import { realGh } from './gh.js';
 import { runInit } from './init.js';
 import { runAnswer, runNextRound, runStatus } from './loops.js';
 import { runNew } from './new.js';
+import { formatRuns, logRun, readRuns } from './runs.js';
 import { runPause, runResume, type PauseResult } from './pause.js';
 import { runRound } from './run.js';
 
@@ -298,6 +299,51 @@ program
       const r = await runResume(path.resolve(options.dir), { push: options.push });
       console.log(r.changed ? `Resumed.${pauseNote(r)}` : 'Not paused; nothing to do.');
       if (r.pushed === false) process.exitCode = 1;
+    } catch (error) {
+      fail(error);
+    }
+  });
+
+const runsCommand = program
+  .command('runs')
+  .description('List each lane\'s logged runs and the scheduled runs that left no trace (from .ai/lanes/<lane>/runs.jsonl and each lane\'s cron)')
+  .option('--json', 'print the report as JSON (shape: RunsReport in src/cli/runs.ts)')
+  .option('--hours <n>', 'how far back to look', '24')
+  .option('--dir <dir>', 'repo folder', '.')
+  .action(async (options: { json?: boolean; hours: string; dir: string }) => {
+    try {
+      const report = await readRuns(path.resolve(options.dir), { hours: Number(options.hours) });
+      console.log(options.json ? JSON.stringify(report, null, 2) : formatRuns(report));
+    } catch (error) {
+      fail(error);
+    }
+  });
+
+runsCommand
+  .command('log')
+  .description('Append one line to a lane\'s run log; every lane run ends with this and commits the file with its last commit')
+  .requiredOption('--lane <name>', 'lane name from .ai/lanes.json')
+  .option('--units <list...>', 'units finished this run')
+  .option('--passed <n>', 'tests passed on the last npm test')
+  .option('--failed <n>', 'tests failed on the last npm test')
+  .option('--pushed', 'this run pushed to main')
+  .option('--no-pushed', 'this run pushed nothing')
+  .option('--session <url>', 'session link or id')
+  .option('--note <text>', 'one line of context')
+  .option('--dir <dir>', 'repo folder', '.')
+  .action(async (options: { lane: string; units?: string[]; passed?: string; failed?: string; pushed?: boolean; session?: string; note?: string; dir: string }) => {
+    try {
+      // The parent `runs` command declares --dir too and Commander gives it the value wherever it appears.
+      const dir = options.dir !== '.' ? options.dir : (runsCommand.opts<{ dir: string }>().dir);
+      const entry = await logRun(path.resolve(dir), options.lane, {
+        ...(options.units && { units: options.units }),
+        ...(options.passed !== undefined && { passed: Number(options.passed) }),
+        ...(options.failed !== undefined && { failed: Number(options.failed) }),
+        pushed: options.pushed ?? false,
+        ...(options.session && { session: options.session }),
+        ...(options.note && { note: options.note }),
+      });
+      console.log(`Logged ${entry.lane} run at ${entry.at} (${entry.pushed ? 'pushed' : 'pushed nothing'}). Commit .ai/lanes/${entry.lane}/runs.jsonl with your last commit.`);
     } catch (error) {
       fail(error);
     }

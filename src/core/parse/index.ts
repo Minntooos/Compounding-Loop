@@ -13,3 +13,5 @@ export { activeClaim, formatClaim, parseClaim } from './claim.js';
 export type { Claim } from './claim.js';
 export { describePaused, formatPaused, isPaused, parsePaused, PAUSED_FILE } from './paused.js';
 export type { Paused } from './paused.js';
+export { expectedSlots, formatRunEntry, matchSlots, missedInARow, parseRunLog, runLogPath } from './runs.js';
+export type { RunEntry, SlotOutcome, SlotResult } from './runs.js';

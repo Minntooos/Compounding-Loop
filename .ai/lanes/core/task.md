@@ -19,6 +19,9 @@ Round 3 record: `.ai/lanes/core/done-v3.md` (`git show b3b51a5:.ai/lanes/core/ta
 7. `check-lanes`: `Lane: release` and `Lane: control` rules (B7), tested. Then audit majors, then minors in `.ai/done-v3.md` (stale lock after SIGKILL) by value.
 
 ## Decisions
+- 2026-10-11 `.ai/last-test.json` stays (kit's templates write it; the server already reads it). `runs.jsonl` carries the history (`tests` per run). Both exist; the dashboard prefers the run log when present. Reversible.
+- PAUSED format: `who · paused <ISO>[ · reason]`; the file's existence alone pauses (malformed files still count). `loop pause/resume` pull --rebase --autostash first (the dashboard writes the file on GitHub).
+- DEFAULT_PROMPT stays equal to kit's runners/routine/prompt.md; the pause rule is added by `laneIntro` instead and kit adds it to its files.
 
 ## Confirmed
 

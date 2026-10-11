@@ -1,0 +1,106 @@
+import { execFile } from 'node:child_process';
+import { appendFile, mkdir, readFile } from 'node:fs/promises';
+import path from 'node:path';
+import { promisify } from 'node:util';
+import { parseLanesConfig } from '../core/lanes.js';
+import { expectedSlots, formatRunEntry, matchSlots, missedInARow, parseRunLog, runLogPath, type RunEntry, type SlotResult } from '../core/parse/runs.js';
+
+const execFileAsync = promisify(execFile);
+
+export interface LogRunOptions {
+  units?: string[];
+  passed?: number;
+  failed?: number;
+  pushed: boolean;
+  session?: string;
+  note?: string;
+  now?: Date;
+}
+
+async function laneNames(dir: string): Promise<{ names: string[]; crons: Map<string, string> }> {
+  const text = await readFile(path.join(dir, '.ai', 'lanes.json'), 'utf8').catch(() => undefined);
+  if (text === undefined) throw new Error('No .ai/lanes.json here. Create one with `loop init --lanes a,b,c`.');
+  const { config, errors } = parseLanesConfig(text);
+  if (!config) throw new Error(`.ai/lanes.json is invalid:\n- ${errors.join('\n- ')}`);
+  return { names: config.lanes.map((l) => l.name), crons: new Map(config.lanes.flatMap((l) => (l.cron ? [[l.name, l.cron] as const] : []))) };
+}
+
+/** `loop runs log`: appends one line to the lane's own runs.jsonl. The caller commits it with its last commit. */
+export async function logRun(dir: string, lane: string, options: LogRunOptions): Promise<RunEntry> {
+  const { names } = await laneNames(dir);
+  if (!names.includes(lane)) throw new Error(`No lane "${lane}". Lanes here: ${names.join(', ')}.`);
+  if ((options.passed === undefined) !== (options.failed === undefined)) throw new Error('Pass --passed and --failed together.');
+  for (const n of [options.passed, options.failed]) if (n !== undefined && (!Number.isInteger(n) || n < 0)) throw new Error('--passed and --failed must be whole numbers, 0 or more.');
+  const entry: RunEntry = {
+    at: (options.now ?? new Date()).toISOString(),
+    lane,
+    ...(options.session && { session: options.session }),
+    units: options.units ?? [],
+    ...(options.passed !== undefined && options.failed !== undefined && { tests: { passed: options.passed, failed: options.failed } }),
+    pushed: options.pushed,
+    ...(options.note && { note: options.note.replace(/\s+/g, ' ').trim() }),
+  };
+  const file = path.join(dir, ...runLogPath(lane).split('/'));
+  await mkdir(path.dirname(file), { recursive: true });
+  await appendFile(file, formatRunEntry(entry));
+  return entry;
+}
+
+export interface LaneRuns {
+  lane: string;
+  cron?: string;
+  entries: RunEntry[];
+  slots: SlotResult[];
+  /** Scheduled runs in a row, newest first, with no log line and no commit. */
+  missedInARow: number;
+}
+
+export interface RunsReport {
+  from: string;
+  to: string;
+  lanes: LaneRuns[];
+}
+
+/** Commit times carrying `Lane: <lane>` since `since`; empty when git cannot say (no repo, no commits). */
+async function laneCommitTimes(dir: string, lane: string, since: Date): Promise<Date[]> {
+  try {
+    const { stdout } = await execFileAsync('git', ['log', `--since=${since.toISOString()}`, '--format=%cI%x09%(trailers:key=Lane,valueonly,separator=%x2C)'], { cwd: dir });
+    return stdout.split('\n').flatMap((line) => {
+      const [time, trailer] = line.split('\t');
+      return time && trailer?.trim() === lane ? [new Date(time)] : [];
+    });
+  } catch {
+    return [];
+  }
+}
+
+/** `loop runs`: each lane's logged runs plus the scheduled slots in the window that left no trace. */
+export async function readRuns(dir: string, options: { hours?: number; now?: Date } = {}): Promise<RunsReport> {
+  const now = options.now ?? new Date();
+  const from = new Date(now.getTime() - (options.hours ?? 24) * 3_600_000);
+  const { names, crons } = await laneNames(dir);
+  const lanes: LaneRuns[] = [];
+  for (const lane of names) {
+    const entries = parseRunLog(await readFile(path.join(dir, ...runLogPath(lane).split('/')), 'utf8').catch(() => ''));
+    const cron = crons.get(lane);
+    const slots = cron ? matchSlots(expectedSlots(cron, from, now), entries, await laneCommitTimes(dir, lane, from)) : [];
+    lanes.push({ lane, ...(cron && { cron }), entries: entries.filter((e) => new Date(e.at) > from), slots, missedInARow: missedInARow(slots) });
+  }
+  return { from: from.toISOString(), to: now.toISOString(), lanes };
+}
+
+const LABEL = { pushed: 'pushed', 'nothing-pushed': 'ran, pushed nothing', 'tests-failed': 'tests failed', 'no-run-recorded': 'no run recorded (usage limit, idle or failed)' } as const;
+const stamp = (iso: string) => iso.slice(0, 16).replace('T', ' ');
+
+export function formatRuns(report: RunsReport): string {
+  const out: string[] = [`Runs ${stamp(report.from)} to ${stamp(report.to)} UTC`];
+  for (const l of report.lanes) {
+    out.push('', `${l.lane}${l.cron ? ` (cron ${l.cron})` : ''}${l.missedInARow >= 3 ? `  ! ${l.missedInARow} scheduled runs in a row left no trace: check your plan's usage limit` : ''}`);
+    if (l.slots.length === 0 && l.entries.length === 0) out.push('  nothing logged');
+    for (const s of l.slots) {
+      const e = s.entry;
+      out.push(`  ${stamp(s.slot)}  ${LABEL[s.outcome]}${e ? `  ${e.units.length} unit${e.units.length === 1 ? '' : 's'}${e.tests ? `, tests ${e.tests.passed} passed ${e.tests.failed} failed` : ''}${e.note ? `  ${e.note}` : ''}` : ''}`);
+    }
+  }
+  return out.join('\n');
+}
