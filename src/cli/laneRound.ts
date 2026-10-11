@@ -62,13 +62,17 @@ export async function runLaneRound(dir: string, options: LaneRoundOptions): Prom
   if (options.dryRun) return { ...plan, committed: false };
 
   const touched: string[] = [];
+  const removed: string[] = [];
   for (const change of plan.changes) {
     await apply(dir, change);
-    touched.push(...(change.kind === 'move' ? [change.from, change.to] : [change.path]));
+    if (change.kind === 'delete') removed.push(change.path);
+    else touched.push(...(change.kind === 'move' ? [change.from, change.to] : [change.path]));
   }
   let committed = false;
   if (options.commit !== false) {
     await git(dir, 'add', '-A', '--', ...touched);
+    // The brief may be tracked or not; `git add` would fail on an untracked path that no longer exists.
+    for (const file of removed) await git(dir, 'rm', '-q', '--cached', '--ignore-unmatch', '--', file);
     await git(dir, 'commit', '-qm', `Start round ${plan.round}\n\nLane: ${CONTROL_LANE}`);
     committed = true;
   }

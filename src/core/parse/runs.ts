@@ -121,8 +121,13 @@ export function matchSlots(slots: readonly Date[], entries: readonly RunEntry[],
   };
   const bySlot = new Map<number, RunEntry>();
   for (const entry of entries) {
-    const i = slotFor(new Date(entry.at).getTime());
-    if (i >= 0) bySlot.set(i, entry);
+    // A long run can end after the next slot starts: walk back to the latest slot nobody has claimed yet.
+    for (let i = slotFor(new Date(entry.at).getTime()); i >= 0; i--) {
+      if (!bySlot.has(i)) {
+        bySlot.set(i, entry);
+        break;
+      }
+    }
   }
   const committed = new Set(commitTimes.map((c) => slotFor(c.getTime())).filter((i) => i >= 0));
   return sorted.map((slot, i) => {

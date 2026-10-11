@@ -15,3 +15,5 @@ export { describePaused, formatPaused, isPaused, parsePaused, PAUSED_FILE } from
 export type { Paused } from './paused.js';
 export { expectedSlots, formatRunEntry, matchSlots, missedInARow, parseRunLog, runLogPath } from './runs.js';
 export type { RunEntry, SlotOutcome, SlotResult } from './runs.js';
+export { parseChangelog, releaseFor } from './changelog.js';
+export type { ChangelogSection, Release } from './changelog.js';

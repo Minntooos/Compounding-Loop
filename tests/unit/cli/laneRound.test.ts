@@ -68,9 +68,9 @@ describe('loop next-round --brief', () => {
     await writeFile(path.join(dir, '.ai', 'control-room.md'), '# Control room notes\n');
     await writeFile(path.join(dir, '.ai', 'lanes', 'api', 'task.md'), 'Run: 20 / 20\nold\n');
     await writeFile(path.join(dir, '.ai', 'lanes', 'api', 'DONE.md'), 'api done\n');
-    await writeFile(path.join(dir, '.ai', 'next-round.md'), BRIEF);
     git('add', '-A');
     git('commit', '-qm', 'init\n\nLane: control');
+    await writeFile(path.join(dir, '.ai', 'next-round.md'), BRIEF); // untracked, like a brief written locally
   });
   afterEach(() => rm(dir, { recursive: true, force: true, maxRetries: 5 }));
 
@@ -78,7 +78,7 @@ describe('loop next-round --brief', () => {
     const r = await runLaneRound(dir, { briefFile: path.join(dir, '.ai', 'next-round.md'), dryRun: true, now });
     expect(r.committed).toBe(false);
     expect(formatLaneRound(r, true)).toMatch(/^Brief score \d+\/100[^\n]*\nWould start round 2:\n[\s\S]*move +DONE\.md -> \.ai\/done-v1\.md/);
-    expect(git('status', '--porcelain')).toBe('');
+    expect(git('status', '--porcelain').trim()).toBe('?? .ai/next-round.md');
   });
 
   it('archives DONE files, resets lane tasks, notes the control room, deletes the brief and commits with Lane: control', async () => {

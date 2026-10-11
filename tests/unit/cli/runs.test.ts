@@ -44,6 +44,10 @@ describe('matchSlots', () => {
     const r = matchSlots(slots, [run('2026-10-11T10:50:00Z'), run('2026-10-11T11:30:00Z', { pushed: false }), run('2026-10-11T12:40:00Z', { tests: { passed: 1, failed: 2 } })]);
     expect(r.map((x) => x.outcome)).toEqual(['pushed', 'nothing-pushed', 'tests-failed', 'no-run-recorded']);
   });
+  it('credits a long run to its own slot when it ends after the next slot began', () => {
+    const r = matchSlots(slots, [run('2026-10-11T11:20:00Z'), run('2026-10-11T11:50:00Z')]);
+    expect(r.map((x) => x.outcome)).toEqual(['pushed', 'pushed', 'no-run-recorded', 'no-run-recorded']);
+  });
   it('counts a commit in a slot as a run without a log line', () => {
     expect(matchSlots(slots, [], [d('2026-10-11T11:20:00Z')]).map((x) => x.outcome)).toEqual(['no-run-recorded', 'pushed', 'no-run-recorded', 'no-run-recorded']);
   });

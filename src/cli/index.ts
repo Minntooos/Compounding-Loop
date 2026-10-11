@@ -14,6 +14,7 @@ import { runInit } from './init.js';
 import { runAnswer, runNextRound, runStatus } from './loops.js';
 import { formatLaneRound, runLaneRound } from './laneRound.js';
 import { runNew } from './new.js';
+import { formatShipCheck, runShipCheck } from './shipCheck.js';
 import { formatRuns, logRun, readRuns } from './runs.js';
 import { runPause, runResume, type PauseResult } from './pause.js';
 import { runRound } from './run.js';
@@ -308,6 +309,21 @@ program
       const r = await runResume(path.resolve(options.dir), { push: options.push });
       console.log(r.changed ? `Resumed.${pauseNote(r)}` : 'Not paused; nothing to do.');
       if (r.pushed === false) process.exitCode = 1;
+    } catch (error) {
+      fail(error);
+    }
+  });
+
+program
+  .command('ship-check')
+  .description('Is this repo ready to release? Checks DONE.md, open findings, CHANGELOG, the tag, a clean tree and the latest test result; exit 0 only if ready')
+  .argument('[dir]', 'repo folder', '.')
+  .option('--json', 'print the checklist as JSON (shape: ShipCheck in src/core/shipCheck.ts)')
+  .action(async (dir: string, options: { json?: boolean }) => {
+    try {
+      const result = await runShipCheck(path.resolve(dir));
+      console.log(options.json ? JSON.stringify(result, null, 2) : formatShipCheck(result));
+      if (!result.ready) process.exitCode = 1;
     } catch (error) {
       fail(error);
     }
