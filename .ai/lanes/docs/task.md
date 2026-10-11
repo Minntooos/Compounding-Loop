@@ -1,7 +1,7 @@
 # Lane: docs — round 4 (0.4.0 "Control")
 
-Run: 0 / 20
-Status: not started
+Run: 1 / 20
+Status: units 1, 2, 3 done; unit 4: docs/release.md done, docs/dashboard.md waits on web buttons; units 5-6 open
 Round 3 record: `.ai/lanes/docs/done-v3.md` (`git show b3b51a5:.ai/lanes/docs/task.md` for its Decisions).
 
 ## Contract

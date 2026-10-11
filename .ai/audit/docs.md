@@ -1,5 +1,22 @@
 # Audit: docs
 
+## Round 4 (2026-10-11, 0.4.0 "Control")
+Goal judged: the owner releases and starts rounds from GitHub buttons with no token in chat; every dashboard control has a page that says what it changes.
+
+### Blockers
+None open.
+
+### Findings
+| # | Area | Evidence | Severity | One-line fix |
+|---|---|---|---|---|
+| 1 | Release path | No `release.yml`; 0.3.0 was never published and tokens were pasted into chat. | major | `release.yml` (OIDC, `environment: release`, dry-run input) + `docs/release.md`: done in run 1. |
+| 2 | Next round | No `next-round.yml`; `loop next-round --brief --no-commit` exists in core. | major | Workflow added in run 1; tests parse both workflows (`tests/unit/docs/workflows.test.ts`). |
+| 3 | Ship check in CI | `loop ship-check` needs a test result from a run-log line or `.ai/last-test.json`; nothing writes the latter, so a release relies on the lanes' logged runs. | minor | Note in docs/release.md if it bites; core owns the writer. |
+| 4 | Dashboard page | `docs/dashboard.md` does not cover Pause, Next round, Release or Ready to ship; web has not shipped them yet. | major (waiting) | Write it from web's real buttons once they land; no unshipped feature is described. |
+| 5 | actionlint | Not installed here and CI has no network step for it. | minor | Structure test instead (allowed by the brief). |
+
+Cross-lane: none new.
+
 ## Round 3 (2026-10-11, 0.3.0 "Showcase")
 Goal judged: a visitor understands the product from the README's first screen and can watch the repo build itself; a teammate joins with one page.
 

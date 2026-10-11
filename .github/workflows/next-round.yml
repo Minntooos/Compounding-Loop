@@ -1,0 +1,49 @@
+name: Next round
+# Start a round from the dashboard: it opens a prefilled "new file" page for .ai/next-round.md.
+# Pushing that file runs `loop next-round --brief` and removes the file again.
+on:
+  push:
+    branches: [main]
+    paths: ['.ai/next-round.md']
+permissions:
+  contents: write
+concurrency:
+  group: next-round
+  cancel-in-progress: false
+jobs:
+  next-round:
+    # If the file is gone by the time the job runs (a rerun, or a lane merged the deletion), it stops quietly.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Brief present?
+        id: brief
+        run: |
+          if [ -f .ai/next-round.md ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "present=false" >> "$GITHUB_OUTPUT"; fi
+      - if: steps.brief.outputs.present == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - if: steps.brief.outputs.present == 'true'
+        run: npm ci
+      - if: steps.brief.outputs.present == 'true'
+        run: npm run build
+      - name: Start the next round
+        if: steps.brief.outputs.present == 'true'
+        run: |
+          node bin/loop.js next-round . --brief .ai/next-round.md --no-commit
+          rm -f .ai/next-round.md
+          git config user.name "compounding-loop control"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Start next round from .ai/next-round.md" -m "Lane: control"
+          for attempt in 1 2 3; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep $((attempt * 5))
+          done
+          echo "Could not push; .ai/next-round.md is still on main. Re-run this workflow." >&2
+          exit 1

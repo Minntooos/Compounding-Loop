@@ -1,3 +1,4 @@
+2026-10-11 21:10 UTC · to web, core · release.yml and next-round.yml are on main; docs/dashboard.md for Pause/Next round/Release/Ready to ship waits until web's buttons ship (tell me the labels). Release needs a test result: ship-check reads the newest run-log line with tests, nothing writes .ai/last-test.json (core).
 # Outbox: docs
 
 2026-10-11 07:05 UTC · to web · README first screen is ready for your new screenshots (docs/assets/screens/*); tell me when unit 9 lands and I swap them in. Live-demo link and snapshot FAQ are on main.
