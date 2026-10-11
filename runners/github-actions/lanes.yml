@@ -9,6 +9,8 @@
 #   3. The `verify` job runs `loop check-lanes`, which needs compounding-loop 0.2.0 or later.
 #   4. Edit the `lane` and `cron` pairs in the matrix to match .ai/lanes.json, and keep the same
 #      cron strings in `on.schedule` (see runners/routine/README.md for staggering N lanes).
+#   5. The `control` job (control room, every 3 hours) is optional. To drop it, delete its cron line,
+#      the `control` job, and `control` from `verify.needs`.
 #
 # How it runs: every cron line starts the whole matrix, and each job does real work only when
 # the schedule that fired is its own (or when started by hand), so one lane runs per trigger.
@@ -19,6 +21,7 @@ on:
     - cron: "7 * * * *"
     - cron: "19 * * * *"
     - cron: "31 * * * *"
+    - cron: "47 */3 * * *" # control room, every 3 hours (optional: delete this line and the `control` job)
   workflow_dispatch: {}
 
 # Workflow-level default: read only. The lane job raises it, because the lane pushes to main.
@@ -83,9 +86,54 @@ jobs:
             --max-turns 200
             --allowedTools "Bash,Edit,Write,Read,Glob,Grep,Task"
 
+  control:
+    # Optional supervisor: runs the tests, checks lane ownership, unblocks lanes. Full text:
+    # runners/routine/control-room-prompt.md. It pushes `.ai/` notes and small fixes, so it needs write access.
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    concurrency:
+      group: loop-control-room
+      cancel-in-progress: false
+    steps:
+      - name: Is this the control room's turn?
+        id: gate
+        env:
+          EVENT: ${{ github.event_name }}
+          FIRED: ${{ github.event.schedule }}
+        run: |
+          if [ "$EVENT" = "workflow_dispatch" ] || [ "$FIRED" = "47 */3 * * *" ]; then echo "go=true" >> "$GITHUB_OUTPUT"; else echo "go=false" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.go == 'true'
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        if: steps.gate.outputs.go == 'true'
+        with:
+          node-version: 22
+      - uses: anthropics/claude-code-action@v1
+        if: steps.gate.outputs.go == 'true'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Paste runners/routine/control-room-prompt.md here with {{name}} and {{lanes}} filled. Short form shown:
+          prompt: |
+            You are the scheduled control room run of an unattended build loop. Read CLAUDE.md and IDEA.md.
+            Pull main, run the tests, run `npx compounding-loop check-lanes` over the last 4 hours, read every lane's task.md and outbox,
+            and write notes for lanes in `.ai/control-room.md`. Commit only `.ai/` notes and the smallest fixes, each ending with the trailer line "Lane: control". Push to main.
+            Stop if DONE.md or BLOCKED.md exists at the root.
+            Never publish, spend money, or add secrets or tracking.
+          claude_args: >-
+            --max-turns 100
+            --allowedTools "Bash,Edit,Write,Read,Glob,Grep,Task"
+
   verify:
     # Read-only: reports any commit that crossed a lane boundary.
-    needs: lane
+    needs: [lane, control]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 10

@@ -201,6 +201,16 @@ describe('runners/github-actions/lanes.yml', () => {
     expect(text).toContain('expired claim counts as none');
   });
 
+  it('has an optional control-room job on a 3-hourly cron that pushes with its own queue', () => {
+    const control = wf.jobs.control as Job;
+    expect(wf.on.schedule.map((s) => s.cron)).toContain('47 */3 * * *');
+    expect(text).toContain('"$FIRED" = "47 */3 * * *"');
+    expect(control.permissions).toEqual({ contents: 'write' });
+    expect(control.concurrency?.['cancel-in-progress']).toBe(false);
+    expect(control.steps.find((s) => s.uses?.startsWith('actions/checkout'))?.with?.['persist-credentials']).toBe(true);
+    expect(text).toContain('trailer line "Lane: control"');
+  });
+
   it('names secrets only through the secrets context', () => {
     expect(text).toContain('${{ secrets.ANTHROPIC_API_KEY }}');
     expect(text).not.toMatch(/sk-ant-|ghp_|oauth-[a-z0-9]{8}/i);
