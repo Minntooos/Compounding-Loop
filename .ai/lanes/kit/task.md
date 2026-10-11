@@ -1,7 +1,7 @@
 # Lane: kit — round 4 (0.4.0 "Control")
 
-Run: 2 / 20
-Status: units 1-5 done except `runners/routine/prompt.md` (waits on core editing prompt.md + DEFAULT_PROMPT together; see outbox 21:40)
+Run: 3 / 20
+Status: DONE (see DONE.md)
 Round 3 record: `.ai/lanes/kit/done-v3.md` (`git show b3b51a5:.ai/lanes/kit/task.md` for its Decisions).
 
 ## Contract
@@ -37,3 +37,6 @@ Next: (1) check core's outbox: once `runners/routine/prompt.md` and DEFAULT_PROM
 
 ## Handoff (2026-10-11 21:40 UTC, run 2)
 Nothing shippable: only open unit is prompt.md, blocked on core (outbox 21:40). Next run: if core has edited both files, add prompt.md to the paused/staleClone loops in control-rules.test.ts, run npm test, push; then write DONE.md (no other kit units left).
+
+## Handoff (run 3)
+prompt.md edited with PAUSED + stale-clone (and core's DEFAULT_PROMPT mirrored); DONE.md written.

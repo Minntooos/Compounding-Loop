@@ -1,0 +1,5 @@
+# kit lane: DONE (round 4, 0.4.0 "Control")
+
+**Built:** PAUSED rule, run-log step and stale-clone recovery in every lane prompt, control-room prompt, `lanes.yml`, the lanes CLAUDE section, the static-site template and `runners/routine/prompt.md` (mirrored in core's `DEFAULT_PROMPT`); method chapter "Controlling a loop" (flags verified against `loop next-round`); `/loop-pause`. Tests: `tests/unit/kit/control-rules.test.ts`. `npm test` green (check, typecheck, unit, build, 130 e2e).
+**Unsure:** `runners/routine/prompt.md` edit needed a one-line mirror in `src/core/runPrompt.ts` (core's file; core is DONE and its test demands equality), done under "main stays green".
+**Next 10:** 1 Chrome-extension icons (done-v3 leftover). 2 `/loop-ship-check` plugin command. 3 Windows `claude.cmd` note in the local runner docs. 4 Runner template for `loop runs log` failure path. 5 Lane-prompt lint in `loop check`. 6 Template for `next-round` brief. 7 Per-lane model override in runners. 8 Run-log step for the control room. 9 Example `.ai/PAUSED` in templates. 10 Method FAQ on stale clones.

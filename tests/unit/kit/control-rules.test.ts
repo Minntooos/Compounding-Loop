@@ -27,9 +27,10 @@ describe('Round 4 rules: pause, run log, stale clone', () => {
   const wf = read('runners', 'github-actions', 'lanes.yml');
   const loopPrompt = read('templates', 'static-site', '.ai', 'loop-prompt.md');
   const siteClaude = read('templates', 'static-site', 'CLAUDE.md');
+  const routine = read('runners', 'routine', 'prompt.md');
 
   it('every lane-aware prompt and template honours .ai/PAUSED', () => {
-    for (const text of [lane, control, section, wf, loopPrompt, siteClaude]) paused(text);
+    for (const text of [lane, control, section, wf, loopPrompt, siteClaude, routine]) paused(text);
   });
 
   it('the lane prompt checks the pause before the stop files', () => {
@@ -37,7 +38,7 @@ describe('Round 4 rules: pause, run log, stale clone', () => {
   });
 
   it('every prompt and template has the stale-clone recovery step', () => {
-    for (const text of [lane, control, section, wf, loopPrompt, siteClaude]) staleClone(text);
+    for (const text of [lane, control, section, wf, loopPrompt, siteClaude, routine]) staleClone(text);
   });
 
   it('logs the run before the final push, not after it', () => {
