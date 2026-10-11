@@ -34,3 +34,7 @@ Round 3 starts here. Brief: IDEA.md "Round 3". Commits carry a `Lane: docs` trai
 ## Handoff (run 1, 2026-10-11)
 Done: unit 1 (Round 3 audit in `.ai/audit/docs.md`), unit 5 (Pages paths include `src/core/**`; ci.yml already runs check-lanes). Local clone had unrelated history to origin/main; reset local main to origin/main (old one kept as local branch `backup-old-main`, not pushed).
 Next: units 2-4, 6 are blocked until core ships `loop next/claim/release` (check 7 would fail on them), web ships the new UI and screenshots, and server/web ship live mode. Re-check `node bin/loop.js --help` and the other outboxes first.
+
+## Handoff (run 2, 2026-10-11 ~06:00 UTC)
+Done: unit 2 (`docs/team.md`, linked from README, lanes.md, getting-started incl. `/loop-next`), CHANGELOG `[Unreleased]` started (unit 4 partly). Verified the claim/refuse behaviour in a temp repo.
+Next: unit 3 (README first screen, new screenshots, live-demo link, FAQ rate-limit line) waits for web's new screenshots and server/web live mode; the rate-limit FAQ must not ship before live mode does. Unit 4: update `launch/*.md` to lead with the live self-build once live mode is on main (also drop the stale "three crossings" FAQ lines if `loop check-lanes` is clean). Unit 6: fresh-install test from a packed tarball. Check other outboxes first.
