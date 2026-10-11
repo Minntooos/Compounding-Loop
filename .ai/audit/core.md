@@ -1,5 +1,17 @@
 # Audit: core
 
+## Round 4 (2026-10-11)
+
+Goal judged: repo state the dashboard reads (PAUSED, run log, ship-check, next-round, CHANGELOG, commit author) and the commands behind its buttons.
+
+| # | Finding | Severity | Fix |
+|---|---|---|---|
+| R4-1 | No `.ai/PAUSED`: owner switches routines on and off one by one | blocker for web/kit | FIXED: `loop pause/resume`, browser-safe `parsePaused`/`isPaused`, `StopMarkers.paused`, `loop run` and `loop status` honour it |
+| R4-2 | Runs leave no record: a skipped or limit-hit run is invisible | blocker for web/server | open: unit 3 (`runs.jsonl`, `loop runs`) |
+| R4-3 | `loop next-round` is single-loop only | major | open: unit 4 |
+| R4-4 | `check-lanes` has no `release`/`control` path rules | major | open: unit 7 |
+| R4-5 | `LoopCommit` has no author, control-room notes not parsed per lane | major | open: unit 6 |
+
 ## Round 3 (2026-10-11)
 
 Goal judged: browser-safe parsers for the live demo, then `loop claim/release/next` for teams.

@@ -6,7 +6,9 @@ import { addAnswerToTask, BUDGET_EXTENSION, extendRunBudget, formatAnswer, isBud
 import { readLoopFacts, readRunCounter } from '../core/repo.js';
 import { buildNextRoundTask, extractNextItems, nextDoneFileName } from '../core/rounds.js';
 import { formatFleet, formatLanes, type FleetRow } from '../core/table.js';
+import { describePaused } from '../core/parse/paused.js';
 import { readLaneStatuses } from './laneStatus.js';
+import { readPaused } from './pause.js';
 
 const execFileAsync = promisify(execFile);
 const git = (cwd: string, ...args: string[]) => execFileAsync('git', args, { cwd });
@@ -19,6 +21,10 @@ export async function runStatus(dirs: string[], now: Date = new Date()): Promise
     rows.push({ name: path.basename(path.resolve(dir)), facts: await readLoopFacts(dir), ...(run && { run }) });
   }
   const blocks = [formatFleet(rows, now)];
+  for (const dir of dirs) {
+    const paused = await readPaused(dir);
+    if (paused) blocks.push(`${path.basename(path.resolve(dir))}: ${describePaused(paused)}. \`loop resume\` continues.`);
+  }
   for (const dir of dirs) {
     const lanes = await readLaneStatuses(dir, now);
     if (lanes) blocks.push(`Lanes in ${path.basename(path.resolve(dir))}:\n${formatLanes(lanes, now)}`);

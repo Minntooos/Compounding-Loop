@@ -41,3 +41,12 @@ describe('claimRule', () => {
     expect(laneIntro('web')).toContain('.ai/lanes/web/claim');
   });
 });
+
+describe('PAUSED_RULE', () => {
+  it('tells a run to stop on .ai/PAUSED, and the lane intro carries it', async () => {
+    const { PAUSED_RULE } = await import('../../../src/core/runPrompt.js');
+    const { laneIntro } = await import('../../../src/cli/run.js');
+    expect(PAUSED_RULE).toContain('.ai/PAUSED');
+    expect(laneIntro('web')).toContain(PAUSED_RULE);
+  });
+});

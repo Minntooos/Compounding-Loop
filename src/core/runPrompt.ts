@@ -20,6 +20,9 @@ export function claimRule(lane: string): string {
   return `Claim: if \`.ai/lanes/${lane}/claim\` exists (one line, \`name · expires <UTC ISO>\`), names someone other than you (compare with \`git config user.name\`; an unattended scheduled run has no name, so any unexpired claim stops it), and its expiry is later than \`date -u\`, a teammate is working this lane: reply "Nothing to do" and stop. An expired claim counts as none; leave the file, \`loop claim\` overwrites it.`;
 }
 
+/** The pause rule (IDEA.md Round 4 B1): `.ai/PAUSED` stops every run like a root DONE.md. */
+export const PAUSED_RULE = 'Pause: if `.ai/PAUSED` exists, the owner paused the loop: reply "Paused" and stop.';
+
 /** Fills `{{name}}`-style placeholders and normalises the ending. */
 export function buildRunPrompt(promptText: string, vars: Readonly<Record<string, string>>): string {
   return `${fillPlaceholders(promptText, vars).trim()}\n`;

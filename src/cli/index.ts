@@ -13,6 +13,7 @@ import { realGh } from './gh.js';
 import { runInit } from './init.js';
 import { runAnswer, runNextRound, runStatus } from './loops.js';
 import { runNew } from './new.js';
+import { runPause, runResume, type PauseResult } from './pause.js';
 import { runRound } from './run.js';
 
 const pkg = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')) as { version: string };
@@ -263,6 +264,40 @@ program
     try {
       const report = await runNext(path.resolve(dir));
       console.log(options.json ? JSON.stringify(report, null, 2) : formatNext(report));
+    } catch (error) {
+      fail(error);
+    }
+  });
+
+const pauseNote = (r: PauseResult) => (r.pushed === false ? `\nCommitted, but the push failed: ${r.pushError}\nFix that (for a rejected push: \`git pull --rebase && git push\`) so the lanes see it.` : '');
+
+program
+  .command('pause')
+  .description('Stop every lane run and the control room: writes .ai/PAUSED, commits (Lane: control) and pushes')
+  .option('--reason <text>', 'why (shown on the dashboard)')
+  .option('--as <name>', 'your name (default: git config user.name)')
+  .option('--no-push', 'commit but do not push')
+  .option('--dir <dir>', 'repo folder', '.')
+  .action(async (options: { reason?: string; as?: string; push: boolean; dir: string }) => {
+    try {
+      const r = await runPause(path.resolve(options.dir), { ...(options.reason && { reason: options.reason }), ...(options.as && { as: options.as }), push: options.push });
+      console.log(r.changed ? `Paused. Scheduled runs now stop at their first step; \`loop resume\` undoes it.${pauseNote(r)}` : `Already paused by ${r.by}.`);
+      if (r.pushed === false) process.exitCode = 1;
+    } catch (error) {
+      fail(error);
+    }
+  });
+
+program
+  .command('resume')
+  .description('Undo `loop pause`: removes .ai/PAUSED, commits (Lane: control) and pushes')
+  .option('--no-push', 'commit but do not push')
+  .option('--dir <dir>', 'repo folder', '.')
+  .action(async (options: { push: boolean; dir: string }) => {
+    try {
+      const r = await runResume(path.resolve(options.dir), { push: options.push });
+      console.log(r.changed ? `Resumed.${pauseNote(r)}` : 'Not paused; nothing to do.');
+      if (r.pushed === false) process.exitCode = 1;
     } catch (error) {
       fail(error);
     }

@@ -58,10 +58,10 @@ describe('parseTaskFile', () => {
 describe('parseStopMarkers', () => {
   it('finds root and lane markers, also with Windows separators', () => {
     const m = parseStopMarkers(['DONE.md', '.ai/lanes/web/DONE.md', '.ai\\lanes\\kit\\BLOCKED.md', '.ai/lanes/docs/task.md', 'src/DONE.md']);
-    expect(m).toEqual({ rootDone: true, rootBlocked: false, doneLanes: ['web'], blockedLanes: ['kit'] });
+    expect(m).toEqual({ rootDone: true, rootBlocked: false, paused: false, doneLanes: ['web'], blockedLanes: ['kit'] });
   });
   it('is empty for no files', () => {
-    expect(parseStopMarkers([])).toEqual({ rootDone: false, rootBlocked: false, doneLanes: [], blockedLanes: [] });
+    expect(parseStopMarkers([])).toEqual({ rootDone: false, rootBlocked: false, paused: false, doneLanes: [], blockedLanes: [] });
   });
 });
 

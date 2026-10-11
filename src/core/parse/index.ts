@@ -11,3 +11,5 @@ export { parseStopMarkers } from './markers.js';
 export type { StopMarkers } from './markers.js';
 export { activeClaim, formatClaim, parseClaim } from './claim.js';
 export type { Claim } from './claim.js';
+export { describePaused, formatPaused, isPaused, parsePaused, PAUSED_FILE } from './paused.js';
+export type { Paused } from './paused.js';

@@ -3,10 +3,12 @@ import { appendFile, mkdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { parseLockTime } from '../core/repo.js';
 import { LOCK_MINUTES } from '../core/status.js';
-import { buildClaudeArgs, buildRunPrompt, claimRule, DEFAULT_PROMPT } from '../core/runPrompt.js';
+import { buildClaudeArgs, buildRunPrompt, claimRule, DEFAULT_PROMPT, PAUSED_RULE } from '../core/runPrompt.js';
 import { parseLanesConfig } from '../core/lanes.js';
 import { packageRoot } from './init.js';
 import { hostname } from 'node:os';
+import { describePaused } from '../core/parse/paused.js';
+import { readPaused } from './pause.js';
 import { lockHolderHost, lockHolderPid, pidAlive, withSessionLock } from './lock.js';
 
 const exists = (file: string) => stat(file).then(() => true, () => false);
@@ -31,7 +33,7 @@ export async function loadPromptText(dir: string, root: string = packageRoot, la
 
 /** Used when no lane prompt file exists: points the generic round prompt at this lane's files. */
 export function laneIntro(lane: string): string {
-  return `You are the **${lane}** lane of a multi-lane loop. Your lane's task file is \`.ai/lanes/${lane}/task.md\` (wherever this prompt says \`.ai/task.md\`, use it), your outbox is \`.ai/lanes/${lane}/outbox.md\`, your lock is \`.ai/lanes/${lane}/session.lock\`, and your stop files are \`.ai/lanes/${lane}/DONE.md\` and \`BLOCKED.md\`. Edit only the paths \`${lane}\` owns in \`.ai/lanes.json\` (plus shared ones), and end every commit message with the trailer line \`Lane: ${lane}\`. ${claimRule(lane)}`;
+  return `You are the **${lane}** lane of a multi-lane loop. Your lane's task file is \`.ai/lanes/${lane}/task.md\` (wherever this prompt says \`.ai/task.md\`, use it), your outbox is \`.ai/lanes/${lane}/outbox.md\`, your lock is \`.ai/lanes/${lane}/session.lock\`, and your stop files are \`.ai/lanes/${lane}/DONE.md\` and \`BLOCKED.md\`. Edit only the paths \`${lane}\` owns in \`.ai/lanes.json\` (plus shared ones), and end every commit message with the trailer line \`Lane: ${lane}\`. ${PAUSED_RULE} ${claimRule(lane)}`;
 }
 
 /** Fails early, with the valid names, when `--lane` is not in `.ai/lanes.json`. */
@@ -187,6 +189,8 @@ export async function runRound(
   const lockNote = `Note from \`loop run\`: it created \`${path.posix.join(...laneDir.split(path.sep), 'session.lock')}\` for this very session. That lock is yours, not another session's: ignore it in the lock step and do not delete it.`;
   const asNote = options.as ? `\nNote from \`loop run\`: you are running as \`${options.as}\`. A claim naming \`${options.as}\` is yours, not a teammate's: ignore it in the claim step.` : '';
   const prompt = `${buildRunPrompt(text, { name: path.basename(path.resolve(dir)), lane: lane ?? '' })}\n${lockNote}${asNote}\n`;
+  const paused = await readPaused(dir);
+  if (paused) return { skipped: `${describePaused(paused)}: nothing to do. Run \`loop resume\` to continue.`, prompt, source };
   const stopFiles = [...(lane ? [path.join(laneDir, 'DONE.md'), path.join(laneDir, 'BLOCKED.md')] : []), 'DONE.md', 'BLOCKED.md'];
   for (const stop of stopFiles) {
     if (await exists(path.join(dir, stop))) return { skipped: `${stop} exists: nothing to do`, prompt, source };

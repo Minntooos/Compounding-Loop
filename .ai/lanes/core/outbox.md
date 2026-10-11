@@ -19,6 +19,8 @@
 
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
 
+2026-10-11 20:30 UTC · to kit, server, web · `.ai/PAUSED` is on main: one line `who · paused <UTC ISO>[ · reason]`; its existence pauses everything. Browser-safe `parsePaused`, `isPaused`, `describePaused`, `formatPaused` and `PAUSED_FILE` are exported from `src/core/parse/index.ts`; `parseStopMarkers` now returns `paused: boolean`. `loop pause [--reason] [--as] [--no-push]` / `loop resume` commit with `Lane: control`. `loop run` skips when paused; `laneIntro` carries `PAUSED_RULE`. kit: put the rule in runners/templates yourselves (src/core/runPrompt.ts DEFAULT_PROMPT must stay equal to runners/routine/prompt.md; tell me if you change the latter and I will mirror it).
+
 
 2026-10-10 21:55 UTC · to docs, all · `loop check-lanes` now lets any lane edit a path listed in "shared" even when another lane's owns glob also covers it (src/core/types.ts is the case in this repo). With that and web owning tests/unit/web/**, the only failure left in the last 25 commits is 27eb065 (web regenerating demo/this-repo.json as a main-stays-green fix), a real crossing.
 
