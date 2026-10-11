@@ -1,6 +1,80 @@
 # IDEA: Compounding Loop
 
-## Round 3 (current): 0.3.0 "Showcase" — the dashboard as the launch, plus teams — started 2026-10-11 04:30 UTC
+## Round 4 (current): 0.4.0 "Control" — the dashboard tells the truth and replaces the chat — started 2026-10-11 20:30 UTC
+
+Round 3 finished (root report `.ai/done-v3.md`; release commit b3b51a5 bumped to 0.3.0 but it was **not published**; 0.4.0 will be the next npm release). The owner reviewed the live demo at 1440 and 375 px against git, the task files, CI and the live sites; that review is this brief. The launch posts wait for this round.
+
+**The new headline:** *Run the loop from the dashboard, not from a chat.* In rounds 1–3 the owner and their local Claude Code went back and forth on the same things every round: "status?", why did a run end in 1 second, switch six routines on and off, start a round, publish (npm tokens were pasted into chat three times), "is it ready to ship?". Each of those becomes a click or a short typed answer in the dashboard. **Principle: the static dashboard acts only by opening prefilled GitHub pages (create/delete a file, the Actions "Run workflow" page). No tokens in the browser, no backend; it works for anyone with write access to the repo.** The local `loop dashboard` may do the same actions directly on disk.
+
+### Step 1 for every lane: a short re-audit (first unit)
+Add a "Round 4" section at the top of `.ai/audit/<lane>.md`: this round's goal judged as a demanding senior specialist would, findings ranked blocker/major/minor with evidence and a one-line fix. Findings in another lane's area go to that lane's outbox. Fix blockers first.
+
+### A. Bugs the owner found on the live demo (each needs a test that fails before the fix)
+1. **Commit history stops at 100 commits.** The chart shows 16 commits on 8 Oct; git has 109, and the timeline loses round 1. Fix: the bundled snapshot carries full history up to its pinned commit; live mode fetches only commits `since` the snapshot's last commit (paging if more than 100), and the two are merged without duplicates.
+2. **"Nothing needs you" is false** while a release waits for the owner. A root `DONE.md` means "round done, release waiting on you": show it in the attention list and as the self card's state.
+3. **Self loop Settings:** "Run limit 0" (lanes have 20: show the per-lane limit from the task files) and "Site" shows the GitHub repo instead of the Pages URL (both come from the live config).
+4. **Contract tab is blank** with no empty message; **Knowledge and Decisions say "none"** although every lane task file has a Decisions section. For a laned loop, show each lane's Contract and Decisions, grouped by lane; every tab has an empty state.
+5. **Health:** a passing check reads "OK · Tests failing" (the label is the check's name). Labels state the result ("Tests pass", "Tests failing"). Times are formatted (`11 Oct 14:53 UTC`), never raw ISO.
+6. **Site cards show 6 Oct numbers under a "Live" header** with no date. Snapshot data always says "snapshot 6 Oct" (date from the data); only live data says Live.
+7. **"Round 3 of 3"** with a full bar reads as finished forever. Show "Round 3 done · 0.3.0" and what's next (release waiting / next round not started).
+8. **Small:** the `api/settings.json` 404 console error on every visit (zero console errors, tested); the release commit is tagged lane "other" (read the `Lane:` trailer first, then the subject prefix; `Release x.y.z` subjects are lane "release"); on the phone the theme button wraps onto its own row.
+9. **Site loops:** show the page count (`pages` is in the data) and a link to the live site on the loop page and card.
+
+### B. Repo state the dashboard reads (core + kit + server)
+1. **Pause:** a file `.ai/PAUSED` (one line: who and when, optional reason) stops every lane run and the control room, like root `DONE.md`. `loop pause [--reason]` / `loop resume` write/remove it and commit with `Lane: control`; `loop status`, `runPrompt.ts`, every runner prompt and template (kit), and this repo's CLAUDE.md honour it. So routines can stay enabled and the repo decides.
+2. **Run log:** at the end of every lane run (success or not), the run appends one JSON line to `.ai/lanes/<lane>/runs.jsonl` (its own folder, so no conflicts): `{"at","lane","session"?,"units":[...],"tests":{"passed","failed"}?,"pushed":true|false,"note"?}`. `loop runs log …` writes a line (runners call it); a browser-safe parser reads it. Expected runs come from each lane's `cron` in `.ai/lanes.json`: a scheduled slot with no line and no commit is shown as **"no run recorded (usage limit, idle or failed)"**; a line with `pushed:false` is "ran, pushed nothing". This also gives tests over time and gives `.ai/last-test.json` a writer (or replaces it; record the choice).
+3. **Lanes-aware next round:** `loop next-round --brief <file>` for a laned repo: puts the brief as IDEA.md's first section (previous "current" heading renamed to finished), archives root and lane `DONE.md` files as `done-vN.md`, resets each lane's task file from the template (Run 0/limit, unit 1 = audit), adds a control-room note, commits with `Lane: control`. `--dry-run` lists the changes. The brief score from `loop init` is shown before writing and in `--json`.
+4. **Ship check:** `loop ship-check [--json]` (not `release`, that name is taken by claims): root `DONE.md` present, open findings listed in it, CHANGELOG has a section for `package.json`'s version or `[Unreleased]` with content, the tag `v<version>` does not exist yet, working tree clean, `npm test` result from the run log. Exit 0 only if ready. Browser-safe pure core so the dashboard can show the same checklist.
+5. **Releases list:** a browser-safe CHANGELOG parser (versions, dates, entries).
+6. **Commit author** on `LoopCommit` (display name only, never email); **control-room summary:** the newest line of `.ai/control-room.md` per lane (newest `to <lane|all>` note).
+7. **`check-lanes`:** a commit with `Lane: release` may touch only `package.json`, `package-lock.json`, `plugin/**/plugin.json` and `CHANGELOG.md`; `Lane: control` may touch `.ai/**`, `IDEA.md` and root `DONE.md`.
+8. **Stale-clone recovery** in the kit's lane prompt templates and runners: if `git pull --ff-only` fails because the clone started from an old copy, `git fetch origin main`, work on a branch from `origin/main`, push with `HEAD:main`; never blame a force-push without checking `git log origin/main`.
+
+### C. The dashboard replaces the back-and-forth (web, data from server)
+Each row is a must-have; the "GitHub link" builders are pure functions of the repo slug in the static config, unit-tested.
+| Back-and-forth (rounds 1–3) | Dashboard replacement |
+|---|---|
+| "status?" → RemoteTrigger list, list_runs, get_run_log, git log | **Runs tab** on the loop page: per lane, each run's time, outcome (pushed / nothing pushed / no run recorded / failed tests), units, commits, tests. Fleet card: the newest run outcome in its one status line. |
+| Runs ending in about 1 s (shared five-hour limit), diagnosed by reading logs | Missing scheduled runs shown as "no run recorded" with the next expected slot; three or more in a row raise an attention item ("lanes are not running: check your plan's usage limit"). |
+| Turning six routines on and off one at a time | **Pause all / Resume** button: on the static demo it opens GitHub's "new file" page prefilled with `.ai/PAUSED` (Pause) or the file's delete page (Resume); locally it runs `loop pause/resume`. The card shows "Paused by X since HH:MM". |
+| Starting a round (brief, archive, reset, enable, "go") | **Start next round**: a text box for the brief with the live brief score; on the static demo it opens GitHub's "new file" page prefilled with `.ai/next-round.md`, and a workflow (docs) runs `loop next-round --brief .ai/next-round.md` on that push, deletes the file and commits. Locally it runs the command. |
+| Release: bump, CHANGELOG, test, pack, publish, tag; tokens pasted in chat | **Release** button that opens the Actions "Run workflow" page of `release.yml` (docs): npm **trusted publishing** (OIDC, `id-token: write`, `npm publish --provenance`), no token anywhere, behind a GitHub environment `release` that the owner protects with a required reviewer. The dashboard shows the ship-check list and the last release run's result. |
+| "Is it ready to ship?" | **Ready to ship** panel when root `DONE.md` exists: the ship-check items, open findings from `DONE.md`, the CHANGELOG entry, links to the `launch/` drafts with Copy buttons. |
+| A stale clone made a run blame a force-push | Runs that pushed nothing are flagged (above); the recovery step is in the templates (B8). |
+| Who pushed what (unknown identity, a teammate's local runner) | Commit author on the timeline next to the lane. |
+| Overnight monitoring by a session cron that dies with the session | The control room's newest note per lane on the self card and loop page. |
+| Answering a BLOCKED.md | On the static demo, the Inbox links to GitHub's web editor for that file; locally the Inbox stays as it is. |
+| `gh auth refresh -s workflow` and other one-time setup | `loop doctor` output on the Health page (local server; the static demo shows "run `npx compounding-loop doctor` locally"). |
+
+### D. Where detail goes
+- **Fleet card = a 5-second glance:** state word + icon, one line on what's happening or what's needed, progress, last activity (absolute time). No charts, no tables.
+- **Loop page (opt-in detail):** existing tabs, plus **Runs**, **Tests** (count over time from the run log, last failure with its commit), **Releases** (versions with their CHANGELOG entries), and for site loops: pages, live-site link, Search Console clicks/impressions only when the local server has a key configured (never in the static demo).
+- Everything stays to `web/DESIGN.md`; extend it (Runs, Releases, Ready-to-ship, action buttons) before building them.
+
+### E. Docs and workflows (docs)
+- `.github/workflows/release.yml`: `workflow_dispatch` only, `environment: release`, `permissions: contents: write, id-token: write`; steps: checkout, Node 24, `npm ci`, `npm test` (or the CI-equivalent subset, recorded), `loop ship-check`, fail if the version is already on npm, `npm publish --provenance --access public` (trusted publishing; no `NODE_AUTH_TOKEN`), tag `v<version>`, GitHub release from the CHANGELOG section. A dry-run input that stops before publishing.
+- `.github/workflows/next-round.yml`: on push to `main` touching `.ai/next-round.md`: run `loop next-round --brief .ai/next-round.md`, delete the file, commit with `Lane: control`, push. Ignore pushes where the file is absent.
+- `docs/release.md`: the owner's one-time setup in plain steps (npmjs.com → package → Trusted publisher: GitHub Actions, repo, `release.yml`, environment `release`; GitHub → Settings → Environments → `release` → required reviewer), then "click Release". `docs/dashboard.md`: what every button does and what it changes in the repo.
+- README: the dashboard can run the loop (pause, next round, release) with no tokens; CHANGELOG `[Unreleased]` lists 0.4.0 (keep the `[0.3.0]` section; 0.3.0 was never published, say so honestly in 0.4.0's notes); `launch/` drafts mention the controls.
+
+### Round 4 done when
+- `npm test` passes on a clean clone and on CI's three jobs (ubuntu Node 20 and 24, windows Node 24).
+- Every lane's audit has a Round 4 section with no open blocker; every bug in A has a regression test.
+- e2e with GitHub responses mocked through Playwright routing (no real network) prove: full history beyond 100 commits (snapshot + live merge), "release waiting on you" in the attention list when root `DONE.md` exists, the Runs tab with each outcome (pushed, nothing pushed, no run recorded), Pause/Resume/Start next round/Release open the exact prefilled GitHub URLs, Ready to ship shows the ship-check items, zero console errors.
+- axe: zero serious/critical violations on every screen including the new ones, both themes, 1440 and 375 px; no horizontal scroll and no wrapped header controls at 375 px.
+- `loop pause/resume/runs/ship-check/next-round --brief` are unit-tested (including `--json` shapes and `--dry-run`); every runner prompt and template is tested to contain the PAUSED rule, the run-log step and the stale-clone step.
+- `release.yml` and `next-round.yml` pass `actionlint` (or a YAML + structure test if actionlint is unavailable) and a test asserts `release.yml` has no token secret, has `id-token: write`, `environment: release` and `workflow_dispatch` only.
+- An independent reviewer subagent checks every new screen against `web/DESIGN.md`; result recorded in `.ai/audit/web.md`. New after-screenshots in `docs/assets/screens/`.
+- JS bundle under 300 kB gzip. Fresh-install test (README quick start, `docs/team.md`, `docs/release.md` dry run) from a packed tarball in an empty temp dir. `npm pack --dry-run` follows the round 1 rules.
+- **Do not change `version`, do not publish, and never dispatch `release.yml` or create tags.** Lanes do not change repo settings, environments or npm settings. The owner's local Claude Code releases 0.4.0 after root `DONE.md`.
+
+**Deadline:** 2026-10-14 18:00 UTC. After that, start no new unit: finish what's open and write DONE.
+
+**Out of scope:** a hosted backend or database, accounts, tokens or OAuth in the browser, analytics or tracking, non-Claude agents, new site templates, npm publish, posting the launch, repo settings changes, enabling or disabling routines.
+
+---
+
+## Round 3 (finished 2026-10-11; bumped to 0.3.0 in b3b51a5, not published, folded into 0.4.0): 0.3.0 "Showcase" — the dashboard as the launch, plus teams — started 2026-10-11 04:30 UTC
 
 0.2.0 is published on npm (2026-10-11, tag `v0.2.0`). The launch (one Show HN, then Reddit/X/LinkedIn/dev.to) waits for this round: the owner posts only after looking at the finished dashboard. Round 2's report is `.ai/done-v2.md`.
 

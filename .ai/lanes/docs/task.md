@@ -1,20 +1,20 @@
-# Lane: docs — round 3 (0.3.0 "Showcase")
+# Lane: docs — round 4 (0.4.0 "Control")
 
-Run: 8 / 20
-Status: units 1-6 done; reviewed; DONE written
-Round 2 record: `.ai/lanes/docs/done-v2.md` (`git show 084bb9f:.ai/lanes/docs/task.md` for its Decisions).
+Run: 0 / 20
+Status: not started
+Round 3 record: `.ai/lanes/docs/done-v3.md` (`git show b3b51a5:.ai/lanes/docs/task.md` for its Decisions).
 
 ## Contract
-**Goal:** a visitor understands the product from the README's first screen and can watch it build itself; a teammate can join with one page (IDEA.md Round 3 must-haves 5 and 6).
-**Done when:** `npm test` passes; Round 3 audit section with no open blocker; README/docs checks pass; the fresh-install test (README quick start + `docs/team.md`, word for word, from a packed tarball in an empty temp dir) is recorded in `.ai/audit/docs.md`.
-**Out of scope:** the UI itself (web), CLI behaviour (core).
+**Goal:** the release and next-round workflows, and pages that explain every dashboard control (IDEA.md Round 4 E).
+**Done when:** `npm test` passes; Round 4 audit section with no open blocker; workflow structure tests pass (no token secret in `release.yml`, `id-token: write`, `environment: release`, `workflow_dispatch` only, dry-run input); the fresh-install test (README quick start, `docs/team.md`, `docs/release.md` dry run) from a packed tarball in an empty temp dir is recorded in `.ai/audit/docs.md`.
+**Out of scope:** the UI (web), CLI behaviour (core). Never dispatch a workflow, create a tag, or change repo, environment or npm settings.
 
 ## Units, in order
-1. Round 3 re-audit (`.ai/audit/docs.md`).
-2. `docs/team.md` ("Work on a loop with a teammate", five steps) once core's `loop claim/next` land; linked from the README. Start the outline from IDEA.md now.
-3. README first screen: the live demo link ("watch this repo build itself"), new screenshots from web, the team workflow, an FAQ line on GitHub's 60 requests/hour limit and the snapshot fallback.
-4. `launch/` drafts updated to lead with the live self-build; CHANGELOG `[Unreleased]` for 0.3.0.
-5. Pages workflow paths include `src/core/**`; keep CI's lane check.
+1. Round 4 re-audit (`.ai/audit/docs.md`).
+2. `.github/workflows/release.yml` (IDEA.md E) with a dry-run input, plus a test that parses it and asserts the rules above (`actionlint` too if it is available in CI without network).
+3. `.github/workflows/next-round.yml` (on push touching `.ai/next-round.md`; uses core's `loop next-round --brief`), tested the same way.
+4. `docs/release.md` (owner's one-time setup: npm trusted publisher + `release` environment with a required reviewer, then "click Release") and `docs/dashboard.md` (every button, what it opens, what it changes in the repo).
+5. README (the dashboard runs the loop with no tokens), CHANGELOG `[Unreleased]` for 0.4.0 (honest note that 0.3.0 was never published), `launch/` drafts mention the controls; Pages workflow still deploys on `web/**`, `demo/**`, `src/server/**`, `src/core/**`.
 6. Fresh-install test, then audit majors.
 
 ## Decisions
@@ -27,37 +27,4 @@ Round 2 record: `.ai/lanes/docs/done-v2.md` (`git show 084bb9f:.ai/lanes/docs/ta
 
 ## Don't
 - Edit paths another lane owns, except for the "main stays green" fix.
-
-## Handoff
-Round 3 starts here. Brief: IDEA.md "Round 3". Commits carry a `Lane: docs` trailer.
-
-## Handoff (run 1, 2026-10-11)
-Done: unit 1 (Round 3 audit in `.ai/audit/docs.md`), unit 5 (Pages paths include `src/core/**`; ci.yml already runs check-lanes). Local clone had unrelated history to origin/main; reset local main to origin/main (old one kept as local branch `backup-old-main`, not pushed).
-Next: units 2-4, 6 are blocked until core ships `loop next/claim/release` (check 7 would fail on them), web ships the new UI and screenshots, and server/web ship live mode. Re-check `node bin/loop.js --help` and the other outboxes first.
-
-## Handoff (run 2, 2026-10-11 ~06:00 UTC)
-Done: unit 2 (`docs/team.md`, linked from README, lanes.md, getting-started incl. `/loop-next`), CHANGELOG `[Unreleased]` started (unit 4 partly). Verified the claim/refuse behaviour in a temp repo.
-Next: unit 3 (README first screen, new screenshots, live-demo link, FAQ rate-limit line) waits for web's new screenshots and server/web live mode; the rate-limit FAQ must not ship before live mode does. Unit 4: update `launch/*.md` to lead with the live self-build once live mode is on main (also drop the stale "three crossings" FAQ lines if `loop check-lanes` is clean). Unit 6: fresh-install test from a packed tarball. Check other outboxes first.
-
-## Handoff (run 3, 2026-10-11 ~07:00 UTC)
-Done: unit 3 except screenshots (README leads with "Watch this repo build itself", snapshot/rate-limit FAQ), unit 4 (launch FAQ now honest: check-lanes flags one commit; Show HN leads with live demo; CHANGELOG), `/loop-lanes` in getting-started, unit 6 (fresh-install recorded in .ai/audit/docs.md).
-Next: when web ships new screenshots (their unit 9), swap them into README and docs/assets/screens, then run the retro and write DONE.md (read outboxes first). Local main had unrelated history again at run start; `git reset --hard origin/main` fixed it.
-
-## Handoff (run 4, 2026-10-11 ~08:00 UTC)
-Nothing new to do: web unit 9 (new screenshots) has not landed (web Run 4/20, unit 9 last; control room asked web for self-card fixes first). Local main had diverged from origin again; `git reset --hard origin/main` fixed it (old state kept as local branch `backup-stale-main`).
-Next: when web ships screenshots, swap them into README and docs/assets/screens, run the retro, write DONE.md (read outboxes first).
-
-## Handoff (run 5, 2026-10-11 ~09:00 UTC)
-Nothing new to do: web is still at Run 4/20 with no screenshots commit since run 4 (unit 9 not landed). Local main had diverged again; `git reset --hard origin/main` fixed it (old state kept as local branch `stale-local-main`).
-Next: unchanged from run 4 (swap in web's screenshots, retro, DONE.md after reading outboxes).
-
-## Handoff (run 6, 2026-10-11 ~10:00 UTC)
-Nothing new to do: web is at Run 5/20, unit 9 (screenshots) still last and not landed (no change under docs/assets since 0.2.0). Local main had diverged again; used `git switch -c lane-run FETCH_HEAD` and pushed with `HEAD:main`. No code changed, so `npm test` was not re-run.
-Next: unchanged (swap in web's screenshots, retro, DONE.md after reading outboxes).
-
-## Handoff (run 7, 2026-10-11 ~11:00 UTC)
-Web unit 9 landed (97233f6): docs/assets/screens/*-laptop.png were refreshed in place, so the README's two images already show the new UI; added a self-build shot `self-*-laptop.png` (full-page, 3890 px tall, too long for README, left out). docs/dashboard.md now uses fleet-light-laptop.png. `npm test` green (120 e2e).
-Next: run the retro, read outboxes, have a reviewer check README against IDEA.md Round 3 must-haves 5 and 6, then write `.ai/lanes/docs/DONE.md` (with 10 next improvements). docs/render-screenshot.mjs still mentions the old dashboard.png.
-
-## Handoff (run 8, 2026-10-11 ~12:00 UTC)
-Retro done. Removed stale docs/render-screenshot.mjs and dashboard.png (unreferenced); docs/dashboard.md gained Lanes and Live demo bullets after reviewer feedback. `npm test` green. Lane DONE.
+- Change `version`, publish, dispatch `release.yml`, create tags, or change repo/npm settings.

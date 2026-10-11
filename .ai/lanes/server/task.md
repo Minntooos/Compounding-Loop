@@ -1,25 +1,22 @@
-# Lane: server — round 3 (0.3.0 "Showcase")
+# Lane: server — round 4 (0.4.0 "Control")
 
-Run: 2 / 20
-Status: DONE (run 2): all units done, npm test green
-Round 2 record: `.ai/lanes/server/done-v2.md` (`git show 084bb9f:.ai/lanes/server/task.md` for its Decisions).
+Run: 0 / 20
+Status: not started
+Round 3 record: `.ai/lanes/server/done-v3.md` (`git show b3b51a5:.ai/lanes/server/task.md` for its Decisions).
 
 ## Contract
-**Goal:** the live data path for the demo and a self-build snapshot that tells the story (IDEA.md Round 3 must-haves 2 and 3).
-**Done when:** `npm test` passes; Round 3 audit section with no open blocker; `src/server/live/**` is pure, browser-safe and unit-tested against recorded GitHub response fixtures (scrubbed: no emails, no author names).
-**Out of scope:** fetching and caching in the browser, UI (web).
+**Goal:** the data behind every Round 4 screen, live and local, correct (IDEA.md Round 4 A1-A9 data side, B, C, D).
+**Done when:** `npm test` passes; Round 4 audit section with no open blocker; every mapper is pure, browser-safe and unit-tested against scrubbed fixtures; `.ai/contracts.md` documents every new field and endpoint.
+**Out of scope:** fetching, caching and rendering in the browser (web), CLI commands (core).
 
 ## Units, in order
-1. Round 3 re-audit (`.ai/audit/server.md`).
-2. Self-build snapshot covering rounds 1 and 2 (pin 084bb9f), round/test/live fields that read like a story; update `demo/build-self.mjs` and its tests.
-3. `src/server/live/**`: pure mappers from GitHub commits API, Actions runs API and raw file contents to the dashboard's existing API types (loop summary, lanes, timeline, inbox), using core's browser-safe parsers. Export the list of URLs the browser must fetch (a pure function of the repo slug) so web can call it. Add the shape to `.ai/contracts.md`.
-4. Static export: a `live.json` config (`{ "repo": "Minntooos/Compounding-Loop", "loop": "<self loop id>" }`) and a CSP whose `connect-src` allows exactly `https://api.github.com` and `https://raw.githubusercontent.com`; the local server CSP is unchanged (test both).
-5. Claims in the API types and reader (after core's unit 5). Then audit majors.
+1. Round 4 re-audit (`.ai/audit/server.md`).
+2. Self-build snapshot through round 3 (pin b3b51a5) with **full commit history**, and live `since`-the-snapshot commit URLs (paged) plus a pure merge without duplicates (A1). Commit author display name (no emails) in snapshot and live.
+3. Data fixes: root DONE.md → "release waiting on you" attention item and state (A2); per-lane run limit and Pages URL in settings (A3); per-lane Contract and Decisions for laned loops (A4); health labels that state the result and formatted proof times (A5); `snapshotAt` on every snapshot loop so the UI can say "snapshot 6 Oct" (A6); round state "Round N done · version, next: …" (A7); `api/settings.json` in the static export (A8); lane from the `Lane:` trailer, then subject prefix, `Release x.y.z` = release (A8); site pages + live URL in the summary (A9).
+4. Runs: map `runs.jsonl` + cron slots + commits (grouped by `Claude-Session:` trailer when present) to a `LoopRun[]` with outcome pushed / nothing pushed / no run recorded / failed tests; attention item after three missing slots in a row. Live and local.
+5. PAUSED state, control-room newest note per lane, releases from CHANGELOG, ship-check items (core's pure function), and pure GitHub URL builders from the repo slug: new-file prefill (`.ai/PAUSED`, `.ai/next-round.md`), delete-file, web-editor for a file, Actions "Run workflow" page for `release.yml`, latest `release.yml` run. Local server: `loop doctor` output endpoint and direct pause/resume/next-round actions (POST, same-origin, the existing CSRF/token rules), Search Console only when a key is configured locally. Then audit majors.
 
 ## Decisions
-- Fixtures in tests/unit/server/fixtures/live are hand-written to the documented GitHub API shape (no network in cloud runs), with no names or emails.
-- Moved `laneChecks` to src/server/laneChecks.ts and `bulletsUnder`/`contractFromTask` to src/server/taskBullets.ts so live/ stays browser-safe; old modules re-export them.
-- CSP for the hosted demo is a meta tag written by demo/export-static.mjs into demo/static/index.html (workflow already copies demo/static over dist/web).
 
 ## Confirmed
 
@@ -29,12 +26,4 @@ Round 2 record: `.ai/lanes/server/done-v2.md` (`git show 084bb9f:.ai/lanes/serve
 
 ## Don't
 - Edit paths another lane owns, except for the "main stays green" fix.
-
-## Handoff
-Round 3 starts here. Brief: IDEA.md "Round 3". Commits carry a `Lane: server` trailer.
-
-## Handoff (run 1)
-Units 1-4 done; unit 5 claims are already in types/reader (core) and the live mapper. Remaining: confirm web's live fetch uses `src/server/live` and field gaps web reports in its outbox; `tests` result for the self loop is not in the snapshot (no count recorded at the pin). Done: units 1, 2, 3, 4, 5.
-
-## Handoff (run 2)
-Fresh pull green; contract passes; wrote DONE.md. Local main had been an unrelated stale history; reset to origin/main.
+- Change `version`, publish, dispatch `release.yml`, create tags, or change repo/npm settings.

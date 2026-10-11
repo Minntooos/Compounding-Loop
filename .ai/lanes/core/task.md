@@ -1,37 +1,31 @@
-# Lane: core — round 3 (0.3.0 "Showcase")
+# Lane: core — round 4 (0.4.0 "Control")
 
-Run: 3 / 20
-Status: units 1-6 done, audit closed, DONE written
-Round 2 record: `.ai/lanes/core/done-v2.md` (`git show 084bb9f:.ai/lanes/core/task.md` for its Decisions).
+Run: 0 / 20
+Status: not started
+Round 3 record: `.ai/lanes/core/done-v3.md` (`git show b3b51a5:.ai/lanes/core/task.md` for its Decisions).
 
 ## Contract
-**Goal:** browser-safe parsers for the live demo, and the team commands (IDEA.md Round 3 must-haves 2 and 5).
-**Done when:** `npm test` passes; Round 3 audit section with no open blocker; every item below has unit tests.
-**Out of scope:** UI, runner prompt files outside `src/core/runPrompt.ts`.
+**Goal:** the repo state the dashboard reads and the commands behind its buttons (IDEA.md Round 4 B1-B7).
+**Done when:** `npm test` passes; Round 4 audit section with no open blocker; every command and parser below has unit tests, including `--json` shapes and `--dry-run`.
+**Out of scope:** UI (web), runner prompt files outside `src/core/runPrompt.ts` (kit), GitHub response mapping (server).
 
 ## Units, in order
-1. Round 3 re-audit (`.ai/audit/core.md`).
-2. Browser-safe pure parsers (no `node:` imports, no fs): lanes.json (reuse the validator), task file (run N/LIMIT, Status, Handoff first line), DONE/BLOCKED presence from a file list, `Lane:` trailer from a commit message. Put them where web and server can both import them (e.g. `src/core/parse/**`); a unit test fails if any file there imports `node:`. Tell server and web the exports in your outbox.
-3. `loop claim <lane> [--as <name>] [--minutes 90]` + `loop release <lane>`: write/remove `.ai/lanes/<lane>/claim` (`name · expires <UTC ISO>`), commit with `Lane: <lane>`, push (`--no-push` for tests); default name from `git config user.name`. Expired = none. Refuse to overwrite someone else's unexpired claim without `--force`.
-4. `loop next [--json]`: open units per lane from task files (items in "Units, in order" not yet done per the Handoff), claims, DONE lanes skipped, one recommended unclaimed unit. Stable `--json` shape documented in `src/core/types.ts`.
-5. Claims in `loop status` (lane block) and in the repo reader the server uses (add a `claim` field to the lane type; tell server).
-6. `runPrompt.ts`: the claim rule (CLAUDE.md Round 3 bullet). Then audit majors, then round 2 leftovers from `.ai/done-v2.md` (stale lock after SIGKILL, `.ai/last-test.json` writer) by value.
+1. Round 4 re-audit (`.ai/audit/core.md`).
+2. `.ai/PAUSED`: `loop pause [--reason]` / `loop resume` (commit with `Lane: control`, push; `--no-push` for tests), `loop status` shows it, `runPrompt.ts` stops on it like root DONE.md. Browser-safe `isPaused`/`parsePaused` in `src/core/parse/**`. Tell kit and server in your outbox early.
+3. Run log: `loop runs log --lane <l> [--units ..] [--passed N --failed N] [--pushed|--no-pushed] [--note ..]` appends to `.ai/lanes/<lane>/runs.jsonl`; `loop runs [--json]` lists them with expected-but-missing cron slots from `.ai/lanes.json`. Browser-safe parser + a pure `expectedSlots(cron, from, to)` (no new dependency unless recorded). Decide `.ai/last-test.json` (writer or replace) with server; record it.
+4. Lanes-aware `loop next-round --brief <file> [--dry-run] [--json]` (IDEA.md B3), brief score shown first.
+5. `loop ship-check [--json]` with a browser-safe pure checklist function (IDEA.md B4); browser-safe CHANGELOG parser (B5).
+6. `LoopCommit.author` (display name, never email) and a browser-safe `latestControlNotes(controlRoomMd)` per lane (B6), added to `src/core/types.ts` additively; tell server.
+7. `check-lanes`: `Lane: release` and `Lane: control` rules (B7), tested. Then audit majors, then minors in `.ai/done-v3.md` (stale lock after SIGKILL) by value.
 
 ## Decisions
 
 ## Confirmed
 
 ## Guesses
-- GUESS: the `.ai/last-test.json` writer belongs in `loop run` (run the project test command after the round and record `{"passed","failed"}`) or a tiny `npm test` wrapper; server reads it at src/server/health.ts:127. Decide with server before building.
 
 ## Tried
 
 ## Don't
 - Edit paths another lane owns, except for the "main stays green" fix.
-
-## Handoff
-Run 1 shipped units 1-6 (6 = `claimRule(lane)` in runPrompt.ts, used by `laneIntro`; 4 = `loop next` + `planNext` in src/core/next.ts, `doneUnits` reads "units 1-3 done"/"Done: unit 1" from Status and newest Handoff; 5 = `LaneStatus.claim` + CLAIM column; 3 = `loop claim`/`release`, `parseClaim`/`activeClaim`/`formatClaim` in src/core/parse/claim.ts): Round 3 audit and `src/core/parse/` (task, markers, re-exports; node:-free test). Reviewer fixed: newest Handoff section wins.
-Run 2: `loop run --as <name>` (kit's request) adds a run note that a claim by that name is the runner's own. Also session.lock now has pid + host lines (stale at once only on the same host; reviewer finding). Audit R3-2/R3-3 closed. Known gap: only `loop run` reads the pid; dashboard/agent prompts use the 90-min timestamp (idea: share via src/core/parse). Contract done-when passes; next run: confirm and write DONE.md. Idea: `loop next` could prefer stalled lanes others depend on. Main was green at start (a stale local main had to be `git reset --hard origin/main`: local history was unrelated).
-Commits carry a `Lane: core` trailer.
-
-Run 3: main green (120 e2e pass); contract done-when passes; wrote DONE.md. Local main was stale again; used `git checkout -B main origin/main`.
+- Change `version`, publish, dispatch `release.yml`, create tags, or change repo/npm settings.

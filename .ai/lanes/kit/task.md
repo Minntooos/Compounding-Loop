@@ -1,19 +1,20 @@
-# Lane: kit — round 3 (0.3.0 "Showcase")
+# Lane: kit — round 4 (0.4.0 "Control")
 
-Run: 6 / 20
-Status: DONE (see DONE.md). Remaining done-v2 leftovers blocked on core or the release.
-Round 2 record: `.ai/lanes/kit/done-v2.md` (`git show 084bb9f:.ai/lanes/kit/task.md` for its Decisions).
+Run: 0 / 20
+Status: not started
+Round 3 record: `.ai/lanes/kit/done-v3.md` (`git show b3b51a5:.ai/lanes/kit/task.md` for its Decisions).
 
 ## Contract
-**Goal:** every runner and template honours claims, and the method explains working with a teammate (IDEA.md Round 3 must-have 5).
-**Done when:** `npm test` passes; Round 3 audit section with no open blocker; tests assert the claim rule is in every lane prompt and template.
-**Out of scope:** CLI code (core), docs site pages (docs).
+**Goal:** every runner and template honours `.ai/PAUSED`, writes a run-log line, and recovers from a stale clone (IDEA.md Round 4 B1, B2, B8).
+**Done when:** `npm test` passes; Round 4 audit section with no open blocker; tests assert the PAUSED rule, the run-log step and the stale-clone step are in every lane prompt, runner and template.
+**Out of scope:** CLI code (core), workflows under `.github/` (docs).
 
 ## Units, in order
-1. Round 3 re-audit (`.ai/audit/kit.md`).
-2. Claim rule in `runners/routine/` lane prompt, the GitHub Actions lanes workflow (skip a lane whose claim names someone else and has not expired), the local runners, and the lane section the templates write into CLAUDE.md/AGENTS.md. Tests.
-3. Method: a "Working with teammates" section in the lanes chapter (clone, `loop next`, claim, run, release; nothing private is handed over; `.ai/` is the shared memory). Plugin: a `/loop-next` command if it fits the plugin's existing pattern.
-4. Audit majors, then round 2 leftovers in `.ai/done-v2.md` by value.
+1. Round 4 re-audit (`.ai/audit/kit.md`).
+2. PAUSED rule in `runners/routine/` lane and control-room prompts, the GitHub Actions lanes workflow (skip all lanes while `.ai/PAUSED` exists), the local runners, and the lane section templates write into CLAUDE.md/AGENTS.md. Tests.
+3. Run-log step: every lane prompt ends a run (success, nothing to do after work, or failure) with `loop runs log …` (core's unit 3; until it lands, the documented JSON line written by hand) and commits it with the run's last commit. Tests.
+4. Stale-clone recovery step 0 (IDEA.md B8) in every lane prompt and runner. Tests.
+5. Method: "Controlling a loop" in the lanes chapter (pause, next round, release from the dashboard; what each changes in the repo). Plugin: `/loop-pause` and `/loop-ship-check` commands if they fit the existing pattern. Then audit majors, then `.ai/done-v3.md` leftovers by value.
 
 ## Decisions
 
@@ -25,6 +26,4 @@ Round 2 record: `.ai/lanes/kit/done-v2.md` (`git show 084bb9f:.ai/lanes/kit/task
 
 ## Don't
 - Edit paths another lane owns, except for the "main stays green" fix.
-
-## Handoff
-Run 5: lane-aware retro (method/retro.md "In a lane") and lane task template handoff wording shipped, tested. Units 1-3 done; unit 4 partly done (/loop-lanes, systemd, retro/handoff). Remaining done-v2 leftovers: control-room job in lanes.yml, app-with-lanes template (needs core to exclude from listTemplates), pin version in CI snippets after release. Note: sandbox clone's local main had unrelated stale history; `git reset --hard origin/main` at run start fixed it. Reviewer subagent skipped this run (text-only change, tests assert it).
+- Change `version`, publish, dispatch `release.yml`, create tags, or change repo/npm settings.
