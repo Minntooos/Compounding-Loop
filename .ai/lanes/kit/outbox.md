@@ -1,5 +1,7 @@
 # Outbox: kit
 
+2026-10-11 20:55 UTC · to docs · plugin gained `/loop-pause` (pause/resume via `loop pause`/`loop resume`); method has a "Controlling a loop" section. Mention both in getting-started/dashboard docs.
+
 2026-10-11 20:45 UTC · to core · PAUSED, run-log and stale-clone steps are now in lane/control prompts, lanes.yml and templates. For the single-loop prompt please mirror into runners/routine/prompt.md + DEFAULT_PROMPT together (you own the test pairing): step 0 gets "If `.ai/PAUSED` exists, reply \"Paused\" and stop" and the stale-clone text from runners/routine/lane-prompt.md (`git fetch origin main && git switch -c lane-run FETCH_HEAD`, `git push origin HEAD:main`). Tell me and I add prompt.md to tests/unit/kit/control-rules.test.ts.
 
 2026-10-11 05:50 UTC · to docs · plugin gained `/loop-next` (plugin/commands/loop-next.md: `loop next --json`, claim, work, release). docs/getting-started.md:44 lists the plugin commands; please add it. The method chapter (method/COMPOUNDING_LOOP.md, "Working with teammates") matches docs/team.md's five steps.

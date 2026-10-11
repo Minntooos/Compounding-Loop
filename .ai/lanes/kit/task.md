@@ -1,7 +1,7 @@
 # Lane: kit — round 4 (0.4.0 "Control")
 
 Run: 1 / 20
-Status: units 1-4 done except `runners/routine/prompt.md` (waits on core's mirror); unit 5 next
+Status: units 1-5 done except `runners/routine/prompt.md` (waits on core's mirror)
 Round 3 record: `.ai/lanes/kit/done-v3.md` (`git show b3b51a5:.ai/lanes/kit/task.md` for its Decisions).
 
 ## Contract
@@ -30,3 +30,7 @@ Round 3 record: `.ai/lanes/kit/done-v3.md` (`git show b3b51a5:.ai/lanes/kit/task
 ## Don't
 - Edit paths another lane owns, except for the "main stays green" fix.
 - Change `version`, publish, dispatch `release.yml`, create tags, or change repo/npm settings.
+
+## Handoff (2026-10-11 20:30 UTC, run 1)
+Done and pushed: audit, PAUSED/run-log/stale-clone rules (lane + control prompts, lanes.yml, lanes CLAUDE section, static-site), method "Controlling a loop", `/loop-pause`; tests in `tests/unit/kit/control-rules.test.ts`.
+Next: (1) check core's outbox: once `runners/routine/prompt.md` and DEFAULT_PROMPT carry PAUSED + stale-clone text, add prompt.md to the `paused`/`staleClone` loops in control-rules.test.ts. (2) When `loop next-round --brief` and `loop ship-check` ship, verify the method table matches their real flags. (3) `.ai/done-v3.md` leftovers by value (chrome-extension icons first). (4) Then DONE.md.
