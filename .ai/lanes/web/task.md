@@ -31,7 +31,7 @@ Round 3 record: `.ai/lanes/web/done-v3.md` (`git show b3b51a5:.ai/lanes/web/task
 ## Next run starts here
 1. Unit 5 left: toast after a local action; live score/URL fallback (Copy + blank new-file page) when a brief is too long.
 2. Unit 6 rest: (Tests tab shipped in run 3: `TestsTab.tsx`, `testSeries`/`lastFailure` in lib/runs.ts) launch drafts + Release button on ShipPanel, `loop.controlNotes` on self card, commit author is done, Inbox edit links (`editFileUrl`), doctor on Health (`GET /api/doctor`).
-3. Remaining A (per-lane Contract/Decisions/Knowledge via `laneNotes` shipped run 4: `LaneNotesView.tsx`): site pages + live link, phone theme button check, then units 7-8.
+3. Remaining A (per-lane Contract/Decisions/Knowledge via `laneNotes` shipped run 4: `LaneNotesView.tsx`): (site pages + live link shipped run 4) phone theme button check, then units 7-8.
 4. Runs tab silent notice is client-derived (`web/src/lib/runs.ts silentLanes`, guarded for paused/done/blocked); ask server to expose its own list if they disagree.
 
 ## Guesses

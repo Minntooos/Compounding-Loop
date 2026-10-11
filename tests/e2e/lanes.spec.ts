@@ -219,3 +219,15 @@ test('Contract, Decisions and Knowledge group by lane, with an empty state per l
   const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
   expect(violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')).toEqual([]);
 });
+
+test('a site loop shows its page count and a live-site link', async ({ page }) => {
+  await page.route('**/api/loops/proj2', async (route) => {
+    const res = await route.fetch();
+    const loop = (await res.json()) as Record<string, unknown>;
+    await route.fulfill({ response: res, json: { ...loop, pages: 55, url: 'https://example.com/site' } });
+  });
+  await page.goto('/#/loop/proj2');
+  const line = page.getByTestId('site-line');
+  await expect(line).toContainText('55 pages');
+  await expect(line.getByRole('link', { name: /Visit live site/ })).toHaveAttribute('href', 'https://example.com/site');
+});

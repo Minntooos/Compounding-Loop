@@ -91,6 +91,12 @@ export function LoopDetail({ id }: { id: string }) {
           <div className="w-48 max-w-full"><ProgressBar label="Run budget" value={Math.min(loop.run, loop.runLimit)} max={loop.runLimit} text={`Run ${loop.run}/${loop.runLimit}`} color="var(--accent)" /></div>
         )}
       </div>
+      {(loop.url || loop.pages !== undefined) && (
+        <p data-testid="site-line" className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          {loop.pages !== undefined && <span className="font-mono text-[13px]">{loop.pages} pages</span>}
+          {loop.url && /^https?:\/\//.test(loop.url) && <a href={loop.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[44px] items-center underline sm:min-h-0" style={{ color: 'var(--accent)' }}>Visit live site<span className="sr-only"> (opens in a new tab)</span></a>}
+        </p>
+      )}
       {loop.paused && (
         <p role="status" data-testid="paused-notice" className="rounded-lg border p-3" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
           {statusLine(loop)}. Lane runs and the control room stop until it is resumed.
