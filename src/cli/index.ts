@@ -12,6 +12,7 @@ import { DEFAULT_PORT, runDashboard } from './dashboard.js';
 import { realGh } from './gh.js';
 import { runInit } from './init.js';
 import { runAnswer, runNextRound, runStatus } from './loops.js';
+import { formatLaneRound, runLaneRound } from './laneRound.js';
 import { runNew } from './new.js';
 import { formatRuns, logRun, readRuns } from './runs.js';
 import { runPause, runResume, type PauseResult } from './pause.js';
@@ -118,11 +119,19 @@ program
 
 program
   .command('next-round')
-  .description('After DONE.md: archive it as .ai/done-vN.md and write the next round\'s task.md from its "next 10" list')
+  .description('After DONE.md: archive it as .ai/done-vN.md and write the next round\'s task.md from its "next 10" list. With --brief in a laned repo: put the brief first in IDEA.md, archive every DONE.md, reset each lane\'s task file')
   .argument('[dir]', 'loop folder', '.')
   .option('--dry-run', 'report what would happen without writing')
-  .action(async (dir: string, options: { dryRun?: boolean }) => {
+  .option('--brief <file>', 'laned repos: the next round\'s brief (scored first)')
+  .option('--no-commit', 'with --brief: write the changes but do not commit')
+  .option('--json', 'with --brief: print the plan as JSON (shape: RoundPlan in src/core/laneRound.ts)')
+  .action(async (dir: string, options: { dryRun?: boolean; brief?: string; commit: boolean; json?: boolean }) => {
     try {
+      if (options.brief) {
+        const result = await runLaneRound(path.resolve(dir), { briefFile: options.brief, dryRun: Boolean(options.dryRun), commit: options.commit });
+        console.log(options.json ? JSON.stringify(result, null, 2) : formatLaneRound(result, Boolean(options.dryRun)));
+        return;
+      }
       const result = await runNextRound(path.resolve(dir), { dryRun: Boolean(options.dryRun) });
       console.log(`${options.dryRun ? 'Would archive' : 'Archived'} DONE.md as .ai/${result.archivedAs}; next round has ${result.units} units.`);
     } catch (error) {
