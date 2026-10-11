@@ -1,7 +1,7 @@
 # Lane: web — round 3 (0.3.0 "Showcase")
 
 Run: 1 / 20
-Status: in progress (units 1-3 done; next: unit 4 welcome strip + live/snapshot indicator)
+Status: in progress (units 1-4 done; next: unit 5 live mode, fixture first)
 Round 2 record: `.ai/lanes/web/done-v2.md` (`git show 084bb9f:.ai/lanes/web/task.md` for its Decisions).
 
 ## Contract

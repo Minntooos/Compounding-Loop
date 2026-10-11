@@ -10,6 +10,9 @@ import { LoopDetail } from './components/LoopDetail';
 import { NewLoop } from './components/NewLoop';
 import { Settings } from './components/Settings';
 import { Toasts, type Toast } from './components/Toasts';
+import { WelcomeStrip } from './components/WelcomeStrip';
+import { mockSnapshot } from './api/mock';
+import { newestActivity, shortDateUtc } from './lib/format';
 import { href, useRoute, type Route } from './lib/route';
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 5_000, retry: false } } });
@@ -53,6 +56,7 @@ function Shell() {
   const route = useRoute();
   const [theme, setTheme] = useState<Theme>(initialTheme);
   const inbox = useQuery({ queryKey: ['inbox'], queryFn: api.inbox });
+  const loops = useQuery({ queryKey: ['loops'], queryFn: api.loops });
   const server = useQuery({ queryKey: ['server'], queryFn: hasServer });
   const [toasts, setToasts] = useState<Toast[]>([]);
   const notify = useCallback((text: string) => {
@@ -74,7 +78,7 @@ function Shell() {
   return (
     <>
       <header className="border-b" style={{ borderColor: 'var(--border)' }}>
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-1 px-4 py-2 md:py-3">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 md:gap-x-6 md:py-3">
           <a href="#/" className="order-1 flex items-center gap-2 text-[15px] font-semibold"><img src={`${import.meta.env.BASE_URL}logo.svg`} alt="" width={22} height={22} />Compounding Loop</a>
           <nav aria-label="Main" className="order-3 -mx-4 flex w-[calc(100%+2rem)] gap-1 overflow-x-auto px-4 md:order-2 md:mx-0 md:w-auto md:flex-1 md:overflow-visible md:px-0">
             {NAV.map((n) => (
@@ -84,13 +88,14 @@ function Shell() {
               </a>
             ))}
           </nav>
-          <button type="button" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'} className="order-2 ml-auto rounded p-2 md:order-3 md:ml-0">
+          {server.data === false && <p role="status" className="order-2 ml-auto flex items-center gap-1.5 text-[12px] md:order-3 md:ml-0" style={{ color: 'var(--muted)' }}><span aria-hidden className="size-2 rounded-full" style={{ background: 'var(--muted)' }} />Snapshot <span className="hidden md:inline">from&nbsp;</span>{shortDateUtc(newestActivity(loops.data ?? [], mockSnapshot.generatedAt))}</p>}
+          <button type="button" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'} className={`order-2 rounded p-2 md:order-3 ${server.data === false ? '' : 'ml-auto md:ml-0'}`}>
             {theme === 'dark' ? <Sun aria-hidden size={18} /> : <Moon aria-hidden size={18} />}
           </button>
         </div>
       </header>
-      {server.data === false && <p role="status" className="px-4 py-2 text-center text-[13px]" style={{ background: 'var(--surface)', color: 'var(--muted)' }}>Sample data: no dashboard server is running, so this shows the five-site demo.</p>}
       <main className="mx-auto max-w-6xl px-4 py-6">
+        {server.data === false && route.name === 'fleet' && <WelcomeStrip />}
         <h1 className="mb-5 text-[28px] font-semibold">{route.name === 'fleet' ? 'Compounding Loop' : route.name === 'loop' ? route.id : NAV.find((n) => n.route.name === route.name)?.label}</h1>
         <Page route={route} theme={theme} setTheme={setTheme} />
       </main>
