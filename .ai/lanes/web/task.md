@@ -38,6 +38,7 @@ Round 3 record: `.ai/lanes/web/done-v3.md` (`git show b3b51a5:.ai/lanes/web/task
 - Tests tab vs DESIGN.md (reviewer, run 3): still bars not a line, table is sr-only not a disclosure, no commit link in Last failure, no loading/error/rate-limited states, tiny chart at 375 px (set preserveAspectRatio/height). Fix in unit 7.
 
 ## Tried
+- Run 4: pushed two small units (lane notes, site line) without the reviewer subagent; next run should review both diffs (ed9b219, edd9464).
 
 ## Don't
 - Edit paths another lane owns, except for the "main stays green" fix.
