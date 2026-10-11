@@ -4,26 +4,26 @@
     "name": "compounding-loop (this repo)",
     "url": "https://github.com/Minntooos/Compounding-Loop",
     "state": "done",
-    "reason": "round 1 built unattended: all five lanes done",
-    "round": 1,
-    "roundsTotal": 2,
-    "run": 15,
-    "runLimit": 150,
+    "reason": "rounds 1 and 2 built unattended by five parallel lanes, all done; round 3 is running now",
+    "round": 2,
+    "roundsTotal": 3,
+    "run": 36,
+    "runLimit": 250,
     "lastCommit": {
-      "sha": "3385cdf",
-      "at": "2026-10-08T17:58:34.000Z",
-      "message": "Release 0.1.0"
+      "sha": "084bb9f",
+      "at": "2026-10-11T04:01:08.000Z",
+      "message": "Release 0.2.0: version bump and CHANGELOG"
     },
     "lanes": [
       {
         "name": "core",
         "state": "done",
-        "run": 3,
-        "limit": 30,
+        "run": 11,
+        "limit": 50,
         "lastCommit": {
-          "sha": "01d2526",
-          "subject": "core: DONE, handoff, outbox",
-          "at": "2026-10-08T07:10:35.000Z"
+          "sha": "e1f69d2",
+          "subject": "core: lane DONE",
+          "at": "2026-10-11T03:11:33.000Z"
         },
         "locked": false,
         "unanswered": []
@@ -31,12 +31,12 @@
       {
         "name": "kit",
         "state": "done",
-        "run": 2,
-        "limit": 30,
+        "run": 3,
+        "limit": 50,
         "lastCommit": {
-          "sha": "cbf9e96",
-          "subject": "kit: outbox",
-          "at": "2026-10-08T06:22:28.000Z"
+          "sha": "f969e31",
+          "subject": "kit: lane DONE, handoff and outbox",
+          "at": "2026-10-08T20:44:19.000Z"
         },
         "locked": false,
         "unanswered": []
@@ -44,12 +44,12 @@
       {
         "name": "server",
         "state": "done",
-        "run": 1,
-        "limit": 30,
+        "run": 4,
+        "limit": 50,
         "lastCommit": {
-          "sha": "bcc83ca",
-          "subject": "server: lane DONE, retro, knowledge entry",
-          "at": "2026-10-08T05:46:45.000Z"
+          "sha": "c0e6ca4",
+          "subject": "server: audit closed, lane DONE with next improvements",
+          "at": "2026-10-11T00:33:50.000Z"
         },
         "locked": false,
         "unanswered": []
@@ -57,12 +57,12 @@
       {
         "name": "web",
         "state": "done",
-        "run": 8,
-        "limit": 30,
+        "run": 13,
+        "limit": 50,
         "lastCommit": {
-          "sha": "7555d39",
-          "subject": "web: run 8, lane DONE",
-          "at": "2026-10-08T12:45:28.000Z"
+          "sha": "5e900de",
+          "subject": "web: wrap long text on Fleet and Lanes (375 px e2e), audit closed, lane DONE",
+          "at": "2026-10-11T01:48:00.000Z"
         },
         "locked": false,
         "unanswered": []
@@ -70,18 +70,368 @@
       {
         "name": "docs",
         "state": "done",
-        "run": 1,
-        "limit": 30,
+        "run": 5,
+        "limit": 50,
         "lastCommit": {
-          "sha": "a3b6e4c",
-          "subject": "docs: demo pages workflow, DONE",
-          "at": "2026-10-08T06:02:45.000Z"
+          "sha": "eebdcc7",
+          "subject": "docs: fresh-install test 2, init --lanes needs a brief, blocking lane check in CI, lane DONE",
+          "at": "2026-10-11T00:59:08.000Z"
         },
         "locked": false,
         "unanswered": []
       }
     ],
     "timeline": [
+      {
+        "sha": "084bb9f",
+        "at": "2026-10-11T04:01:08.000Z",
+        "message": "Release 0.2.0: version bump and CHANGELOG"
+      },
+      {
+        "sha": "c959167",
+        "at": "2026-10-11T03:30:56.000Z",
+        "message": "control: Round 2 done, root DONE.md"
+      },
+      {
+        "sha": "e1f69d2",
+        "at": "2026-10-11T03:11:33.000Z",
+        "message": "core: lane DONE"
+      },
+      {
+        "sha": "82eceb9",
+        "at": "2026-10-11T03:11:21.000Z",
+        "message": "core: start Claude Code from pnpm-style .cmd shims via the script they name"
+      },
+      {
+        "sha": "0da6d7e",
+        "at": "2026-10-11T02:10:45.000Z",
+        "message": "core: init --lanes and lanes add also merge the lane section into an existing AGENTS.md"
+      },
+      {
+        "sha": "dc20ba4",
+        "at": "2026-10-11T01:56:34.000Z",
+        "message": "control: round 2 status, only core left, local runner may stop"
+      },
+      {
+        "sha": "5e900de",
+        "at": "2026-10-11T01:48:00.000Z",
+        "message": "web: wrap long text on Fleet and Lanes (375 px e2e), audit closed, lane DONE"
+      },
+      {
+        "sha": "8b03b7a",
+        "at": "2026-10-11T01:10:58.000Z",
+        "message": "core: check-lanes says 'no commits yet' in an empty repo"
+      },
+      {
+        "sha": "eebdcc7",
+        "at": "2026-10-11T00:59:08.000Z",
+        "message": "docs: fresh-install test 2, init --lanes needs a brief, blocking lane check in CI, lane DONE"
+      },
+      {
+        "sha": "0026ad7",
+        "at": "2026-10-11T00:50:41.000Z",
+        "message": "web: 375 px overflow e2e, audit rows refreshed, run 4 handoff"
+      },
+      {
+        "sha": "c0e6ca4",
+        "at": "2026-10-11T00:33:50.000Z",
+        "message": "server: audit closed, lane DONE with next improvements"
+      },
+      {
+        "sha": "fb21555",
+        "at": "2026-10-11T00:32:42.000Z",
+        "message": "control: lane crossings and kit stalled notes"
+      },
+      {
+        "sha": "29c43e8",
+        "at": "2026-10-11T00:13:33.000Z",
+        "message": "core: a second Ctrl-C releases the lock and exits at once"
+      },
+      {
+        "sha": "3ba1731",
+        "at": "2026-10-11T00:11:59.000Z",
+        "message": "core: keep the session lock until the claude child settles after Ctrl-C"
+      },
+      {
+        "sha": "13ebeff",
+        "at": "2026-10-10T23:59:05.000Z",
+        "message": "docs: README screenshots, launch drafts for 0.2.0 with objections, CHANGELOG, handoff"
+      },
+      {
+        "sha": "7f77381",
+        "at": "2026-10-10T23:49:02.000Z",
+        "message": "web: toasts for server-sent events"
+      },
+      {
+        "sha": "6f94a5c",
+        "at": "2026-10-10T23:47:36.000Z",
+        "message": "web: demo-based Lanes e2e, refreshed docs screenshots"
+      },
+      {
+        "sha": "f10f088",
+        "at": "2026-10-10T23:35:37.000Z",
+        "message": "server: serve the sixth demo loop (this repo); demo-self rebuild test skips on shallow clones"
+      },
+      {
+        "sha": "a85c3a0",
+        "at": "2026-10-10T23:10:25.000Z",
+        "message": "core: run 4 handoff"
+      },
+      {
+        "sha": "5a35d94",
+        "at": "2026-10-10T23:10:16.000Z",
+        "message": "core: prefer the matching bin key when reading an npm shim's package"
+      },
+      {
+        "sha": "17881dc",
+        "at": "2026-10-10T23:09:17.000Z",
+        "message": "core: run claude via its npm package entry when only claude.cmd exists on Windows"
+      },
+      {
+        "sha": "82b38ae",
+        "at": "2026-10-10T22:28:38.000Z",
+        "message": "control: vitest hookTimeout 20s and half the cores on Windows"
+      },
+      {
+        "sha": "4a3535d",
+        "at": "2026-10-10T22:15:36.000Z",
+        "message": "control: note for core about npm-installed claude.cmd on Windows"
+      },
+      {
+        "sha": "fa3952f",
+        "at": "2026-10-10T21:53:11.000Z",
+        "message": "core: shared paths pass check-lanes even inside another lane's glob"
+      },
+      {
+        "sha": "7d57b7a",
+        "at": "2026-10-10T21:53:11.000Z",
+        "message": "control: make npm test pass on Windows; web owns tests/unit/web"
+      },
+      {
+        "sha": "dff830c",
+        "at": "2026-10-08T21:10:06.000Z",
+        "message": "core: handoff and outbox order"
+      },
+      {
+        "sha": "5ad8373",
+        "at": "2026-10-08T21:09:57.000Z",
+        "message": "core: lane stall threshold from cron, hide lanes from loop new templates"
+      },
+      {
+        "sha": "a4fbb78",
+        "at": "2026-10-08T20:59:16.000Z",
+        "message": "docs: outbox note and handoff"
+      },
+      {
+        "sha": "64594d2",
+        "at": "2026-10-08T20:59:03.000Z",
+        "message": "docs: check 7 covers subcommands, advisory check-lanes CI step, softer lanes claim, outbox and handoff"
+      },
+      {
+        "sha": "e5258c5",
+        "at": "2026-10-08T20:57:12.000Z",
+        "message": "docs: README lanes story, comparison table, FAQ; docs/lanes.md; check-lanes in CI"
+      },
+      {
+        "sha": "4d52e0f",
+        "at": "2026-10-08T20:53:50.000Z",
+        "message": "web: Fleet filter by status"
+      },
+      {
+        "sha": "a5706b8",
+        "at": "2026-10-08T20:51:30.000Z",
+        "message": "web: count blocked lanes in Needs you, handoff and outbox"
+      },
+      {
+        "sha": "b497604",
+        "at": "2026-10-08T20:50:02.000Z",
+        "message": "web: Lanes tab, Fleet lane strip and lane-aware Needs-you count, with fixture e2e and unit tests"
+      },
+      {
+        "sha": "27eb065",
+        "at": "2026-10-08T20:46:44.000Z",
+        "message": "web: fleet e2e tolerates a sixth demo loop; regenerate stale demo/this-repo.json (built from a shallow clone)"
+      },
+      {
+        "sha": "f969e31",
+        "at": "2026-10-08T20:44:19.000Z",
+        "message": "kit: lane DONE, handoff and outbox"
+      },
+      {
+        "sha": "b458e98",
+        "at": "2026-10-08T20:44:19.000Z",
+        "message": "demo: regenerate this-repo.json so the up-to-date test passes again (main-stays-green fix, server owns it)"
+      },
+      {
+        "sha": "cba3a50",
+        "at": "2026-10-08T20:42:30.000Z",
+        "message": "kit: launchd plist notes on permissions and PATH"
+      },
+      {
+        "sha": "4a25201",
+        "at": "2026-10-08T20:42:30.000Z",
+        "message": "kit: two more example knowledge entries"
+      },
+      {
+        "sha": "012d930",
+        "at": "2026-10-08T20:42:30.000Z",
+        "message": "kit: chrome-extension icons and a macOS launchd plist"
+      },
+      {
+        "sha": "511ac42",
+        "at": "2026-10-08T20:41:00.000Z",
+        "message": "server: leak check covers Vercel, Cloudflare Pages and GitHub Pages configs"
+      },
+      {
+        "sha": "f9d4768",
+        "at": "2026-10-08T20:39:34.000Z",
+        "message": "server: sixth demo loop data (this repo) with scrub test"
+      },
+      {
+        "sha": "889dadc",
+        "at": "2026-10-08T20:38:49.000Z",
+        "message": "kit: say how a lane fixes a red main without failing check-lanes; note 0.2.0 requirement"
+      },
+      {
+        "sha": "1c361da",
+        "at": "2026-10-08T20:38:49.000Z",
+        "message": "kit: Lanes chapter in the method (Part B, section 16)"
+      },
+      {
+        "sha": "8a1bfc2",
+        "at": "2026-10-08T20:37:48.000Z",
+        "message": "server: handoff notes, cron finding for core"
+      },
+      {
+        "sha": "396c50b",
+        "at": "2026-10-08T20:37:48.000Z",
+        "message": "server: lanes in the API, lane health checks, contracts"
+      },
+      {
+        "sha": "00ff6ca",
+        "at": "2026-10-08T20:37:48.000Z",
+        "message": "server: round 2 audit"
+      },
+      {
+        "sha": "36b2f53",
+        "at": "2026-10-08T20:35:11.000Z",
+        "message": "kit: lanes.yml matrix workflow with test; prompt and README fixes from review"
+      },
+      {
+        "sha": "7877df6",
+        "at": "2026-10-08T20:32:39.000Z",
+        "message": "kit: align lane templates with loop init --lanes; lane and control-room prompts with README"
+      },
+      {
+        "sha": "05859b0",
+        "at": "2026-10-08T20:30:36.000Z",
+        "message": "core: clearer answer --push failures; handoff"
+      },
+      {
+        "sha": "090b145",
+        "at": "2026-10-08T20:30:36.000Z",
+        "message": "core: answer --push, loop new keeps the folder when gh fails, idle icon is - ; audit updated"
+      },
+      {
+        "sha": "6345418",
+        "at": "2026-10-08T20:28:52.000Z",
+        "message": "kit: lane templates survive first push, are idempotent, carry the unattended rules"
+      },
+      {
+        "sha": "8c33b8e",
+        "at": "2026-10-08T20:28:51.000Z",
+        "message": "kit: templates/lanes with documented placeholders and tests"
+      },
+      {
+        "sha": "e2095e3",
+        "at": "2026-10-08T20:27:08.000Z",
+        "message": "core: lanes add normalizes and validates globs; outbox for kit, server, web"
+      },
+      {
+        "sha": "5d78151",
+        "at": "2026-10-08T20:27:08.000Z",
+        "message": "core: loop init --lanes and loop lanes add"
+      },
+      {
+        "sha": "89b9431",
+        "at": "2026-10-08T20:24:47.000Z",
+        "message": "kit: keep shipped prompt, default prompt and gitignore test in sync"
+      },
+      {
+        "sha": "2cda5e2",
+        "at": "2026-10-08T20:24:47.000Z",
+        "message": "kit: audit; runner's own session lock no longer stops the prompt"
+      },
+      {
+        "sha": "0c7c8b6",
+        "at": "2026-10-08T20:22:58.000Z",
+        "message": "core: lane status counts a later commit as a reply and falls back to subject prefix"
+      },
+      {
+        "sha": "6e713c4",
+        "at": "2026-10-08T20:21:23.000Z",
+        "message": "core: per-lane state and loop status lane rows; LaneStatus type"
+      },
+      {
+        "sha": "17605b8",
+        "at": "2026-10-08T20:19:26.000Z",
+        "message": "core: lock handles SIGHUP, failed rounds are recorded, doctor explains claude.cmd; outbox"
+      },
+      {
+        "sha": "592bd6d",
+        "at": "2026-10-08T20:17:39.000Z",
+        "message": "core: loop run --lane with session lock written and cleared (also on failure and Ctrl-C)"
+      },
+      {
+        "sha": "8606f29",
+        "at": "2026-10-08T20:15:38.000Z",
+        "message": "core: loop doctor with injectable probes"
+      },
+      {
+        "sha": "1e80b43",
+        "at": "2026-10-08T20:14:04.000Z",
+        "message": "core: loop check-lanes (merges, shallow clones, non-ASCII paths handled)"
+      },
+      {
+        "sha": "c1e8faf",
+        "at": "2026-10-08T20:10:57.000Z",
+        "message": "core: lanes config parser, validator and ownership check (pure); core audit"
+      },
+      {
+        "sha": "a373e23",
+        "at": "2026-10-08T20:09:49.000Z",
+        "message": "check: run docs-vs-help check from source so npm test works on a fresh checkout"
+      },
+      {
+        "sha": "53bb653",
+        "at": "2026-10-08T19:58:55.000Z",
+        "message": "docs: audit, fresh-install test, docs-vs-help check"
+      },
+      {
+        "sha": "8a322c5",
+        "at": "2026-10-08T19:47:57.000Z",
+        "message": "web: screenshot generator and docs screenshots; request lane data shape"
+      },
+      {
+        "sha": "48ce16a",
+        "at": "2026-10-08T19:46:36.000Z",
+        "message": "web: audit, axe accessibility e2e on all screens and themes"
+      },
+      {
+        "sha": "e979881",
+        "at": "2026-10-08T19:38:28.000Z",
+        "message": "Start round 2: 0.2.0 \"Lanes\" brief, lane contracts and audits"
+      },
+      {
+        "sha": "c9bff21",
+        "at": "2026-10-08T19:09:20.000Z",
+        "message": "CI on Windows and Node 20/24; Pages demo deploys on change; link the live demo"
+      },
+      {
+        "sha": "a10709e",
+        "at": "2026-10-08T19:05:55.000Z",
+        "message": "Make the Pages demo work under a subpath; add Dependabot and package links"
+      },
       {
         "sha": "3385cdf",
         "at": "2026-10-08T17:58:34.000Z",
@@ -231,106 +581,6 @@
         "sha": "bee870d",
         "at": "2026-10-08T05:45:20.000Z",
         "message": "server: serve the built dashboard with a strict CSP; static demo API export"
-      },
-      {
-        "sha": "c6faf17",
-        "at": "2026-10-08T05:43:30.000Z",
-        "message": "server: health checks (leak, stale lock, short runs, failing tests, runner silent) feed status and /api/checks"
-      },
-      {
-        "sha": "55749c0",
-        "at": "2026-10-08T05:41:10.000Z",
-        "message": "server: SSE /api/events with a polling clone watcher and periodic git fetch"
-      },
-      {
-        "sha": "a75365c",
-        "at": "2026-10-08T05:39:19.000Z",
-        "message": "server: answer endpoint with host/origin/content-type guard"
-      },
-      {
-        "sha": "8955f5c",
-        "at": "2026-10-08T05:37:30.000Z",
-        "message": "server: read real loops, inbox and detail from a projects folder"
-      },
-      {
-        "sha": "803d0db",
-        "at": "2026-10-08T05:35:49.000Z",
-        "message": "server: createApp, startServer and read routes from the demo snapshot"
-      },
-      {
-        "sha": "88eeea0",
-        "at": "2026-10-08T05:34:46.000Z",
-        "message": "server: demo snapshot builder, scrubbed five-sites.json, shared API types"
-      },
-      {
-        "sha": "1abf8d9",
-        "at": "2026-10-08T05:31:46.000Z",
-        "message": "kit: method protocol files, lock rule in static-site loop prompt, stricter consistency tests"
-      },
-      {
-        "sha": "d48aab3",
-        "at": "2026-10-08T05:29:55.000Z",
-        "message": "kit: outbox requests for core (gitignore in tarball) and docs (marketplace.json)"
-      },
-      {
-        "sha": "aaf8ab9",
-        "at": "2026-10-08T05:29:09.000Z",
-        "message": "kit: Chrome extension template with check script and Playwright extension test"
-      },
-      {
-        "sha": "c8ddbae",
-        "at": "2026-10-08T05:28:05.000Z",
-        "message": "kit: Claude Code plugin with loop-init, handoff, retro and stuck commands"
-      },
-      {
-        "sha": "3c0b4c8",
-        "at": "2026-10-08T05:27:20.000Z",
-        "message": "kit: fix runner review findings (github_token, allowedTools, XML encoding, lock wording)"
-      },
-      {
-        "sha": "8201e6e",
-        "at": "2026-10-08T05:26:35.000Z",
-        "message": "kit: GitHub Actions workflow and local scheduler configs with tests"
-      },
-      {
-        "sha": "d8cc97d",
-        "at": "2026-10-08T05:25:56.000Z",
-        "message": "kit: routine runner prompt and README; loop run test accepts the shipped prompt"
-      },
-      {
-        "sha": "2b919a7",
-        "at": "2026-10-08T05:25:03.000Z",
-        "message": "kit: static-site check rejects invalid hostnames; flag underscore-name bug to core"
-      },
-      {
-        "sha": "61467c3",
-        "at": "2026-10-08T05:25:03.000Z",
-        "message": "kit: static-site template passes its own checks when freshly generated"
-      },
-      {
-        "sha": "ea9869d",
-        "at": "2026-10-08T05:23:30.000Z",
-        "message": "core: dashboard shutdown, busy-port hint, handoff"
-      },
-      {
-        "sha": "d6c7a02",
-        "at": "2026-10-08T05:23:30.000Z",
-        "message": "core: loop dashboard command with lazy server import"
-      },
-      {
-        "sha": "0e0d08f",
-        "at": "2026-10-08T05:22:11.000Z",
-        "message": "kit: fix review findings (empty shipped index, prefilled goal, lock file named)"
-      },
-      {
-        "sha": "d4f7299",
-        "at": "2026-10-08T05:22:10.000Z",
-        "message": "kit: operating card, task template, knowledge index and unattended rules with tests"
-      },
-      {
-        "sha": "0596cfe",
-        "at": "2026-10-08T05:21:44.000Z",
-        "message": "core: loop run allows the tools a round needs, handles Windows claude lookup"
       }
     ],
     "contract": [
@@ -365,7 +615,7 @@
       "kind": "failing-tests",
       "ok": true,
       "reason": "all tests pass",
-      "proof": "npm test was green at 3385cdf"
+      "proof": "npm test was green at 084bb9f"
     }
   ]
 }

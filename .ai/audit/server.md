@@ -31,5 +31,5 @@ None open.
 |---|---|---|---|
 | 1 | Live data | Did not exist; `src/server/live/**` added with fixtures (unit 3). | fixed |
 | 2 | Static CSP | Pages sends no headers and the local CSP forbids network; `STATIC_CSP` meta tag + `live.json` added (unit 4). | fixed |
-| 3 | Self snapshot | `demo/this-repo.json` covers round 1 only; rounds 1+2 snapshot is unit 2 (open). | minor |
+| 3 | Self snapshot | rounds 1+2 snapshot (pin 084bb9f, 100 commits) shipped. | fixed |
 | 4 | Claims | `LaneStatus.claim` already filled by core and by the live mapper; local real mode gets it via `readLaneStatuses`. | ok |

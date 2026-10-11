@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { buildSelf, laneOfCommit, parseRun, ROUND_ONE_COMMIT } from '../../../demo/build-self.mjs';
+import { buildSelf, laneOfCommit, parseRun, ROUND_TWO_COMMIT } from '../../../demo/build-self.mjs';
 import type { HealthCheck, LoopDetail } from '../../../src/core/types.js';
 
 const root = path.resolve(import.meta.dirname, '..', '..', '..');
@@ -10,7 +10,7 @@ const readShipped = async () => JSON.parse(await readFile(path.join(root, 'demo'
 // A shallow clone (CI with fetch-depth 1) may lack the pinned commit or its ancestors, so the rebuild check is skipped there.
 const hasHistory = (() => {
   try {
-    execFileSync('git', ['cat-file', '-e', `${ROUND_ONE_COMMIT}^{commit}`], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['cat-file', '-e', `${ROUND_TWO_COMMIT}^{commit}`], { cwd: root, stdio: 'ignore' });
     // A truncated history has the commit but not its ancestors, so the rebuilt timeline would differ.
     const shallow = execFileSync('git', ['rev-parse', '--is-shallow-repository'], { cwd: root, encoding: 'utf8' }).trim();
     return shallow !== 'true';
@@ -38,8 +38,11 @@ describe('shipped demo/this-repo.json (the sixth demo loop)', () => {
     const { loop } = await readShipped();
     expect(loop.name).toBe('compounding-loop (this repo)');
     expect(loop.lanes?.map((l) => [l.name, l.state])).toEqual([['core', 'done'], ['kit', 'done'], ['server', 'done'], ['web', 'done'], ['docs', 'done']]);
-    expect(loop.lanes?.every((l) => l.limit === 30 && l.run > 0)).toBe(true);
-    expect(loop.timeline.length).toBeGreaterThan(10);
+    // Totals over both rounds: 30 + 20 runs of budget per lane.
+    expect(loop.lanes?.every((l) => l.limit === 50 && l.run > 0)).toBe(true);
+    expect(loop.timeline.length).toBeGreaterThan(50);
+    expect([loop.round, loop.roundsTotal, loop.state]).toEqual([2, 3, 'done']);
+    expect(loop.reason).toMatch(/rounds 1 and 2/);
   });
 
   it('contains no emails, local paths, tokens, routine or session ids, or author names', async () => {

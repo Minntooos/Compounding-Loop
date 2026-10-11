@@ -1,5 +1,5 @@
-// Builds demo/this-repo.json: the sixth demo loop, "compounding-loop (this repo)", from the round-1 history of
-// this repository (pinned at the 0.1.0 release commit, so the output never changes). It keeps only commit
+// Builds demo/this-repo.json: the sixth demo loop, "compounding-loop (this repo)", from rounds 1 and 2 of this
+// repository's history (pinned at the 0.2.0 release commit, so the output never changes). It keeps only commit
 // hashes, dates and subjects plus the lane files' run counters: no author names or emails, no paths.
 import { execFile } from 'node:child_process';
 import { writeFile } from 'node:fs/promises';
@@ -10,6 +10,8 @@ import { scrubText } from './build-demo.mjs';
 
 const execFileAsync = promisify(execFile);
 export const ROUND_ONE_COMMIT = '3385cdf';
+export const ROUND_TWO_COMMIT = '084bb9f';
+export const TIMELINE_LENGTH = 100;
 export const ROUND_ONE_LANES = ['core', 'kit', 'server', 'web', 'docs'];
 
 const git = async (cwd, ...args) => (await execFileAsync('git', args, { cwd, maxBuffer: 16 * 1024 * 1024 })).stdout;
@@ -29,19 +31,24 @@ export function laneOfCommit(subject, body = '') {
 }
 
 export async function buildSelf(repoDir) {
-  const log = await git(repoDir, 'log', '-50', '--format=%h%x1f%cI%x1f%s%x1f%b%x1e', ROUND_ONE_COMMIT);
+  const log = await git(repoDir, 'log', `-${TIMELINE_LENGTH}`, '--format=%h%x1f%cI%x1f%s%x1f%b%x1e', ROUND_TWO_COMMIT);
   const commits = log.split('\x1e').map((r) => r.trim()).filter(Boolean).map((r) => {
     const [sha, at, subject, body = ''] = r.split('\x1f');
     return { sha, at: new Date(at).toISOString(), message: scrubText(subject), lane: laneOfCommit(subject, body) };
   });
   const lanes = [];
   for (const name of ROUND_ONE_LANES) {
-    const task = await git(repoDir, 'show', `${ROUND_ONE_COMMIT}:.ai/lanes/${name}/task.md`);
+    // Total effort over both rounds: round 1's counter lives in done-v1, round 2's in the task file.
+    const [one, two] = await Promise.all([
+      git(repoDir, 'show', `${ROUND_ONE_COMMIT}:.ai/lanes/${name}/task.md`).then(parseRun),
+      git(repoDir, 'show', `${ROUND_TWO_COMMIT}:.ai/lanes/${name}/task.md`).then(parseRun),
+    ]);
     const last = commits.find((c) => c.lane === name);
     lanes.push({
       name,
       state: 'done',
-      ...parseRun(task),
+      run: one.run + two.run,
+      limit: one.limit + two.limit,
       ...(last && { lastCommit: { sha: last.sha, subject: last.message, at: last.at } }),
       locked: false,
       unanswered: [],
@@ -55,9 +62,9 @@ export async function buildSelf(repoDir) {
     name: 'compounding-loop (this repo)',
     url: 'https://github.com/Minntooos/Compounding-Loop',
     state: 'done',
-    reason: 'round 1 built unattended: all five lanes done',
-    round: 1,
-    roundsTotal: 2,
+    reason: 'rounds 1 and 2 built unattended by five parallel lanes, all done; round 3 is running now',
+    round: 2,
+    roundsTotal: 3,
     run,
     runLimit,
     lastCommit: timeline[0],
@@ -68,7 +75,7 @@ export async function buildSelf(repoDir) {
     decisions: [],
     history: [],
   };
-  const checks = [{ loopId: detail.id, kind: 'failing-tests', ok: true, reason: 'all tests pass', proof: `npm test was green at ${ROUND_ONE_COMMIT}` }];
+  const checks = [{ loopId: detail.id, kind: 'failing-tests', ok: true, reason: 'all tests pass', proof: `npm test was green at ${ROUND_TWO_COMMIT}` }];
   return { loop: detail, checks };
 }
 
