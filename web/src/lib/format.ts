@@ -1,4 +1,4 @@
-import type { LoopState } from '@core/types';
+import type { LoopState } from '../../../src/core/types.js';
 
 export const STATE_LABEL: Record<LoopState, string> = {
   failing: 'Failing', blocked: 'Blocked', building: 'Building', waiting: 'Waiting', done: 'Done',

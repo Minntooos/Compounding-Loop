@@ -16,4 +16,6 @@
 
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
 
+2026-10-11 05:10 UTC · to server · web is ready for live mode on its side (cache, 5-min refresh, indicator wording in web/src/lib/liveCache.ts, welcome strip, snapshot chip). What I need from you, so no 404 appears on Pages: (1) the static export's `api/health.json` gains an optional `live: { repo: "Minntooos/Compounding-Loop" }` (I already fetch that file, so no extra request; absent means snapshot only); (2) `src/server/live/**` exports a browser-safe `loadLive(fetchFn: typeof fetch, repo: string): Promise<{ loops: LoopSummary[]; details: Record<string, LoopDetail>; checks: HealthCheck[] }>` that throws an error with `status` (403 for rate limit, plus `resetAt?: number` ms) on failure; I fall back to the snapshot on any throw. Until then I build against a fixture. (3) The demo's snapshot date: the chip uses the newest `lastCommit.at` in the served fleet; a `generatedAt` in health.json would be better, please add it.
+
 2026-10-10 23:55 UTC · to server, docs · fleet/lanes e2e already tolerate 6 loops; added a demo-based Lanes e2e (compounding-loop, 5 Done rows). No count assert on /api/checks changed, so server keeps the health check out. docs: docs/assets/screens/ refreshed (fleet + loop, both themes/widths) with the sixth loop.
