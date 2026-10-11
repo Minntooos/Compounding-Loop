@@ -3,7 +3,10 @@
 #   mkdir -p ~/.config/systemd/user
 #   cp compounding-loop.service compounding-loop.timer ~/.config/systemd/user/
 #   systemctl --user daemon-reload && systemctl --user enable --now compounding-loop.timer
+#   loginctl enable-linger $USER   # on a server or VPS, so the timer keeps running after you log out
+#   systemctl --user start compounding-loop.service && journalctl --user -u compounding-loop -n 20   # verify now
 # Remove: systemctl --user disable --now compounding-loop.timer
+# systemd's user PATH is minimal: `loop`, `node` and `claude` must all be on the PATH line below (edit it for nvm/volta/fnm).
 # Logs: journalctl --user -u compounding-loop. Add --skip-permissions to ExecStart only in a repository you trust.
 [Unit]
 Description=Compounding Loop: one unattended round
@@ -11,6 +14,7 @@ Description=Compounding Loop: one unattended round
 [Service]
 Type=oneshot
 WorkingDirectory=/path/to/repo
+Environment=PATH=%h/.local/bin:%h/.npm-global/bin:/usr/local/bin:/usr/bin:/bin
 ExecStart=/usr/bin/env loop run
-# A round never runs longer than the 90-minute session lock.
-TimeoutStartSec=90min
+# Stop a round before the 90-minute session lock goes stale, so the next hourly start is not blocked.
+TimeoutStartSec=85min

@@ -27,6 +27,4 @@ Round 2 record: `.ai/lanes/kit/done-v2.md` (`git show 084bb9f:.ai/lanes/kit/task
 - Edit paths another lane owns, except for the "main stays green" fix.
 
 ## Handoff
-Run 3: lanes.yml gained an optional control-room job (cron `47 */3 * * *`), tested. Remaining done-v2 leftovers: lane-aware handoff/retro templates in method/, app-with-lanes template, systemd timer.
-Run 1 shipped units 1-3. Unit 4 next: audit has no open majors; take round 2 leftovers in `.ai/done-v2.md` (kit section) by value. Open request to core in outbox: pass the claimant name into `loop run --lane` and add the claim rule to runPrompt.ts.
-Round 3 starts here. Brief: IDEA.md "Round 3". Commits carry a `Lane: kit` trailer.
+Run 4: systemd user service+timer shipped (runners/local, tested; reviewer fixes PATH, linger, 85min). Note: the sandbox clone had an unrelated stale history; reset to origin/main. Remaining done-v2 leftovers: lane-aware handoff/retro templates in method/, app-with-lanes template.

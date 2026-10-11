@@ -104,7 +104,8 @@ describe('runners/local systemd units', () => {
   it('runs `loop run` as a oneshot, bounded by the session lock', () => {
     expect(service).toMatch(/^Type=oneshot$/m);
     expect(service).toMatch(/^ExecStart=.*\bloop run$/m);
-    expect(service).toMatch(/^TimeoutStartSec=90min$/m);
+    expect(service).toMatch(/^TimeoutStartSec=85min$/m);
+    expect(service).toMatch(/^Environment=PATH=/m);
   });
 
   it('fires hourly at a non-zero minute and catches up after sleep', () => {
@@ -116,6 +117,7 @@ describe('runners/local systemd units', () => {
   it('documents install and removal and carries no personal path', () => {
     expect(service).toContain('systemctl --user enable --now');
     expect(service).toContain('systemctl --user disable --now');
+    expect(service).toContain('enable-linger');
     expect(service + timer).not.toMatch(/\/(home|Users)\/[A-Za-z]/);
   });
 });
