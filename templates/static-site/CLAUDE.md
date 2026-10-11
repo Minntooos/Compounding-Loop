@@ -106,7 +106,7 @@ No human is watching. The owner reads the results later. These rules replace "as
 - **Finished:** when every done-when in the contract passes and the reviewer finds no blockers, run the retro, write `DONE.md`, delete `.ai/task.md`, push and stop. `DONE.md` holds: what was built (each page and its target keyword), test results, anything you were unsure of, and the owner's launch checklist: check that the Netlify site serves the address in IDEA.md, add that address to Search Console as a URL-prefix property, submit `/sitemap.xml`, and buy the domain named in IDEA.md once there's budget for it. End with the 10 best next pages to build, ranked by search demand and how weak the current results are.
 - **If `.ai/PAUSED` exists at the start of a run:** the owner paused the loop (`loop pause`); reply "Paused" and stop.
 - **If `DONE.md` or `BLOCKED.md` exists at the start of a run:** do nothing and stop.
-- **Stale clone:** if `git pull --ff-only` fails because the clone started from an old copy (diverged or unrelated history), origin `main` was not rewritten: check `git log origin/main`, run `git fetch origin main && git switch -c loop-run FETCH_HEAD`, work there, and push with `git push origin HEAD:main`.
+- **Stale clone:** if `git pull --ff-only` fails because the clone started from an old copy (diverged or unrelated history), origin `main` was not rewritten: check `git log origin/main`, run `git fetch origin main && git switch -C loop-run FETCH_HEAD`, work there, and push with `git push origin HEAD:main`.
 
 **Never, even if it seems helpful**
 - Spend money, sign up for anything, or create accounts.

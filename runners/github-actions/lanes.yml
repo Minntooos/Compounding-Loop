@@ -81,8 +81,8 @@ jobs:
             Every commit ends with the trailer line "Lane: ${{ matrix.lane }}". Push to main, never to a claude/ branch.
             If .ai/PAUSED exists, the owner paused the loop: reply "Paused" and stop.
             Stop if DONE.md or BLOCKED.md exists at the root or in .ai/lanes/${{ matrix.lane }}/.
-            If `git pull --ff-only` fails because the clone started from a stale copy, run `git fetch origin main && git switch -c lane-run FETCH_HEAD`, work there, and push with `git push origin HEAD:main`. Never blame a force-push without checking `git log origin/main`.
-            End every run (pushed or not) by appending a line to .ai/lanes/${{ matrix.lane }}/runs.jsonl with `npx compounding-loop runs log --lane ${{ matrix.lane }} --units <units> --passed N --failed N --pushed` (or `--no-pushed`) and commit it with your last commit.
+            If `git pull --ff-only` fails because the clone started from a stale copy, run `git fetch origin main && git switch -C lane-run FETCH_HEAD`, work there, and push with `git push origin HEAD:main`. Never blame a force-push without checking `git log origin/main`.
+            Before your final commit of every run (pushed or not), append a line to .ai/lanes/${{ matrix.lane }}/runs.jsonl with `npx compounding-loop runs log --lane ${{ matrix.lane }} --units <units> --passed N --failed N --pushed` (or `--no-pushed`) and include it in that final commit so it is pushed with it.
             If .ai/lanes/${{ matrix.lane }}/claim names someone else and its expiry (name · expires <ISO UTC time>, compared with `date -u`) is in the future, a teammate is working this lane: reply "Nothing to do" and stop. An expired claim counts as none.
             Never publish, spend money, or add secrets or tracking.
           claude_args: >-
@@ -129,7 +129,7 @@ jobs:
             Pull main, run the tests, run `npx compounding-loop check-lanes` over the last 4 hours, read every lane's task.md and outbox,
             and write notes for lanes in `.ai/control-room.md`. Commit only `.ai/` notes and the smallest fixes, each ending with the trailer line "Lane: control". Push to main.
             If .ai/PAUSED exists, the owner paused the loop: reply "Paused" and stop. Stop if DONE.md or BLOCKED.md exists at the root.
-            If `git pull --ff-only` fails because the clone started from a stale copy, run `git fetch origin main && git switch -c lane-run FETCH_HEAD` and push with `git push origin HEAD:main`.
+            If `git pull --ff-only` fails because the clone started from a stale copy, run `git fetch origin main && git switch -C lane-run FETCH_HEAD` and push with `git push origin HEAD:main`.
             Never publish, spend money, or add secrets or tracking.
           claude_args: >-
             --max-turns 100

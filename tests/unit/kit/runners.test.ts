@@ -145,7 +145,7 @@ describe('plugin/', () => {
     expect(typeof manifest.description).toBe('string');
   });
 
-  it.each(['loop-init', 'loop-lanes', 'loop-next', 'handoff', 'retro', 'stuck'])('command %s has frontmatter with a description', (name) => {
+  it.each(['loop-init', 'loop-lanes', 'loop-next', 'loop-pause', 'handoff', 'retro', 'stuck'])('command %s has frontmatter with a description', (name) => {
     const text = read('plugin', 'commands', `${name}.md`);
     expect(text).toMatch(/^---\ndescription: .{10,}\n---\n/);
   });

@@ -418,6 +418,17 @@ A lane is one scheduled run that owns one part of the codebase. Several lanes pu
 
 A claim protects a lane, not a file: ownership of paths still decides what a lane may edit. Do not claim a lane to keep it idle; claim it while you are working in it.
 
+**Controlling a loop.** Everything an owner does between runs is a change to a file in the repo, so a dashboard, a script or a person at a terminal can do it the same way. The scheduled runs stay enabled; the repo decides whether they work.
+
+| Control | What it changes in the repo | Effect on the next scheduled run |
+|---|---|---|
+| Pause (`loop pause [--reason]`) | adds `.ai/PAUSED` (one line: who, when, optional reason), commit trailer `Lane: control` | every lane and the control room replies "Paused" and stops |
+| Resume (`loop resume`) | removes `.ai/PAUSED` | runs work again |
+| Next round (`loop next-round --brief <file>`) | puts the brief at the top of `IDEA.md`, archives root and lane `DONE.md` files as `done-vN.md`, resets each lane's task file, adds a control-room note | lanes start the new round at unit 1 |
+| Release | a reviewed manual workflow on the default branch bumps nothing itself: it checks the ship list (root `DONE.md`, a changelog section, no existing tag), publishes with the registry's trusted publishing (no token anywhere) and tags | none; lanes see the tag and the changelog |
+
+Every run, successful or not, appends one line to `.ai/lanes/<lane>/runs.jsonl` (`loop runs log`); `loop runs` compares those lines and the commits with each lane's scheduled slots, so a slot with neither is shown as "no run recorded", which on a subscription plan usually means the usage limit. A run that cannot pull because its clone started from an old copy fetches `origin main`, works on a branch from it and pushes with `git push origin HEAD:main`; origin `main` is never reset or force-pushed.
+
 **Failure modes seen when this repo was built by five lanes**
 
 - **Stale sandbox clones.** A cloud run can start from an old clone and report that someone force-pushed or that a file vanished. Check `git log` on a fresh pull before believing a run's account of history.

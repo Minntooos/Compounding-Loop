@@ -40,6 +40,18 @@ describe('Round 4 rules: pause, run log, stale clone', () => {
     for (const text of [lane, control, section, wf, loopPrompt, siteClaude]) staleClone(text);
   });
 
+  it('logs the run before the final push, not after it', () => {
+    expect(lane.indexOf('Run log:')).toBeLessThan(lane.indexOf('run the handoff'));
+    expect(lane).not.toMatch(/\n8\. /);
+  });
+
+  it('recovers with switch -C so a second stale run in a cached clone works', () => {
+    for (const text of [lane, control, wf, section, loopPrompt, siteClaude]) {
+      expect(text).toContain('switch -C');
+      expect(text).not.toContain('switch -c');
+    }
+  });
+
   it('never blames a force-push without checking origin/main', () => {
     expect(lane).toContain('git log origin/main');
     expect(section).toContain('git log origin/main');
@@ -66,5 +78,18 @@ describe('local runner docs', () => {
     const text = read('runners', 'local', 'README.md');
     expect(text).toContain('loop pause');
     expect(text).toContain('.ai/PAUSED');
+  });
+});
+
+describe('controlling a loop', () => {
+  it('the method explains pause, resume, next round and the run log', () => {
+    const method = read('method', 'COMPOUNDING_LOOP.md');
+    expect(method).toContain('**Controlling a loop.**');
+    for (const needle of ['loop pause', 'loop resume', 'loop next-round --brief', '.ai/PAUSED', 'runs.jsonl', 'no run recorded', 'git push origin HEAD:main']) expect(method, needle).toContain(needle);
+  });
+
+  it('the /loop-pause command uses the real CLI verbs', () => {
+    const text = read('plugin', 'commands', 'loop-pause.md');
+    for (const needle of ['compounding-loop pause', 'compounding-loop resume', '.ai/PAUSED', 'Lane: control']) expect(text, needle).toContain(needle);
   });
 });
