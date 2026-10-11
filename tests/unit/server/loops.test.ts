@@ -199,6 +199,38 @@ describe('laned clone: lane notes and the waiting release', () => {
   });
 });
 
+describe('laned clone: ship check from local git', () => {
+  const files = {
+    '.ai/task.md': TASK,
+    '.ai/lanes.json': JSON.stringify({ lanes: [{ name: 'core', owns: ['src/**'] }], shared: [] }),
+    '.ai/lanes/core/task.md': '**Done when:** it works.\n',
+    'DONE.md': '# Done\n',
+    'CHANGELOG.md': '# Changelog\n\n## [Unreleased]\n- Something new\n',
+    'package.json': '{"name":"x","version":"2.0.0"}',
+  };
+  const itemOk = (detail: { ship?: { items: { id: string; ok: boolean }[] } }, id: string) => detail.ship?.items.find((i) => i.id === id)?.ok;
+
+  it('reports a free tag and a clean tree, then an existing tag and a dirty tree', async () => {
+    const dir = makeLoop('ship', files);
+    const clean = await readLoop(dir, new Date());
+    expect(itemOk(clean, 'tag')).toBe(true);
+    expect(itemOk(clean, 'clean')).toBe(true);
+    expect(itemOk(clean, 'done')).toBe(true);
+    git(dir, 'tag', 'v2.0.0');
+    writeFileSync(path.join(dir, 'stray.txt'), 'x');
+    const dirty = await readLoop(dir, new Date());
+    expect(itemOk(dirty, 'tag')).toBe(false);
+    expect(itemOk(dirty, 'clean')).toBe(false);
+    expect(dirty.ship?.ready).toBe(false);
+  });
+
+  it('has no ship check without a root DONE.md', async () => {
+    const dir = makeLoop('ship-none', files);
+    rmSync(path.join(dir, 'DONE.md'), { force: true });
+    expect((await readLoop(dir, new Date())).ship).toBeUndefined();
+  });
+});
+
 describe('laned clone: runs from the run log and the session trailer', () => {
   it('maps runs.jsonl and the commits of one session to a pushed run, and exposes author, lane and session', async () => {
     const dir = makeLoop('runs', {

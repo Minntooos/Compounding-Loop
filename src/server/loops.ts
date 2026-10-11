@@ -14,6 +14,7 @@ import { deriveStatus } from '../core/status.js';
 import type { ContractItem, InboxItem, LaneStatus, LoopCommit, LoopDetail, LoopSummary } from '../core/types.js';
 import { packageVersion, releaseInboxItem, roundState } from './roundState.js';
 import { commitLane, latestControlNotes, parseChangelog, parsePaused } from '../core/parse/index.js';
+import { shipCheck } from '../core/shipCheck.js';
 import { buildRuns, lastRunOf, sessionKey, silentLanesItem } from './runs.js';
 import { checkLoop } from './health.js';
 import { bulletsUnder, contractFromTask, laneNotesFromTask } from './taskBullets.js';
@@ -70,6 +71,13 @@ async function readRuns(dir: string, lanes: readonly LaneStatus[], lanesJson: st
   return buildRuns({ lanes: laneNames.map((name) => ({ name, ...(cron.get(name) && { cron: cron.get(name) as string }), stopped: ['done', 'blocked'].includes(lanes.find((l) => l.name === name)?.state ?? '') || lanes.find((l) => l.name === name)?.claim !== undefined })), logs, commits: timeline, now, ...(pausedText !== undefined && { paused: parsePaused(pausedText).at ? { at: parsePaused(pausedText).at as Date } : {} }) });
 }
 
+/** Local git facts for the ship-check; a failing git call reads as the safe answer (tag free, tree dirty). */
+async function readShipGit(dir: string, tag: string): Promise<{ tagExists: boolean; treeClean: boolean }> {
+  const git = (args: string[]) => execFileAsync('git', args, { cwd: dir, timeout: 15_000 }).then((r) => r.stdout, () => undefined);
+  const [tags, status] = await Promise.all([git(['tag', '--list', tag]), git(['status', '--porcelain'])]);
+  return { tagExists: (tags ?? '').split('\n').some((t) => t.trim() === tag), treeClean: status !== undefined && status.trim() === '' };
+}
+
 /** Reads one clone into the API's LoopDetail. `now` is a parameter so tests are deterministic. */
 export async function readLoop(dir: string, now: Date = new Date()): Promise<LoopDetail> {
   const lanes = await readLaneStatuses(dir, now);
@@ -93,6 +101,17 @@ export async function readLoop(dir: string, now: Date = new Date()): Promise<Loo
   const task = taskText ?? '';
   const version = packageVersion(packageText);
   const { roundLabel, releaseWaiting } = roundState({ round, hasDone: facts.hasDone, laned: lanes !== undefined, ...(version && { version }) });
+  const doneText = lanes && version ? await readOptional(path.join(dir, 'DONE.md')) : undefined;
+  const newestTests = runsData?.runs.find((r) => r.tests && r.endedAt);
+  const ship = doneText !== undefined && version
+    ? shipCheck({
+        version,
+        doneText,
+        ...(changelogText !== undefined && { changelogText }),
+        ...(await readShipGit(dir, `v${version}`)),
+        ...(newestTests?.tests && { tests: { ...newestTests.tests, ...(newestTests.endedAt && { at: newestTests.endedAt }) } }),
+      })
+    : undefined;
   return {
     id: path.basename(dir),
     name: path.basename(dir),
@@ -104,6 +123,7 @@ export async function readLoop(dir: string, now: Date = new Date()): Promise<Loo
     ...(changelogText !== undefined && { releases: parseChangelog(changelogText) }),
     ...(runsData && lastRunOf(runsData.runs) && { lastRun: lastRunOf(runsData.runs) }),
     ...(runsData && { runs: runsData.runs, nextRuns: runsData.nextRuns }),
+    ...(ship && { ship }),
     ...(releaseWaiting && { releaseWaiting }),
     round,
     // The total is unknown for a real loop (the owner can always add a round), so it never reads "5 of 3".

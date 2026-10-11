@@ -1,6 +1,6 @@
 # Lane: server — round 4 (0.4.0 "Control")
 
-Run: 2 / 20
+Run: 3 / 20
 Status: units 1-4 done, unit 5 partly done (run 1)
 Round 3 record: `.ai/lanes/server/done-v3.md` (`git show b3b51a5:.ai/lanes/server/task.md` for its Decisions).
 
@@ -34,6 +34,9 @@ Round 3 record: `.ai/lanes/server/done-v3.md` (`git show b3b51a5:.ai/lanes/serve
 ## Don't
 - Edit paths another lane owns, except for the "main stays green" fix.
 - Change `version`, publish, dispatch `release.yml`, create tags, or change repo/npm settings.
+
+## Handoff (run 3)
+Shipped: local `ship` field in `readLoop` (src/server/loops.ts `readShipGit`). Remaining: (c) Search Console only with a local key, (e) self snapshot has no runs/releases; audit majors: readSilentItem duplicate git work per poll, tags API beyond 100 tags. laneDetails ask from web is already served by `laneNotes`.
 
 ## Handoff (run 2)
 Shipped: local POST pause/resume/next-round + GET /api/doctor (src/server/index.ts, loops.ts `control`, contracts.md "Local actions"); per-clone action lock, 64 KB body cap, brief file removed on failure. Remaining unit 5: (c) Search Console only with a local key, (d) local `ship` field in `readLoop` (git tag + status), (e) self snapshot has no runs/releases; audit majors: readSilentItem duplicate git work per poll, tags API beyond 100 tags. Reviewer notes for core (src/cli/pause.ts, not mine): git pull/push there have no timeout or GIT_TERMINAL_PROMPT=0, and `runPause` fails when git user.name is unset (server passes no `as`); next-round push has no rebase retry.
