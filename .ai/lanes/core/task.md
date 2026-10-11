@@ -22,6 +22,7 @@ Round 2 record: `.ai/lanes/core/done-v2.md` (`git show 084bb9f:.ai/lanes/core/ta
 ## Confirmed
 
 ## Guesses
+- GUESS: the `.ai/last-test.json` writer belongs in `loop run` (run the project test command after the round and record `{"passed","failed"}`) or a tiny `npm test` wrapper; server reads it at src/server/health.ts:127. Decide with server before building.
 
 ## Tried
 
