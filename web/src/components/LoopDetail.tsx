@@ -27,7 +27,7 @@ function TabBody({ tab, loop }: { tab: Tab; loop: Detail }) {
     case 'Timeline':
       return <Timeline commits={loop.timeline} />;
     case 'Lanes': return <LanesTab lanes={loop.lanes ?? []} />;
-    case 'Runs': return <RunsTab runs={loop.runs ?? []} {...(loop.nextRuns && { nextRuns: loop.nextRuns })} />;
+    case 'Runs': return <RunsTab runs={loop.runs ?? []} paused={loop.paused !== undefined} quiet={(loop.lanes ?? []).filter((l) => l.state === 'done' || l.state === 'blocked').map((l) => l.name)} {...(loop.nextRuns && { nextRuns: loop.nextRuns })} />;
     case 'Contract':
       if (loop.contract.length === 0) return <p style={{ color: 'var(--muted)' }}>No contract lines yet. They appear when the task file has a Done-when list.</p>;
       return (

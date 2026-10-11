@@ -30,11 +30,12 @@ function RunRow({ run }: { run: LoopRun }) {
   );
 }
 
-export function RunsTab({ runs, nextRuns }: { runs: LoopRun[]; nextRuns?: { lane: string; at: string }[] }) {
+/** `quiet` lanes (done or blocked) and a paused loop never raise the notice: their missed slots are expected (same guards as the server's attention item). */
+export function RunsTab({ runs, nextRuns, quiet = [], paused = false }: { runs: LoopRun[]; nextRuns?: { lane: string; at: string }[]; quiet?: string[]; paused?: boolean }) {
   const [active, setActive] = useState<ReadonlySet<string>>(new Set());
   const lanes = [...new Set(runs.map((r) => r.lane))];
   const shown = filterRuns(runs, active);
-  const silent = silentLanes(runs);
+  const silent = paused ? [] : silentLanes(runs).filter((l) => !quiet.includes(l));
   const toggle = (lane: string) => setActive((prev) => { const next = new Set(prev); if (!next.delete(lane)) next.add(lane); return next; });
   if (runs.length === 0) return <p style={{ color: 'var(--muted)' }}>No runs recorded yet. Runners call <code className="font-mono">loop runs log</code> at the end of each run.</p>;
   return (
