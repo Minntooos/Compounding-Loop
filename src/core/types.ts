@@ -47,6 +47,8 @@ export interface LoopCommit {
   author?: string;
   /** Lane the commit belongs to (`Lane:` trailer, then subject prefix; `release` for `Release x.y.z`), else `other` (added by the server lane, Round 4). */
   lane?: string;
+  /** Last 8 characters of the `Claude-Session:` trailer id; groups the commits of one run (server lane, Round 4). */
+  session?: string;
 }
 
 /** One row of the fleet view. */
@@ -77,6 +79,8 @@ export interface LoopSummary {
   releaseWaiting?: boolean;
   /** The code repository, when `url` points somewhere else (the loop's site or Pages demo). */
   repoUrl?: string;
+  /** The newest run of any lane, for the fleet card's one status line. */
+  lastRun?: { lane: string; at: string; outcome: LoopRun['outcome'] };
   lastCommit?: LoopCommit;
   /** Present only for loops with `.ai/lanes.json` (added by the server lane). */
   lanes?: LaneStatus[];
@@ -95,7 +99,25 @@ export interface LaneNotes {
   knowledge: string[];
 }
 
+/** One scheduled or recorded lane run (server lane, Round 4). Outcomes are core's `SlotOutcome`. */
+export interface LoopRun {
+  lane: string;
+  /** ISO 8601 UTC: the scheduled slot, or the end of the run when the lane has no cron. */
+  at: string;
+  outcome: 'pushed' | 'nothing-pushed' | 'tests-failed' | 'no-run-recorded';
+  /** When the run wrote its log line. */
+  endedAt?: string;
+  units: string[];
+  tests?: { passed: number; failed: number };
+  commits: LoopCommit[];
+  note?: string;
+}
+
 export interface LoopDetail extends LoopSummary {
+  /** Newest first: each lane's recorded and missing runs of the last two days (loops with lanes). */
+  runs?: LoopRun[];
+  /** The next scheduled slot of each lane that has a cron. */
+  nextRuns?: { lane: string; at: string }[];
   /** Contract, decisions and knowledge of each lane, grouped by lane; absent for loops without lanes. */
   laneNotes?: LaneNotes[];
   /** Newest first. */

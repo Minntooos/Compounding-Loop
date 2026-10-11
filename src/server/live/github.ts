@@ -42,8 +42,9 @@ export function mapCommits(json: unknown): LiveCommit[] {
     const when = dateOf(entry.commit.committer) ?? dateOf(entry.commit.author);
     if (sha === undefined || full === undefined || when === undefined) return [];
     const lane = parseLaneTrailer(full);
+    const session = /^Claude-Session:\s*(\S+)\s*$/m.exec(full)?.[1]?.replace(/\/+$/, '').slice(-8);
     const author = isRecord(entry.commit.author) ? displayName(entry.commit.author.name) : undefined;
-    return [{ sha: sha.slice(0, 7), at: when, message: full.split(/\r?\n/)[0] ?? full, ...(author && { author }), ...(lane && { lane }) }];
+    return [{ sha: sha.slice(0, 7), at: when, message: full.split(/\r?\n/)[0] ?? full, ...(author && { author }), ...(session && { session }), ...(lane && { lane }) }];
   });
 }
 

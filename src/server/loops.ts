@@ -4,11 +4,14 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 import { runAnswer } from '../cli/loops.js';
 import { readLaneStatuses } from '../cli/laneStatus.js';
+import { parseLanesConfig } from '../core/lanes.js';
 import { parseBlocked } from '../core/blocked.js';
 import { readLoopFacts, readRunCounter } from '../core/repo.js';
 import { deriveStatus } from '../core/status.js';
-import type { ContractItem, InboxItem, LoopCommit, LoopDetail } from '../core/types.js';
+import type { ContractItem, InboxItem, LaneStatus, LoopCommit, LoopDetail } from '../core/types.js';
 import { packageVersion, releaseInboxItem, roundState } from './roundState.js';
+import { commitLane } from '../core/parse/index.js';
+import { buildRuns, lastRunOf, sessionKey, silentLanesItem } from './runs.js';
 import { checkLoop } from './health.js';
 import { bulletsUnder, contractFromTask, laneNotesFromTask } from './taskBullets.js';
 
@@ -21,35 +24,56 @@ async function readOptional(file: string): Promise<string | undefined> {
   return readFile(file, 'utf8').catch(() => undefined);
 }
 
-/** Recent commits of a clone, newest first. Empty when the folder is not a repo. */
-export async function readTimeline(dir: string, limit = 50): Promise<LoopCommit[]> {
+/** Recent commits of a clone, newest first. Empty when the folder is not a repo. `laneNames` lets the subject prefix name a lane. */
+export async function readTimeline(dir: string, limit = 50, laneNames: readonly string[] = []): Promise<LoopCommit[]> {
   try {
-    const { stdout } = await execFileAsync('git', ['log', `-${limit}`, '--format=%h%x09%cI%x09%s'], {
+    const { stdout } = await execFileAsync('git', ['log', `-${limit}`, '--format=%h%x1f%cI%x1f%an%x1f%s%x1f%b%x1e'], {
       cwd: dir,
       env: { ...process.env, GIT_CEILING_DIRECTORIES: path.dirname(path.resolve(dir)) },
     });
     return stdout
-      .split('\n')
+      .split('\x1e')
+      .map((record) => record.trim())
       .filter(Boolean)
-      .map((line) => {
-        const [sha = '', at = '', ...message] = line.split('\t');
-        return { sha, at: new Date(at).toISOString(), message: message.join('\t') };
+      .map((record) => {
+        const [sha = '', at = '', name = '', subject = '', body = ''] = record.split('\x1f');
+        const author = name.trim();
+        const session = /^Claude-Session:\s*(\S+)\s*$/m.exec(body)?.[1];
+        return {
+          sha,
+          at: new Date(at).toISOString(),
+          message: subject,
+          // A name that is an email address is not a display name.
+          ...(author && !author.includes('@') && { author }),
+          lane: commitLane(`${subject}\n\n${body}`, laneNames),
+          ...(session && { session: sessionKey(session) }),
+        };
       });
   } catch {
     return [];
   }
 }
 
+async function readRuns(dir: string, lanes: readonly LaneStatus[], lanesJson: string | undefined, timeline: readonly LoopCommit[], now: Date) {
+  const cron = new Map((parseLanesConfig(lanesJson ?? '').config?.lanes ?? []).map((l) => [l.name, l.cron] as const));
+  const laneNames = lanes.map((l) => l.name);
+  const logs = Object.fromEntries(await Promise.all(laneNames.map(async (n) => [n, await readOptional(path.join(dir, '.ai', 'lanes', n, 'runs.jsonl'))] as const)));
+  return buildRuns({ lanes: laneNames.map((name) => ({ name, ...(cron.get(name) && { cron: cron.get(name) as string }), stopped: ['done', 'blocked'].includes(lanes.find((l) => l.name === name)?.state ?? '') })), logs, commits: timeline, now });
+}
+
 /** Reads one clone into the API's LoopDetail. `now` is a parameter so tests are deterministic. */
 export async function readLoop(dir: string, now: Date = new Date()): Promise<LoopDetail> {
-  const [baseFacts, counter, timeline, taskText, lanes, packageText] = await Promise.all([
+  const lanes = await readLaneStatuses(dir, now);
+  const laneNames = lanes?.map((l) => l.name) ?? [];
+  const [baseFacts, counter, timeline, taskText, packageText, lanesJson] = await Promise.all([
     readLoopFacts(dir),
     readRunCounter(dir),
-    readTimeline(dir),
+    readTimeline(dir, 100, laneNames),
     readOptional(path.join(dir, '.ai', 'task.md')),
-    readLaneStatuses(dir, now),
     readOptional(path.join(dir, 'package.json')),
+    readOptional(path.join(dir, '.ai', 'lanes.json')),
   ]);
+  const runsData = lanes && (await readRuns(dir, lanes, lanesJson, timeline, now));
   // Any failing health check turns the loop "failing" with that check's reason (IDEA.md status rule 5).
   const checks = await checkLoop(dir, baseFacts, now, undefined, lanes);
   const facts = { ...baseFacts, healthFailures: checks.filter((c) => !c.ok).map((c) => c.reason) };
@@ -64,6 +88,8 @@ export async function readLoop(dir: string, now: Date = new Date()): Promise<Loo
     state: status.state,
     reason: releaseWaiting && status.state === 'done' ? `${roundLabel} · release waiting on you` : status.reason,
     roundLabel,
+    ...(runsData && lastRunOf(runsData.runs) && { lastRun: lastRunOf(runsData.runs) }),
+    ...(runsData && { runs: runsData.runs, nextRuns: runsData.nextRuns }),
     ...(releaseWaiting && { releaseWaiting }),
     round,
     // The total is unknown for a real loop (the owner can always add a round), so it never reads "5 of 3".
@@ -100,6 +126,14 @@ async function readReleaseItem(dir: string): Promise<InboxItem | undefined> {
   return releaseInboxItem(path.basename(dir), packageVersion(await readOptional(path.join(dir, 'package.json'))), info.mtime.toISOString());
 }
 
+async function readSilentItem(dir: string, now: Date): Promise<InboxItem | undefined> {
+  const lanes = await readLaneStatuses(dir, now);
+  if (!lanes) return undefined;
+  const names = lanes.map((l) => l.name);
+  const runs = await readRuns(dir, lanes, await readOptional(path.join(dir, '.ai', 'lanes.json')), await readTimeline(dir, 100, names), now);
+  return silentLanesItem(path.basename(dir), runs.silentLanes, now.toISOString());
+}
+
 async function readInboxItem(dir: string): Promise<InboxItem | undefined> {
   const file = path.join(dir, 'BLOCKED.md');
   const [text, info] = await Promise.all([readOptional(file), stat(file).catch(() => undefined)]);
@@ -120,7 +154,7 @@ export function projectsSource(projectsDir: string, now: () => Date = () => new 
     },
     inbox: async () => {
       const dirs = await findLoopDirs(projectsDir);
-      const items = [...(await Promise.all(dirs.map(readInboxItem))), ...(await Promise.all(dirs.map(readReleaseItem)))];
+      const items = [...(await Promise.all(dirs.map(readInboxItem))), ...(await Promise.all(dirs.map(readReleaseItem))), ...(await Promise.all(dirs.map((d) => readSilentItem(d, now()))))];
       return items.filter((i): i is InboxItem => i !== undefined).sort((a, b) => a.since.localeCompare(b.since));
     },
     answer: async (id, answer) => {

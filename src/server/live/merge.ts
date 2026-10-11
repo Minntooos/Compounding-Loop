@@ -12,7 +12,7 @@ export function snapshotSince(snapshot: readonly LoopCommit[]): string | undefin
  */
 export function mergeCommits(snapshot: readonly LoopCommit[], live: readonly LoopCommit[]): LoopCommit[] {
   const bySha = new Map<string, LoopCommit>();
-  for (const c of [...snapshot, ...live]) bySha.set(c.sha, { sha: c.sha, at: c.at, message: c.message, ...(c.author && { author: c.author }), ...(c.lane && { lane: c.lane }) });
+  for (const c of [...snapshot, ...live]) bySha.set(c.sha, { sha: c.sha, at: c.at, message: c.message, ...(c.author && { author: c.author }), ...(c.lane && { lane: c.lane }), ...(c.session && { session: c.session }) });
   // Array.prototype.sort is stable, so equal timestamps keep their insertion order.
   return [...bySha.values()].sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : 0));
 }

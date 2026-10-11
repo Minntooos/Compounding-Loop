@@ -198,3 +198,20 @@ describe('laned clone: lane notes and the waiting release', () => {
     expect(inbox.some((i) => i.loopId === 'alpha' && i.kind === 'release')).toBe(false);
   });
 });
+
+describe('laned clone: runs from the run log and the session trailer', () => {
+  it('maps runs.jsonl and the commits of one session to a pushed run, and exposes author, lane and session', async () => {
+    const dir = makeLoop('runs', {
+      '.ai/lanes.json': JSON.stringify({ lanes: [{ name: 'core', owns: ['src/**'] }], shared: [] }),
+      '.ai/lanes/core/runs.jsonl': `${JSON.stringify({ at: new Date().toISOString(), lane: 'core', session: 'https://claude.ai/code/session_AAAABBBB', units: ['u1'], pushed: true })}\n`,
+    });
+    writeFileSync(path.join(dir, 'x.txt'), 'x');
+    git(dir, 'add', '-A');
+    git(dir, 'commit', '-qm', 'core: add x\n\nLane: core\nClaude-Session: https://claude.ai/code/session_AAAABBBB');
+    const detail = await readLoop(dir, new Date());
+    expect(detail.timeline[0]).toMatchObject({ message: 'core: add x', lane: 'core', session: 'AAAABBBB', author: 't' });
+    expect(detail.runs?.[0]).toMatchObject({ lane: 'core', outcome: 'pushed', units: ['u1'] });
+    expect(detail.runs?.[0]?.commits.map((c) => c.message)).toEqual(['core: add x']);
+    expect(detail.lastRun).toMatchObject({ lane: 'core', outcome: 'pushed' });
+  });
+});

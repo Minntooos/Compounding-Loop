@@ -82,7 +82,8 @@ describe('buildLiveLoop', () => {
     expect(server?.claim).toEqual({ name: 'Ada', expiresAt: '2026-10-11T09:00:00.000Z' });
     expect(server?.unanswered.map((m) => m.from)).toEqual(['core']);
     expect(core?.waitingOn).toEqual(['server']);
-    expect(inbox).toEqual([]);
+    // The server lane has not committed for hours: that is the "lanes are not running" item, not a question.
+    expect(inbox.map((i) => i.kind)).toEqual(['lanes-not-running']);
     expect(checks.map((c) => [c.kind, c.ok])).toEqual([['failing-tests', true], ['lane-stalled', false], ['lane-waiting-on-finished', true]]);
     expect([core?.state, server?.state]).toEqual(['waiting', 'stalled']);
   });
@@ -196,7 +197,7 @@ describe('a finished round waits for the owner (regression: "Nothing needs you" 
 
   it('no DONE.md: no release item, plain round label', () => {
     const { detail, inbox } = buildLiveLoop({ ...base, files: { ...files, 'DONE.md': undefined } });
-    expect([detail.roundLabel, detail.releaseWaiting, inbox]).toEqual(['Round 4', undefined, []]);
+    expect([detail.roundLabel, detail.releaseWaiting, inbox.filter((i) => i.kind !== 'lanes-not-running')]).toEqual(['Round 4', undefined, []]);
   });
 
   it('settings: the budget is the lanes\' budgets and the site is the Pages URL, not the repo (regression: "Run limit 0")', () => {

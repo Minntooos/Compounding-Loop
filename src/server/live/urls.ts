@@ -31,7 +31,7 @@ export const BASE_FILES: readonly string[] = [
 
 /** Per-lane files, once `.ai/lanes.json` is known. */
 export function laneFilePaths(lanes: readonly string[]): string[] {
-  return lanes.flatMap((lane) => ['task.md', 'outbox.md', 'DONE.md', 'BLOCKED.md', 'claim'].map((f) => `.ai/lanes/${lane}/${f}`));
+  return lanes.flatMap((lane) => ['task.md', 'outbox.md', 'DONE.md', 'BLOCKED.md', 'claim', 'runs.jsonl'].map((f) => `.ai/lanes/${lane}/${f}`));
 }
 
 export function rawUrl(slug: string, file: string, branch = 'main'): string {

@@ -1,0 +1,92 @@
+import { describe, expect, it } from 'vitest';
+import type { LoopCommit } from '../../../src/core/types.js';
+import { buildLiveLoop, buildRuns, lastRunOf, mapCommits, sessionKey, silentLanesItem } from '../../../src/server/live/index.js';
+
+const NOW = new Date('2026-10-11T12:20:00Z');
+const line = (o: object) => `${JSON.stringify(o)}\n`;
+const commit = (sha: string, at: string, lane: string, session?: string): LoopCommit => ({ sha, at, message: `${lane}: ${sha}`, lane, ...(session && { session }) });
+
+describe('buildRuns', () => {
+  const lanes = [{ name: 'core', cron: '0 * * * *' }];
+
+  it('maps each hourly slot to pushed / nothing pushed / tests failed / no run recorded, with its commits', () => {
+    const logs = {
+      core: line({ at: '2026-10-11T07:55:00Z', lane: 'core', units: [], pushed: false, note: 'stale clone' })
+        + line({ at: '2026-10-11T08:30:00Z', lane: 'core', units: ['audit'], tests: { passed: 5, failed: 0 }, pushed: true })
+        + line({ at: '2026-10-11T10:25:00Z', lane: 'core', units: ['x'], tests: { passed: 3, failed: 2 }, pushed: false }),
+    };
+    const commits = [commit('c1', '2026-10-11T08:20:00Z', 'core'), commit('s1', '2026-10-11T08:10:00Z', 'server')];
+    const { runs } = buildRuns({ lanes, logs, commits, now: NOW });
+    const byHour = Object.fromEntries(runs.filter((r) => r.at >= '2026-10-11T07').map((r) => [r.at.slice(11, 13), r.outcome]));
+    // 11:00 started 80 minutes ago: still inside the grace period, so it is not listed as missing yet.
+    expect(byHour).toEqual({ '07': 'nothing-pushed', '08': 'pushed', '09': 'no-run-recorded', '10': 'tests-failed' });
+    const eight = runs.find((r) => r.at === '2026-10-11T08:00:00.000Z');
+    expect(eight).toMatchObject({ lane: 'core', units: ['audit'], tests: { passed: 5, failed: 0 }, endedAt: '2026-10-11T08:30:00.000Z' });
+    expect(eight?.commits.map((c) => c.sha)).toEqual(['c1']);
+    expect(runs.find((r) => r.outcome === 'nothing-pushed')?.note).toBe('stale clone');
+  });
+
+  it('does not call a slot that may still be running "missing" (grace period), and gives the next slot', () => {
+    const { runs, nextRuns } = buildRuns({ lanes, logs: {}, commits: [], now: NOW });
+    expect(runs.some((r) => r.at === '2026-10-11T12:00:00.000Z')).toBe(false);
+    expect(runs.some((r) => r.at === '2026-10-11T10:00:00.000Z')).toBe(true);
+    expect(nextRuns).toEqual([{ lane: 'core', at: '2026-10-11T13:00:00.000Z' }]);
+  });
+
+  it('three missing runs in a row raise the lanes-not-running item; a run in between resets it', () => {
+    const known = [commit('old', '2026-10-01T00:00:00Z', 'core')];
+    const quiet = buildRuns({ lanes, logs: {}, commits: known, now: NOW });
+    expect(quiet.silentLanes).toMatchObject([{ lane: 'core' }]);
+    expect(quiet.silentLanes[0]?.missed).toBeGreaterThanOrEqual(3);
+    expect(silentLanesItem('x', quiet.silentLanes, NOW.toISOString())).toMatchObject({ kind: 'lanes-not-running', question: expect.stringContaining("plan's usage limit") });
+    const logs = { core: line({ at: '2026-10-11T10:30:00Z', lane: 'core', units: [], pushed: true }) };
+    expect(buildRuns({ lanes, logs, commits: known, now: NOW }).silentLanes).toEqual([]);
+    // New lanes (no log, no commit) and lanes stopped on purpose are not silent.
+    expect(buildRuns({ lanes, logs: {}, commits: [], now: NOW }).silentLanes).toEqual([]);
+    expect(buildRuns({ lanes: [{ name: 'core', cron: '0 * * * *', stopped: true }], logs: {}, commits: known, now: NOW }).silentLanes).toEqual([]);
+    expect(silentLanesItem('x', [], NOW.toISOString())).toBeUndefined();
+  });
+
+  it('a slot with a commit but no log line counts as run (the agent forgot the log step)', () => {
+    const { runs } = buildRuns({ lanes, logs: {}, commits: [commit('c', '2026-10-11T10:40:00Z', 'core')], now: NOW });
+    expect(runs.find((r) => r.at === '2026-10-11T10:00:00.000Z')?.outcome).toBe('pushed');
+  });
+
+  it('groups commits by session when both sides have one, even across the slot boundary', () => {
+    const logs = { core: line({ at: '2026-10-11T10:50:00Z', lane: 'core', session: 'https://claude.ai/code/session_ABCDEFGH', units: [], pushed: true }) };
+    const commits = [commit('late', '2026-10-11T11:05:00Z', 'core', 'ABCDEFGH'), commit('other', '2026-10-11T10:10:00Z', 'core', 'ZZZZZZZZ')];
+    const run = buildRuns({ lanes, logs, commits, now: NOW }).runs.find((r) => r.at === '2026-10-11T10:00:00.000Z');
+    expect(run?.commits.map((c) => c.sha)).toEqual(['late']);
+  });
+
+  it('a lane without cron lists only what it logged; the newest run is the fleet card line', () => {
+    const logs = { web: line({ at: '2026-10-11T11:00:00Z', lane: 'web', units: ['u'], pushed: true }) };
+    const data = buildRuns({ lanes: [{ name: 'web' }], logs, commits: [], now: NOW });
+    expect(data.runs).toHaveLength(1);
+    expect(data.nextRuns).toEqual([]);
+    expect(lastRunOf(data.runs)).toEqual({ lane: 'web', at: '2026-10-11T11:00:00.000Z', outcome: 'pushed' });
+    expect(lastRunOf([])).toBeUndefined();
+  });
+
+  it('ignores runs older than the window and garbage lines', () => {
+    const logs = { core: `not json\n${line({ at: '2026-10-01T00:00:00Z', lane: 'core', units: [], pushed: true })}` };
+    expect(buildRuns({ lanes: [{ name: 'web' }, { name: 'core' }], logs, commits: [], now: NOW }).runs).toEqual([]);
+  });
+});
+
+describe('sessions and live wiring', () => {
+  it('reads the Claude-Session trailer as an 8-character key', () => {
+    const entry = [{ sha: 'abcdef012', commit: { message: 'x\n\nClaude-Session: https://claude.ai/code/session_01ABCDEFGH\n', committer: { date: '2026-10-11T01:00:00Z' } } }];
+    expect(mapCommits(entry)[0]?.session).toBe('01ABCDEFGH'.slice(-8));
+    expect(sessionKey('https://claude.ai/code/session_01ABCDEFGH/')).toBe('ABCDEFGH');
+  });
+
+  it('buildLiveLoop returns runs, the next slots, the fleet line and the silent-lanes item', () => {
+    const lanesJson = JSON.stringify({ lanes: [{ name: 'core', owns: ['src/**'], cron: '0 * * * *' }], shared: [] });
+    const { detail, inbox } = buildLiveLoop({ slug: 'o/n', commits: [{ sha: 'abcdef012', commit: { message: 'core: x', committer: { date: '2026-10-09T00:00:00Z' } } }], runs: {}, now: NOW, files: { '.ai/lanes.json': lanesJson } });
+    expect(detail.runs?.[0]?.outcome).toBe('no-run-recorded');
+    expect(detail.nextRuns).toEqual([{ lane: 'core', at: '2026-10-11T13:00:00.000Z' }]);
+    expect(detail.lastRun?.outcome).toBe('no-run-recorded');
+    expect(inbox.map((i) => i.kind)).toEqual(['lanes-not-running']);
+  });
+});

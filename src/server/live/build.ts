@@ -10,8 +10,12 @@ import { laneChecks } from '../laneChecks.js';
 import { bulletsUnder, contractFromTask, laneNotesFromTask } from '../taskBullets.js';
 import { latestFinishedRun, mapCommits, mapRuns, type LiveCommit } from './github.js';
 import { packageVersion, releaseInboxItem, roundState } from '../roundState.js';
+import { buildRuns, lastRunOf, silentLanesItem } from '../runs.js';
 import { mergeCommits } from './merge.js';
 import { countRoundFiles } from './urls.js';
+
+/** Runs kept in the loop detail (newest first); older ones stay in git. */
+const MAX_RUNS = 200;
 
 export interface LiveInput {
   /** `owner/name` */
@@ -72,7 +76,8 @@ function lanesOf(input: LiveInput, commits: readonly LiveCommit[]): LaneStatus[]
 /** Builds one loop's detail, inbox and health checks from what the browser fetched. */
 export function buildLiveLoop(input: LiveInput): LiveLoop {
   const id = input.id ?? input.slug.split('/')[1] ?? input.slug;
-  const laneNames = parseLanesConfig(input.files['.ai/lanes.json'] ?? '').config?.lanes.map((l) => l.name) ?? [];
+  const laneConfig = parseLanesConfig(input.files['.ai/lanes.json'] ?? '').config?.lanes ?? [];
+  const laneNames = laneConfig.map((l) => l.name);
   // Trailer first, then the subject prefix (`Release x.y.z` is lane "release"); every commit gets a lane.
   const commits = mapCommits(input.commits).map((c) => ({ ...c, lane: commitLane(c.lane ? `${c.message}\n\nLane: ${c.lane}` : c.message, laneNames) }));
   const latestRun = latestFinishedRun(mapRuns(input.runs));
@@ -102,6 +107,10 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
   const version = packageVersion(input.files['package.json']);
   const { roundLabel, releaseWaiting } = roundState({ round, hasDone, laned: lanes !== undefined, ...(version && { version }) });
   const repoUrl = `https://github.com/${input.slug}`;
+  const runsData = lanes
+    ? buildRuns({ lanes: laneConfig.map((l) => ({ name: l.name, ...(l.cron && { cron: l.cron }), stopped: hasDone || ['done', 'blocked'].includes(lanes.find((s) => s.name === l.name)?.state ?? '') })), logs: Object.fromEntries(laneNames.map((n) => [n, input.files[`.ai/lanes/${n}/runs.jsonl`]])), commits: timeline, now: input.now })
+    : undefined;
+  const lastRun = runsData && lastRunOf(runsData.runs);
   const detail: LoopDetail = {
     id,
     name: id,
@@ -111,6 +120,8 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
     state: status.state,
     reason: releaseWaiting && status.state === 'done' ? `${roundLabel} · release waiting on you` : status.reason,
     roundLabel,
+    ...(lastRun && { lastRun }),
+    ...(runsData && { runs: runsData.runs.slice(0, MAX_RUNS), nextRuns: runsData.nextRuns }),
     ...(releaseWaiting && { releaseWaiting }),
     round,
     roundsTotal: round,
@@ -128,6 +139,8 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
   };
   const blockedText = input.files['BLOCKED.md'];
   const inbox: InboxItem[] = blockedText === undefined ? [] : [{ loopId: id, file: 'BLOCKED.md', ...pick(parseBlocked(blockedText)), since: (newest ?? { at: input.now.toISOString() }).at }];
+  const silent = runsData && silentLanesItem(id, runsData.silentLanes, input.now.toISOString());
+  if (silent) inbox.push(silent);
   if (releaseWaiting) inbox.push(releaseInboxItem(id, version, (newest ?? { at: input.now.toISOString() }).at));
   return { detail, inbox, checks: checks.map(withLabel) };
 }
