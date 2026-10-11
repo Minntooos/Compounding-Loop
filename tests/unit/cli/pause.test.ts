@@ -122,3 +122,17 @@ describe('loop pause / resume', () => {
     expect(run('resume')).toMatch(/Not paused/);
   });
 });
+
+describe('loop pause rollback', () => {
+  it('leaves no PAUSED behind when the commit fails', async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), 'loop-pause-rb-'));
+    try {
+      execFileSync('git', ['init', '-q', '-b', 'main'], { cwd: dir });
+      await writeFile(path.join(dir, '.gitignore'), '.ai/\n');
+      await expect(runPause(dir, { push: false, as: 'Sam' })).rejects.toThrow();
+      expect(await readPaused(dir)).toBeUndefined();
+    } finally {
+      await rm(dir, { recursive: true, force: true, maxRetries: 5 });
+    }
+  });
+});

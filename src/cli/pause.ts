@@ -41,7 +41,7 @@ async function pushIfWanted(dir: string, result: PauseResult, push: boolean | un
       await git(dir, 'push');
     } catch {
       // Five lanes push to one branch, so a rejection is routine: rebase once and retry.
-      await git(dir, 'pull', '--rebase', '-q');
+      await git(dir, 'pull', '--rebase', '--autostash', '-q');
       await git(dir, 'push');
     }
     result.pushed = true;
@@ -52,8 +52,15 @@ async function pushIfWanted(dir: string, result: PauseResult, push: boolean | un
   }
 }
 
+/** The dashboard writes PAUSED on GitHub, so look at the remote first. Offline or without a remote, the local view stands. */
+async function syncFirst(dir: string, push: boolean | undefined): Promise<void> {
+  if (push === false) return;
+  await git(dir, 'pull', '--rebase', '--autostash', '-q').catch(() => undefined);
+}
+
 /** `loop pause`: writes `.ai/PAUSED`, commits it with `Lane: control` and (by default) pushes. Pausing twice is a no-op. */
 export async function runPause(dir: string, options: PauseOptions = {}): Promise<PauseResult> {
+  await syncFirst(dir, options.push);
   const held = await readPaused(dir);
   if (held) return { changed: false, paused: true, by: held.by };
   const by = (options.as ?? (await git(dir, 'config', 'user.name').then((r) => r.stdout.trim(), () => ''))).trim();
@@ -61,8 +68,15 @@ export async function runPause(dir: string, options: PauseOptions = {}): Promise
   const reason = options.reason?.replace(/\s+/g, ' ').trim();
   await mkdir(path.dirname(pausedFile(dir)), { recursive: true });
   await writeFile(pausedFile(dir), formatPaused(by, options.now ?? new Date(), reason));
-  await git(dir, 'add', '--', PAUSED_FILE);
-  await git(dir, 'commit', '-qm', `Pause all lanes${reason ? `: ${reason}` : ''}\n\nLane: ${CONTROL_LANE}`, '--', PAUSED_FILE);
+  try {
+    await git(dir, 'add', '--', PAUSED_FILE);
+    await git(dir, 'commit', '-qm', `Pause all lanes${reason ? `: ${reason}` : ''}\n\nLane: ${CONTROL_LANE}`, '--', PAUSED_FILE);
+  } catch (error) {
+    // An uncommitted PAUSED would look paused here while the lanes never see it.
+    await git(dir, 'reset', '-q', '--', PAUSED_FILE).catch(() => undefined);
+    await rm(pausedFile(dir), { force: true });
+    throw error;
+  }
   const result: PauseResult = { changed: true, paused: true, by };
   await pushIfWanted(dir, result, options.push);
   return result;
@@ -70,6 +84,7 @@ export async function runPause(dir: string, options: PauseOptions = {}): Promise
 
 /** `loop resume`: removes `.ai/PAUSED` and commits that. Resuming a loop that is not paused is a no-op. */
 export async function runResume(dir: string, options: Pick<PauseOptions, 'push'> = {}): Promise<PauseResult> {
+  await syncFirst(dir, options.push);
   const tracked = (await git(dir, 'ls-files', '--', PAUSED_FILE)).stdout.trim() !== '';
   const present = (await readPaused(dir)) !== undefined;
   await rm(pausedFile(dir), { force: true });
