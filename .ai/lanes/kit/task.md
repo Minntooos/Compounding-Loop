@@ -1,7 +1,7 @@
 # Lane: kit — round 4 (0.4.0 "Control")
 
-Run: 1 / 20
-Status: units 1-5 done except `runners/routine/prompt.md` (waits on core's mirror)
+Run: 2 / 20
+Status: units 1-5 done except `runners/routine/prompt.md` (waits on core editing prompt.md + DEFAULT_PROMPT together; see outbox 21:40)
 Round 3 record: `.ai/lanes/kit/done-v3.md` (`git show b3b51a5:.ai/lanes/kit/task.md` for its Decisions).
 
 ## Contract
@@ -34,3 +34,6 @@ Round 3 record: `.ai/lanes/kit/done-v3.md` (`git show b3b51a5:.ai/lanes/kit/task
 ## Handoff (2026-10-11 20:30 UTC, run 1)
 Done and pushed: audit, PAUSED/run-log/stale-clone rules (lane + control prompts, lanes.yml, lanes CLAUDE section, static-site), method "Controlling a loop", `/loop-pause`; tests in `tests/unit/kit/control-rules.test.ts`.
 Next: (1) check core's outbox: once `runners/routine/prompt.md` and DEFAULT_PROMPT carry PAUSED + stale-clone text, add prompt.md to the `paused`/`staleClone` loops in control-rules.test.ts. (2) When `loop next-round --brief` and `loop ship-check` ship, verify the method table matches their real flags. (3) `.ai/done-v3.md` leftovers by value (chrome-extension icons first). (4) Then DONE.md.
+
+## Handoff (2026-10-11 21:40 UTC, run 2)
+Nothing shippable: only open unit is prompt.md, blocked on core (outbox 21:40). Next run: if core has edited both files, add prompt.md to the paused/staleClone loops in control-rules.test.ts, run npm test, push; then write DONE.md (no other kit units left).
