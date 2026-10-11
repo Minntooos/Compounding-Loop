@@ -3,7 +3,7 @@ import { Check, X } from 'lucide-react';
 import { useState } from 'react';
 import type { LoopDetail as Detail } from '@core/types';
 import { api } from '../api/client';
-import { relativeTime } from '../lib/format';
+import { Timeline } from './Timeline';
 import { LanesTab } from './LanesTab';
 import { StatusBadge } from './StatusBadge';
 import { LoadError, Loading } from './QueryState';
@@ -22,13 +22,7 @@ function TextList({ items, empty }: { items: string[]; empty: string }) {
 function TabBody({ tab, loop }: { tab: Tab; loop: Detail }) {
   switch (tab) {
     case 'Timeline':
-      return (
-        <ol className="space-y-2">
-          {loop.timeline.map((c) => (
-            <li key={c.sha} className="flex gap-3"><code className="font-mono text-[12px]" style={{ color: 'var(--muted)' }}>{c.sha.slice(0, 7)}</code><span className="flex-1">{c.message}</span><span style={{ color: 'var(--muted)' }}>{relativeTime(c.at)}</span></li>
-          ))}
-        </ol>
-      );
+      return <Timeline commits={loop.timeline} />;
     case 'Lanes': return <LanesTab lanes={loop.lanes ?? []} />;
     case 'Contract':
       return (

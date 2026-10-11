@@ -40,3 +40,6 @@ Commits carry a `Lane: web` trailer.
 
 ## Handoff (run 2)
 Unit 6 done: fleet cards with round + run-budget bars (web/src/lib/card.ts, ProgressBar.tsx), self-build card first and 2 columns wide, empty rows omitted, `--surface-2` token added. Server's `src/server/live/**` still absent at 05:50 UTC; unit 5 remainder still waits on it (or build against a fixture per the run-1 handoff). Next: unit 7 (Timeline by day, lane colours/filter, chart, claims in Lanes tab; `LaneStatus.claim` exists in types), then unit 8. Reviewer left minor gaps for the self card: story line, lane chips with mini bars, commit count in 'Last activity'.
+
+## Handoff (run 2, later)
+Unit 7 partly done: Timeline grouped by UTC day, lane colour + name, lane filter, absolute UTC times (web/src/lib/timeline.ts, components/Timeline.tsx, `--lane-*` tokens). Lane is inferred from the commit subject prefix (`web:`), as LoopCommit has no trailer; untagged commits are "other". Day headings are NOT sticky yet (DESIGN says sticky; do it once the shell header height is fixed). Still open in unit 7: runs/tests chart (hand-written SVG, text alternative), claims in the Lanes tab (`LaneStatus.claim`), self-card story line/lane chips. Then unit 8, then 5 remainder when server's live module lands.

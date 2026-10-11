@@ -80,3 +80,18 @@ test('cards show round and run-budget bars; the self-build card comes first; no 
   const text = await cards.allInnerTexts();
   for (const t of text) expect(t).not.toMatch(/no result|not checked/);
 });
+
+test('timeline groups commits by day, names each lane and filters by lane', async ({ page }) => {
+  await page.goto('/#/loop/compounding-loop');
+  const timeline = page.getByTestId('timeline');
+  await expect(timeline.getByRole('heading').first()).toHaveText(/^\w{3} \d{1,2} \w{3}\s*\d+ commits?$/);
+  await expect(timeline.locator('time').first()).toHaveText(/^\d\d:\d\d UTC$/);
+  const total = await timeline.locator('li').count();
+  const web = page.getByRole('group', { name: 'Filter by lane' }).getByRole('button', { name: 'web' });
+  await web.click();
+  await expect(web).toHaveAttribute('aria-pressed', 'true');
+  const shown = await timeline.locator('li').count();
+  expect(shown).toBeGreaterThan(0);
+  expect(shown).toBeLessThan(total);
+  for (const lane of await timeline.locator('li').evaluateAll((els) => els.map((e) => (e as HTMLElement).dataset.lane))) expect(lane).toBe('web');
+});
