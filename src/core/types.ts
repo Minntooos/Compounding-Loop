@@ -141,4 +141,24 @@ export interface LaneStatus {
   waitingOn?: string[];
   /** Messages other lanes sent to this lane that it has not answered yet. */
   unanswered: LaneUnanswered[];
+  /** Unexpired `.ai/lanes/<lane>/claim`, if any (a teammate is working this lane). */
+  claim?: { name: string; /** ISO 8601 UTC. */ expiresAt: string };
+}
+
+/** One lane's row in `loop next`. */
+export interface NextLane {
+  name: string;
+  state: LaneState;
+  /** Unexpired claim, if any. */
+  claim?: { name: string; expiresAt: string };
+  /** Units in the lane's task file not yet reported done; empty for a done lane. */
+  openUnits: { number: number; text: string }[];
+}
+
+/** Stable shape of `loop next --json`. */
+export interface NextReport {
+  /** In `.ai/lanes.json` order. */
+  lanes: NextLane[];
+  /** First open unit of the first lane that is neither done, blocked nor claimed; absent when there is none. */
+  recommended?: { lane: string; unit: { number: number; text: string } };
 }

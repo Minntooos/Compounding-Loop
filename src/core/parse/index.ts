@@ -5,7 +5,7 @@ export { CONTROL_LANE, laneForPath, matchGlob, parseLaneTrailer, parseLanesConfi
 export type { Lane, LanesConfig, ParsedLanes } from '../lanes.js';
 export { parseOutbox } from '../laneStatus.js';
 export type { OutboxMessage } from '../laneStatus.js';
-export { parseRunCounter, parseTaskFile, parseUnits, sectionOf } from './task.js';
+export { doneUnits, openUnits, parseRunCounter, parseTaskFile, parseUnits, sectionOf } from './task.js';
 export type { ParsedTask, RunCounter, TaskUnit } from './task.js';
 export { parseStopMarkers } from './markers.js';
 export type { StopMarkers } from './markers.js';

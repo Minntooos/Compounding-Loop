@@ -109,3 +109,13 @@ describe('loop claim / release', () => {
     expect(r.pushError).toBeTruthy();
   });
 });
+
+describe('loop next', () => {
+  it('lists this repo\'s lanes and recommends one, as JSON too', async () => {
+    const { runNext } = await import('../../../src/cli/next.js');
+    const report = await runNext(path.resolve('.'));
+    expect(report.lanes.map((l) => l.name)).toEqual(['core', 'kit', 'server', 'web', 'docs']);
+    for (const lane of report.lanes) expect(Array.isArray(lane.openUnits)).toBe(true);
+    await expect(runNext(tmpdir())).rejects.toThrow(/lanes\.json/);
+  });
+});

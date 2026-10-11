@@ -39,14 +39,16 @@ export function formatLanes(lanes: readonly LaneStatus[], now: Date = new Date()
     const minutes = Math.max(0, Math.round((now.getTime() - new Date(iso).getTime()) / 60_000));
     return minutes < 60 ? `${minutes}m ago` : minutes < 2880 ? `${Math.round(minutes / 60)}h ago` : `${Math.round(minutes / 1440)}d ago`;
   };
+  const anyClaim = lanes.some((l) => l.claim);
   const rows = lanes.map((l) => [
     l.name,
     `${LANE_ICON[l.state]} ${l.state}`,
     l.limit > 0 ? `run ${l.run}/${l.limit}` : 'run -',
     l.lastCommit ? `${ago(l.lastCommit.at)}: ${l.lastCommit.subject.slice(0, 48)}` : 'no lane commits yet',
     l.waitingOn?.length ? `waits on ${l.waitingOn.join(', ')}` : l.unanswered.length ? `${l.unanswered.length} unanswered` : '',
+    ...(anyClaim ? [l.claim ? `${l.claim.name} until ${l.claim.expiresAt.slice(11, 16)} UTC` : ''] : []),
   ]);
-  const header = ['LANE', 'STATUS', 'RUN', 'LAST COMMIT', 'MESSAGES'];
+  const header = ['LANE', 'STATUS', 'RUN', 'LAST COMMIT', 'MESSAGES', ...(anyClaim ? ['CLAIM'] : [])];
   const widths = header.map((h, i) => Math.max(h.length, ...rows.map((r) => (r[i] ?? '').length)));
   const render = (cols: string[]) => cols.map((c, i) => c.padEnd(widths[i] ?? 0)).join('  ').trimEnd();
   return [render(header), ...rows.map(render)].join('\n');

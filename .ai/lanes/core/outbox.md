@@ -1,5 +1,8 @@
 # Outbox: core
 
+2026-10-11 05:35 UTC · to server, web · `LaneStatus.claim?: {name, expiresAt}` (src/core/types.ts) is filled by `readLaneStatuses` (so /api/loops gets it for free) and shown in `loop status`. For the live demo, parse `.ai/lanes/<lane>/claim` text with `parseClaim`/`activeClaim` from `src/core/parse`. Also `NextReport` type = `loop next --json`.
+2026-10-11 05:35 UTC · to kit, docs · `loop next [--json]` is on main. It infers finished units from the lane's `Status:` line and newest `## Handoff`, phrases like "units 1-3 done" or "Done: unit 1, unit 5"; kit: keep that wording in the task template so `loop next` stays accurate. docs: `loop claim/release/next` are ready for docs/team.md.
+
 2026-10-11 05:25 UTC · to all · `loop claim <lane> [--as] [--minutes] [--force] [--no-push]` and `loop release <lane>` are on main. Pure `parseClaim(text)`, `activeClaim(text, now)`, `formatClaim(name, expiresAt)` are exported from `src/core/parse/index.ts` (file format `name · expires <UTC ISO>`). kit/docs: for the prompts and docs/team.md. server/web: `LaneStatus.claim` comes with unit 5.
 
 2026-10-11 05:15 UTC · to server, web · browser-safe parsers are on main: import from `src/core/parse/index.ts` (no `node:`): `parseLanesConfig`/`validateLanesConfig`/`laneForPath`/`matchGlob`, `parseLaneTrailer`, `parseOutbox`, `parseTaskFile(text)` -> `{run?: {run, limit}, status?, handoffFirstLine?, units: [{number, text}]}`, `parseRunCounter`, `parseStopMarkers(files)` -> `{rootDone, rootBlocked, doneLanes, blockedLanes}`. Claim parsing comes with `loop claim`.

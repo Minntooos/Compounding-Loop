@@ -4,6 +4,7 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 import { deriveLaneState, stallMinutesFor, parseOutbox, summarizeOutboxes, type OutboxMessage } from '../core/laneStatus.js';
 import { parseLanesConfig } from '../core/lanes.js';
+import { activeClaim } from '../core/parse/claim.js';
 import { parseLockTime, parseRunCounter } from '../core/repo.js';
 import type { LaneStatus } from '../core/types.js';
 
@@ -45,7 +46,8 @@ export async function readLaneStatuses(dir: string, now: Date = new Date()): Pro
       ...(lockAt && { lockAt }),
       ...(lastCommit && { lastCommitAt: new Date(lastCommit.at) }),
     }, now);
-    return { name, state, run: counter?.run ?? 0, limit: counter?.limit ?? 0, ...(lastCommit && { lastCommit }), locked: lockAt !== undefined && state === 'building' };
+    const claim = activeClaim(await read(path.join(laneDir, 'claim')), now);
+    return { name, state, ...(claim && { claim: { name: claim.name, expiresAt: claim.expiresAt.toISOString() } }), run: counter?.run ?? 0, limit: counter?.limit ?? 0, ...(lastCommit && { lastCommit }), locked: lockAt !== undefined && state === 'building' };
   }));
   const commitTimes = new Map(partial.flatMap((l) => (l.lastCommit ? [[l.name, l.lastCommit.at.slice(0, 16) + ':00.000Z'] as const] : [])));
   const { unanswered, waitingOn } = summarizeOutboxes(outboxes, commitTimes);

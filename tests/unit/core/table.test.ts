@@ -18,3 +18,14 @@ describe('formatFleet', () => {
     expect(lines[4]).toMatch(/^a /);
   });
 });
+
+describe('formatLanes claims', () => {
+  it('adds a CLAIM column only when some lane is claimed', async () => {
+    const { formatLanes } = await import('../../../src/core/table.js');
+    const lane = { name: 'api', state: 'waiting' as const, run: 1, limit: 5, locked: false, unanswered: [] };
+    expect(formatLanes([lane])).not.toContain('CLAIM');
+    const out = formatLanes([{ ...lane, claim: { name: 'Sam', expiresAt: '2026-10-11T11:30:00.000Z' } }, { ...lane, name: 'ui' }]);
+    expect(out).toContain('CLAIM');
+    expect(out).toContain('Sam until 11:30 UTC');
+  });
+});

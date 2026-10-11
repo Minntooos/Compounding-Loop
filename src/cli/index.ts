@@ -2,6 +2,8 @@ import { Command } from 'commander';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { runClaim, runRelease, type ClaimResult } from './claim.js';
+import { runNext } from './next.js';
+import { formatNext } from '../core/next.js';
 import { formatLaneCheck, runCheckLanes } from './checkLanes.js';
 import { runDoctor } from './doctor.js';
 import { runAddLanes } from './lanesInit.js';
@@ -245,6 +247,20 @@ program
       const r = await runRelease(path.resolve(options.dir), lane, { push: options.push });
       console.log(r.committed ? `Released ${lane}.${pushNote(r)}` : `Lane ${lane} had no committed claim; nothing to release.`);
       if (r.pushed === false) process.exitCode = 1;
+    } catch (error) {
+      fail(error);
+    }
+  });
+
+program
+  .command('next')
+  .description('List open units across all lanes with their claims, and recommend one nobody has claimed')
+  .argument('[dir]', 'repo folder', '.')
+  .option('--json', 'print the report as JSON (shape: NextReport in src/core/types.ts)')
+  .action(async (dir: string, options: { json?: boolean }) => {
+    try {
+      const report = await runNext(path.resolve(dir));
+      console.log(options.json ? JSON.stringify(report, null, 2) : formatNext(report));
     } catch (error) {
       fail(error);
     }
