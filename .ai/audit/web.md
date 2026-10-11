@@ -15,4 +15,4 @@ None open.
 | 5 | Lanes UI | Built (LanesTab, LaneStrip, Needs-you counts) with e2e on fixtures and on the demo's sixth loop. | ok |
 | 6 | Settings | Already wired to `GET /api/settings` with an e2e (`screens.spec.ts`: "settings shows the server settings"). Unit 3 is done. | ok |
 | 7 | 375 px and motion | `tests/e2e/layout.spec.ts` asserts no horizontal overflow at 375 px on all screens incl. the laned loop; `index.css` honours `prefers-reduced-motion`. Screenshots in `docs/assets/screens/`. | ok |
-| 8 | Not yet judged | Long names/paths and empty/loading states by eye: still to do in the polish pass. | open (planned) |
+| 8 | Long text | New layout e2e feeds a 140-char name, a path-like reason, commit subject and unanswered message at 375 px. It found real overflow (Fleet reason, Lanes commit line); fixed with `overflow-wrap:anywhere`. Empty and loading states are covered by `QueryState` and the "No loops yet" card (screens.spec.ts). | ok (fixed) |

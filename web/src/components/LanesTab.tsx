@@ -16,7 +16,7 @@ function LaneRow({ lane }: { lane: LaneStatus }) {
           {lane.locked ? <Lock aria-hidden size={13} /> : <LockOpen aria-hidden size={13} />}{lane.locked ? 'Locked' : 'No lock'}
         </span>
       </div>
-      <p className="mt-1 break-words" style={{ color: 'var(--muted)' }}>
+      <p className="mt-1 [overflow-wrap:anywhere]" style={{ color: 'var(--muted)' }}>
         {lane.lastCommit
           ? <><code className="font-mono text-[12px]">{lane.lastCommit.sha.slice(0, 7)}</code> {lane.lastCommit.subject} · {relativeTime(lane.lastCommit.at)}</>
           : 'No commits yet'}
@@ -24,7 +24,7 @@ function LaneRow({ lane }: { lane: LaneStatus }) {
       {lane.unanswered.length > 0 && (
         <ul aria-label={`Unanswered messages to ${lane.name}`} className="mt-2 space-y-1">
           {lane.unanswered.map((u, i) => (
-            <li key={i} data-testid="lane-unanswered" className="break-words text-[13px]" style={{ color: 'var(--blocked)' }}>{describeUnanswered(u)}</li>
+            <li key={i} data-testid="lane-unanswered" className="[overflow-wrap:anywhere] text-[13px]" style={{ color: 'var(--blocked)' }}>{describeUnanswered(u)}</li>
           ))}
         </ul>
       )}

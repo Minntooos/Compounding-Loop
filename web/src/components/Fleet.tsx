@@ -36,7 +36,7 @@ function LoopCard({ loop }: { loop: LoopSummary }) {
           <h3 className="break-all text-[15px] font-semibold">{loop.name}</h3>
           <StatusBadge state={loop.state} />
         </div>
-        <p className="mt-1" style={{ color: 'var(--muted)' }}>{loop.reason}</p>
+        <p className="mt-1 [overflow-wrap:anywhere]" style={{ color: 'var(--muted)' }}>{loop.reason}</p>
         <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 font-mono text-[12px]">
           <dt style={{ color: 'var(--muted)' }}>Round</dt><dd>{loop.round}/{loop.roundsTotal}</dd>
           <dt style={{ color: 'var(--muted)' }}>Run</dt><dd>{loop.run}/{loop.runLimit}</dd>
