@@ -14,6 +14,6 @@ It serves on loopback only. Options: `--port N`, `--no-open`, `--projects dir`.
 - **New loop wizard:** scores your brief live, picks a template and runner, and shows the exact command.
 - **Settings:** light and dark theme.
 
-![Fleet screen](assets/dashboard.png)
+![Fleet screen](assets/screens/fleet-light-laptop.png)
 
 Regenerate the screenshot with `npm run build && node docs/render-screenshot.mjs`.

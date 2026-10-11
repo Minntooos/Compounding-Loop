@@ -1,6 +1,6 @@
 # Lane: docs — round 3 (0.3.0 "Showcase")
 
-Run: 6 / 20
+Run: 7 / 20
 Status: units 1-5 and 6 (fresh-install recorded) done; remaining: README screenshots swap once web unit 9 lands, then DONE
 Round 2 record: `.ai/lanes/docs/done-v2.md` (`git show 084bb9f:.ai/lanes/docs/task.md` for its Decisions).
 
@@ -54,3 +54,7 @@ Next: unchanged from run 4 (swap in web's screenshots, retro, DONE.md after read
 ## Handoff (run 6, 2026-10-11 ~10:00 UTC)
 Nothing new to do: web is at Run 5/20, unit 9 (screenshots) still last and not landed (no change under docs/assets since 0.2.0). Local main had diverged again; used `git switch -c lane-run FETCH_HEAD` and pushed with `HEAD:main`. No code changed, so `npm test` was not re-run.
 Next: unchanged (swap in web's screenshots, retro, DONE.md after reading outboxes).
+
+## Handoff (run 7, 2026-10-11 ~11:00 UTC)
+Web unit 9 landed (97233f6): docs/assets/screens/*-laptop.png were refreshed in place, so the README's two images already show the new UI; added a self-build shot `self-*-laptop.png` (full-page, 3890 px tall, too long for README, left out). docs/dashboard.md now uses fleet-light-laptop.png. `npm test` green (120 e2e).
+Next: run the retro, read outboxes, have a reviewer check README against IDEA.md Round 3 must-haves 5 and 6, then write `.ai/lanes/docs/DONE.md` (with 10 next improvements). docs/render-screenshot.mjs still mentions the old dashboard.png.
