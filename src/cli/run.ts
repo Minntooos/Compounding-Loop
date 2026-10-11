@@ -6,7 +6,7 @@ import { LOCK_MINUTES } from '../core/status.js';
 import { buildClaudeArgs, buildRunPrompt, claimRule, DEFAULT_PROMPT } from '../core/runPrompt.js';
 import { parseLanesConfig } from '../core/lanes.js';
 import { packageRoot } from './init.js';
-import { withSessionLock } from './lock.js';
+import { lockHolderPid, pidAlive, withSessionLock } from './lock.js';
 
 const exists = (file: string) => stat(file).then(() => true, () => false);
 
@@ -147,9 +147,12 @@ const realSpawn: Spawner = async (command, rawArgs, cwd) => {
 };
 
 /** Minutes left on a fresh `.ai/session.lock`, or undefined when no session holds the repo. */
-export function lockMinutesLeft(lockText: string | undefined, now: Date): number | undefined {
+export function lockMinutesLeft(lockText: string | undefined, now: Date, isAlive: (pid: number) => boolean = pidAlive): number | undefined {
   const at = lockText === undefined ? undefined : parseLockTime(lockText);
-  if (!at) return undefined;
+  if (!at || lockText === undefined) return undefined;
+  // A lock whose holder was killed (SIGKILL skips the cleanup) is stale at once instead of after 90 minutes.
+  const pid = lockHolderPid(lockText);
+  if (pid !== undefined && !isAlive(pid)) return undefined;
   const left = LOCK_MINUTES - (now.getTime() - at.getTime()) / 60_000;
   return left > 0 ? Math.ceil(left) : undefined;
 }

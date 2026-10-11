@@ -39,6 +39,14 @@ describe('loop run', () => {
       await writeFile(path.join(dir, '.ai', 'lanes.json'), lanesJson);
     });
 
+    it('treats a lock whose holder pid is gone as stale', () => {
+      const now = new Date('2026-10-08T05:10:00Z');
+      const lock = '2026-10-08T05:00:00.000Z\n999\n';
+      expect(lockMinutesLeft(lock, now, () => true)).toBe(80);
+      expect(lockMinutesLeft(lock, now, () => false)).toBeUndefined();
+      expect(lockMinutesLeft('2026-10-08T05:00:00.000Z\n', now, () => false)).toBe(80);
+    });
+
     it('tells the run its claimant name with --as', async () => {
       const spawner: Spawner = async () => 0;
       const withName = await runRound(dir, { dryRun: true, skipPermissions: false, lane: 'api', as: 'sam' }, spawner);

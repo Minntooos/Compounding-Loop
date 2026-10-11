@@ -7,8 +7,8 @@ Goal judged: browser-safe parsers for the live demo, then `loop claim/release/ne
 | # | Finding | Severity | Fix |
 |---|---|---|---|
 | R3-1 | Parsers the browser needs were scattered: `parseRunCounter` lived in `repo.ts` (imports `node:`), there was no task-file, stop-marker or claim parser | blocker for server/web | FIXED: `src/core/parse/` entry point (task, markers, re-exports of lanes/trailer/outbox), a test fails on any `node:` import there |
-| R3-2 | `claude` child may outlive the parent after SIGKILL; stale lock lasts 90 min | minor | open (round 2 leftover) |
-| R3-3 | `.ai/last-test.json` still has no writer, so the dashboard shows "Tests: no result" | major | open, after claim/next |
+| R3-2 | `claude` child may outlive the parent after SIGKILL; stale lock lasts 90 min | minor | FIXED: lock holds the pid, a dead holder makes the lock stale at once |
+| R3-3 | `.ai/last-test.json` still has no writer, so the dashboard shows "Tests: no result" | major | FIXED upstream: the kit templates' `scripts/test.mjs` write it; nothing more to build in `loop run` |
 
 ---
 

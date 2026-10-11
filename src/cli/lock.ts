@@ -11,7 +11,7 @@ export interface LockOptions {
 }
 
 /**
- * Holds a session lock file (one UTC timestamp line) while `fn` runs, and removes it when `fn` succeeds, throws,
+ * Holds a session lock file (a UTC timestamp line, then the holder's pid so a SIGKILLed run is recognised as dead) while `fn` runs, and removes it when `fn` succeeds, throws,
  * or the process gets Ctrl-C / SIGTERM, so a crashed round never blocks the next one for 90 minutes.
  * On a signal the lock is kept until `fn` settles (the terminal also signals the `claude` child, which needs a moment
  * to stop) or `graceMs` passes, so a second session cannot start while the first is still writing.
@@ -19,7 +19,7 @@ export interface LockOptions {
 export async function withSessionLock<T>(lockFile: string, fn: () => Promise<T>, options: LockOptions = {}): Promise<T> {
   const exit = options.exit ?? ((code: number) => process.exit(code));
   await mkdir(path.dirname(lockFile), { recursive: true });
-  await writeFile(lockFile, `${(options.now ?? (() => new Date()))().toISOString()}\n`);
+  await writeFile(lockFile, `${(options.now ?? (() => new Date()))().toISOString()}\n${process.pid}\n`);
   const release = () => rmSync(lockFile, { force: true });
   const graceMs = options.graceMs ?? 10_000;
   let finished!: () => void;
@@ -42,3 +42,19 @@ export async function withSessionLock<T>(lockFile: string, fn: () => Promise<T>,
   }
 }
 
+
+/** The pid on the lock's second line, if any. */
+export function lockHolderPid(lockText: string): number | undefined {
+  const pid = Number(lockText.split(/\r?\n/)[1]?.trim());
+  return Number.isInteger(pid) && pid > 0 ? pid : undefined;
+}
+
+/** True when a process with this pid exists (EPERM means it exists but belongs to someone else). */
+export function pidAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return (error as NodeJS.ErrnoException).code === 'EPERM';
+  }
+}

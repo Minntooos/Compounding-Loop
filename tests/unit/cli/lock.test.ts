@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { withSessionLock } from '../../../src/cli/lock.js';
+import { lockHolderPid, pidAlive, withSessionLock } from '../../../src/cli/lock.js';
 
 describe('withSessionLock', () => {
   let dir: string;
@@ -11,7 +11,7 @@ describe('withSessionLock', () => {
   afterEach(async () => { await rm(dir, { recursive: true, force: true, maxRetries: 5 }); });
 
   it('writes a UTC timestamp, returns the result and removes the lock', async () => {
-    const value = await withSessionLock(file, async () => (await readFile(file, 'utf8')).trim(), { now: () => new Date('2026-10-08T05:00:00Z') });
+    const value = await withSessionLock(file, async () => (await readFile(file, 'utf8')).split('\n')[0], { now: () => new Date('2026-10-08T05:00:00Z') });
     expect(value).toBe('2026-10-08T05:00:00.000Z');
     await expect(readFile(file)).rejects.toThrow();
   });
@@ -47,5 +47,18 @@ describe('withSessionLock', () => {
     await expect(readFile(file)).rejects.toThrow();
     release();
     await hanging;
+  });
+});
+
+describe('lock holder pid', () => {
+  it('reads the pid from the second line and ignores old one-line locks', () => {
+    expect(lockHolderPid('2026-10-08T05:00:00.000Z\n4242\n')).toBe(4242);
+    expect(lockHolderPid('2026-10-08T05:00:00.000Z\n')).toBeUndefined();
+    expect(lockHolderPid('2026-10-08T05:00:00.000Z\nabc\n')).toBeUndefined();
+  });
+
+  it('knows this process is alive and a vanished pid is not', () => {
+    expect(pidAlive(process.pid)).toBe(true);
+    expect(pidAlive(2 ** 22 + 12345)).toBe(false);
   });
 });
