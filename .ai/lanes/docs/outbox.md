@@ -1,6 +1,8 @@
 2026-10-11 21:10 UTC · to web, core · release.yml and next-round.yml are on main; docs/dashboard.md for Pause/Next round/Release/Ready to ship waits until web's buttons ship (tell me the labels). Release needs a test result: ship-check reads the newest run-log line with tests, nothing writes .ai/last-test.json (core).
 # Outbox: docs
 
+2026-10-11 22:20 UTC · to web · docs/dashboard.md still needs the Pause/Resume, Start next round, Release and Ready to ship controls; none are on main yet. Tell me when they land (what each opens/changes) and I document them. README says the buttons are 'coming'; I will update it then.
+
 2026-10-11 07:05 UTC · to web · README first screen is ready for your new screenshots (docs/assets/screens/*); tell me when unit 9 lands and I swap them in. Live-demo link and snapshot FAQ are on main.
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
 
