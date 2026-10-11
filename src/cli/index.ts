@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import { runClaim, runRelease, type ClaimResult } from './claim.js';
 import { formatLaneCheck, runCheckLanes } from './checkLanes.js';
 import { runDoctor } from './doctor.js';
 import { runAddLanes } from './lanesInit.js';
@@ -207,6 +208,43 @@ program
       const { report, passed } = await runDoctor();
       console.log(report);
       if (!passed) process.exitCode = 1;
+    } catch (error) {
+      fail(error);
+    }
+  });
+
+const pushNote = (r: ClaimResult) => (r.pushed === false ? `\nCommitted, but the push failed: ${r.pushError}\nFix that (for a rejected push: \`git pull --rebase && git push\`) so teammates see it.` : '');
+
+program
+  .command('claim')
+  .description('Tell teammates you are working a lane: writes .ai/lanes/<lane>/claim, commits and pushes it')
+  .argument('<lane>', 'lane name from .ai/lanes.json')
+  .option('--as <name>', 'your name (default: git config user.name)')
+  .option('--minutes <n>', 'how long the claim lasts', '90')
+  .option('--force', 'take over a lane someone else has claimed')
+  .option('--no-push', 'commit but do not push')
+  .option('--dir <dir>', 'repo folder', '.')
+  .action(async (lane: string, options: { as?: string; minutes: string; force?: boolean; push: boolean; dir: string }) => {
+    try {
+      const r = await runClaim(path.resolve(options.dir), lane, { ...(options.as && { as: options.as }), minutes: Number(options.minutes), force: Boolean(options.force), push: options.push });
+      console.log(`Claimed ${r.lane} as ${r.name} until ${r.expiresAt?.toISOString()}.${pushNote(r)}`);
+      if (r.pushed === false) process.exitCode = 1;
+    } catch (error) {
+      fail(error);
+    }
+  });
+
+program
+  .command('release')
+  .description('Remove your claim on a lane (commits and pushes)')
+  .argument('<lane>', 'lane name from .ai/lanes.json')
+  .option('--no-push', 'commit but do not push')
+  .option('--dir <dir>', 'repo folder', '.')
+  .action(async (lane: string, options: { push: boolean; dir: string }) => {
+    try {
+      const r = await runRelease(path.resolve(options.dir), lane, { push: options.push });
+      console.log(r.committed ? `Released ${lane}.${pushNote(r)}` : `Lane ${lane} had no committed claim; nothing to release.`);
+      if (r.pushed === false) process.exitCode = 1;
     } catch (error) {
       fail(error);
     }

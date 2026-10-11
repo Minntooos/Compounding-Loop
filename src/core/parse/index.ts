@@ -9,3 +9,5 @@ export { parseRunCounter, parseTaskFile, parseUnits, sectionOf } from './task.js
 export type { ParsedTask, RunCounter, TaskUnit } from './task.js';
 export { parseStopMarkers } from './markers.js';
 export type { StopMarkers } from './markers.js';
+export { activeClaim, formatClaim, parseClaim } from './claim.js';
+export type { Claim } from './claim.js';

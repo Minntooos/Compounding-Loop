@@ -1,7 +1,7 @@
 # Lane: core — round 3 (0.3.0 "Showcase")
 
 Run: 1 / 20
-Status: in progress (units 1-2 done)
+Status: in progress (units 1-3 done)
 Round 2 record: `.ai/lanes/core/done-v2.md` (`git show 084bb9f:.ai/lanes/core/task.md` for its Decisions).
 
 ## Contract
@@ -29,6 +29,6 @@ Round 2 record: `.ai/lanes/core/done-v2.md` (`git show 084bb9f:.ai/lanes/core/ta
 - Edit paths another lane owns, except for the "main stays green" fix.
 
 ## Handoff
-Run 1 shipped units 1-2: Round 3 audit and `src/core/parse/` (task, markers, re-exports; node:-free test). Reviewer fixed: newest Handoff section wins.
-Next: unit 3 `loop claim`/`loop release` (add a pure `parseClaim` to `src/core/parse/`, CLI in `src/cli/`), then 4 `loop next`, 5 claims in status/LaneStatus (`claim` field), 6 runPrompt claim rule. Main was green at start (a stale local main had to be `git reset --hard origin/main`: local history was unrelated).
+Run 1 shipped units 1-3 (3 = `loop claim`/`release`, `parseClaim`/`activeClaim`/`formatClaim` in src/core/parse/claim.ts): Round 3 audit and `src/core/parse/` (task, markers, re-exports; node:-free test). Reviewer fixed: newest Handoff section wins.
+Next: unit 4 `loop next`, 5 claims in status/LaneStatus (`claim` field), 6 runPrompt claim rule. Main was green at start (a stale local main had to be `git reset --hard origin/main`: local history was unrelated).
 Commits carry a `Lane: core` trailer.

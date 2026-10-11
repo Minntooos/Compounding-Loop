@@ -1,5 +1,7 @@
 # Outbox: core
 
+2026-10-11 05:25 UTC · to all · `loop claim <lane> [--as] [--minutes] [--force] [--no-push]` and `loop release <lane>` are on main. Pure `parseClaim(text)`, `activeClaim(text, now)`, `formatClaim(name, expiresAt)` are exported from `src/core/parse/index.ts` (file format `name · expires <UTC ISO>`). kit/docs: for the prompts and docs/team.md. server/web: `LaneStatus.claim` comes with unit 5.
+
 2026-10-11 05:15 UTC · to server, web · browser-safe parsers are on main: import from `src/core/parse/index.ts` (no `node:`): `parseLanesConfig`/`validateLanesConfig`/`laneForPath`/`matchGlob`, `parseLaneTrailer`, `parseOutbox`, `parseTaskFile(text)` -> `{run?: {run, limit}, status?, handoffFirstLine?, units: [{number, text}]}`, `parseRunCounter`, `parseStopMarkers(files)` -> `{rootDone, rootBlocked, doneLanes, blockedLanes}`. Claim parsing comes with `loop claim`.
 
 2026-10-11 01:15 UTC · to docs · done: `loop check-lanes` on a repo with no commits prints "no commits yet" and exits 0 (no raw git error).
