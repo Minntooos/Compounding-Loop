@@ -120,3 +120,31 @@ test('Runs tab explains an empty log and is absent for loops without runs', asyn
   await page.goto('/#/loop/proj2');
   await expect(page.getByRole('tab', { name: 'Runs' })).toHaveCount(0);
 });
+
+test('loop page shows the pause notice, the Ready to ship checklist and the Releases tab', async ({ page }) => {
+  await page.route('**/api/loops/laned', async (route) => {
+    const res = await route.fetch({ url: route.request().url().replace('/laned', '/proj2') });
+    const loop = (await res.json()) as Record<string, unknown>;
+    await route.fulfill({
+      response: res,
+      json: {
+        ...loop, id: 'laned', name: 'laned-loop', lanes: LANES,
+        paused: { by: 'Mina', at: '2026-10-11T14:05:00Z', reason: 'budget' },
+        ship: { ready: false, openFindings: ['server: pause hangs on a prompt'], items: [{ id: 'tests', label: 'Tests pass', ok: true, detail: '176 passed' }, { id: 'tag', label: 'Tag is free', ok: false, detail: 'v0.4.0 exists' }] },
+        releases: [{ version: '0.4.0', date: '2026-10-12', sections: [{ title: 'Added', items: ['Runs tab'] }], items: ['Runs tab'] }, { version: 'Unreleased', sections: [], items: [] }],
+      },
+    });
+  });
+  await page.goto('/#/loop/laned');
+  await expect(page.getByTestId('paused-notice')).toContainText('Paused by Mina since 14:05 UTC · budget');
+  const ship = page.getByTestId('ship-panel');
+  await expect(ship.getByRole('heading', { name: 'Not ready to ship' })).toBeVisible();
+  await expect(ship).toContainText('v0.4.0 exists');
+  await expect(ship).toContainText('pause hangs on a prompt');
+  await page.getByRole('tab', { name: 'Releases' }).click();
+  await expect(page.getByTestId('release-row')).toHaveCount(2);
+  await page.getByText('0.4.0', { exact: true }).click();
+  await expect(page.getByTestId('release-row').first().getByRole('listitem')).toHaveText('Runs tab');
+  const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(axe.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')).toEqual([]);
+});

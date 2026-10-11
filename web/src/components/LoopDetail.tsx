@@ -6,15 +6,18 @@ import { api } from '../api/client';
 import { Timeline } from './Timeline';
 import { LanesTab } from './LanesTab';
 import { RunsTab } from './RunsTab';
+import { ReleasesTab } from './ReleasesTab';
+import { ShipPanel } from './ShipPanel';
 import { StatusBadge } from './StatusBadge';
 import { LoadError, Loading } from './QueryState';
 import { ProgressBar } from './ProgressBar';
+import { statusLine } from '../lib/card';
 import { runLimitText, siteOf } from '../lib/settings';
 
 const BASE_TABS = ['Timeline', 'Contract', 'Knowledge', 'Decisions', 'Settings'] as const;
-type Tab = (typeof BASE_TABS)[number] | 'Lanes' | 'Runs';
+type Tab = (typeof BASE_TABS)[number] | 'Lanes' | 'Runs' | 'Releases';
 /** Lanes (after Timeline) and Runs (after Lanes) appear only for loops that send them. */
-const tabsFor = (loop: Detail): Tab[] => ['Timeline', ...(loop.lanes ? ['Lanes' as const] : []), ...(loop.runs ? ['Runs' as const] : []), ...BASE_TABS.slice(1)];
+const tabsFor = (loop: Detail): Tab[] => ['Timeline', ...(loop.lanes ? ['Lanes' as const] : []), ...(loop.runs ? ['Runs' as const] : []), ...BASE_TABS.slice(1), ...(loop.releases ? ['Releases' as const] : [])];
 
 // Entries are plain text from repo files: rendered as text nodes only, never as HTML.
 function TextList({ items, empty }: { items: string[]; empty: string }) {
@@ -28,6 +31,7 @@ function TabBody({ tab, loop }: { tab: Tab; loop: Detail }) {
       return <Timeline commits={loop.timeline} />;
     case 'Lanes': return <LanesTab lanes={loop.lanes ?? []} />;
     case 'Runs': return <RunsTab runs={loop.runs ?? []} paused={loop.paused !== undefined} quiet={(loop.lanes ?? []).filter((l) => l.state === 'done' || l.state === 'blocked').map((l) => l.name)} {...(loop.nextRuns && { nextRuns: loop.nextRuns })} />;
+    case 'Releases': return <ReleasesTab releases={loop.releases ?? []} />;
     case 'Contract':
       if (loop.contract.length === 0) return <p style={{ color: 'var(--muted)' }}>No contract lines yet. They appear when the task file has a Done-when list.</p>;
       return (
@@ -78,6 +82,12 @@ export function LoopDetail({ id }: { id: string }) {
           <div className="w-48 max-w-full"><ProgressBar label="Run budget" value={Math.min(loop.run, loop.runLimit)} max={loop.runLimit} text={`Run ${loop.run}/${loop.runLimit}`} color="var(--accent)" /></div>
         )}
       </div>
+      {loop.paused && (
+        <p role="status" data-testid="paused-notice" className="rounded-lg border p-3" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
+          {statusLine(loop)}. Lane runs and the control room stop until it is resumed.
+        </p>
+      )}
+      {loop.ship && <ShipPanel ship={loop.ship} />}
       <div role="tablist" aria-label="Loop sections" className="flex gap-1 overflow-x-auto whitespace-nowrap border-b" style={{ borderColor: 'var(--border)' }}>
         {tabs.map((t) => (
           <button key={t} type="button" role="tab" tabIndex={tab === t ? 0 : -1} onKeyDown={(e) => onTabKey(e, tabs, tab, setTab)} id={`tab-${t}`} aria-controls="loop-panel" aria-selected={tab === t} onClick={() => setTab(t)} className="rounded-t px-3 py-2 aria-selected:border-b-2 aria-selected:font-semibold" style={{ borderColor: 'var(--accent)' }}>{t}</button>
