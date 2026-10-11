@@ -2,6 +2,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { LOCK_MINUTES } from '../core/status.js';
 import type { HealthCheck, LaneStatus, LoopFacts } from '../core/types.js';
+import { formatUtc, withLabel } from './checkLabels.js';
 import { laneChecks } from './laneChecks.js';
 
 export { laneChecks };
@@ -83,7 +84,7 @@ export function staleLockCheck(facts: Pick<LoopFacts, 'lockAt' | 'lastCommitAt'>
     kind: 'stale-lock',
     ok: !stale,
     reason: stale ? `lock is ${Math.round(age)} min old and nothing was committed since` : 'lock is fresh or work followed it',
-    proof: `lock at ${lockAt.toISOString()}, window ${LOCK_MINUTES} min`,
+    proof: `lock at ${formatUtc(lockAt)}, window ${LOCK_MINUTES} min`,
   };
 }
 
@@ -162,7 +163,7 @@ export function runnerSilentCheck(
     kind: 'runner-silent',
     ok: silent <= limit,
     reason: silent <= limit ? 'runner is active' : `no commit or lock for ${Math.round(silent)} min (limit ${limit})`,
-    proof: `last activity ${new Date(latest).toISOString()}, period ${periodMinutes} min`,
+    proof: `last activity ${formatUtc(new Date(latest))}, period ${periodMinutes} min`,
   };
 }
 
@@ -192,5 +193,5 @@ export async function checkLoop(dir: string, facts: LoopFacts, now: Date, period
     runnerSilentCheck(facts, now, periodMinutes),
     ...(lanes ? laneChecks(lanes) : []),
   ];
-  return checks.map((c) => ({ loopId, ...c }));
+  return checks.map((c) => ({ loopId, ...withLabel(c) }));
 }

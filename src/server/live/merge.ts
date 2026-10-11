@@ -8,11 +8,11 @@ export function snapshotSince(snapshot: readonly LoopCommit[]): string | undefin
 
 /**
  * Newest first, one entry per commit. A commit in both lists keeps the live copy (it is the fresher read) and only
- * the fields shown to people, so the merge never carries a `lane` hint into the timeline.
+ * the fields shown to people.
  */
 export function mergeCommits(snapshot: readonly LoopCommit[], live: readonly LoopCommit[]): LoopCommit[] {
   const bySha = new Map<string, LoopCommit>();
-  for (const c of [...snapshot, ...live]) bySha.set(c.sha, { sha: c.sha, at: c.at, message: c.message, ...(c.author && { author: c.author }) });
+  for (const c of [...snapshot, ...live]) bySha.set(c.sha, { sha: c.sha, at: c.at, message: c.message, ...(c.author && { author: c.author }), ...(c.lane && { lane: c.lane }) });
   // Array.prototype.sort is stable, so equal timestamps keep their insertion order.
   return [...bySha.values()].sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : 0));
 }

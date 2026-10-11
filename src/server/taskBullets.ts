@@ -1,5 +1,5 @@
 // Pure (no Node imports): the live dashboard runs this in the browser.
-import type { ContractItem } from '../core/types.js';
+import type { ContractItem, LaneNotes } from '../core/types.js';
 
 /** Bullet lines ("- x") directly under the first heading or bold label that matches `label`. */
 export function bulletsUnder(markdown: string, label: RegExp): string[] {
@@ -16,7 +16,19 @@ export function bulletsUnder(markdown: string, label: RegExp): string[] {
   return bullets;
 }
 
-/** The done-when items of a task.md; an item only counts as passing once the loop wrote DONE.md. */
+/** The sentence of a `**Done when:** a; b; c.` line, split into its items (lane task files write the contract inline). */
+function inlineDoneWhen(markdown: string): string[] {
+  const text = /^\*\*done when:?\*\*:?\s*(.+?)\s*$/im.exec(markdown)?.[1];
+  return text === undefined ? [] : text.split(/;\s+/).map((item) => item.replace(/\.$/, '').trim()).filter(Boolean);
+}
+
+/** The done-when items of a task.md (bullets, else the inline sentence); an item only counts as passing once the loop wrote DONE.md. */
 export function contractFromTask(taskText: string, finished: boolean): ContractItem[] {
-  return bulletsUnder(taskText, /^done when/i).map((text) => ({ text, pass: finished }));
+  const bullets = bulletsUnder(taskText, /^done when/i);
+  return (bullets.length > 0 ? bullets : inlineDoneWhen(taskText)).map((text) => ({ text, pass: finished }));
+}
+
+/** One lane's contract, decisions and knowledge from its task.md. */
+export function laneNotesFromTask(lane: string, taskText: string, finished: boolean): LaneNotes {
+  return { lane, contract: contractFromTask(taskText, finished), decisions: bulletsUnder(taskText, /^decisions/i), knowledge: bulletsUnder(taskText, /^confirmed/i) };
 }

@@ -73,7 +73,7 @@ describe('buildLiveLoop', () => {
         '.ai/lanes/server/claim': 'Ada · expires 2026-10-11T09:00:00.000Z',
       },
     });
-    expect(detail).toMatchObject({ id: 'Compounding-Loop', round: 2, run: 3, runLimit: 20, url: 'https://github.com/Minntooos/Compounding-Loop', decisions: ['chose x'] });
+    expect(detail).toMatchObject({ id: 'Compounding-Loop', round: 2, run: 5, runLimit: 40, url: 'https://github.com/Minntooos/Compounding-Loop', decisions: ['chose x'] });
     expect(detail.contract).toEqual([{ text: 'tests pass', pass: false }]);
     expect(detail.lastCommit?.sha).toBe('b3c1d2e');
     expect(detail.timeline).toHaveLength(3);
@@ -117,7 +117,7 @@ describe('buildLiveLoop', () => {
 describe('browser safety', () => {
   it('src/server/live and the files it imports from src/server use no node: modules', () => {
     const dirs = [path.join(here, '../../../src/server/live')];
-    const files = [...dirs.flatMap((d) => readdirSync(d).map((f) => path.join(d, f))), path.join(here, '../../../src/server/laneChecks.ts'), path.join(here, '../../../src/server/taskBullets.ts')];
+    const files = [...dirs.flatMap((d) => readdirSync(d).map((f) => path.join(d, f))), path.join(here, '../../../src/server/laneChecks.ts'), path.join(here, '../../../src/server/taskBullets.ts'), path.join(here, '../../../src/server/checkLabels.ts'), path.join(here, '../../../src/server/roundState.ts')];
     for (const file of files) expect(read(file, 'utf8'), file).not.toMatch(/from 'node:|require\(/);
   });
 });
@@ -154,9 +154,9 @@ describe('commit history beyond one page (regression: the timeline stopped at 10
     expect(merged.at(-1)?.message).toBe('commit 0');
   });
 
-  it('keeps the live copy of a shared commit and never copies the lane hint into the timeline', () => {
-    const merged = mergeCommits([commit(1)], [{ ...commit(1), message: 'live copy', author: 'Ada', lane: 'core' } as never]);
-    expect(merged).toEqual([{ ...commit(1), message: 'live copy', author: 'Ada' }]);
+  it('keeps the live copy of a shared commit, with its author and lane', () => {
+    const merged = mergeCommits([commit(1)], [{ ...commit(1), message: 'live copy', author: 'Ada', lane: 'core' }]);
+    expect(merged).toEqual([{ ...commit(1), message: 'live copy', author: 'Ada', lane: 'core' }]);
   });
 
   it('buildLiveLoop shows the snapshot history under the live commits', () => {
@@ -175,5 +175,54 @@ describe('commit authors', () => {
     expect(mapCommits(entry('ada@example.com'))[0]?.author).toBeUndefined();
     expect(mapCommits(entry(42))[0]?.author).toBeUndefined();
     expect(JSON.stringify(mapCommits(entry('Ada')))).not.toContain('a@b.co');
+  });
+});
+
+describe('a finished round waits for the owner (regression: "Nothing needs you" while DONE.md waited)', () => {
+  const files = { '.ai/lanes.json': lanesJson, 'DONE.md': '# Done\n', 'package.json': '{"name":"x","version":"0.4.0"}', '.ai/done-v1.md': 'r', '.ai/done-v2.md': 'r', '.ai/done-v3.md': 'r', '.ai/lanes/core/task.md': 'Run: 4 / 20', '.ai/lanes/server/task.md': 'Run: 6 / 20' };
+  const base = { slug: 'Minntooos/Compounding-Loop', commits: fixture('commits.json'), runs: {}, now: NOW, pagesUrl: 'https://minntooos.github.io/Compounding-Loop/' };
+
+  it('puts a release item in the attention list and says so in the state', () => {
+    const { detail, inbox } = buildLiveLoop({ ...base, files });
+    expect(detail).toMatchObject({ state: 'done', roundLabel: 'Round 4 done · 0.4.0', releaseWaiting: true, reason: 'Round 4 done · 0.4.0 · release waiting on you' });
+    expect(inbox).toEqual([{ loopId: 'Compounding-Loop', file: 'DONE.md', kind: 'release', question: 'Release 0.4.0 is waiting on you', bestGuess: 'Check "Ready to ship", then run the Release workflow', since: '2026-10-11T05:35:00.000Z' }]);
+  });
+
+  it('a loop without lanes that finished is just finished', () => {
+    const { detail, inbox } = buildLiveLoop({ ...base, files: { 'DONE.md': 'x' } });
+    expect(detail.releaseWaiting).toBeUndefined();
+    expect(inbox).toEqual([]);
+  });
+
+  it('no DONE.md: no release item, plain round label', () => {
+    const { detail, inbox } = buildLiveLoop({ ...base, files: { ...files, 'DONE.md': undefined } });
+    expect([detail.roundLabel, detail.releaseWaiting, inbox]).toEqual(['Round 4', undefined, []]);
+  });
+
+  it('settings: the budget is the lanes\' budgets and the site is the Pages URL, not the repo (regression: "Run limit 0")', () => {
+    const { detail } = buildLiveLoop({ ...base, files });
+    expect([detail.run, detail.runLimit]).toEqual([10, 40]);
+    expect([detail.url, detail.demoUrl, detail.repoUrl]).toEqual(['https://minntooos.github.io/Compounding-Loop/', 'https://minntooos.github.io/Compounding-Loop/', 'https://github.com/Minntooos/Compounding-Loop']);
+    expect(buildLiveLoop({ ...base, pagesUrl: undefined, files }).detail.url).toBe('https://github.com/Minntooos/Compounding-Loop');
+  });
+});
+
+describe('commit lanes and per-lane notes', () => {
+  const taskCore = '# Lane: core\n\n**Done when:** `npm test` passes; audit has no open blocker.\n\n## Decisions\n- chose x\n\n## Confirmed\n- y works\n';
+  it('gives every commit a lane: trailer, then prefix, release subjects, else other (regression: release read "other")', () => {
+    const entry = (sha: string, message: string) => ({ sha: `${sha}00000`, commit: { message, committer: { date: '2026-10-11T05:35:00Z' } } });
+    const commits = [entry('a', 'Release 0.3.0: version bump'), entry('b', 'core: x'), entry('c', 'tweak\n\nLane: web'), entry('d', 'random subject'), entry('e', 'control room: note')];
+    const { detail } = buildLiveLoop({ slug: 'o/n', commits, runs: {}, files: { '.ai/lanes.json': lanesJson }, now: NOW });
+    expect(detail.timeline.map((c) => c.lane).sort()).toEqual(['control', 'core', 'other', 'release', 'web']);
+  });
+  it('groups each lane\'s contract, decisions and knowledge (regression: Contract blank, Decisions "none")', () => {
+    const { detail } = buildLiveLoop({ slug: 'o/n', commits: [], runs: {}, now: NOW, files: { '.ai/lanes.json': lanesJson, '.ai/lanes/core/task.md': taskCore, '.ai/lanes/core/DONE.md': 'x' } });
+    expect(detail.laneNotes).toEqual([
+      { lane: 'core', contract: [{ text: '`npm test` passes', pass: true }, { text: 'audit has no open blocker', pass: true }], decisions: ['chose x'], knowledge: ['y works'] },
+      { lane: 'server', contract: [], decisions: [], knowledge: [] },
+    ]);
+  });
+  it('has no laneNotes without lanes', () => {
+    expect(buildLiveLoop({ slug: 'o/n', commits: [], runs: {}, files: {}, now: NOW }).detail.laneNotes).toBeUndefined();
   });
 });

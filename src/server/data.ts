@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { withLabel } from './checkLabels.js';
 import type { DemoSnapshot, HealthCheck, InboxItem, LoopDetail, LoopState, LoopSummary } from '../core/types.js';
 
 /** Where the API gets its loops from: the demo snapshot or a projects folder. */
@@ -26,12 +27,18 @@ export function toSummary(detail: LoopDetail): LoopSummary {
   return summary;
 }
 
+/** Marks every loop of a bundled snapshot with when it was taken, so the UI says "snapshot 6 Oct" and never "Live". */
+export function stampSnapshot(snapshot: DemoSnapshot): DemoSnapshot {
+  return { ...snapshot, loops: snapshot.loops.map((loop) => ({ ...loop, snapshotAt: loop.snapshotAt ?? snapshot.generatedAt })) };
+}
+
 export function snapshotSource(snapshot: DemoSnapshot): DataSource {
+  const checks = snapshot.checks.map(withLabel);
   return {
     loops: async () => sortByAttention(snapshot.loops.map(toSummary)),
     loop: async (id) => snapshot.loops.find((l) => l.id === id),
     inbox: async () => snapshot.inbox,
-    checks: async () => snapshot.checks,
+    checks: async () => checks,
   };
 }
 
@@ -65,5 +72,5 @@ export async function loadDemoSnapshot(
   const snapshot = await readFirst<DemoSnapshot>(candidates);
   if (!snapshot) throw new Error('demo snapshot not found (run `node demo/build-demo.mjs`)');
   const self = await readFirst<{ loop: LoopDetail; checks: HealthCheck[] }>(selfCandidates);
-  return self ? withSelfLoop(snapshot, self) : snapshot;
+  return stampSnapshot(self ? withSelfLoop(snapshot, self) : snapshot);
 }

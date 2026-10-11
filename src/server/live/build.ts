@@ -1,13 +1,15 @@
 // Pure: turns fetched GitHub data into the dashboard's existing API shapes (no Node imports, runs in the browser).
 import { parseBlocked } from '../../core/blocked.js';
-import { activeClaim, parseLanesConfig, parseOutbox, parseRunCounter, parseTaskFile } from '../../core/parse/index.js';
+import { activeClaim, commitLane, parseLanesConfig, parseOutbox, parseRunCounter, parseTaskFile } from '../../core/parse/index.js';
 import type { OutboxMessage } from '../../core/parse/index.js';
 import { deriveLaneState, stallMinutesFor, summarizeOutboxes } from '../../core/laneStatus.js';
 import { deriveStatus } from '../../core/status.js';
 import type { HealthCheck, InboxItem, LaneStatus, LoopCommit, LoopDetail } from '../../core/types.js';
+import { formatUtc, withLabel } from '../checkLabels.js';
 import { laneChecks } from '../laneChecks.js';
-import { bulletsUnder, contractFromTask } from '../taskBullets.js';
+import { bulletsUnder, contractFromTask, laneNotesFromTask } from '../taskBullets.js';
 import { latestFinishedRun, mapCommits, mapRuns, type LiveCommit } from './github.js';
+import { packageVersion, releaseInboxItem, roundState } from '../roundState.js';
 import { mergeCommits } from './merge.js';
 import { countRoundFiles } from './urls.js';
 
@@ -21,6 +23,8 @@ export interface LiveInput {
   /** Commits of the bundled snapshot (full history up to its pin); merged under the live ones without duplicates. */
   snapshotCommits?: readonly LoopCommit[];
   runs: unknown;
+  /** The loop's public site (the repo's GitHub Pages), from `live.json`; shown as the site instead of the repo. */
+  pagesUrl?: string;
   /** Raw file text by repo-relative path; a file that 404ed is absent or undefined. */
   files: Readonly<Record<string, string | undefined>>;
   now: Date;
@@ -68,7 +72,9 @@ function lanesOf(input: LiveInput, commits: readonly LiveCommit[]): LaneStatus[]
 /** Builds one loop's detail, inbox and health checks from what the browser fetched. */
 export function buildLiveLoop(input: LiveInput): LiveLoop {
   const id = input.id ?? input.slug.split('/')[1] ?? input.slug;
-  const commits = mapCommits(input.commits);
+  const laneNames = parseLanesConfig(input.files['.ai/lanes.json'] ?? '').config?.lanes.map((l) => l.name) ?? [];
+  // Trailer first, then the subject prefix (`Release x.y.z` is lane "release"); every commit gets a lane.
+  const commits = mapCommits(input.commits).map((c) => ({ ...c, lane: commitLane(c.lane ? `${c.message}\n\nLane: ${c.lane}` : c.message, laneNames) }));
   const latestRun = latestFinishedRun(mapRuns(input.runs));
   const lanes = lanesOf(input, commits);
   const hasBlocked = input.files['BLOCKED.md'] !== undefined;
@@ -77,7 +83,7 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
   const checks: HealthCheck[] = [];
   if (latestRun) {
     const ok = latestRun.conclusion === 'success';
-    checks.push({ loopId: id, kind: 'failing-tests', ok, reason: ok ? 'latest CI run on main passed' : `latest CI run on main ${latestRun.conclusion ?? latestRun.status}`, proof: `${latestRun.name} at ${latestRun.at}` });
+    checks.push({ loopId: id, kind: 'failing-tests', ok, reason: ok ? 'latest CI run on main passed' : `latest CI run on main ${latestRun.conclusion ?? latestRun.status}`, proof: `${latestRun.name} at ${formatUtc(latestRun.at)}` });
   }
   if (lanes) checks.push(...laneChecks(lanes).map((c) => ({ ...c, loopId: id })));
   const roundsDone = countRoundFiles(input.files);
@@ -91,19 +97,30 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
     healthFailures: checks.filter((c) => !c.ok).map((c) => c.reason),
   }, input.now);
   const round = roundsDone + 1;
+  const laneBudget = (lanes ?? []).reduce((n, l) => ({ run: n.run + l.run, limit: n.limit + l.limit }), { run: 0, limit: 0 });
+  const hasDone = input.files['DONE.md'] !== undefined;
+  const version = packageVersion(input.files['package.json']);
+  const { roundLabel, releaseWaiting } = roundState({ round, hasDone, laned: lanes !== undefined, ...(version && { version }) });
+  const repoUrl = `https://github.com/${input.slug}`;
   const detail: LoopDetail = {
     id,
     name: id,
-    url: `https://github.com/${input.slug}`,
+    url: input.pagesUrl ?? repoUrl,
+    repoUrl,
+    ...(input.pagesUrl && { demoUrl: input.pagesUrl }),
     state: status.state,
-    reason: status.reason,
+    reason: releaseWaiting && status.state === 'done' ? `${roundLabel} · release waiting on you` : status.reason,
+    roundLabel,
+    ...(releaseWaiting && { releaseWaiting }),
     round,
     roundsTotal: round,
-    run: task.run?.run ?? 0,
-    runLimit: task.run?.limit ?? 0,
+    // A laned loop's budget is its lanes' budgets; the root task file has none.
+    run: laneBudget.limit > 0 ? laneBudget.run : (task.run?.run ?? 0),
+    runLimit: laneBudget.limit > 0 ? laneBudget.limit : (task.run?.limit ?? 0),
     ...(timeline[0] && { lastCommit: timeline[0] }),
     ...(lanes && { lanes }),
     timeline,
+    ...(laneNames.length > 0 && { laneNotes: laneNames.map((lane) => laneNotesFromTask(lane, input.files[`.ai/lanes/${lane}/task.md`] ?? '', hasDone || input.files[`.ai/lanes/${lane}/DONE.md`] !== undefined)) }),
     contract: contractFromTask(taskText, input.files['DONE.md'] !== undefined),
     knowledge: bulletsUnder(taskText, /^confirmed/i),
     decisions: bulletsUnder(taskText, /^decisions/i),
@@ -111,7 +128,8 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
   };
   const blockedText = input.files['BLOCKED.md'];
   const inbox: InboxItem[] = blockedText === undefined ? [] : [{ loopId: id, file: 'BLOCKED.md', ...pick(parseBlocked(blockedText)), since: (newest ?? { at: input.now.toISOString() }).at }];
-  return { detail, inbox, checks };
+  if (releaseWaiting) inbox.push(releaseInboxItem(id, version, (newest ?? { at: input.now.toISOString() }).at));
+  return { detail, inbox, checks: checks.map(withLabel) };
 }
 
 const pick = ({ question, bestGuess }: { question: string; bestGuess: string }) => ({ question, bestGuess });

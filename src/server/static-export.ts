@@ -1,6 +1,8 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { DemoSnapshot } from '../core/types.js';
+import { DEFAULT_RUNNER } from './settings.js';
+import { withLabel } from './checkLabels.js';
 import { sortByAttention, toSummary } from './data.js';
 import { CSP } from './static.js';
 
@@ -14,9 +16,11 @@ export const STATIC_CSP = CSP.replace("connect-src 'self'", `connect-src 'self' 
 export interface LiveConfig {
   repo: string;
   loop: string;
+  /** The hosted demo's own URL: the live loop's site instead of its repo. */
+  pages?: string;
 }
 
-export const SELF_LIVE_CONFIG: LiveConfig = { repo: 'Minntooos/Compounding-Loop', loop: 'compounding-loop' };
+export const SELF_LIVE_CONFIG: LiveConfig = { repo: 'Minntooos/Compounding-Loop', loop: 'compounding-loop', pages: 'https://minntooos.github.io/Compounding-Loop/' };
 
 /**
  * GitHub Pages cannot set headers, so the CSP goes into a meta tag as the first child of `<head>`.
@@ -38,7 +42,9 @@ export function staticApiFiles(snapshot: DemoSnapshot, version: string): Map<str
   files.set('api/loops.json', sortByAttention(snapshot.loops.map(toSummary)));
   for (const loop of snapshot.loops) files.set(`api/loops/${loop.id}.json`, loop);
   files.set('api/inbox.json', snapshot.inbox);
-  files.set('api/checks.json', snapshot.checks);
+  files.set('api/checks.json', snapshot.checks.map(withLabel));
+  // Same body as the demo server's /api/settings; without the file the static site logged a 404 on every visit.
+  files.set('api/settings.json', { demo: true, defaultRunner: DEFAULT_RUNNER });
   files.set('live.json', SELF_LIVE_CONFIG);
   return files;
 }

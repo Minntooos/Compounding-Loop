@@ -45,6 +45,8 @@ export interface LoopCommit {
   message: string;
   /** Display name of the author, never an email (added in Round 4). */
   author?: string;
+  /** Lane the commit belongs to (`Lane:` trailer, then subject prefix; `release` for `Release x.y.z`), else `other` (added by the server lane, Round 4). */
+  lane?: string;
 }
 
 /** One row of the fleet view. */
@@ -69,6 +71,12 @@ export interface LoopSummary {
   demoUrl?: string;
   /** ISO time of the newest commit a bundled snapshot contains; absent on live and local data (added by the server lane, Round 4). */
   snapshotAt?: string;
+  /** "Round 3 done · 0.3.0" or "Round 4": use instead of "Round N of M" (server lane, Round 4). */
+  roundLabel?: string;
+  /** Root DONE.md exists: the round is finished and a release waits on the owner. */
+  releaseWaiting?: boolean;
+  /** The code repository, when `url` points somewhere else (the loop's site or Pages demo). */
+  repoUrl?: string;
   lastCommit?: LoopCommit;
   /** Present only for loops with `.ai/lanes.json` (added by the server lane). */
   lanes?: LaneStatus[];
@@ -79,7 +87,17 @@ export interface ContractItem {
   pass: boolean;
 }
 
+/** One lane's task-file notes, for laned loops (added by the server lane, Round 4). */
+export interface LaneNotes {
+  lane: string;
+  contract: ContractItem[];
+  decisions: string[];
+  knowledge: string[];
+}
+
 export interface LoopDetail extends LoopSummary {
+  /** Contract, decisions and knowledge of each lane, grouped by lane; absent for loops without lanes. */
+  laneNotes?: LaneNotes[];
   /** Newest first. */
   timeline: LoopCommit[];
   contract: ContractItem[];
@@ -91,6 +109,8 @@ export interface LoopDetail extends LoopSummary {
 
 export interface InboxItem {
   loopId: string;
+  /** What kind of item this is; absent means a BLOCKED.md question. `release` items have no answer form (server lane, Round 4). */
+  kind?: 'question' | 'release' | 'paused' | 'lanes-not-running';
   /** Path of the BLOCKED.md inside the loop's repo. */
   file: string;
   question: string;
@@ -105,6 +125,8 @@ export interface HealthCheck {
   ok: boolean;
   reason: string;
   proof: string;
+  /** The check's result in words ("Tests pass", "Tests failing"), not its name; added by the server lane, Round 4. */
+  label?: string;
 }
 
 /** The whole demo dataset, as written to `demo/five-sites.json`. */

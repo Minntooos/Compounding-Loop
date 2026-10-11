@@ -116,7 +116,7 @@ describe('static CSP and live config', () => {
     expect(CSP).not.toMatch(/github/);
   });
   it('writes live.json for the self loop', () => {
-    expect(SELF_LIVE_CONFIG).toEqual({ repo: 'Minntooos/Compounding-Loop', loop: 'compounding-loop' });
+    expect(SELF_LIVE_CONFIG).toEqual({ repo: 'Minntooos/Compounding-Loop', loop: 'compounding-loop', pages: 'https://minntooos.github.io/Compounding-Loop/' });
     expect(staticApiFiles({ generatedAt: 'x', loops: [], inbox: [], checks: [] }, '1').get('live.json')).toEqual(SELF_LIVE_CONFIG);
   });
   it('puts the CSP meta tag first in <head>, without frame-ancestors', () => {
@@ -132,8 +132,9 @@ describe('static demo export', () => {
 
   it('lists one file per API read route', () => {
     const files = staticApiFiles(snapshot, '1.2.3');
-    expect([...files.keys()].sort()).toEqual(['api/checks.json', 'api/health.json', 'api/inbox.json', 'api/loops.json', 'api/loops/a.json', 'live.json']);
+    expect([...files.keys()].sort()).toEqual(['api/checks.json', 'api/health.json', 'api/inbox.json', 'api/loops.json', 'api/loops/a.json', 'api/settings.json', 'live.json']);
     expect(files.get('api/health.json')).toEqual({ ok: true, version: '1.2.3', demo: true });
+    expect(files.get('api/settings.json')).toEqual({ demo: true, defaultRunner: 'routine' });
     expect(files.get('api/loops.json')).toEqual([expect.not.objectContaining({ timeline: expect.anything() })]);
   });
 

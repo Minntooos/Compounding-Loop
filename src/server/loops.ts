@@ -8,8 +8,9 @@ import { parseBlocked } from '../core/blocked.js';
 import { readLoopFacts, readRunCounter } from '../core/repo.js';
 import { deriveStatus } from '../core/status.js';
 import type { ContractItem, InboxItem, LoopCommit, LoopDetail } from '../core/types.js';
+import { packageVersion, releaseInboxItem, roundState } from './roundState.js';
 import { checkLoop } from './health.js';
-import { bulletsUnder, contractFromTask } from './taskBullets.js';
+import { bulletsUnder, contractFromTask, laneNotesFromTask } from './taskBullets.js';
 
 export { bulletsUnder, contractFromTask };
 import { sortByAttention, toSummary, type DataSource } from './data.js';
@@ -41,12 +42,13 @@ export async function readTimeline(dir: string, limit = 50): Promise<LoopCommit[
 
 /** Reads one clone into the API's LoopDetail. `now` is a parameter so tests are deterministic. */
 export async function readLoop(dir: string, now: Date = new Date()): Promise<LoopDetail> {
-  const [baseFacts, counter, timeline, taskText, lanes] = await Promise.all([
+  const [baseFacts, counter, timeline, taskText, lanes, packageText] = await Promise.all([
     readLoopFacts(dir),
     readRunCounter(dir),
     readTimeline(dir),
     readOptional(path.join(dir, '.ai', 'task.md')),
     readLaneStatuses(dir, now),
+    readOptional(path.join(dir, 'package.json')),
   ]);
   // Any failing health check turns the loop "failing" with that check's reason (IDEA.md status rule 5).
   const checks = await checkLoop(dir, baseFacts, now, undefined, lanes);
@@ -54,11 +56,15 @@ export async function readLoop(dir: string, now: Date = new Date()): Promise<Loo
   const status = deriveStatus(facts, now);
   const round = facts.roundsDone + 1;
   const task = taskText ?? '';
+  const version = packageVersion(packageText);
+  const { roundLabel, releaseWaiting } = roundState({ round, hasDone: facts.hasDone, laned: lanes !== undefined, ...(version && { version }) });
   return {
     id: path.basename(dir),
     name: path.basename(dir),
     state: status.state,
-    reason: status.reason,
+    reason: releaseWaiting && status.state === 'done' ? `${roundLabel} · release waiting on you` : status.reason,
+    roundLabel,
+    ...(releaseWaiting && { releaseWaiting }),
     round,
     // The total is unknown for a real loop (the owner can always add a round), so it never reads "5 of 3".
     roundsTotal: round,
@@ -67,6 +73,7 @@ export async function readLoop(dir: string, now: Date = new Date()): Promise<Loo
     ...(timeline[0] && { lastCommit: timeline[0] }),
     ...(lanes && { lanes }),
     timeline,
+    ...(lanes && { laneNotes: await Promise.all(lanes.map(async ({ name }) => laneNotesFromTask(name, (await readOptional(path.join(dir, '.ai', 'lanes', name, 'task.md'))) ?? '', facts.hasDone || (await readOptional(path.join(dir, '.ai', 'lanes', name, 'DONE.md'))) !== undefined))) }),
     contract: contractFromTask(task, facts.hasDone),
     knowledge: bulletsUnder(task, /^confirmed/i),
     decisions: bulletsUnder(task, /^decisions/i),
@@ -84,6 +91,13 @@ export async function findLoopDirs(projectsDir: string): Promise<string[]> {
     if ((await stat(path.join(dir, '.ai')).catch(() => undefined))?.isDirectory()) dirs.push(dir);
   }
   return dirs.sort();
+}
+
+async function readReleaseItem(dir: string): Promise<InboxItem | undefined> {
+  const file = path.join(dir, 'DONE.md');
+  const [info, laned] = await Promise.all([stat(file).catch(() => undefined), stat(path.join(dir, '.ai', 'lanes.json')).catch(() => undefined)]);
+  if (!info || !laned) return undefined;
+  return releaseInboxItem(path.basename(dir), packageVersion(await readOptional(path.join(dir, 'package.json'))), info.mtime.toISOString());
 }
 
 async function readInboxItem(dir: string): Promise<InboxItem | undefined> {
@@ -105,7 +119,8 @@ export function projectsSource(projectsDir: string, now: () => Date = () => new 
       return dir === undefined ? undefined : readLoop(dir, now());
     },
     inbox: async () => {
-      const items = await Promise.all((await findLoopDirs(projectsDir)).map(readInboxItem));
+      const dirs = await findLoopDirs(projectsDir);
+      const items = [...(await Promise.all(dirs.map(readInboxItem))), ...(await Promise.all(dirs.map(readReleaseItem)))];
       return items.filter((i): i is InboxItem => i !== undefined).sort((a, b) => a.since.localeCompare(b.since));
     },
     answer: async (id, answer) => {

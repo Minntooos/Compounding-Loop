@@ -6,5 +6,6 @@ export const ROUND_THREE_COMMIT: string;
 export const SNAPSHOT_COMMIT: string;
 export const ROUND_ONE_LANES: string[];
 export function parseRun(taskText: string): { run: number; limit: number };
+export function commitLaneOf(subject: string, body?: string): string;
 export function laneOfCommit(subject: string, body?: string): string | undefined;
 export function buildSelf(repoDir: string): Promise<{ loop: LoopDetail; checks: HealthCheck[] }>;

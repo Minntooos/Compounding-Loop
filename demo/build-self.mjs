@@ -1,12 +1,13 @@
 // Builds demo/this-repo.json: the sixth demo loop, "compounding-loop (this repo)", from rounds 1 and 2 of this
 // repository's history (pinned at the 0.3.0 release commit, so the output never changes). It keeps the full history
 // up to the pin: commit hashes, dates, subjects and author display names, plus the lane files' run counters. No
-// emails, no paths. Live mode fetches only what came after the pin and merges it (src/server/live/merge.ts).
+// emails, no paths. Run it with `npx tsx demo/build-self.mjs` (it reuses the TypeScript task-file parsers). Live mode fetches only what came after the pin and merges it (src/server/live/merge.ts).
 import { execFile } from 'node:child_process';
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { laneNotesFromTask } from '../src/server/taskBullets.ts';
 import { scrubText } from './build-demo.mjs';
 
 const execFileAsync = promisify(execFile);
@@ -36,20 +37,32 @@ export function laneOfCommit(subject, body = '') {
   return ROUND_ONE_LANES.includes(lane) ? lane : undefined;
 }
 
+/** Lane shown for a commit: `Lane:` trailer, then subject prefix, `Release x.y.z` = release, else other (mirrors core's commitLane). */
+export function commitLaneOf(subject, body = '') {
+  const trailer = /^Lane:\s*([a-z0-9-]+)\s*$/m.exec(body)?.[1];
+  if (trailer) return trailer;
+  if (/^release\s+v?\d/i.test(subject)) return 'release';
+  const prefix = /^([a-z][a-z0-9-]*)(?:\s+room)?:/i.exec(subject)?.[1]?.toLowerCase();
+  return prefix && [...ROUND_ONE_LANES, 'control', 'release'].includes(prefix) ? prefix : 'other';
+}
+
 export async function buildSelf(repoDir) {
   const log = await git(repoDir, 'log', '--abbrev=7', '--format=%h%x1f%cI%x1f%an%x1f%s%x1f%b%x1e', SNAPSHOT_COMMIT);
   const commits = log.split('\x1e').map((r) => r.trim()).filter(Boolean).map((r) => {
     const [sha, at, name, subject, body = ''] = r.split('\x1f');
     const author = scrubText(name.trim());
     const named = author && !author.includes('@') && !PLACEHOLDER_AUTHORS.has(author.toLowerCase());
-    return { sha, at: new Date(at).toISOString(), message: scrubText(subject), ...(named && { author }), lane: laneOfCommit(subject, body) };
+    return { sha, at: new Date(at).toISOString(), message: scrubText(subject), ...(named && { author }), lane: laneOfCommit(subject, body), shown: commitLaneOf(subject, body) };
   });
   const lanes = [];
+  const laneTexts = new Map();
   for (const name of ROUND_ONE_LANES) {
     // Total effort over all rounds: each round's counter is the lane's task.md at that round's last commit.
-    const [one, two, three] = await Promise.all(
-      [ROUND_ONE_COMMIT, ROUND_TWO_COMMIT, ROUND_THREE_COMMIT].map((commit) => git(repoDir, 'show', `${commit}:.ai/lanes/${name}/task.md`).then(parseRun)),
+    const [oneText, twoText, threeText] = await Promise.all(
+      [ROUND_ONE_COMMIT, ROUND_TWO_COMMIT, ROUND_THREE_COMMIT].map((commit) => git(repoDir, 'show', `${commit}:.ai/lanes/${name}/task.md`)),
     );
+    const [one, two, three] = [oneText, twoText, threeText].map(parseRun);
+    laneTexts.set(name, threeText);
     const last = commits.find((c) => c.lane === name);
     lanes.push({
       name,
@@ -61,7 +74,7 @@ export async function buildSelf(repoDir) {
       unanswered: [],
     });
   }
-  const timeline = commits.map(({ sha, at, message, author }) => ({ sha, at, message, ...(author && { author }) }));
+  const timeline = commits.map(({ sha, at, message, author, shown }) => ({ sha, at, message, ...(author && { author }), lane: shown }));
   const run = lanes.reduce((n, l) => n + l.run, 0);
   const runLimit = lanes.reduce((n, l) => n + l.limit, 0);
   const detail = {
@@ -79,6 +92,7 @@ export async function buildSelf(repoDir) {
     lanes,
     timeline,
     contract: lanes.map((l) => ({ text: `${l.name} lane: every done-when passes`, pass: true })),
+    laneNotes: ROUND_ONE_LANES.map((name) => laneNotesFromTask(name, scrubText(laneTexts.get(name) ?? ''), true)),
     knowledge: [],
     decisions: [],
     history: [],

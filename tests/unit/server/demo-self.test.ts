@@ -56,6 +56,15 @@ describe('shipped demo/this-repo.json (the sixth demo loop)', () => {
     expect(loop.timeline.every((c) => c.author === undefined || (c.author !== '' && !c.author.includes('@')))).toBe(true);
   });
 
+  it('tags every commit with a lane and groups each lane\'s contract and decisions', async () => {
+    const { loop } = await readShipped();
+    expect(loop.timeline.every((c) => typeof c.lane === 'string')).toBe(true);
+    expect(loop.timeline.find((c) => /^Release 0\.\d/.test(c.message))?.lane).toMatch(/^(release|control)$/);
+    expect(loop.laneNotes?.map((n) => n.lane)).toEqual(['core', 'kit', 'server', 'web', 'docs']);
+    expect(loop.laneNotes?.every((n) => n.contract.length > 0)).toBe(true);
+    expect(loop.laneNotes?.some((n) => n.decisions.length > 0)).toBe(true);
+  });
+
   it('contains no emails, local paths, tokens, routine or session ids, or author emails', async () => {
     const text = JSON.stringify(await readShipped());
     expect(text).not.toMatch(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/);

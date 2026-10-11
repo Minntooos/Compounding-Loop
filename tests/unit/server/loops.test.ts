@@ -31,7 +31,10 @@ const git = (dir: string, ...args: string[]) => execFileSync('git', ['-c', 'user
 function makeLoop(name: string, files: Record<string, string>): string {
   const dir = path.join(root, name);
   mkdirSync(path.join(dir, '.ai'), { recursive: true });
-  for (const [file, text] of Object.entries(files)) writeFileSync(path.join(dir, file), text);
+  for (const [file, text] of Object.entries(files)) {
+    mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+    writeFileSync(path.join(dir, file), text);
+  }
   git(dir, 'init', '-q');
   git(dir, 'add', '-A');
   git(dir, 'commit', '-qm', `first commit of ${name}`);
@@ -51,6 +54,12 @@ describe('parsers', () => {
     expect(bulletsUnder(TASK, /^done when/i)).toEqual(['`npm test` passes', 'the page loads']);
     expect(bulletsUnder(TASK, /^decisions/i)).toEqual(['picked A · cheaper']);
     expect(bulletsUnder(TASK, /^nothing/i)).toEqual([]);
+  });
+
+  it('contractFromTask reads the inline "**Done when:** a; b." sentence lane task files use', () => {
+    const lane = '# Lane\n\n**Goal:** x\n**Done when:** `npm test` passes; audit has no blocker; every mapper is tested.\n**Out of scope:** y\n';
+    expect(contractFromTask(lane, true)).toEqual([{ text: '`npm test` passes', pass: true }, { text: 'audit has no blocker', pass: true }, { text: 'every mapper is tested', pass: true }]);
+    expect(contractFromTask('# nothing here', false)).toEqual([]);
   });
 
   it('contractFromTask marks items passing only when finished', () => {
@@ -169,5 +178,23 @@ describe('health checks in the API', () => {
     const checks = (await (await app.request('/api/checks')).json()) as { loopId: string; kind: string; ok: boolean }[];
     expect(checks.filter((c) => c.loopId === 'leaky' && !c.ok).map((c) => c.kind)).toEqual(['leak']);
     expect(checks.filter((c) => c.loopId === 'alpha')).toHaveLength(5);
+  });
+});
+
+describe('laned clone: lane notes and the waiting release', () => {
+  it('reads each lane\'s notes and raises a release item for a root DONE.md', async () => {
+    const dir = makeLoop('laned', {
+      '.ai/task.md': TASK,
+      '.ai/lanes.json': JSON.stringify({ lanes: [{ name: 'core', owns: ['src/**'], cron: '0 * * * *' }], shared: [] }),
+      '.ai/lanes/core/task.md': '**Done when:** it works; it is tested.\n\n## Decisions\n- chose A\n',
+      'DONE.md': '# Done\n',
+      'package.json': '{"name":"x","version":"1.2.3"}',
+    });
+    const detail = await readLoop(dir, new Date());
+    expect(detail.laneNotes).toEqual([{ lane: 'core', contract: [{ text: 'it works', pass: true }, { text: 'it is tested', pass: true }], decisions: ['chose A'], knowledge: [] }]);
+    expect(detail).toMatchObject({ state: 'done', roundLabel: 'Round 1 done · 1.2.3', releaseWaiting: true });
+    const inbox = (await (await (await createApp({ demo: false, projectsDir: root })).request('/api/inbox')).json()) as InboxItem[];
+    expect(inbox.find((i) => i.loopId === 'laned')).toMatchObject({ kind: 'release', file: 'DONE.md', question: 'Release 1.2.3 is waiting on you' });
+    expect(inbox.some((i) => i.loopId === 'alpha' && i.kind === 'release')).toBe(false);
   });
 });

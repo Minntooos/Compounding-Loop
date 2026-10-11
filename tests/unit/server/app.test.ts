@@ -80,6 +80,11 @@ describe('loadDemoSnapshot', () => {
     const { loadDemoSnapshot } = await import('../../../src/server/data.js');
     const real = new URL('../../../demo/five-sites.json', import.meta.url);
     expect((await loadDemoSnapshot([new URL('./nope.json', import.meta.url), real])).loops).toHaveLength(6);
+    // Snapshot data always says when it was taken (regression: site cards showed 6 Oct numbers under "Live").
+    const loops = (await loadDemoSnapshot([real])).loops;
+    expect(loops.every((l) => typeof l.snapshotAt === 'string')).toBe(true);
+    expect(loops.find((l) => l.id === 'proj1')?.snapshotAt).toBe('2026-10-06T21:44:10.086Z');
+    expect(loops.find((l) => l.id === 'compounding-loop')?.snapshotAt).toMatch(/^2026-10-11T14:51/);
     await expect(loadDemoSnapshot([new URL('./nope.json', import.meta.url)])).rejects.toThrow(/demo snapshot not found/);
   });
 });
