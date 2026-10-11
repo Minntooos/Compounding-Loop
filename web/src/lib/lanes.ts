@@ -18,6 +18,11 @@ export function lanesNeedingYou(lanes: LaneStatus[] | undefined): LaneStatus[] {
   return [...stalled, ...orphaned];
 }
 
+/** A laned loop whose round is done has a root DONE.md: the release (and the next round) wait for the owner. */
+export function releaseWaiting(loop: Pick<LoopSummary, 'state' | 'lanes'>): boolean {
+  return loop.state === 'done' && loop.lanes !== undefined && loop.lanes.length > 0;
+}
+
 /**
  * The "Needs you" total: inbox items, plus per loop its lane problems, or 1 for a failing loop that has none.
  * The inbox only lists a root BLOCKED.md, so a blocked lane is counted here, unless that loop already has an inbox item.
@@ -26,7 +31,7 @@ export function needsYouCount(loops: LoopSummary[], inbox: { loopId: string }[])
   return loops.reduce((sum, l) => {
     const inInbox = inbox.some((i) => i.loopId === l.id);
     const lanes = lanesNeedingYou(l.lanes).filter((x) => !(inInbox && x.state === 'blocked')).length;
-    return sum + (lanes > 0 ? lanes : l.state === 'failing' ? 1 : 0);
+    return sum + (lanes > 0 ? lanes : l.state === 'failing' || releaseWaiting(l) ? 1 : 0);
   }, inbox.length);
 }
 

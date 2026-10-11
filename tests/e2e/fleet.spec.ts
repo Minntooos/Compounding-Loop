@@ -12,10 +12,10 @@ const SITES: [string, number][] = [
   ['quiltcalculators.netlify.app', 452], ['mathtank.netlify.app', 433],
 ];
 
-test('fleet shows the five demo sites with their numbers and "Nothing needs you"', async ({ page }) => {
+test('fleet shows the five demo sites with their numbers and the release waiting on the owner', async ({ page }) => {
   const errors = trackErrors(page);
   await page.goto('/');
-  await expect(page.getByText('Nothing needs you')).toBeVisible();
+  await expect(page.getByRole('link', { name: /1 thing needs you/ })).toBeVisible();
   const cards = page.getByTestId('loop-card');
   // The demo also has a sixth loop (this repo, with lanes); the five sites are the ones with a netlify.app name.
   await expect(cards.filter({ hasText: 'netlify.app' })).toHaveCount(5);

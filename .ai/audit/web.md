@@ -1,5 +1,28 @@
 # Audit: web
 
+## Round 4 (2026-10-11): the dashboard tells the truth and replaces the chat
+
+Method: read IDEA.md Round 4 A/C/D against the code on a fresh pull (`npm test` green, 122 e2e). Regression tests were added with the fix in the same commit (not failing-first, noted honestly).
+
+### Blockers
+| # | Finding | Evidence | Fix | Status |
+|---|---|---|---|---|
+| R4-1 | Live mode fetched 100 commits only, so the timeline lost history (A1) | `liveFetch.ts` one `per_page=100` call | page `commitsSinceUrl` and merge with the snapshot | fixed, unit + e2e (109 + 102 rows) |
+| R4-2 | "Nothing needs you" while a laned round is done (root DONE.md) (A2) | `lanes.ts needsYouCount` | `releaseWaiting` counts and names the release | fixed, unit + e2e |
+| R4-3 | Health read "OK · Tests failing", raw ISO times (A5) | `Health.tsx` | `checkLabel`, `humanizeTimes` | fixed, unit |
+| R4-4 | Release commit tagged lane "other" (A8) | `timeline.ts` | `Release x.y.z` is lane `release` | fixed, unit + e2e |
+
+### Major (open, in task.md units)
+- A3 partly: Settings shows per-lane limit and the Pages URL; the live config still lacks per-lane Contract/Decisions (needs server data, see outbox).
+- A4: Contract has an empty state; per-lane Contract/Decisions grouping not built.
+- A6 card label "snapshot 6 Oct" done on cards; loop-page header label not yet.
+- A8: console 404 for `api/settings.json` and phone theme button not re-verified.
+- A9 site page count and live link; all of section C (Runs, Pause, Next round, Release, Ready to ship, Releases, Tests tabs) not started.
+
+### Minor
+- A rate limit on page 2+ of the commit fetch drops the pages already read (shows snapshot alone, which is the safe fallback).
+- The snapshot loader requests `api/loops/<id>.json`; an unknown live loop id would log one 404.
+
 ## Round 3 (2026-10-11): the dashboard as the launch
 
 Method: `SCREENS=1 SCREENS_DIR=web/design/before npx playwright test screenshots --project=laptop` captured every screen (Fleet, Loop, Inbox, Health, Settings, New loop) in both themes at 1440 and 375 px: 24 "before" images in `web/design/before/`. Read the Fleet, Fleet-at-375 and Loop screens against IDEA.md Round 3. `npm test` was green on the fresh pull (92 passed, 26 skipped by design).

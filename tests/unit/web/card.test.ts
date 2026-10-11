@@ -13,6 +13,13 @@ describe('fleet card model', () => {
     expect(roundProgress({ round: 1, roundsTotal: 0, state: 'building' })).toBeUndefined();
     expect(roundProgress({ round: NaN, roundsTotal: 2, state: 'building' })?.text).toBe('Round 0 of 2');
   });
+  it('a finished laned round says the release waits (round 4 A2, A7)', () => {
+    expect(roundProgress({ round: 3, roundsTotal: 3, state: 'done', lanes: [{}] })?.text).toBe('Round 3 done · release waiting on you');
+  });
+  it('labels bundled data as a snapshot with its date (A6)', () => {
+    expect(cardFacts({ snapshotAt: '2026-10-06T10:00:00Z' })).toContainEqual({ label: 'Data', value: 'snapshot 6 Oct' });
+    expect(cardFacts({})).toEqual([]);
+  });
   it('shows the run budget as text and a bar value', () => {
     expect(runBudget({ run: 15, runLimit: 150 })).toEqual({ value: 15, max: 150, text: '15 of 150 runs' });
     expect(runBudget({ run: 0, runLimit: 0 })).toBeUndefined();

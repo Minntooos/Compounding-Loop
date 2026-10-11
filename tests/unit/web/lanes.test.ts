@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { LaneStatus, LoopSummary } from '../../../src/core/types.js';
-import { claimText, describeUnanswered, lanesNeedingYou, needsYouCount, waitingOnFinished } from '../../../web/src/lib/lanes.js';
+import { releaseWaiting, claimText, describeUnanswered, lanesNeedingYou, needsYouCount, waitingOnFinished } from '../../../web/src/lib/lanes.js';
 
 const lane = (name: string, state: LaneStatus['state'], waitingOn?: string[]): LaneStatus => ({ name, state, run: 1, limit: 30, locked: false, unanswered: [], ...(waitingOn ? { waitingOn } : {}) });
 const loop = (state: LoopSummary['state'], lanes?: LaneStatus[]): LoopSummary => ({ id: 'x', name: 'x', state, ...(lanes ? { lanes } : {}) }) as LoopSummary;
@@ -36,5 +36,15 @@ describe('lane attention', () => {
   it('claimText names the claimant and expiry in UTC, or says unclaimed', () => {
     expect(claimText({ name: 'sam', expiresAt: '2026-10-11T16:30:00Z' })).toBe('sam · expires 16:30 UTC');
     expect(claimText(undefined)).toBe('Unclaimed');
+  });
+});
+
+describe('releaseWaiting (round 4 A2)', () => {
+  it('is true only for a done loop with lanes, and counts in needsYouCount', () => {
+    const lanes = [{ name: 'web', state: 'done' }] as never;
+    expect(releaseWaiting({ state: 'done', lanes })).toBe(true);
+    expect(releaseWaiting({ state: 'done' })).toBe(false);
+    expect(releaseWaiting({ state: 'building', lanes })).toBe(false);
+    expect(needsYouCount([{ id: 'a', state: 'done', lanes } as never], [])).toBe(1);
   });
 });

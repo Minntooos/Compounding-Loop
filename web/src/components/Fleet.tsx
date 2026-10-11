@@ -5,7 +5,7 @@ import type { InboxItem, LoopState, LoopSummary } from '@core/types';
 import { api } from '../api/client';
 import { cardFacts, laneProgress, roundProgress, runBudget, SELF_BUILD_ID, selfFirst } from '../lib/card';
 import { STATE_LABEL } from '../lib/format';
-import { lanesNeedingYou, needsYouCount } from '../lib/lanes';
+import { lanesNeedingYou, needsYouCount, releaseWaiting } from '../lib/lanes';
 import { LaneStrip } from './LaneStrip';
 import { ProgressBar } from './ProgressBar';
 import { StatusBadge } from './StatusBadge';
@@ -13,8 +13,9 @@ import { LoadError, Loading } from './QueryState';
 
 function NeedsYou({ loops, inbox }: { loops: LoopSummary[]; inbox: InboxItem[] }) {
   const count = needsYouCount(loops, inbox);
+  const waiting = loops.filter(releaseWaiting);
   // Inbox items open the inbox; otherwise the problem is a lane or a failing loop, so open that loop.
-  const trouble = loops.find((l) => lanesNeedingYou(l.lanes).length > 0 || l.state === 'failing');
+  const trouble = loops.find((l) => lanesNeedingYou(l.lanes).length > 0 || l.state === 'failing' || releaseWaiting(l));
   const href = inbox.length === 0 && trouble ? `#/loop/${encodeURIComponent(trouble.id)}` : '#/inbox';
   if (count === 0) {
     return (
@@ -26,6 +27,7 @@ function NeedsYou({ loops, inbox }: { loops: LoopSummary[]; inbox: InboxItem[] }
   return (
     <a href={href} className="flex items-center gap-2 rounded-lg border px-4 py-3 font-medium" style={{ borderColor: 'var(--blocked)', color: 'var(--blocked)' }}>
       <InboxIcon aria-hidden size={18} />{count} {count === 1 ? 'thing needs' : 'things need'} you
+      {waiting.length > 0 && <span className="font-normal"> · {waiting.map((l) => `${l.name}: release waiting on you`).join(', ')}</span>}
     </a>
   );
 }

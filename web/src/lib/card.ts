@@ -11,11 +11,11 @@ export function selfFirst<T extends { id: string }>(loops: T[]): T[] {
 const count = (n: number) => (Number.isFinite(n) && n > 0 ? Math.floor(n) : 0);
 
 /** Round progress: "Round 2 of 3", "Round 2 of 2 done". Text keeps the real numbers; only the bar width is clamped. Undefined without a round total. */
-export function roundProgress(loop: Pick<LoopSummary, 'round' | 'roundsTotal' | 'state'>): { value: number; max: number; text: string } | undefined {
+export function roundProgress(loop: Pick<LoopSummary, 'round' | 'roundsTotal' | 'state'> & { lanes?: unknown[] }): { value: number; max: number; text: string } | undefined {
   const total = count(loop.roundsTotal);
   if (total === 0) return undefined;
   const round = count(loop.round);
-  return { value: Math.min(round, total), max: total, text: `Round ${round} of ${total}${loop.state === 'done' ? ' done' : ''}` };
+  return { value: Math.min(round, total), max: total, text: loop.state === 'done' && loop.lanes?.length ? `Round ${round} done · release waiting on you` : `Round ${round} of ${total}${loop.state === 'done' ? ' done' : ''}` };
 }
 
 /** Lane progress for a loop that is still building: "2 of 5 lanes done". The round bar would read as finished once round = total. */
@@ -42,8 +42,10 @@ export function activityStamp(iso: string): string {
 }
 
 /** Facts worth a row on a card. Rows without data are left out instead of printed as "no result". */
-export function cardFacts(loop: Pick<LoopSummary, 'tests' | 'live' | 'lastCommit' | 'nextRunAt' | 'ci' | 'demoUrl'>): { label: string; value: string }[] {
+export function cardFacts(loop: Pick<LoopSummary, 'tests' | 'live' | 'lastCommit' | 'nextRunAt' | 'ci' | 'demoUrl'> & { snapshotAt?: string }): { label: string; value: string }[] {
   const facts: { label: string; value: string }[] = [];
+  // Bundled data never passes for live: say which day it is from.
+  if (loop.snapshotAt) { const d = new Date(loop.snapshotAt); facts.push({ label: 'Data', value: `snapshot ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()] ?? ''}` }); }
   if (loop.lastCommit) facts.push({ label: 'Last activity', value: activityStamp(loop.lastCommit.at) });
   if (loop.ci) facts.push({ label: 'CI', value: loop.ci.ok ? 'passing on main' : 'failing on main' });
   if (loop.tests) facts.push({ label: 'Tests', value: `${loop.tests.passed} passed${loop.tests.failed ? `, ${loop.tests.failed} failed` : ''}` });

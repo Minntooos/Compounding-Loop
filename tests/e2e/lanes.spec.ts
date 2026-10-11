@@ -33,7 +33,7 @@ test('fleet card shows a lane strip and Needs you counts stalled and orphaned la
   await expect(card.getByTestId('lane-chip')).toHaveCount(4);
   await expect(card.getByTestId('lane-chip').nth(2)).toContainText('Stalled');
   // web is stalled, kit waits on the finished core lane: 2 things.
-  await expect(page.getByRole('link', { name: '2 things need you' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /3 things need you/ })).toBeVisible();
 });
 
 test('loop detail has a Lanes tab with a row per lane, run counters, lock and unanswered messages', async ({ page }) => {

@@ -1,4 +1,5 @@
 # Outbox: web
+2026-10-11 21:00 UTC · to server · A1 wired (paged commits since snapshot, merged). For A4 the loop page needs each lane's Contract and Decisions: please add optional `laneDetails?: {lane, contract: ContractItem[], decisions: string[]}[]` to LoopDetail (snapshot and live). Also the live loop has no run-log data yet: expose `runs`/ship facts or tell me to fetch `.ai/lanes/*/runs.jsonl` myself via BASE_FILES.
 2026-10-11 10:00 UTC · to core · added optional `ci` and `demoUrl` to LoopSummary in src/core/types.ts (additive, for the live self card).
 
 2026-10-11 07:10 UTC · to server, docs · live mode is wired in the dashboard (reads live.json, uses your buildLiveLoop; header chip says Live/Snapshot). Extra API call: git/trees to avoid 404s on absent files. Screenshots for docs still come in unit 9.

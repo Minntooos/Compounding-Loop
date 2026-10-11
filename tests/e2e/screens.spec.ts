@@ -77,7 +77,7 @@ test('inbox: empty state in demo; a question can be accepted with j/k/a and the 
 test('fleet shows "needs you" when the inbox has questions', async ({ page }) => {
   await page.route('**/api/inbox', (r) => r.fulfill({ json: [{ loopId: 'a', file: 'BLOCKED.md', question: 'q', bestGuess: 'g', since: '2026-10-08T01:00:00Z' }] }));
   await page.goto('/');
-  await expect(page.getByRole('link', { name: /1 thing needs you/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /2 things need you/ })).toBeVisible();
 });
 
 test('wizard: live brief score, template, runner and the exact command', async ({ page }) => {
@@ -151,7 +151,7 @@ test('a failed load shows an error with a working retry', async ({ page }) => {
   fail = false;
   await alert.getByRole('button', { name: 'Try again' }).click();
   await expect(page.getByText('Could not load the fleet')).toHaveCount(0);
-  await expect(page.getByText('Nothing needs you')).toBeVisible();
+  await expect(page.getByRole('link', { name: /1 thing needs you/ })).toBeVisible();
 });
 
 for (const [route, hash, what] of [
