@@ -1,1 +1,2 @@
 {"at":"2026-10-11T21:01:31Z","lane":"docs","units":["audit","release.yml","next-round.yml","docs/release.md"],"tests":{"passed":122,"failed":0},"pushed":true,"note":"dashboard.md waits on web buttons"}
+{"at": "2026-10-11T23:10:00Z", "lane": "docs", "units": ["dashboard-controls", "fresh-install-r4"], "tests": {"passed": 134, "failed": 0}, "pushed": true, "note": "run 3"}

@@ -25,7 +25,7 @@ Round 3 record: `.ai/lanes/docs/done-v3.md` (`git show b3b51a5:.ai/lanes/docs/ta
 ## Guesses
 
 ## Handoff (run 3)
-Next: unit 6 (fresh-install test from packed tarball into .ai/audit/docs.md, audit majors). Check `git log origin/main` for web commits touching Pause/Release.
+Next: audit majors (none open); release.yml dry run needs GitHub. Possibly lane DONE if audit has no open blockers.
 
 ## Tried
 

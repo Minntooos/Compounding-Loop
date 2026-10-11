@@ -83,3 +83,10 @@ From `npm pack` (0.2.0 tarball) installed into an empty temp dir:
 - README quick start: `new static-site my-site` creates the repo; `run --dry-run` prints the prompt. PASS (`dashboard` not opened: needs a browser).
 - docs/team.md in a cloned repo with a bare remote: `init --lanes core,web` (after a brief that passes the score), `next` (recommends core unit 1), `claim core --as Sam --minutes 90` (commits and pushes), a second `claim core --as Bo` refuses, `run --lane core --dry-run` prints the lane prompt, `release core`, `check-lanes` clean. PASS.
 - Finding (minor, documented): `init` refuses a thin IDEA.md ("No checkable done-when…"). README already says a brief is needed; no change.
+
+## Fresh-install test (round 4, 2026-10-11, docs run 3)
+From `npm pack` (tarball 0.3.0) installed into an empty temp dir, repo cloned from a bare remote:
+- `init --lanes core,web` (needs `--force` for my short test brief), `pause --reason` writes `.ai/PAUSED`, commits and pushes; `resume` removes it and pushes. PASS.
+- `runs` lists the missed slots as "no run recorded"; `next-round --brief b.md --no-commit --dry-run` prints the plan (IDEA.md, both task files, control-room note, deletes the brief); `ship-check` prints the six items and "Not ready to ship". PASS.
+- Findings (minor): `pause`/`resume`/`runs`/`ship-check` take no dir argument and use the cwd (docs/dashboard.md and release.md already say `loop pause`, no dir). A brief with a "Must have:" heading plus three bullets still scored too thin for `init`; not investigated (core's scorer).
+- Not run: release.yml dry run (needs GitHub), `dashboard` (needs a browser).
