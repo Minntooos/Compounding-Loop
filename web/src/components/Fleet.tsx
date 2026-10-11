@@ -3,7 +3,7 @@ import { Fragment, useState } from 'react';
 import { CheckCircle2, Inbox as InboxIcon } from 'lucide-react';
 import type { InboxItem, LoopState, LoopSummary } from '@core/types';
 import { api } from '../api/client';
-import { cardFacts, laneProgress, roundProgress, runBudget, SELF_BUILD_ID, selfFirst } from '../lib/card';
+import { cardFacts, laneProgress, statusLine, roundProgress, runBudget, SELF_BUILD_ID, selfFirst } from '../lib/card';
 import { STATE_LABEL } from '../lib/format';
 import { lanesNeedingYou, needsYouCount, releaseWaiting } from '../lib/lanes';
 import { LaneStrip } from './LaneStrip';
@@ -50,7 +50,7 @@ function LoopCard({ loop }: { loop: LoopSummary }) {
           <h2 className="break-all text-[15px] font-semibold">{loop.name}</h2>
           <StatusBadge state={loop.state} />
         </div>
-        <p className="mt-1 [overflow-wrap:anywhere]" style={{ color: 'var(--muted)' }}>{loop.reason}</p>
+        <p className="mt-1 [overflow-wrap:anywhere]" style={{ color: 'var(--muted)' }}>{statusLine(loop)}</p>
         {(rounds || lanes || runs) && <div className="mt-3 space-y-2">
           {rounds && <ProgressBar label="Rounds" {...rounds} color={STATE_COLOR[loop.state]} />}
           {lanes && <ProgressBar label="Lanes" {...lanes} color={STATE_COLOR[loop.state]} />}

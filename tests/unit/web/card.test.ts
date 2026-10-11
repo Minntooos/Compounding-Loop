@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activityStamp, cardFacts, laneProgress, roundProgress, runBudget, selfFirst } from '../../../web/src/lib/card.js';
+import { activityStamp, cardFacts, statusLine, laneProgress, roundProgress, runBudget, selfFirst } from '../../../web/src/lib/card.js';
 
 describe('fleet card model', () => {
   it('puts the self-build loop first and keeps the rest in order', () => {
@@ -51,5 +51,11 @@ describe('fleet card model', () => {
   it('adds CI and demo rows for the live self-build card', () => {
     expect(cardFacts({ ci: { ok: true, reason: '' }, demoUrl: 'https://minntooos.github.io/Compounding-Loop/' }))
       .toEqual([{ label: 'CI', value: 'passing on main' }, { label: 'Live site', value: 'minntooos.github.io/Compounding-Loop/' }]);
+  });
+  it('puts the pause or the newest run into the one status line (round 4 C)', () => {
+    expect(statusLine({ reason: 'lane web is building' })).toBe('lane web is building');
+    expect(statusLine({ reason: 'x', lastRun: { lane: 'web', at: '2026-10-11T21:44:00Z', outcome: 'pushed' } })).toBe('x · last run 21:44 UTC: pushed');
+    expect(statusLine({ reason: 'x', paused: { by: 'Mina', at: '2026-10-11T14:05:00Z', reason: 'budget' } })).toBe('Paused by Mina since 14:05 UTC · budget');
+    expect(statusLine({ reason: 'x', paused: { by: 'Mina' } })).toBe('Paused by Mina');
   });
 });

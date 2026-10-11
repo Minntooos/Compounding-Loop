@@ -1,7 +1,7 @@
 # Lane: web — round 4 (0.4.0 "Control")
 
 Run: 2 / 20
-Status: units 1 (partial), 2, 3 (most), 4 (Runs tab) shipped; fleet-card run line, 5-8 open
+Status: units 1 (partial), 2, 3 (most), 4 shipped (Runs tab, card status line with last run/paused); 5-8 open
 Round 3 record: `.ai/lanes/web/done-v3.md` (`git show b3b51a5:.ai/lanes/web/task.md` for its Decisions).
 
 ## Contract
@@ -29,8 +29,10 @@ Round 3 record: `.ai/lanes/web/done-v3.md` (`git show b3b51a5:.ai/lanes/web/task
 - `demo/this-repo.json` loop is `done` + has lanes, so the demo fleet now says "1 thing needs you · release waiting on you" (e2e updated).
 
 ## Next run starts here
-2. Remaining A: loop-page snapshot label, per-lane Contract/Decisions (ask server for lane task data in LoopDetail), page count + live link for site loops, `api/settings.json` console 404, phone theme button.
-3. Units 4-8 (Runs tab via `parseRunLog`/`matchSlots` from `src/core/parse/index.ts`, action buttons with pure GitHub URL builders, Ready to ship via `shipCheck`, Releases via `parseChangelog`).
+1. Unit 5: action buttons (Pause/Resume, Start next round, Release) with confirm dialog; use `pauseUrl/resumeUrl/nextRoundUrl/releaseWorkflowUrl` from `src/server/live`, local POST routes per .ai/contracts.md "Local actions". Paused Notice on loop page (`loop.paused`).
+2. Unit 6: Ready to ship panel (`loop.ship`), Releases tab (`loop.releases`), Tests tab, `loop.controlNotes` on self card, commit author is done, Inbox edit links (`editFileUrl`), doctor on Health (`GET /api/doctor`).
+3. Remaining A: per-lane Contract/Decisions via `laneNotes`, site pages + live link, phone theme button check, then units 7-8.
+4. Runs tab silent notice is client-derived (`web/src/lib/runs.ts silentLanes`, guarded for paused/done/blocked); ask server to expose its own list if they disagree.
 
 ## Guesses
 

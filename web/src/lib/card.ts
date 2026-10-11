@@ -53,3 +53,17 @@ export function cardFacts(loop: Pick<LoopSummary, 'tests' | 'live' | 'lastCommit
   if (loop.demoUrl && !loop.live) facts.push({ label: 'Live site', value: loop.demoUrl.replace(/^https:\/\//, '') });
   return facts;
 }
+
+const RUN_WORD: Record<NonNullable<LoopSummary['lastRun']>['outcome'], string> = {
+  pushed: 'pushed', 'nothing-pushed': 'pushed nothing', 'tests-failed': 'tests failed', 'no-run-recorded': 'no run recorded',
+};
+
+/** The card's one status line: a pause wins, else the reason followed by the newest run ("last run 21:44 UTC: pushed"). */
+export function statusLine(loop: Pick<LoopSummary, 'reason' | 'paused' | 'lastRun'>): string {
+  const { paused, lastRun } = loop;
+  if (paused) {
+    const since = paused.at ? ` since ${paused.at.slice(11, 16)} UTC` : '';
+    return `Paused by ${paused.by}${since}${paused.reason ? ` · ${paused.reason}` : ''}`;
+  }
+  return lastRun ? `${loop.reason} · last run ${lastRun.at.slice(11, 16)} UTC: ${RUN_WORD[lastRun.outcome]}` : loop.reason;
+}
