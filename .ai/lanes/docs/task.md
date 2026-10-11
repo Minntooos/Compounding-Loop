@@ -1,7 +1,7 @@
 # Lane: docs — round 3 (0.3.0 "Showcase")
 
-Run: 1 / 20
-Status: in progress
+Run: 2 / 20
+Status: in progress; unit 2 (docs/team.md) done
 Round 2 record: `.ai/lanes/docs/done-v2.md` (`git show 084bb9f:.ai/lanes/docs/task.md` for its Decisions).
 
 ## Contract

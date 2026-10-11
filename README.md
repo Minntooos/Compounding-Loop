@@ -65,7 +65,7 @@ npx compounding-loop run                       # one round now
 npx compounding-loop dashboard                 # the local dashboard
 ```
 
-Several lanes in one repo (needs an `IDEA.md` brief first): `npx compounding-loop init --lanes core,web,docs`, then `npx compounding-loop run --lane core`. Check ownership with `npx compounding-loop check-lanes`. Details: [Lanes](docs/lanes.md).
+Several lanes in one repo (needs an `IDEA.md` brief first): `npx compounding-loop init --lanes core,web,docs`, then `npx compounding-loop run --lane core`. Check ownership with `npx compounding-loop check-lanes`. Details: [Lanes](docs/lanes.md). Sharing a loop with a teammate: [Work on a loop with a teammate](docs/team.md).
 
 Already have a repo? `npx compounding-loop init` adds the method to it without overwriting anything. Details: [Getting started](docs/getting-started.md).
 
@@ -101,7 +101,7 @@ If you work at the keyboard and want to watch agents in parallel, those tools ar
 
 ## Docs
 
-[Getting started](docs/getting-started.md) · [Lanes](docs/lanes.md) · [Concepts](docs/concepts.md) · [Runners](docs/runners.md) · [Dashboard](docs/dashboard.md) · [Templates](docs/templates.md) · [FAQ](docs/faq.md) · [Troubleshooting](docs/troubleshooting.md) · [Contributing](CONTRIBUTING.md)
+[Getting started](docs/getting-started.md) · [Lanes](docs/lanes.md) · [Team](docs/team.md) · [Concepts](docs/concepts.md) · [Runners](docs/runners.md) · [Dashboard](docs/dashboard.md) · [Templates](docs/templates.md) · [FAQ](docs/faq.md) · [Troubleshooting](docs/troubleshooting.md) · [Contributing](CONTRIBUTING.md)
 
 ## FAQ
 

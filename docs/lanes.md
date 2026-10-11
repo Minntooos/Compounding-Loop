@@ -46,6 +46,8 @@ npx compounding-loop run --lane core
 
 This uses the lane's own task file, outbox and session lock (`.ai/lanes/<lane>/session.lock`). For the cloud, create one routine per lane from `runners/routine/lane-prompt.md` plus one control-room routine from `control-room-prompt.md`; see [Runners](runners.md).
 
+Working with a teammate? See [Work on a loop with a teammate](team.md) for claims.
+
 ## Staggered cron
 
 Give each lane a different minute, at least 10 apart (`7 * * * *`, `19 * * * *`, ...), and avoid minute 0. Lanes still stand down if a fresh lock exists, so an overlap wastes a run rather than corrupting files.

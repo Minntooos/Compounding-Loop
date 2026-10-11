@@ -37,11 +37,11 @@ Pick a runner in [Runners](runners.md): a Claude Code routine, a GitHub Action o
 
 ## Optional: several lanes
 
-To run parallel lanes in one repo, add `--lanes core,web,docs` to `init`, then `run --lane <name>`. See [Lanes](lanes.md).
+To run parallel lanes in one repo, add `--lanes core,web,docs` to `init`, then `run --lane <name>`. See [Lanes](lanes.md). To share the loop with a teammate, see [Work on a loop with a teammate](team.md).
 
 ## Claude Code plugin commands
 
-The `plugin/` folder ships slash commands for use inside a Claude Code session: `loop-init` (set up the repo), `handoff` (write the handoff so a fresh session can continue), `retro` (promote lessons once checks pass) and `stuck` (run the stuck protocol after the same failure twice).
+The `plugin/` folder ships slash commands for use inside a Claude Code session: `loop-init` (set up the repo), `loop-next` (pick and claim an open unit with a teammate), `handoff` (write the handoff so a fresh session can continue), `retro` (promote lessons once checks pass) and `stuck` (run the stuck protocol after the same failure twice).
 
 ## 5. Watch and answer
 
