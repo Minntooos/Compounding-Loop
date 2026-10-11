@@ -8,3 +8,10 @@ Run it when the checks pass, before deleting `.ai/task.md`. About two minutes.
 4. Flag entries this task showed to be wrong or stale. Never delete a CONFIRMED entry without new evidence.
 5. Add one line to `.ai/log.md`: date, task, checks result, runs used, what was learned.
 6. Delete `.ai/task.md`.
+
+## In a lane
+
+- The task file is `.ai/lanes/<lane>/task.md`. Keep it for the record and set `Status:` instead of deleting it (the control room reads it).
+- Write knowledge entries and the `.ai/index.md` line only for things that help any lane; put lane-only facts under Confirmed in your task file.
+- Before writing your lane's `DONE.md`, read the other lanes' outboxes: if anyone waits on you, answer first.
+- If the lesson is about another lane's files, tell them in your outbox. Do not edit their paths.

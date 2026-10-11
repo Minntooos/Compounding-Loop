@@ -36,6 +36,10 @@ describe('templates/lanes', () => {
     expect(fillPlaceholders(read('ci-check-lanes.yml'), VARS)).toContain('${{ github.sha }}');
   });
 
+  it('lane task.md handoff asks for the "units N done" wording `loop next` reads', () => {
+    expect(read('task.md')).toContain('"units 1-3 done"');
+  });
+
   it('lane task.md keeps the run counter and the sections the prompts rely on', () => {
     const task = read('task.md');
     expect(task).toMatch(/^Run: 0 \/ 20$/m);

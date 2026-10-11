@@ -33,4 +33,4 @@ Status: not started
 - Change the Operating Card, the version, or publish anything.
 
 ## Handoff
-<Rewritten at the end of every run: commit, whether the tree is clean, the single next step, what to read first.>
+<Rewritten at the end of every run: commit, whether the tree is clean, the single next step, what to read first. Name finished units as "units 1-3 done" so `loop next` can skip them, and list what you shipped that another lane waits on (also in your outbox).>

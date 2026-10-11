@@ -1,6 +1,6 @@
 # Lane: kit — round 3 (0.3.0 "Showcase")
 
-Run: 4 / 20
+Run: 5 / 20
 Status: units 1-3 done; unit 4 started: plugin /loop-lanes shipped (done-v2 improvement 7). Next: more done-v2 leftovers (control-room job in lanes.yml, lane-aware handoff/retro templates)
 Round 2 record: `.ai/lanes/kit/done-v2.md` (`git show 084bb9f:.ai/lanes/kit/task.md` for its Decisions).
 
@@ -27,4 +27,4 @@ Round 2 record: `.ai/lanes/kit/done-v2.md` (`git show 084bb9f:.ai/lanes/kit/task
 - Edit paths another lane owns, except for the "main stays green" fix.
 
 ## Handoff
-Run 4: systemd user service+timer shipped (runners/local, tested; reviewer fixes PATH, linger, 85min). Note: the sandbox clone had an unrelated stale history; reset to origin/main. Remaining done-v2 leftovers: lane-aware handoff/retro templates in method/, app-with-lanes template.
+Run 5: lane-aware retro (method/retro.md "In a lane") and lane task template handoff wording shipped, tested. Units 1-3 done; unit 4 partly done (/loop-lanes, systemd, retro/handoff). Remaining done-v2 leftovers: control-room job in lanes.yml, app-with-lanes template (needs core to exclude from listTemplates), pin version in CI snippets after release. Note: sandbox clone's local main had unrelated stale history; `git reset --hard origin/main` at run start fixed it. Reviewer subagent skipped this run (text-only change, tests assert it).

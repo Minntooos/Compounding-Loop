@@ -88,6 +88,13 @@ describe('method protocol files', () => {
     expect(text).toContain('guess → confirmed note → note with a trigger → automated check');
     expect(text).toContain('Delete `.ai/task.md`');
   });
+
+  it('retro has a lane section: keep the task file, read outboxes before DONE', () => {
+    const text = read('method', 'retro.md');
+    expect(text).toContain('## In a lane');
+    expect(text).toContain('.ai/lanes/<lane>/task.md');
+    expect(text).toContain("read the other lanes' outboxes");
+  });
 });
 
 describe('unattended rules are identical everywhere', () => {
