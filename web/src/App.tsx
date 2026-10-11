@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Moon, Sun } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { api, hasServer } from './api/client';
 import { CommandPalette } from './components/CommandPalette';
 import { Fleet } from './components/Fleet';
@@ -11,7 +11,9 @@ import { NewLoop } from './components/NewLoop';
 import { Settings } from './components/Settings';
 import { Toasts, type Toast } from './components/Toasts';
 import { WelcomeStrip } from './components/WelcomeStrip';
+import { getLive, liveStore } from './api/live';
 import { mockSnapshot } from './api/mock';
+import { indicatorText, LIVE_TTL_MS } from './lib/liveCache';
 import { newestActivity, shortDateUtc } from './lib/format';
 import { href, useRoute, type Route } from './lib/route';
 
@@ -52,12 +54,36 @@ function useLiveUpdates(connected: boolean | undefined, notify: (text: string) =
   }, [connected, qc, notify]);
 }
 
+/** Header chip: live/snapshot state in demo mode (DESIGN.md "States"). Without live mode it stays the plain snapshot label. */
+function SourceChip({ snapshotDate }: { snapshotDate: string }) {
+  const live = useSyncExternalStore(liveStore.subscribe, liveStore.get);
+  const { label, tone } = live ? indicatorText(live, Date.now()) : { label: `Snapshot from ${snapshotDate}`, tone: 'calm' as const };
+  const dot = tone === 'live' ? 'var(--done)' : tone === 'stale' ? 'var(--blocked)' : 'var(--muted)';
+  return (
+    <p role="status" className="order-2 ml-auto flex items-center gap-1.5 text-[12px] md:order-3 md:ml-0" style={{ color: 'var(--muted)' }}>
+      <span aria-hidden className="size-2 shrink-0 rounded-full" style={{ background: dot }} />
+      {live ? label : <>Snapshot <span className="hidden md:inline">from&nbsp;</span>{snapshotDate}</>}
+    </p>
+  );
+}
+
 function Shell() {
   const route = useRoute();
   const [theme, setTheme] = useState<Theme>(initialTheme);
   const inbox = useQuery({ queryKey: ['inbox'], queryFn: api.inbox });
   const loops = useQuery({ queryKey: ['loops'], queryFn: api.loops });
   const server = useQuery({ queryKey: ['server'], queryFn: hasServer });
+  const snapshotDate = shortDateUtc(newestActivity(loops.data ?? [], mockSnapshot.generatedAt));
+  const qc = useQueryClient();
+  useEffect(() => {
+    if (server.data !== false) return;
+    const refresh = () => {
+      if (document.visibilityState !== 'visible') return;
+      void getLive(snapshotDate, true).then(() => qc.invalidateQueries());
+    };
+    const id = window.setInterval(refresh, LIVE_TTL_MS);
+    return () => window.clearInterval(id);
+  }, [server.data, snapshotDate, qc]);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const notify = useCallback((text: string) => {
     const id = Date.now() + Math.random();
@@ -88,7 +114,7 @@ function Shell() {
               </a>
             ))}
           </nav>
-          {server.data === false && <p role="status" className="order-2 ml-auto flex items-center gap-1.5 text-[12px] md:order-3 md:ml-0" style={{ color: 'var(--muted)' }}><span aria-hidden className="size-2 rounded-full" style={{ background: 'var(--muted)' }} />Snapshot <span className="hidden md:inline">from&nbsp;</span>{shortDateUtc(newestActivity(loops.data ?? [], mockSnapshot.generatedAt))}</p>}
+          {server.data === false && <SourceChip snapshotDate={snapshotDate} />}
           <button type="button" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'} className={`order-2 rounded p-2 md:order-3 ${server.data === false ? '' : 'ml-auto md:ml-0'}`}>
             {theme === 'dark' ? <Sun aria-hidden size={18} /> : <Moon aria-hidden size={18} />}
           </button>

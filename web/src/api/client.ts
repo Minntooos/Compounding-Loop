@@ -1,5 +1,8 @@
 import type { DashboardSettings, HealthCheck, InboxItem, LoopDetail, LoopSummary } from '@core/types';
 import { probeOrder } from '../lib/probe';
+import { newestActivity, shortDateUtc } from '../lib/format';
+import { mergeFacts, mergeLoops } from '../lib/liveMerge';
+import { getLive } from './live';
 import { mockSnapshot } from './mock';
 
 async function fetchJson(path: string): Promise<Response | undefined> {
@@ -64,10 +67,22 @@ export async function postAnswer(loopId: string, file: string, answer: string): 
   return body as AnswerResult;
 }
 
+/** Static hosting only: the snapshot's rows, with the self-build loop replaced by its live GitHub state when that loads. */
+async function withLive<T>(snapshot: T, merge: (rows: T, live: NonNullable<Awaited<ReturnType<typeof getLive>>>) => T): Promise<T> {
+  if (await hasServer()) return snapshot;
+  const loops = await staticJson<LoopSummary[]>('/loops', () => mockSnapshot.loops);
+  const live = await getLive(shortDateUtc(newestActivity(loops, mockSnapshot.generatedAt)));
+  return live ? merge(snapshot, live) : snapshot;
+}
+
 export const api = {
-  loops: () => getJson<LoopSummary[]>('/loops', () => mockSnapshot.loops).then(sortByAttention),
-  loop: (id: string) => getJson<LoopDetail | null>(`/loops/${encodeURIComponent(id)}`, () => mockSnapshot.loops.find((l) => l.id === id) ?? null, null),
-  inbox: () => getJson<InboxItem[]>('/inbox', () => mockSnapshot.inbox),
-  checks: () => getJson<HealthCheck[]>('/checks', () => mockSnapshot.checks),
+  loops: () => getJson<LoopSummary[]>('/loops', () => mockSnapshot.loops)
+    .then((rows) => withLive(rows, (r, live) => mergeLoops(r, live.detail))).then(sortByAttention),
+  loop: (id: string) => getJson<LoopDetail | null>(`/loops/${encodeURIComponent(id)}`, () => mockSnapshot.loops.find((l) => l.id === id) ?? null, null)
+    .then((row) => withLive(row, (r, live) => (live.detail.id === id ? live.detail : r))),
+  inbox: () => getJson<InboxItem[]>('/inbox', () => mockSnapshot.inbox)
+    .then((rows) => withLive(rows, (r, live) => mergeFacts(r, live.detail.id, live.inbox))),
+  checks: () => getJson<HealthCheck[]>('/checks', () => mockSnapshot.checks)
+    .then((rows) => withLive(rows, (r, live) => mergeFacts(r, live.detail.id, live.checks))),
   settings: () => getJson<DashboardSettings>('/settings', (): DashboardSettings => ({ demo: true, defaultRunner: 'routine' })),
 };

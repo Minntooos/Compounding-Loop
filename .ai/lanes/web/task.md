@@ -1,7 +1,7 @@
 # Lane: web — round 3 (0.3.0 "Showcase")
 
-Run: 2 / 20
-Status: in progress (units 1-4 done, unit 6 done, unit 5 partly: pure cache + indicator wording done and tested; next: wire live fetch, then units 7-9)
+Run: 3 / 20
+Status: in progress (units 1-7 and 5 done; unit 8 partly; unit 9 last)
 Round 2 record: `.ai/lanes/web/done-v2.md` (`git show 084bb9f:.ai/lanes/web/task.md` for its Decisions).
 
 ## Contract
@@ -46,3 +46,7 @@ Unit 7 partly done: Timeline grouped by UTC day, lane colour + name, lane filter
 - 2026-10-11 Decision: the chart shows commits per day (last 60 days), not runs/tests over time: the API has no run history per day. Shown only with 2+ days of data (the current demo snapshot is one day, so no e2e). Revisit when server's live data lands.
 Run 2 end: unit 7 done except sticky day headings and self-card extras. Lanes tab now shows claim text and a run bar; commits-per-day chart added (ActivityChart.tsx). Next: unit 8 (states/reduced motion audit), then unit 5 remainder (check `git log` for src/server/live), then unit 9.
 Unit 8 partly: Loading is now a skeleton (QueryState.tsx). Still open in 8: shared Notice component, rate-limited state (needs live mode), per-screen skeleton shapes. Unit 5 remainder blocked on server's `src/server/live/**` (absent at 06:00 UTC); unit 9 (after screenshots to docs/assets/screens/, independent design review into .ai/audit/web.md) must come last.
+
+## Handoff (run 3)
+Unit 5 done: live mode. `web/src/lib/liveFetch.ts` (tree listing so absent files are never requested, then server's `buildLiveLoop`), `web/src/api/live.ts` (5 min sessionStorage cache, store for the header chip), `liveMerge.ts`, `SourceChip` in App.tsx, 5-min refresh while visible; `tests/e2e/live.spec.ts` (live, rate-limited, unreachable, axe both themes) and `tests/unit/web/liveFetch.test.ts`. Fleet card titles are now h2 (axe heading-order). Local `main` had an unrelated history at run start; reset to origin/main, old one kept as branch `local-old-main`.
+Known small gaps (reviewer): a cold load costs 3 anonymous API calls (tree, commits, runs) of 60/h; after a failed forced refresh the chip can bounce back to live from the cache. Next: unit 8 remainder (shared Notice, rate-limited state per screen, skeleton shapes), sticky day headings, self-card extras, then unit 9 (screenshots to docs/assets/screens/, independent design review into .ai/audit/web.md).

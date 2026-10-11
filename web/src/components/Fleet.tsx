@@ -43,7 +43,7 @@ function LoopCard({ loop }: { loop: LoopSummary }) {
     <li className={self ? 'sm:col-span-2' : undefined}>
       <a href={`#/loop/${encodeURIComponent(loop.id)}`} data-testid="loop-card" className="block h-full rounded-lg border p-3 sm:p-4" style={{ background: 'var(--surface)', borderColor: self ? 'var(--accent)' : 'var(--border)' }}>
         <div className="flex items-start justify-between gap-2">
-          <h3 className="break-all text-[15px] font-semibold">{loop.name}</h3>
+          <h2 className="break-all text-[15px] font-semibold">{loop.name}</h2>
           <StatusBadge state={loop.state} />
         </div>
         <p className="mt-1 [overflow-wrap:anywhere]" style={{ color: 'var(--muted)' }}>{loop.reason}</p>
