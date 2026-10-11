@@ -3,7 +3,7 @@ import { appendFile, mkdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { parseLockTime } from '../core/repo.js';
 import { LOCK_MINUTES } from '../core/status.js';
-import { buildClaudeArgs, buildRunPrompt, DEFAULT_PROMPT } from '../core/runPrompt.js';
+import { buildClaudeArgs, buildRunPrompt, claimRule, DEFAULT_PROMPT } from '../core/runPrompt.js';
 import { parseLanesConfig } from '../core/lanes.js';
 import { packageRoot } from './init.js';
 import { withSessionLock } from './lock.js';
@@ -30,7 +30,7 @@ export async function loadPromptText(dir: string, root: string = packageRoot, la
 
 /** Used when no lane prompt file exists: points the generic round prompt at this lane's files. */
 export function laneIntro(lane: string): string {
-  return `You are the **${lane}** lane of a multi-lane loop. Your lane's task file is \`.ai/lanes/${lane}/task.md\` (wherever this prompt says \`.ai/task.md\`, use it), your outbox is \`.ai/lanes/${lane}/outbox.md\`, your lock is \`.ai/lanes/${lane}/session.lock\`, and your stop files are \`.ai/lanes/${lane}/DONE.md\` and \`BLOCKED.md\`. Edit only the paths \`${lane}\` owns in \`.ai/lanes.json\` (plus shared ones), and end every commit message with the trailer line \`Lane: ${lane}\`.`;
+  return `You are the **${lane}** lane of a multi-lane loop. Your lane's task file is \`.ai/lanes/${lane}/task.md\` (wherever this prompt says \`.ai/task.md\`, use it), your outbox is \`.ai/lanes/${lane}/outbox.md\`, your lock is \`.ai/lanes/${lane}/session.lock\`, and your stop files are \`.ai/lanes/${lane}/DONE.md\` and \`BLOCKED.md\`. Edit only the paths \`${lane}\` owns in \`.ai/lanes.json\` (plus shared ones), and end every commit message with the trailer line \`Lane: ${lane}\`. ${claimRule(lane)}`;
 }
 
 /** Fails early, with the valid names, when `--lane` is not in `.ai/lanes.json`. */

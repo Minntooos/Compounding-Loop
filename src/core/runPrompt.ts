@@ -15,6 +15,11 @@ export const DEFAULT_PROMPT = `You are one scheduled run of the build loop for t
 
 Never spend money, sign up for anything, create accounts, publish anything, add API keys, secrets, ads, analytics or tracking, copy other projects' content without a compatible licence, force-push, rewrite history, or touch anything outside this repository.`;
 
+/** The claim rule for a lane run (IDEA.md Round 3): a teammate's unexpired claim means this lane is taken. */
+export function claimRule(lane: string): string {
+  return `Claim: if \`.ai/lanes/${lane}/claim\` exists (one line, \`name · expires <UTC ISO>\`), names someone other than you (compare with \`git config user.name\`; an unattended scheduled run has no name, so any unexpired claim stops it), and its expiry is later than \`date -u\`, a teammate is working this lane: reply "Nothing to do" and stop. An expired claim counts as none; leave the file, \`loop claim\` overwrites it.`;
+}
+
 /** Fills `{{name}}`-style placeholders and normalises the ending. */
 export function buildRunPrompt(promptText: string, vars: Readonly<Record<string, string>>): string {
   return `${fillPlaceholders(promptText, vars).trim()}\n`;

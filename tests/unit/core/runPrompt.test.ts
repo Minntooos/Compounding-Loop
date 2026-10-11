@@ -27,3 +27,17 @@ describe('DEFAULT_PROMPT', () => {
     expect(DEFAULT_PROMPT).toBe(shipped.trim());
   });
 });
+
+describe('claimRule', () => {
+  it('names the lane\'s claim file and tells an unattended run to stand down', async () => {
+    const { claimRule } = await import('../../../src/core/runPrompt.js');
+    const rule = claimRule('web');
+    expect(rule).toContain('.ai/lanes/web/claim');
+    expect(rule).toContain('Nothing to do');
+    expect(rule).toContain('expired claim counts as none');
+  });
+  it('the lane intro `loop run --lane` prepends carries it', async () => {
+    const { laneIntro } = await import('../../../src/cli/run.js');
+    expect(laneIntro('web')).toContain('.ai/lanes/web/claim');
+  });
+});
