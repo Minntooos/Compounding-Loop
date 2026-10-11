@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activityStamp, cardFacts, roundProgress, runBudget, selfFirst } from '../../../web/src/lib/card.js';
+import { activityStamp, cardFacts, laneProgress, roundProgress, runBudget, selfFirst } from '../../../web/src/lib/card.js';
 
 describe('fleet card model', () => {
   it('puts the self-build loop first and keeps the rest in order', () => {
@@ -29,5 +29,20 @@ describe('fleet card model', () => {
         { label: 'Tests', value: '5 passed, 1 failed' },
         { label: 'Live site', value: 'up (200)' },
       ]);
+  });
+  it('shows lane progress for a building laned loop only', () => {
+    const lanes = [{ state: 'done' }, { state: 'working' }, { state: 'done' }] as never;
+    expect(laneProgress({ lanes, state: 'building' })).toEqual({ value: 2, max: 3, text: '2 of 3 lanes done' });
+    expect(laneProgress({ lanes, state: 'done' })).toBeUndefined();
+    expect(laneProgress({ state: 'building' })).toBeUndefined();
+  });
+  it('hides the run budget when finished or not started', () => {
+    expect(runBudget({ run: 0, runLimit: 30, state: 'done' })).toBeUndefined();
+    expect(runBudget({ run: 5, runLimit: 30, state: 'done' })).toBeUndefined();
+    expect(runBudget({ run: 5, runLimit: 30, state: 'building' })?.text).toBe('5 of 30 runs');
+  });
+  it('adds CI and demo rows for the live self-build card', () => {
+    expect(cardFacts({ ci: { ok: true, reason: '' }, demoUrl: 'https://minntooos.github.io/Compounding-Loop/' }))
+      .toEqual([{ label: 'CI', value: 'passing on main' }, { label: 'Live site', value: 'minntooos.github.io/Compounding-Loop/' }]);
   });
 });

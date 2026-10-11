@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { loadLive, RateLimitedError, readLiveConfig, type Fetch } from '../../../web/src/lib/liveFetch.js';
-import { mergeFacts, mergeLoops } from '../../../web/src/lib/liveMerge.js';
+import { mergeFacts, mergeLoops, pagesUrl } from '../../../web/src/lib/liveMerge.js';
 import type { HealthCheck, LoopDetail, LoopSummary } from '../../../src/core/types.js';
 
 const json = (body: unknown, init: ResponseInit = {}) => new Response(JSON.stringify(body), { ...init, headers: { 'content-type': 'application/json', ...init.headers } });
@@ -70,6 +70,15 @@ describe('merge', () => {
     const live = { ...sum('b'), timeline: [], contract: [], knowledge: [], decisions: [], history: [] } as LoopDetail;
     expect(mergeLoops([sum('a'), sum('b')], live).map((l) => l.id)).toEqual(['b', 'a']);
     expect(mergeLoops([sum('a')], undefined).map((l) => l.id)).toEqual(['a']);
+  });
+  it('adds CI and the Pages demo to the live card', () => {
+    const live = { ...sum('b'), url: 'https://github.com/Owner/b', timeline: [], contract: [], knowledge: [], decisions: [], history: [] } as LoopDetail;
+    const check: HealthCheck = { loopId: 'b', kind: 'failing-tests', ok: false, reason: 'x', proof: '' };
+    const [card] = mergeLoops([], live, [check]);
+    expect(card?.ci).toEqual({ ok: false, reason: 'x' });
+    expect(card?.demoUrl).toBe('https://owner.github.io/b/');
+    expect(pagesUrl('https://example.com/a/b')).toBeUndefined();
+    expect(pagesUrl(undefined)).toBeUndefined();
   });
   it('mergeFacts keeps other loops rows', () => {
     const c = (loopId: string): HealthCheck => ({ loopId, kind: 'failing-tests', ok: true, reason: '', proof: '' });

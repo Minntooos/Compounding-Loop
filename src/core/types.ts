@@ -61,6 +61,10 @@ export interface LoopSummary {
   tests?: LoopTestResult;
   live?: LoopLiveCheck;
   pages?: number;
+  /** Latest CI run on main (live mode only; added by the web lane). */
+  ci?: { ok: boolean; reason: string };
+  /** Public demo site, e.g. the repo's GitHub Pages (live mode only; added by the web lane). */
+  demoUrl?: string;
   lastCommit?: LoopCommit;
   /** Present only for loops with `.ai/lanes.json` (added by the server lane). */
   lanes?: LaneStatus[];

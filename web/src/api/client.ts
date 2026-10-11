@@ -77,7 +77,7 @@ async function withLive<T>(snapshot: T, merge: (rows: T, live: NonNullable<Await
 
 export const api = {
   loops: () => getJson<LoopSummary[]>('/loops', () => mockSnapshot.loops)
-    .then((rows) => withLive(rows, (r, live) => mergeLoops(r, live.detail))).then(sortByAttention),
+    .then((rows) => withLive(rows, (r, live) => mergeLoops(r, live.detail, live.checks))).then(sortByAttention),
   loop: (id: string) => getJson<LoopDetail | null>(`/loops/${encodeURIComponent(id)}`, () => mockSnapshot.loops.find((l) => l.id === id) ?? null, null)
     .then((row) => withLive(row, (r, live) => (live.detail.id === id ? live.detail : r))),
   inbox: () => getJson<InboxItem[]>('/inbox', () => mockSnapshot.inbox)

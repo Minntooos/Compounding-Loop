@@ -23,7 +23,7 @@ test('fleet shows the five demo sites with their numbers and "Nothing needs you"
     const card = cards.filter({ hasText: name });
     await expect(card).toContainText('Done');
     await expect(card).toContainText('Round 5 of 5 done');
-    await expect(card).toContainText('0 of 30 runs');
+    await expect(card).not.toContainText('runs');
     await expect(card).toContainText(`${passed} passed`);
   }
   expect(errors).toEqual([]);
@@ -70,12 +70,12 @@ test('keyboard: tab reaches nav and cards with visible focus; Ctrl+K palette nav
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Health');
 });
 
-test('cards show round and run-budget bars; the self-build card comes first; no empty rows', async ({ page }) => {
+test('cards show a round bar (run budget only while running); the self-build card comes first; no empty rows', async ({ page }) => {
   await page.goto('/');
   const cards = page.getByTestId('loop-card');
   await expect(cards.first()).toContainText('compounding-loop');
   const bars = cards.first().getByRole('progressbar');
-  await expect(bars).toHaveCount(2);
+  await expect(bars).toHaveCount(1);
   await expect(bars.first()).toHaveAttribute('aria-valuemax', /\d+/);
   const text = await cards.allInnerTexts();
   for (const t of text) expect(t).not.toMatch(/no result|not checked/);

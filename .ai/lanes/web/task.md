@@ -1,6 +1,6 @@
 # Lane: web — round 3 (0.3.0 "Showcase")
 
-Run: 4 / 20
+Run: 5 / 20
 Status: in progress (units 1-7 and 5 done; unit 8 partly; unit 9 last)
 Round 2 record: `.ai/lanes/web/done-v2.md` (`git show 084bb9f:.ai/lanes/web/task.md` for its Decisions).
 
@@ -53,3 +53,6 @@ Known small gaps (reviewer): a cold load costs 3 anonymous API calls (tree, comm
 
 ## Handoff (run 4)
 Unit 8 mostly done: shared `Notice` (QueryState.tsx), `PausedLiveNotice` under the h1 when rate-limited (e2e in live.spec.ts), sticky day headings (shell header is not sticky, so top-0). Still open: per-screen skeleton shapes, self-card story line/lane chips, then unit 9 (screenshots to docs/assets/screens/, independent design review into .ai/audit/web.md, tell docs). Main is green (120 e2e + 443 unit).
+
+## Handoff (run 5)
+Owner review (control-room 07:55) done: laned building loops show "N of M lanes done" instead of the round bar, run bar hidden when done or run=0, live self card gets CI row + Live site (assumed GitHub Pages URL, unverified; `LoopSummary.ci`/`demoUrl` added to core types, additive). Remaining: per-screen skeleton shapes, self-card story line, then unit 9 (screenshots to docs/assets/screens/, independent design review into .ai/audit/web.md, tell docs).

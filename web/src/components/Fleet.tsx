@@ -3,7 +3,7 @@ import { Fragment, useState } from 'react';
 import { CheckCircle2, Inbox as InboxIcon } from 'lucide-react';
 import type { InboxItem, LoopState, LoopSummary } from '@core/types';
 import { api } from '../api/client';
-import { cardFacts, roundProgress, runBudget, SELF_BUILD_ID, selfFirst } from '../lib/card';
+import { cardFacts, laneProgress, roundProgress, runBudget, SELF_BUILD_ID, selfFirst } from '../lib/card';
 import { STATE_LABEL } from '../lib/format';
 import { lanesNeedingYou, needsYouCount } from '../lib/lanes';
 import { LaneStrip } from './LaneStrip';
@@ -35,7 +35,9 @@ const STATE_COLOR: Record<LoopState, string> = {
 };
 
 function LoopCard({ loop }: { loop: LoopSummary }) {
-  const rounds = roundProgress(loop);
+  const lanes = laneProgress(loop);
+  // Inside the final round a full round bar reads as finished, so a laned loop shows lane progress instead.
+  const rounds = lanes ? undefined : roundProgress(loop);
   const runs = runBudget(loop);
   const facts = cardFacts(loop);
   const self = loop.id === SELF_BUILD_ID;
@@ -47,8 +49,9 @@ function LoopCard({ loop }: { loop: LoopSummary }) {
           <StatusBadge state={loop.state} />
         </div>
         <p className="mt-1 [overflow-wrap:anywhere]" style={{ color: 'var(--muted)' }}>{loop.reason}</p>
-        {(rounds || runs) && <div className="mt-3 space-y-2">
+        {(rounds || lanes || runs) && <div className="mt-3 space-y-2">
           {rounds && <ProgressBar label="Rounds" {...rounds} color={STATE_COLOR[loop.state]} />}
+          {lanes && <ProgressBar label="Lanes" {...lanes} color={STATE_COLOR[loop.state]} />}
           {runs && <ProgressBar label="Run budget" {...runs} color="var(--accent)" />}
         </div>}
         {facts.length > 0 && (

@@ -18,11 +18,18 @@ export function roundProgress(loop: Pick<LoopSummary, 'round' | 'roundsTotal' | 
   return { value: Math.min(round, total), max: total, text: `Round ${round} of ${total}${loop.state === 'done' ? ' done' : ''}` };
 }
 
-/** Run-budget progress: "15 of 150 runs". Undefined without a limit. */
-export function runBudget(loop: Pick<LoopSummary, 'run' | 'runLimit'>): { value: number; max: number; text: string } | undefined {
+/** Lane progress for a loop that is still building: "2 of 5 lanes done". The round bar would read as finished once round = total. */
+export function laneProgress(loop: Pick<LoopSummary, 'lanes' | 'state'>): { value: number; max: number; text: string } | undefined {
+  if (!loop.lanes || loop.lanes.length === 0 || loop.state === 'done') return undefined;
+  const done = loop.lanes.filter((l) => l.state === 'done').length;
+  return { value: done, max: loop.lanes.length, text: `${done} of ${loop.lanes.length} lanes done` };
+}
+
+/** Run-budget progress: "15 of 150 runs". Undefined without a limit, without a run yet, or once the loop is done (an empty bar is noise). */
+export function runBudget(loop: Pick<LoopSummary, 'run' | 'runLimit'> & { state?: LoopSummary['state'] }): { value: number; max: number; text: string } | undefined {
   const limit = count(loop.runLimit);
-  if (limit === 0) return undefined;
   const run = count(loop.run);
+  if (limit === 0 || run === 0 || loop.state === 'done') return undefined;
   return { value: Math.min(run, limit), max: limit, text: `${run} of ${limit} runs` };
 }
 
@@ -35,10 +42,12 @@ export function activityStamp(iso: string): string {
 }
 
 /** Facts worth a row on a card. Rows without data are left out instead of printed as "no result". */
-export function cardFacts(loop: Pick<LoopSummary, 'tests' | 'live' | 'lastCommit' | 'nextRunAt'>): { label: string; value: string }[] {
+export function cardFacts(loop: Pick<LoopSummary, 'tests' | 'live' | 'lastCommit' | 'nextRunAt' | 'ci' | 'demoUrl'>): { label: string; value: string }[] {
   const facts: { label: string; value: string }[] = [];
   if (loop.lastCommit) facts.push({ label: 'Last activity', value: activityStamp(loop.lastCommit.at) });
+  if (loop.ci) facts.push({ label: 'CI', value: loop.ci.ok ? 'passing on main' : 'failing on main' });
   if (loop.tests) facts.push({ label: 'Tests', value: `${loop.tests.passed} passed${loop.tests.failed ? `, ${loop.tests.failed} failed` : ''}` });
   if (loop.live) facts.push({ label: 'Live site', value: loop.live.ok ? `up (${loop.live.status})` : `down (${loop.live.status})` });
+  if (loop.demoUrl && !loop.live) facts.push({ label: 'Live site', value: loop.demoUrl.replace(/^https:\/\//, '') });
   return facts;
 }
