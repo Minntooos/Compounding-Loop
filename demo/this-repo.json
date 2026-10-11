@@ -2,11 +2,14 @@
   "loop": {
     "id": "compounding-loop",
     "name": "compounding-loop (this repo)",
-    "url": "https://github.com/Minntooos/Compounding-Loop",
+    "url": "https://minntooos.github.io/Compounding-Loop/",
+    "demoUrl": "https://minntooos.github.io/Compounding-Loop/",
+    "repoUrl": "https://github.com/Minntooos/Compounding-Loop",
     "state": "done",
     "reason": "rounds 1 to 3 built unattended by five parallel lanes, all done; round 4 is running now",
     "round": 3,
     "roundsTotal": 4,
+    "roundLabel": "Round 3 done · 0.3.0",
     "run": 63,
     "runLimit": 350,
     "lastCommit": {

@@ -80,11 +80,15 @@ export async function buildSelf(repoDir) {
   const detail = {
     id: 'compounding-loop',
     name: 'compounding-loop (this repo)',
-    url: 'https://github.com/Minntooos/Compounding-Loop',
+    url: 'https://minntooos.github.io/Compounding-Loop/',
+    demoUrl: 'https://minntooos.github.io/Compounding-Loop/',
+    repoUrl: 'https://github.com/Minntooos/Compounding-Loop',
     state: 'done',
     reason: 'rounds 1 to 3 built unattended by five parallel lanes, all done; round 4 is running now',
     round: 3,
     roundsTotal: 4,
+    // The snapshot is a fixed point: it never claims a release is waiting; live data says that.
+    roundLabel: 'Round 3 done · 0.3.0',
     run,
     runLimit,
     lastCommit: timeline[0],
