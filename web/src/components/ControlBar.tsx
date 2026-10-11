@@ -14,31 +14,37 @@ function ConfirmDialog({ loop, action, local, onClose }: { loop: LoopDetail; act
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
-  useEffect(() => { ref.current?.showModal(); }, []);
+  useEffect(() => {
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : undefined;
+    ref.current?.showModal();
+    return () => opener?.focus();
+  }, []);
   const slug = slugOf(loop.repoUrl ?? loop.url);
   const score = action === 'next-round' ? lintBrief(brief).score : MIN_BRIEF_SCORE;
-  const url = !local && slug ? githubUrl(action, slug, { brief, reason }) : undefined;
+  const url = (!local || action === 'release') && slug ? githubUrl(action, slug, { brief, reason }) : undefined;
   const needs = action === 'next-round' && score < MIN_BRIEF_SCORE ? `Brief score ${score}; at least ${MIN_BRIEF_SCORE} is needed.` : undefined;
-  const missingUrl = !local && !url && !needs ? (slug ? 'This brief is too long for a prefilled GitHub link: shorten it, or run the command locally.' : 'This loop has no GitHub repository to open.') : undefined;
+  const missingUrl = (!local || action === 'release') && !url && !needs ? (slug ? 'This brief is too long for a prefilled GitHub link: shorten it, or run the command locally.' : 'This loop has no GitHub repository to open.') : undefined;
   const blocked = needs ?? missingUrl;
 
   async function confirm() {
     if (local && action !== 'release') {
       setBusy(true); setError(undefined);
       try {
-        await postControl(loop.id, action, action === 'next-round' ? { brief } : action === 'pause' ? { reason: reason || undefined } : {});
+        const reply = await postControl(loop.id, action, action === 'next-round' ? { brief } : action === 'pause' ? { reason: reason || undefined } : {});
         await qc.invalidateQueries();
+        // Lanes read main on GitHub: a commit that was not pushed has not changed anything for them.
+        if (reply.pushError || reply.pushed === false) { setError(`Committed here but not pushed${reply.pushError ? `: ${reply.pushError}` : ''}. Push main to finish.`); setBusy(false); return; }
+        if (reply.changed === false) { setError('Nothing to change: it was already in that state.'); setBusy(false); return; }
         onClose();
       } catch (e) { setError(e instanceof Error ? e.message : String(e)); setBusy(false); }
       return;
     }
-    const target = local ? githubUrl('release', slug ?? '') : url;
-    if (target) window.open(target, '_blank', 'noopener,noreferrer');
+    if (url) window.open(url, '_blank', 'noopener,noreferrer');
     onClose();
   }
 
   return (
-    <dialog ref={ref} onClose={onClose} aria-labelledby="control-title" data-testid="control-dialog" className="w-[min(32rem,calc(100vw-2rem))] rounded-lg border p-4" style={{ background: 'var(--surface)', color: 'var(--text)', borderColor: 'var(--border)' }}>
+    <dialog ref={ref} onClose={onClose} onCancel={(e) => { if (busy) e.preventDefault(); }} aria-labelledby="control-title" data-testid="control-dialog" className="w-[min(32rem,calc(100vw-2rem))] rounded-lg border p-4" style={{ background: 'var(--surface)', color: 'var(--text)', borderColor: 'var(--border)' }}>
       <h2 id="control-title" className="text-[15px] font-semibold">{VERB[action]}?</h2>
       <p className="mt-2">{CHANGE_TEXT[action]}</p>
       {!local && <p className="mt-1 text-[13px]" style={{ color: 'var(--muted)' }}>GitHub opens on a page you still have to submit. Nothing is sent from this dashboard.</p>}
@@ -56,7 +62,7 @@ function ConfirmDialog({ loop, action, local, onClose }: { loop: LoopDetail; act
       {blocked && <p role="status" className="mt-2 text-[13px]" style={{ color: 'var(--muted)' }}>{blocked}</p>}
       {error && <p role="alert" className="mt-2 text-[13px]" style={{ color: 'var(--failing)' }}>{error}</p>}
       <div className="mt-4 flex flex-wrap justify-end gap-2">
-        <button type="button" onClick={onClose} className="min-h-11 rounded border px-4" style={{ borderColor: 'var(--border)' }}>Cancel</button>
+        <button type="button" disabled={busy} onClick={onClose} className="min-h-11 rounded border px-4 disabled:opacity-60" style={{ borderColor: 'var(--border)' }}>Cancel</button>
         <button type="button" disabled={busy || blocked !== undefined} onClick={() => void confirm()} className="min-h-11 rounded px-4 font-semibold disabled:opacity-60" style={{ background: 'var(--accent)', color: 'var(--bg)' }}>{busy ? PENDING[action] : error ? 'Retry' : VERB[action]}</button>
       </div>
     </dialog>

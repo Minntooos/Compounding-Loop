@@ -67,13 +67,16 @@ export async function postAnswer(loopId: string, file: string, answer: string): 
   return body as AnswerResult;
 }
 
+export interface ControlReply { changed?: boolean; pushed?: boolean; pushError?: string }
+
 /** POST a control action to the local server (pause, resume, next-round). Throws with the server's message. */
-export async function postControl(loopId: string, action: 'pause' | 'resume' | 'next-round', body: object): Promise<void> {
+export async function postControl(loopId: string, action: 'pause' | 'resume' | 'next-round', body: object): Promise<ControlReply> {
   const res = await fetch(`/api/loops/${encodeURIComponent(loopId)}/${action}`, {
     method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
   });
-  const reply = (await res.json().catch(() => ({}))) as { error?: string };
+  const reply = (await res.json().catch(() => ({}))) as ControlReply & { error?: string };
   if (!res.ok) throw new Error(reply.error ?? `${action} failed (${res.status})`);
+  return reply;
 }
 
 /** Static hosting only: the snapshot's rows, with the self-build loop replaced by its live GitHub state when that loads. */
