@@ -24,7 +24,10 @@ export async function withSessionLock<T>(lockFile: string, fn: () => Promise<T>,
   const graceMs = options.graceMs ?? 10_000;
   let finished!: () => void;
   const settled = new Promise<void>((resolve) => { finished = resolve; });
+  let signalled = false;
   const onSignal = (code: number) => () => {
+    if (signalled) { release(); exit(code); return; } // a second Ctrl-C means "now"
+    signalled = true;
     const grace = new Promise((resolve) => setTimeout(resolve, graceMs).unref());
     void Promise.race([settled, grace]).finally(() => { release(); exit(code); });
   };
