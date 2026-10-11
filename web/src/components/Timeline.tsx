@@ -27,7 +27,7 @@ export function Timeline({ commits }: { commits: LoopCommit[] }) {
       <div className="space-y-5" data-testid="timeline">
         {groupByDay(shown).map((g) => (
           <section key={g.day} aria-label={dayHeading(g.day)}>
-            <h3 className="flex items-baseline gap-2 py-1 text-[13px] font-semibold" style={{ background: 'var(--bg)' }}>
+            <h3 className="sticky top-0 z-10 flex items-baseline gap-2 py-1 text-[13px] font-semibold" style={{ background: 'var(--bg)' }}>
               {dayHeading(g.day)}<span className="font-normal" style={{ color: 'var(--muted)' }}>{g.commits.length} {g.commits.length === 1 ? 'commit' : 'commits'}</span>
             </h3>
             <ol className="space-y-1">

@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Moon, Sun } from 'lucide-react';
 import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
+import { Notice } from './components/QueryState';
 import { api, hasServer } from './api/client';
 import { CommandPalette } from './components/CommandPalette';
 import { Fleet } from './components/Fleet';
@@ -67,6 +68,14 @@ function SourceChip({ snapshotDate }: { snapshotDate: string }) {
   );
 }
 
+/** Explains the fallback once the header chip has said it briefly (DESIGN.md "States"). */
+function PausedLiveNotice() {
+  const live = useSyncExternalStore(liveStore.subscribe, liveStore.get);
+  if (live?.kind !== 'rate-limited') return null;
+  const resume = live.resetAt ? ` The live view resumes about ${new Date(live.resetAt).toISOString().slice(11, 16)} UTC.` : '';
+  return <Notice>Live view paused: GitHub lets a browser make 60 requests an hour without signing in. The snapshot below is complete, just older.{resume}</Notice>;
+}
+
 function Shell() {
   const route = useRoute();
   const [theme, setTheme] = useState<Theme>(initialTheme);
@@ -122,6 +131,7 @@ function Shell() {
       </header>
       <main className="mx-auto max-w-6xl px-4 py-6">
         {server.data === false && route.name === 'fleet' && <WelcomeStrip />}
+        <PausedLiveNotice />
         <h1 className="mb-5 text-[28px] font-semibold">{route.name === 'fleet' ? 'Compounding Loop' : route.name === 'loop' ? route.id : NAV.find((n) => n.route.name === route.name)?.label}</h1>
         <Page route={route} theme={theme} setTheme={setTheme} />
       </main>

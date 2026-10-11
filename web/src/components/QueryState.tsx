@@ -22,3 +22,14 @@ export function LoadError({ what, onRetry, busy = false }: { what: string; onRet
     </div>
   );
 }
+
+const NOTICE_TONE = { calm: 'var(--muted)', warn: 'var(--blocked)' } as const;
+
+/** A quiet in-page note (not an alert): states that are expected, like a paused live view, are never styled as errors. */
+export function Notice({ tone = 'calm', children }: { tone?: keyof typeof NOTICE_TONE; children: ReactNode }) {
+  return (
+    <aside role="note" className="mb-4 rounded-lg border px-4 py-2 text-[13px]" style={{ borderColor: 'var(--border)', background: 'var(--surface)', borderLeft: `3px solid ${NOTICE_TONE[tone]}` }}>
+      {children}
+    </aside>
+  );
+}

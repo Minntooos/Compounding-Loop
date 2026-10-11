@@ -43,6 +43,7 @@ test('rate limited: falls back to the snapshot with a calm explanation', async (
   await mockLive(page, 'rate-limited');
   await page.goto('/#/');
   await expect(page.getByRole('status').filter({ hasText: /anonymous limit was reached/ })).toBeVisible();
+  await expect(page.getByRole('note').filter({ hasText: /Live view paused/ })).toBeVisible();
   await expect(page.getByTestId('loop-card').first()).toBeVisible();
   await expect(page.getByText('live mocked commit')).toHaveCount(0);
 });
