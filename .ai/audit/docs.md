@@ -60,3 +60,9 @@ npx compounding-loop dashboard --no-open --port 4998   -> Dashboard: http://127.
 ```
 Failure found and fixed (docs): README and docs/lanes.md did not say `init --lanes` needs an `IDEA.md` brief; both now do.
 For core (outbox): `check-lanes` in a repo with no commits prints a raw git error instead of "no commits yet".
+
+## Fresh-install test (round 3, 2026-10-11, docs run 3)
+From `npm pack` (0.2.0 tarball) installed into an empty temp dir:
+- README quick start: `new static-site my-site` creates the repo; `run --dry-run` prints the prompt. PASS (`dashboard` not opened: needs a browser).
+- docs/team.md in a cloned repo with a bare remote: `init --lanes core,web` (after a brief that passes the score), `next` (recommends core unit 1), `claim core --as Sam --minutes 90` (commits and pushes), a second `claim core --as Bo` refuses, `run --lane core --dry-run` prints the lane prompt, `release core`, `check-lanes` clean. PASS.
+- Finding (minor, documented): `init` refuses a thin IDEA.md ("No checkable done-when…"). README already says a brief is needed; no change.
