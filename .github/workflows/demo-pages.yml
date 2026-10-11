@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['web/**', 'demo/**', 'src/server/**', 'vite.config.ts', 'package-lock.json', '.github/workflows/demo-pages.yml']
+    paths: ['web/**', 'demo/**', 'src/server/**', 'src/core/**', 'vite.config.ts', 'package-lock.json', '.github/workflows/demo-pages.yml']
 concurrency:
   group: pages
   cancel-in-progress: false

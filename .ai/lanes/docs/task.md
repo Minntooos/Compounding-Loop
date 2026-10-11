@@ -1,7 +1,7 @@
 # Lane: docs — round 3 (0.3.0 "Showcase")
 
-Run: 0 / 20
-Status: not started
+Run: 1 / 20
+Status: in progress
 Round 2 record: `.ai/lanes/docs/done-v2.md` (`git show 084bb9f:.ai/lanes/docs/task.md` for its Decisions).
 
 ## Contract
@@ -30,3 +30,7 @@ Round 2 record: `.ai/lanes/docs/done-v2.md` (`git show 084bb9f:.ai/lanes/docs/ta
 
 ## Handoff
 Round 3 starts here. Brief: IDEA.md "Round 3". Commits carry a `Lane: docs` trailer.
+
+## Handoff (run 1, 2026-10-11)
+Done: unit 1 (Round 3 audit in `.ai/audit/docs.md`), unit 5 (Pages paths include `src/core/**`; ci.yml already runs check-lanes). Local clone had unrelated history to origin/main; reset local main to origin/main (old one kept as local branch `backup-old-main`, not pushed).
+Next: units 2-4, 6 are blocked until core ships `loop next/claim/release` (check 7 would fail on them), web ships the new UI and screenshots, and server/web ship live mode. Re-check `node bin/loop.js --help` and the other outboxes first.

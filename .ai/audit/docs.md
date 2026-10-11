@@ -1,4 +1,25 @@
-# Audit: docs (round 2, 2026-10-08)
+# Audit: docs
+
+## Round 3 (2026-10-11, 0.3.0 "Showcase")
+Goal judged: a visitor understands the product from the README's first screen and can watch the repo build itself; a teammate joins with one page.
+
+### Blockers
+None open.
+
+### Findings
+| # | Area | Evidence | Severity | One-line fix |
+|---|---|---|---|---|
+| 1 | README first screen | `README.md:5-13`: the tagline and `npx compounding-loop init` come first; the live demo is one line after the badges and says "the five-site data", but the demo now shows six loops and will go live. | major | Lead with "Watch this repo build itself" + demo link once live mode ships (unit 3). |
+| 2 | Screenshots | README uses `docs/assets/screens/*` from round 2; `web/DESIGN.md` exists but redesigned screens are not in yet. | major | Re-shoot after web ships (`SCREENS=1 npx playwright test screenshots`), unit 3. |
+| 3 | Teams | No `docs/team.md`; `loop next/claim/release` are not in `loop --help`, so the docs-vs-`--help` check (check 7) would fail on them. | major | Write `docs/team.md` after core lands the commands (unit 2). No unshipped feature is described until then. |
+| 4 | Rate limits | README and `docs/faq.md` say nothing about GitHub's 60 requests/hour limit or the snapshot fallback. | major | FAQ line once live mode exists (unit 3). |
+| 5 | Pages workflow | `.github/workflows/demo-pages.yml` paths omit `src/core/**`; the live demo will import core parsers. | major | Add `src/core/**` (done in this run). |
+| 6 | Launch drafts | `launch/*.md` still lead with the 0.2.0 lanes story, not the live self-build. | minor | Rewrite in unit 4 once the demo is live. |
+| 7 | Repo URL casing | Earlier fixed; `grep -ri 'minntooos/compounding-loop'` over README, docs and launch finds none with the old casing. | ok | none |
+
+Cross-lane: nothing for other lanes yet. Docs waits on core (`loop next/claim/release`) and web (new screenshots, live indicator) before units 2-4 can state anything as shipped.
+
+## Round 2 (2026-10-08)
 
 ## Blockers
 None open.
