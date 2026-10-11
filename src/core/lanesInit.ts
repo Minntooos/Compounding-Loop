@@ -98,13 +98,13 @@ export function addLanes(existing: LanesConfig | undefined, additions: readonly 
 }
 
 /** Same shape as `mergeCard`: re-running is a no-op, and a broken marker pair is reported, not guessed at. */
-export function mergeLanesSection(existing: string | undefined, section: string): string {
+export function mergeLanesSection(existing: string | undefined, section: string, fileName = 'CLAUDE.md'): string {
   const block = `${LANES_START}\n${section.trim()}\n${LANES_END}\n`;
   if (existing === undefined || existing.trim() === '') return block;
   const start = existing.indexOf(LANES_START);
   const end = existing.indexOf(LANES_END);
   if ((start === -1) !== (end === -1) || (start !== -1 && end < start)) {
-    throw new Error(`CLAUDE.md has a broken ${LANES_START} / ${LANES_END} pair: fix or remove the markers, then re-run.`);
+    throw new Error(`${fileName} has a broken ${LANES_START} / ${LANES_END} pair: fix or remove the markers, then re-run.`);
   }
   if (start !== -1) return existing.slice(0, start) + block + existing.slice(end + LANES_END.length).replace(/^\r?\n/, '');
   return `${existing.replace(/\s*$/, '')}\n\n${block}`;
@@ -145,9 +145,13 @@ export function planLanes({ config, newLanes, templates, existing, force }: Lane
   state('.ai/control-room.md', templates.controlRoom);
 
   const section = fillPlaceholders(templates.claudeSection, { lanes: config.lanes.map((l) => l.name).join(', ') });
-  const claude = existing.get('CLAUDE.md');
-  const merged = mergeLanesSection(claude, section);
-  if (merged === claude) actions.push({ dest: 'CLAUDE.md', kind: 'skip', reason: 'lane section already installed' });
-  else actions.push({ dest: 'CLAUDE.md', kind: claude === undefined ? 'create' : 'update', content: merged });
+  // AGENTS.md is merged only when the repo already has one; CLAUDE.md is always installed.
+  const instructionFiles = existing.has('AGENTS.md') ? ['CLAUDE.md', 'AGENTS.md'] : ['CLAUDE.md'];
+  for (const dest of instructionFiles) {
+    const current = existing.get(dest);
+    const merged = mergeLanesSection(current, section, dest);
+    if (merged === current) actions.push({ dest, kind: 'skip', reason: 'lane section already installed' });
+    else actions.push({ dest, kind: current === undefined ? 'create' : 'update', content: merged });
+  }
   return actions;
 }

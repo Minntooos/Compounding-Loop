@@ -66,6 +66,16 @@ describe('planLanes', () => {
     for (const dest of existing.keys()) expect(actions.find((a) => a.dest === dest)).toMatchObject({ kind: 'skip' });
   });
 
+  it('merges the lane section into an existing AGENTS.md, and only then', () => {
+    expect(plan(new Map()).some((a) => a.dest === 'AGENTS.md')).toBe(false);
+    const actions = plan(new Map([['AGENTS.md', '# Agents\n']]));
+    const agents = actions.find((a) => a.dest === 'AGENTS.md');
+    expect(agents?.kind).toBe('update');
+    expect(agents?.content).toContain('# Agents');
+    const again = plan(new Map([['AGENTS.md', agents!.content!]]));
+    expect(again.find((a) => a.dest === 'AGENTS.md')?.kind).toBe('skip');
+  });
+
   it('updates the config only when it changed', () => {
     const existing = new Map([['.ai/lanes.json', '{"lanes":[],"shared":[]}']]);
     expect(plan(existing).find((a) => a.dest === '.ai/lanes.json')?.kind).toBe('update');

@@ -1,6 +1,6 @@
 # Lane: core — round 2 (0.2.0 "Lanes")
 
-Run: 6 / 20
+Run: 7 / 20
 Status: in progress (units 2,3,4,5,6,7 done; next: finish audit majors = unit 8: stray dot in status, keep folder on gh failure, answer --push, last-test.json; then DONE if reviewer clean)
 Round 1 record: `.ai/lanes/core/done-v1.md`; its Decisions still hold (`git show 3385cdf:.ai/lanes/core/task.md`).
 
@@ -65,3 +65,5 @@ Run 4 (2026-10-10 23:07-23:12 UTC): shipped `resolveInvocation`/`shimEntry` (src
 Run 5 (2026-10-11 00:08-): local main had a stale unrelated history; reset to origin/main (old one kept as branch `backup-stale-main`, delete it if unwanted). Shipped: `withSessionLock` keeps the lock until the work settles (or `graceMs`, default 10 s) after Ctrl-C/SIGTERM/SIGHUP (src/cli/lock.ts). Next: nvm-windows/Volta/pnpm shim layouts, last-test.json writer, AGENTS.md merge, case-insensitive globs, then DONE.md.
 
 Run 6 (2026-10-11 01:08-01:15 UTC): `loop check-lanes` in a repo with no commits now reports "no commits yet" instead of a git error (docs' ask). Next unchanged: nvm-windows/Volta/pnpm shim layouts, last-test.json writer, AGENTS.md merge, case-insensitive globs, then DONE.md.
+
+Run 7 (2026-10-11 02:07-): local main was stale again (unrelated history); reset to origin/main. Shipped: `init --lanes` / `lanes add` also merge the lane section into an existing AGENTS.md (src/core/lanesInit.ts). Next: nvm-windows/Volta/pnpm shim layouts, last-test.json writer, case-insensitive globs, then DONE.md.

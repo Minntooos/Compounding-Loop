@@ -47,7 +47,7 @@ export async function runAddLanes(
   const config = addLanes(existing, fresh.map((l, i) => ({ ...l, cron: l.cron ?? staggeredCron((existing?.lanes.length ?? 0) + i) })));
   const { templates, missing } = await loadLaneTemplates(root);
   const current = new Map<string, string>();
-  const dests = ['.ai/lanes.json', '.ai/control-room.md', 'CLAUDE.md', ...additions.flatMap((l) => [`.ai/lanes/${l.name}/task.md`, `.ai/lanes/${l.name}/outbox.md`])];
+  const dests = ['.ai/lanes.json', '.ai/control-room.md', 'CLAUDE.md', 'AGENTS.md', ...additions.flatMap((l) => [`.ai/lanes/${l.name}/task.md`, `.ai/lanes/${l.name}/outbox.md`])];
   for (const dest of dests) {
     const text = await readIfExists(path.join(target, ...dest.split('/')));
     if (text !== undefined) current.set(dest, text);
