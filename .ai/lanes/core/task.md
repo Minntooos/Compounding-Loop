@@ -1,6 +1,6 @@
 # Lane: core — round 2 (0.2.0 "Lanes")
 
-Run: 4 / 20
+Run: 5 / 20
 Status: in progress (units 2,3,4,5,6,7 done; next: finish audit majors = unit 8: stray dot in status, keep folder on gh failure, answer --push, last-test.json; then DONE if reviewer clean)
 Round 1 record: `.ai/lanes/core/done-v1.md`; its Decisions still hold (`git show 3385cdf:.ai/lanes/core/task.md`).
 
@@ -61,3 +61,5 @@ Run 2 (2026-10-08 21:08-21:12 UTC): shipped cron-derived stall threshold (`stall
 Run 3 (2026-10-10 21:20-22:00 UTC, owner's local Windows session): `npm test` was red on Windows; fixed with a `Lane: control` commit (see control-room.md 2026-10-10). Core part: `resolveExecutable` returns absolute non-.cmd paths unchanged and refuses `.cmd`/`.bat` names. Core unit: shared paths pass `check-lanes` (src/core/lanes.ts `checkCommitFiles`). Next: unchanged from Run 2 (last-test.json writer, wait for the claude child before releasing the lock on Ctrl-C, AGENTS.md merge, case-insensitive globs), then DONE.md.
 
 Run 4 (2026-10-10 23:07-23:12 UTC): shipped `resolveInvocation`/`shimEntry` (src/cli/run.ts): `loop run` and `loop doctor` start Claude Code via its npm package entry with node when only `claude.cmd` exists (answers control-room 22:20). Known gap (reviewer, CONFIRMED by reading): only the default `%APPDATA%\npm` layout is handled; nvm-windows/Volta/pnpm shims fall back to the old error. Tip: `git fetch --unshallow` makes demo-self.test.ts pass in the sandbox. Next: those shim layouts, last-test.json writer, wait for claude child before releasing lock on Ctrl-C, AGENTS.md merge, case-insensitive globs, then DONE.md.
+
+Run 5 (2026-10-11 00:08-): local main had a stale unrelated history; reset to origin/main (old one kept as branch `backup-stale-main`, delete it if unwanted). Shipped: `withSessionLock` keeps the lock until the work settles (or `graceMs`, default 10 s) after Ctrl-C/SIGTERM/SIGHUP (src/cli/lock.ts). Next: nvm-windows/Volta/pnpm shim layouts, last-test.json writer, AGENTS.md merge, case-insensitive globs, then DONE.md.
