@@ -1,7 +1,7 @@
 # Lane: kit — round 4 (0.4.0 "Control")
 
-Run: 0 / 20
-Status: not started
+Run: 1 / 20
+Status: units 1-4 done except `runners/routine/prompt.md` (waits on core's mirror); unit 5 next
 Round 3 record: `.ai/lanes/kit/done-v3.md` (`git show b3b51a5:.ai/lanes/kit/task.md` for its Decisions).
 
 ## Contract
@@ -17,12 +17,15 @@ Round 3 record: `.ai/lanes/kit/done-v3.md` (`git show b3b51a5:.ai/lanes/kit/task
 5. Method: "Controlling a loop" in the lanes chapter (pause, next round, release from the dashboard; what each changes in the repo). Plugin: `/loop-pause` and `/loop-ship-check` commands if they fit the existing pattern. Then audit majors, then `.ai/done-v3.md` leftovers by value.
 
 ## Decisions
+- 2026-10-11: control room and single-loop prompts do not write a run-log line (no lane folder); only lane prompts, `lanes.yml` lane job and the lanes CLAUDE section do.
+- 2026-10-11: `runners/routine/prompt.md` is left alone this run: core's `tests/unit/core/runPrompt.test.ts` requires it to equal `DEFAULT_PROMPT`. Asked core to mirror a PAUSED + stale-clone edit; kit then edits prompt.md and adds it to `control-rules.test.ts`.
 
 ## Confirmed
 
 ## Guesses
 
 ## Tried
+- Sandbox clone had diverged from origin/main: used the `lane-run` branch fallback (`git push origin HEAD:main`).
 
 ## Don't
 - Edit paths another lane owns, except for the "main stays green" fix.

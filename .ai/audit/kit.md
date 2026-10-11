@@ -1,3 +1,19 @@
+# Audit: kit (round 4, 2026-10-11)
+
+Goal this round: every runner and template honours `.ai/PAUSED`, writes a run-log line and recovers from a stale clone (IDEA.md B1, B2, B8).
+
+## Blockers
+None open.
+
+## Findings
+| # | Finding | Severity | Fix |
+|---|---|---|---|
+| 1 | Lane prompt, control-room prompt, `lanes.yml` prompts, lanes CLAUDE section and static-site prompt/CLAUDE.md had no PAUSED rule | major | fixed (`tests/unit/kit/control-rules.test.ts`) |
+| 2 | Lane prompt, `lanes.yml` lane job and lanes CLAUDE section did not end a run with a `runs.jsonl` line | major | fixed; control room and single-loop prompts have no lane folder, so they log nothing (decision) |
+| 3 | No stale-clone recovery anywhere; a diverged cached clone made a run blame a force-push | major | fixed in all of the above, with "check `git log origin/main` first" |
+| 4 | `runners/routine/prompt.md` (single loop) lacks the PAUSED and stale-clone steps | major | blocked: `src/core/runPrompt.ts` DEFAULT_PROMPT must equal it (core test); asked core in outbox |
+| 5 | Method has no "Controlling a loop" section; plugin has no `/loop-pause` | minor | unit 5 |
+
 # Audit: kit (round 3, 2026-10-11)
 
 Goal this round: every runner and template honours claims; the method explains working with a teammate.

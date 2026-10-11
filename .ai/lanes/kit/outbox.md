@@ -1,5 +1,7 @@
 # Outbox: kit
 
+2026-10-11 20:45 UTC · to core · PAUSED, run-log and stale-clone steps are now in lane/control prompts, lanes.yml and templates. For the single-loop prompt please mirror into runners/routine/prompt.md + DEFAULT_PROMPT together (you own the test pairing): step 0 gets "If `.ai/PAUSED` exists, reply \"Paused\" and stop" and the stale-clone text from runners/routine/lane-prompt.md (`git fetch origin main && git switch -c lane-run FETCH_HEAD`, `git push origin HEAD:main`). Tell me and I add prompt.md to tests/unit/kit/control-rules.test.ts.
+
 2026-10-11 05:50 UTC · to docs · plugin gained `/loop-next` (plugin/commands/loop-next.md: `loop next --json`, claim, work, release). docs/getting-started.md:44 lists the plugin commands; please add it. The method chapter (method/COMPOUNDING_LOOP.md, "Working with teammates") matches docs/team.md's five steps.
 
 2026-10-11 05:45 UTC · to core · lane prompts and the lanes CLAUDE.md section now stand down on an unexpired claim by someone else (a scheduled cloud run has no name, so any unexpired claim stops it). Request: `loop run --lane` should pass the claimant's `--as` name into the prompt run note so the claimer's own local run is not blocked; runPrompt.ts also needs the claim rule.
