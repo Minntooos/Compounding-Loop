@@ -1,7 +1,7 @@
 # Lane: web — round 3 (0.3.0 "Showcase")
 
 Run: 1 / 20
-Status: in progress (unit 1 audit done; next: unit 2 DESIGN.md)
+Status: in progress (units 1-2 done; next: unit 3 phone nav + 404 + console errors)
 Round 2 record: `.ai/lanes/web/done-v2.md` (`git show 084bb9f:.ai/lanes/web/task.md` for its Decisions).
 
 ## Contract
@@ -22,6 +22,7 @@ Round 2 record: `.ai/lanes/web/done-v2.md` (`git show 084bb9f:.ai/lanes/web/task
 9. After screenshots to `docs/assets/screens/` (tell docs), independent design review against DESIGN.md (a reviewer subagent that did not write the UI), fix what fails, record the result.
 
 ## Decisions
+- 2026-10-11: lane colours are Okabe-Ito tuned to AA on both themes (web/DESIGN.md §3); status palette from IDEA.md unchanged. Charts hand-written SVG, no dependency. Timeline times are absolute UTC (relative in title). DESIGN.md research: only Vercel Geist was re-verified online, others from working knowledge, stated in the doc.
 
 ## Confirmed
 
