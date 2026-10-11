@@ -1,6 +1,52 @@
 # IDEA: Compounding Loop
 
-## Round 2 (current): 0.2.0 "Lanes" + launch readiness — started 2026-10-08 19:40 UTC
+## Round 3 (current): 0.3.0 "Showcase" — the dashboard as the launch, plus teams — started 2026-10-11 05:40 UTC
+
+0.2.0 is published on npm (2026-10-11, tag `v0.2.0`). The launch (one Show HN, then Reddit/X/LinkedIn/dev.to) waits for this round: the owner posts only after looking at the finished dashboard. Round 2's report is `.ai/done-v2.md`.
+
+**The new headline:** *Open the demo and watch the repo that built this tool, live.* The GitHub Pages demo (https://minntooos.github.io/Compounding-Loop/) stops being a frozen sample: it reads this public repo from GitHub in the visitor's browser (lanes, run counters, commits, CI) and falls back to a bundled snapshot. And it must look like a product a senior designer shipped, not an MVP.
+
+**What the owner saw on 2026-10-11 (fix all of it):** the first thing a visitor reads is a grey "Sample data: no dashboard server is running…" line that looks like an error, with no line saying what this is or how to install it; the self-build card says "Round 1/2", "Tests: no result", "Live: not checked"; cards are plain text tables with no sense of progress; the Timeline is one long flat commit list with no lane colour and "3d ago" times that rot; at 375 px the nav wraps ("New / loop") and the theme button sits on its own row; one 404 in the console.
+
+### Step 1 for every lane: a short re-audit (first unit)
+Add a "Round 3" section at the top of `.ai/audit/<lane>.md`: this round's goal judged as a demanding senior specialist would, findings ranked blocker/major/minor with evidence and a one-line fix. Findings in another lane's area go to that lane's outbox. Fix blockers first.
+
+### 0.3.0 must-haves (each needs a test before it counts)
+1. **Design spec first (web).** Research how well-regarded developer dashboards solve the same problems (e.g. Vercel, Linear, GitHub Actions, Grafana, Railway, Sentry: status at a glance, timelines, progress, empty/loading/error states, phone layouts). Use WebSearch; describe patterns in your own words, never copy their text, images or code. Write `web/DESIGN.md`: the problems in today's UI (with "before" screenshots), the patterns chosen and why, layout per screen, type scale and tokens (keep IDEA.md "Design": calm mission control, the same token palette unless a contrast fix needs a change, recorded), components, charts, motion, states, phone layout. Every later web unit is judged against it.
+2. **Live demo from GitHub (server + web + core).** In the static demo build only, the dashboard reads `Minntooos/Compounding-Loop` live, unauthenticated, from the visitor's browser: commits (`api.github.com`), `.ai/lanes.json`, each lane's task file, DONE/BLOCKED markers and outbox, root DONE.md (`raw.githubusercontent.com`), and the latest CI run on main. The repo slug comes from a config file in the static export, not hardcoded in components. Cache for 5 minutes per tab, refresh every 5 minutes while the tab is visible, a quiet "Live · updated 14:05 UTC" indicator. On any error or rate limit (60 requests/hour/IP), fall back to the bundled snapshot and say "Snapshot from <date>" calmly. No tokens, no cookies, no analytics. The static export's CSP allows `connect-src` to exactly those two GitHub hosts; the local `loop dashboard` server's CSP and behaviour are unchanged (it reads disk). Split: **core** adds browser-safe pure parsers (no `node:` imports) for lanes.json, task files (run N/LIMIT, status, handoff) and `Lane:` trailers, used by both server and web; **server** owns `src/server/live/**`: pure functions that map GitHub API/raw responses to the same API types the dashboard already renders, the static export config, and the CSP; **web** fetches, caches, and renders. The other four demo sites stay a snapshot.
+3. **Self-build history (server).** The bundled snapshot of this repo covers rounds 1 and 2 (pin the 0.2.0 release commit 084bb9f), with a round counter that reads like a story ("Round 2 of 2 done · 0.2.0 shipped", not "1/2"), test counts from the recorded results, and the Pages URL as its live check.
+4. **Dashboard that is not an MVP (web)**, built to `web/DESIGN.md`:
+   - A welcome strip for first-time visitors in demo mode that replaces the grey banner: one sentence on what this is, the copyable `npx compounding-loop dashboard` command, GitHub link, and the live/snapshot indicator. Dismissible; never shown when a local server is running.
+   - Fleet cards that show progress at a glance (round progress, run budget bar, state word + icon, last activity), with the self-build card visually first.
+   - Loop detail: a Timeline grouped by day, lane-coloured, filterable by lane, with absolute UTC times (relative on hover); a small runs/tests-over-time chart per loop (hand-written SVG or a dependency under 15 kB gzip, recorded in Decisions); lane rows with claims (must-have 5).
+   - Phone (375 px): nav that fits (scrollable tabs or a menu), no horizontal scroll, no wrapped labels.
+   - Empty, loading, error and rate-limited states for every screen; both themes; reduced motion; no console errors (fix the 404).
+5. **Teams: share a loop without handing anything over (core + kit + web + docs).** A teammate clones the repo and their own Claude Code reads everything it needs from the repo; nothing private is ever passed by hand.
+   - `loop next [--json]`: lists open units across all lanes (from task files), with claims, and recommends one unclaimed unit.
+   - `loop claim <lane> [--as <name>] [--minutes 90]` writes `.ai/lanes/<lane>/claim` (one line: `name · expires <UTC>`), commits it with a `Lane: <lane>` trailer and pushes; `loop release <lane>` removes it. An expired claim counts as no claim. `loop status` and the dashboard show claims.
+   - Runners honour claims: the lane prompts in `runners/` and the templates (kit), and `runPrompt.ts` (core), say "if `.ai/lanes/<lane>/claim` names someone else and has not expired, reply Nothing to do and stop."
+   - `docs/team.md`: "Work on a loop with a teammate" in five steps (clone, `loop next`, `loop claim`, `loop run --lane`, `loop release`), linked from the README.
+6. **Docs and launch (docs):** README's first screen leads with the live demo link and new screenshots (from web), the team workflow, an honest FAQ line on GitHub rate limits; `launch/` drafts point at the live self-build; CHANGELOG `[Unreleased]` lists 0.3.0; the Pages workflow still deploys on changes to `web/**`, `demo/**`, `src/server/**`, `src/core/**`.
+
+### Round 3 done when
+- `npm test` passes on a clean clone and on CI's three jobs (ubuntu Node 20 and 24, windows Node 24).
+- Every lane's audit has a Round 3 section with no open blocker.
+- Live demo: e2e tests with GitHub responses mocked through Playwright routing (no real network in tests) prove (a) live mode renders lanes, run counters, commits and CI state from the mocks, (b) a 403/rate-limit response falls back to the snapshot with its notice, (c) the welcome strip copies the install command.
+- axe: zero serious/critical violations on every screen, both themes, at 1440 and 375 px; no console errors; no horizontal scroll at 375 px.
+- **Design review:** `web/DESIGN.md` exists; before/after screenshots of every screen in both themes are in `docs/assets/screens/`; a reviewer subagent that did not build the UI checks each screen against DESIGN.md, and the result (every item pass, or fixed) is recorded in `.ai/audit/web.md`.
+- JS bundle under 300 kB gzip.
+- `loop claim/release/next` are tested: expiry, a claim by someone else, `--json` shape, and `check-lanes` accepts a claim commit in its own lane.
+- Fresh-install test (docs runs it, the control room re-runs it): `npm pack`, install the tarball in an empty temp dir, follow the README quick start and `docs/team.md` word for word.
+- `npm pack --dry-run` follows the round 1 rules.
+- **Do not change `version` and do not publish.** The owner's local Claude Code releases 0.3.0 after root `DONE.md`.
+
+**Deadline:** 2026-10-13 18:00 UTC. After that, start no new unit: finish what's open and write DONE.
+
+**Out of scope:** a hosted backend or database, accounts, auth tokens in the browser, analytics or tracking, non-Claude agents, new site templates, npm publish, posting the launch, repo settings changes.
+
+---
+
+## Round 2 (finished 2026-10-11, shipped as 0.2.0): "Lanes" + launch readiness — started 2026-10-08 19:40 UTC
 
 0.1.0 is published on npm and the demo is live (https://minntooos.github.io/Compounding-Loop/). It has not been announced yet. The launch is a single Show HN; it happens after this round, so this round decides the first impression. Round 1's report is `.ai/done-v1.md`.
 

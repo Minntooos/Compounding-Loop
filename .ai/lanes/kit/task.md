@@ -1,33 +1,19 @@
-# Lane: kit — round 2 (0.2.0 "Lanes")
+# Lane: kit — round 3 (0.3.0 "Showcase")
 
-Run: 1 / 20
-Status: DONE (see DONE.md)
-Round 1 record: `.ai/lanes/kit/done-v1.md` (`git show 3385cdf:.ai/lanes/kit/task.md` for its Decisions).
+Run: 0 / 20
+Status: not started
+Round 2 record: `.ai/lanes/kit/done-v2.md` (`git show 084bb9f:.ai/lanes/kit/task.md` for its Decisions).
 
 ## Contract
-**Goal:** everything a user's repo needs to run lanes unattended: templates, runner prompts and the method chapter. It must be as good as what built this repo, made generic (IDEA.md "Round 2", must-haves 2 (templates) and 4).
-**Done when:**
-- `npm test` passes, and `.ai/audit/kit.md` exists with no open blocker.
-- `templates/lanes/`: lane `task.md`, `outbox.md`, `control-room.md`, a `CLAUDE.md` lanes section (lane table + talking-to-other-lanes + `Lane:` trailer rule + per-lane unattended rules), and a CI snippet that runs `loop check-lanes`. Placeholders are documented and tested (`tests/unit/kit/`), so a template never ships an unfilled `{{x}}`.
-- `runners/routine/lane-prompt.md` and `runners/routine/control-room-prompt.md`, generalised from the real prompts in `.ai/reference/routines/`. Keep what made them work: the multi-unit 40-minute run, the reviewer before every push, pull/rebase rules, the stop files and the never-list. Drop everything specific to this repo. The README explains staggered cron for N lanes with an example for 3 and for 5.
-- `runners/github-actions/lanes.yml`: a matrix with one job per lane, `max-parallel: 1`, `concurrency: loop-lane-${{ matrix.lane }}`, `timeout-minutes`, `persist-credentials: false` unless the job pushes (document why it does), and secrets only by name. Tested by a unit test that parses the YAML.
-- `method/COMPOUNDING_LOOP.md` gets a "Lanes" chapter in Part B (when to split into lanes and when not, ownership, outboxes, control room, the trailer check, and failure modes seen here: stale sandbox clones, rate-limit starvation, a lane waiting on a finished lane). **Do not change Part A (the Operating Card).**
-**Constraints:** templates stay agent-neutral where possible (`AGENTS.md` mirrors `CLAUDE.md`). Never copy this repo's owner-specific text (names, repo URLs, routine IDs) into templates.
-**Out of scope:** CLI code (core), new site templates.
+**Goal:** every runner and template honours claims, and the method explains working with a teammate (IDEA.md Round 3 must-have 5).
+**Done when:** `npm test` passes; Round 3 audit section with no open blocker; tests assert the claim rule is in every lane prompt and template.
+**Out of scope:** CLI code (core), docs site pages (docs).
 
 ## Units, in order
-1. **Audit** (`.ai/audit/kit.md`):
-   - Run `loop new static-site x --dry-run` and `loop new chrome-extension y --dry-run`, then their own `npm install && npm test`.
-   - Read every template file as a first-time user would.
-   - Check the routine prompt against what actually worked in `.ai/reference/routines/`.
-   - Check that plugin commands load: run `/plugin marketplace add` against the repo layout, or verify the manifest schema.
-   - Missing icons (chrome-extension), stale wording, Windows runner XML.
-   Fix blockers.
-2. `templates/lanes/` + placeholder tests. Tell core in your outbox (it writes them in `loop init --lanes`).
-3. `runners/routine/lane-prompt.md` + `control-room-prompt.md` + README.
-4. `runners/github-actions/lanes.yml` + test.
-5. Method chapter "Lanes".
-6. Majors from your audit, then round 1 leftovers by value: chrome-extension icons, a macOS launchd plist, and more example knowledge entries.
+1. Round 3 re-audit (`.ai/audit/kit.md`).
+2. Claim rule in `runners/routine/` lane prompt, the GitHub Actions lanes workflow (skip a lane whose claim names someone else and has not expired), the local runners, and the lane section the templates write into CLAUDE.md/AGENTS.md. Tests.
+3. Method: a "Working with teammates" section in the lanes chapter (clone, `loop next`, claim, run, release; nothing private is handed over; `.ai/` is the shared memory). Plugin: a `/loop-next` command if it fits the plugin's existing pattern.
+4. Audit majors, then round 2 leftovers in `.ai/done-v2.md` by value.
 
 ## Decisions
 
@@ -39,7 +25,6 @@ Round 1 record: `.ai/lanes/kit/done-v1.md` (`git show 3385cdf:.ai/lanes/kit/task
 
 ## Don't
 - Edit paths another lane owns, except for the "main stays green" fix.
-- Change the Operating Card (Part A), `version`, or publish.
 
 ## Handoff
-All six units shipped (2026-10-08, run 1). Nothing left; see DONE.md. If a lane asks for a kit change, reopen by removing DONE.md and note the request under Decisions.
+Round 3 starts here. Brief: IDEA.md "Round 3". Commits carry a `Lane: kit` trailer.
