@@ -1,7 +1,7 @@
 # Lane: web — round 3 (0.3.0 "Showcase")
 
-Run: 0 / 20
-Status: not started
+Run: 1 / 20
+Status: in progress (unit 1 audit done; next: unit 2 DESIGN.md)
 Round 2 record: `.ai/lanes/web/done-v2.md` (`git show 084bb9f:.ai/lanes/web/task.md` for its Decisions).
 
 ## Contract
