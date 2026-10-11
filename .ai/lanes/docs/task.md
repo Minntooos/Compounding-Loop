@@ -1,6 +1,6 @@
 # Lane: docs — round 3 (0.3.0 "Showcase")
 
-Run: 4 / 20
+Run: 5 / 20
 Status: units 1-5 and 6 (fresh-install recorded) done; remaining: README screenshots swap once web unit 9 lands, then DONE
 Round 2 record: `.ai/lanes/docs/done-v2.md` (`git show 084bb9f:.ai/lanes/docs/task.md` for its Decisions).
 
@@ -46,3 +46,7 @@ Next: when web ships new screenshots (their unit 9), swap them into README and d
 ## Handoff (run 4, 2026-10-11 ~08:00 UTC)
 Nothing new to do: web unit 9 (new screenshots) has not landed (web Run 4/20, unit 9 last; control room asked web for self-card fixes first). Local main had diverged from origin again; `git reset --hard origin/main` fixed it (old state kept as local branch `backup-stale-main`).
 Next: when web ships screenshots, swap them into README and docs/assets/screens, run the retro, write DONE.md (read outboxes first).
+
+## Handoff (run 5, 2026-10-11 ~09:00 UTC)
+Nothing new to do: web is still at Run 4/20 with no screenshots commit since run 4 (unit 9 not landed). Local main had diverged again; `git reset --hard origin/main` fixed it (old state kept as local branch `stale-local-main`).
+Next: unchanged from run 4 (swap in web's screenshots, retro, DONE.md after reading outboxes).
