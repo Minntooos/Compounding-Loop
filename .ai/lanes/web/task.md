@@ -1,6 +1,6 @@
 # Lane: web — round 3 (0.3.0 "Showcase")
 
-Run: 6 / 20
+Run: 7 / 20
 Status: in progress (units 1-7 and 5 done; unit 8 partly; unit 9 last)
 Round 2 record: `.ai/lanes/web/done-v2.md` (`git show 084bb9f:.ai/lanes/web/task.md` for its Decisions).
 
@@ -59,3 +59,6 @@ Owner review (control-room 07:55) done: laned building loops show "N of M lanes 
 
 ## Handoff (run 6)
 Unit 9 done: after screenshots (demo mode: strip + snapshot chip; new `self` screen from the live server) in web/design/after and docs/assets/screens; independent review recorded in .ai/audit/web.md; loop tabs are now one scrollable row. Capture fix: tests/e2e/screenshots.spec.ts routes /api/health to 404 so shots show demo mode. Remaining minors (see audit): loop header "Round 2/3 · Run 36/250" is mono text, no bar; per-screen skeleton shapes; self-card story line vs Done badge; fleet cards lack run bars. Main green (120 e2e + 452 unit). Lane DONE not yet written: fix the minors first, then DONE.md.
+
+## Handoff (run 7)
+Loop header now shows the run budget as a bar (hidden when done or run=0), asserted in live.spec.ts. Main green (120 e2e + 452 unit). Remaining minors: per-screen skeleton shapes, self-card story line vs Done badge. Then write DONE.md (docs already swapped in the screenshots).

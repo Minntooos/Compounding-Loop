@@ -7,6 +7,7 @@ import { Timeline } from './Timeline';
 import { LanesTab } from './LanesTab';
 import { StatusBadge } from './StatusBadge';
 import { LoadError, Loading } from './QueryState';
+import { ProgressBar } from './ProgressBar';
 
 const BASE_TABS = ['Timeline', 'Contract', 'Knowledge', 'Decisions', 'Settings'] as const;
 type Tab = (typeof BASE_TABS)[number] | 'Lanes';
@@ -68,7 +69,10 @@ export function LoopDetail({ id }: { id: string }) {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
         <StatusBadge state={loop.state} /><span style={{ color: 'var(--muted)' }}>{loop.reason}</span>
-        <span className="font-mono text-[12px]">Round {loop.round}/{loop.roundsTotal} · Run {loop.run}/{loop.runLimit}</span>
+        <span className="font-mono text-[12px]">Round {loop.round}/{loop.roundsTotal}</span>
+        {loop.runLimit > 0 && loop.run > 0 && loop.state !== 'done' && (
+          <div className="w-48 max-w-full"><ProgressBar label="Run budget" value={Math.min(loop.run, loop.runLimit)} max={loop.runLimit} text={`Run ${loop.run}/${loop.runLimit}`} color="var(--accent)" /></div>
+        )}
       </div>
       <div role="tablist" aria-label="Loop sections" className="flex gap-1 overflow-x-auto whitespace-nowrap border-b" style={{ borderColor: 'var(--border)' }}>
         {tabs.map((t) => (

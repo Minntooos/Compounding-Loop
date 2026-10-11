@@ -36,6 +36,7 @@ test('live mode: the header says Live and the fleet shows the mocked GitHub stat
   await expect(card).toContainText('7 of 20 runs');
   await card.click();
   await expect(page.getByText('live mocked commit').first()).toBeVisible();
+  await expect(page.getByRole('progressbar', { name: 'Run budget' })).toHaveAttribute('aria-valuetext', 'Run 7/20');
   expect(misses).toEqual([]);
 });
 
