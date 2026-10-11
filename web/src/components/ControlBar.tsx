@@ -1,0 +1,86 @@
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef, useState } from 'react';
+import { lintBrief, MIN_BRIEF_SCORE } from '@core/brief';
+import type { LoopDetail } from '@core/types';
+import { hasServer, postControl } from '../api/client';
+import { CHANGE_TEXT, githubUrl, releaseBlocker, slugOf, VERB, type ControlAction } from '../lib/controls';
+
+const PENDING: Record<ControlAction, string> = { pause: 'Pausing…', resume: 'Resuming…', 'next-round': 'Starting…', release: 'Opening…' };
+
+function ConfirmDialog({ loop, action, local, onClose }: { loop: LoopDetail; action: ControlAction; local: boolean; onClose: () => void }) {
+  const ref = useRef<HTMLDialogElement>(null);
+  const qc = useQueryClient();
+  const [brief, setBrief] = useState('');
+  const [reason, setReason] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string>();
+  useEffect(() => { ref.current?.showModal(); }, []);
+  const slug = slugOf(loop.repoUrl ?? loop.url);
+  const score = action === 'next-round' ? lintBrief(brief).score : MIN_BRIEF_SCORE;
+  const url = !local && slug ? githubUrl(action, slug, { brief, reason }) : undefined;
+  const needs = action === 'next-round' && score < MIN_BRIEF_SCORE ? `Brief score ${score}; at least ${MIN_BRIEF_SCORE} is needed.` : undefined;
+  const missingUrl = !local && !url && !needs ? (slug ? 'This brief is too long for a prefilled GitHub link: shorten it, or run the command locally.' : 'This loop has no GitHub repository to open.') : undefined;
+  const blocked = needs ?? missingUrl;
+
+  async function confirm() {
+    if (local && action !== 'release') {
+      setBusy(true); setError(undefined);
+      try {
+        await postControl(loop.id, action, action === 'next-round' ? { brief } : action === 'pause' ? { reason: reason || undefined } : {});
+        await qc.invalidateQueries();
+        onClose();
+      } catch (e) { setError(e instanceof Error ? e.message : String(e)); setBusy(false); }
+      return;
+    }
+    const target = local ? githubUrl('release', slug ?? '') : url;
+    if (target) window.open(target, '_blank', 'noopener,noreferrer');
+    onClose();
+  }
+
+  return (
+    <dialog ref={ref} onClose={onClose} aria-labelledby="control-title" data-testid="control-dialog" className="w-[min(32rem,calc(100vw-2rem))] rounded-lg border p-4" style={{ background: 'var(--surface)', color: 'var(--text)', borderColor: 'var(--border)' }}>
+      <h2 id="control-title" className="text-[15px] font-semibold">{VERB[action]}?</h2>
+      <p className="mt-2">{CHANGE_TEXT[action]}</p>
+      {!local && <p className="mt-1 text-[13px]" style={{ color: 'var(--muted)' }}>GitHub opens on a page you still have to submit. Nothing is sent from this dashboard.</p>}
+      {action === 'pause' && (
+        <label className="mt-3 block text-[13px]">Reason (optional)
+          <input value={reason} onChange={(e) => setReason(e.target.value)} className="mt-1 block min-h-11 w-full rounded border px-2" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }} />
+        </label>
+      )}
+      {action === 'next-round' && (
+        <label className="mt-3 block text-[13px]">Brief for the next round
+          <textarea value={brief} onChange={(e) => setBrief(e.target.value)} rows={8} className="mt-1 block w-full rounded border p-2 font-mono text-[13px]" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }} />
+          <span data-testid="brief-score" style={{ color: 'var(--muted)' }}>Brief score {score}/100 (needs {MIN_BRIEF_SCORE})</span>
+        </label>
+      )}
+      {blocked && <p role="status" className="mt-2 text-[13px]" style={{ color: 'var(--muted)' }}>{blocked}</p>}
+      {error && <p role="alert" className="mt-2 text-[13px]" style={{ color: 'var(--failing)' }}>{error}</p>}
+      <div className="mt-4 flex flex-wrap justify-end gap-2">
+        <button type="button" onClick={onClose} className="min-h-11 rounded border px-4" style={{ borderColor: 'var(--border)' }}>Cancel</button>
+        <button type="button" disabled={busy || blocked !== undefined} onClick={() => void confirm()} className="min-h-11 rounded px-4 font-semibold disabled:opacity-60" style={{ background: 'var(--accent)', color: 'var(--bg)' }}>{busy ? PENDING[action] : error ? 'Retry' : VERB[action]}</button>
+      </div>
+    </dialog>
+  );
+}
+
+/** Pause/Resume, Start next round and Release for a laned loop. Each asks first and says what changes; none holds a token. */
+export function ControlBar({ loop }: { loop: LoopDetail }) {
+  const [action, setAction] = useState<ControlAction>();
+  const [local, setLocal] = useState(false);
+  useEffect(() => { void hasServer().then(setLocal); }, []);
+  const blocker = releaseBlocker(loop);
+  const btn = 'min-h-11 rounded border px-3 text-[13px] font-medium disabled:opacity-60';
+  return (
+    <div className="space-y-1" data-testid="control-bar">
+      <div className="flex flex-wrap gap-2">
+        {loop.paused
+          ? <button type="button" className={btn} style={{ borderColor: 'var(--accent)' }} onClick={() => setAction('resume')}>Resume</button>
+          : <button type="button" className={btn} style={{ borderColor: 'var(--border)' }} onClick={() => setAction('pause')}>Pause all</button>}
+        <button type="button" className={btn} style={{ borderColor: 'var(--border)' }} onClick={() => setAction('next-round')}>Start next round</button>
+        <button type="button" className={btn} style={{ borderColor: 'var(--border)' }} disabled={blocker !== undefined} onClick={() => setAction('release')}>Release</button>
+      </div>
+      {blocker && <p className="text-[12px]" style={{ color: 'var(--muted)' }}>Release is off: {blocker}</p>}
+      {action && <ConfirmDialog loop={loop} action={action} local={local} onClose={() => setAction(undefined)} />}
+    </div>
+  );
+}

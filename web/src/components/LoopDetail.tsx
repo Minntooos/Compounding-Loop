@@ -8,6 +8,7 @@ import { LanesTab } from './LanesTab';
 import { RunsTab } from './RunsTab';
 import { ReleasesTab } from './ReleasesTab';
 import { ShipPanel } from './ShipPanel';
+import { ControlBar } from './ControlBar';
 import { StatusBadge } from './StatusBadge';
 import { LoadError, Loading } from './QueryState';
 import { ProgressBar } from './ProgressBar';
@@ -87,6 +88,7 @@ export function LoopDetail({ id }: { id: string }) {
           {statusLine(loop)}. Lane runs and the control room stop until it is resumed.
         </p>
       )}
+      {loop.lanes && <ControlBar loop={loop} />}
       {loop.ship && <ShipPanel ship={loop.ship} />}
       <div role="tablist" aria-label="Loop sections" className="flex gap-1 overflow-x-auto whitespace-nowrap border-b" style={{ borderColor: 'var(--border)' }}>
         {tabs.map((t) => (

@@ -148,3 +148,30 @@ test('loop page shows the pause notice, the Ready to ship checklist and the Rele
   const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
   expect(axe.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')).toEqual([]);
 });
+
+test('control buttons confirm what changes and open the exact prefilled GitHub page', async ({ page }) => {
+  // No dashboard server answering means static hosting: buttons open GitHub instead of calling the API.
+  await page.route('**/api/health', (route) => route.fulfill({ status: 404, body: 'no' }));
+  await page.route('**/api/loops/laned*', async (route) => {
+    const res = await route.fetch({ url: new URL('/api/loops/proj2', route.request().url()).href });
+    const loop = (await res.json()) as Record<string, unknown>;
+    await route.fulfill({ response: res, json: { ...loop, id: 'laned', name: 'laned-loop', url: 'https://github.com/o/r', lanes: LANES, ship: { ready: false, openFindings: [], items: [{ id: 'tag', label: 'Tag is free', ok: false, detail: 'v1 exists' }] } } });
+  });
+  await page.goto('/#/loop/laned');
+  await expect(page.getByRole('button', { name: 'Release' })).toBeDisabled();
+  await expect(page.getByText('Release is off: Tag is free: v1 exists')).toBeVisible();
+  await page.getByRole('button', { name: 'Pause all' }).click();
+  const dialog = page.getByTestId('control-dialog');
+  await expect(dialog).toContainText('Adds .ai/PAUSED on main');
+  await expect(dialog).toContainText('Nothing is sent from this dashboard');
+  const [popup] = await Promise.all([page.waitForEvent('popup'), dialog.getByRole('button', { name: 'Pause', exact: true }).click()]);
+  expect(popup.url()).toContain('https://github.com/o/r/new/main?filename=.ai%2FPAUSED');
+  await popup.close();
+  await page.getByRole('button', { name: 'Start next round' }).click();
+  await expect(dialog.getByRole('button', { name: 'Start next round' })).toBeDisabled();
+  await expect(dialog.getByTestId('brief-score')).toContainText('needs 60');
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+  const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(axe.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')).toEqual([]);
+});
