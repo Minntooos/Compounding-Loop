@@ -1,7 +1,7 @@
 # Lane: server — round 3 (0.3.0 "Showcase")
 
-Run: 0 / 20
-Status: not started
+Run: 1 / 20
+Status: run 1: units 3 and 4 done (live mappers, static CSP + live.json); unit 1 audit done; units 2 and 5 open
 Round 2 record: `.ai/lanes/server/done-v2.md` (`git show 084bb9f:.ai/lanes/server/task.md` for its Decisions).
 
 ## Contract
@@ -17,6 +17,9 @@ Round 2 record: `.ai/lanes/server/done-v2.md` (`git show 084bb9f:.ai/lanes/serve
 5. Claims in the API types and reader (after core's unit 5). Then audit majors.
 
 ## Decisions
+- Fixtures in tests/unit/server/fixtures/live are hand-written to the documented GitHub API shape (no network in cloud runs), with no names or emails.
+- Moved `laneChecks` to src/server/laneChecks.ts and `bulletsUnder`/`contractFromTask` to src/server/taskBullets.ts so live/ stays browser-safe; old modules re-export them.
+- CSP for the hosted demo is a meta tag written by demo/export-static.mjs into demo/static/index.html (workflow already copies demo/static over dist/web).
 
 ## Confirmed
 

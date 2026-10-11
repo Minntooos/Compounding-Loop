@@ -2,6 +2,31 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { DemoSnapshot } from '../core/types.js';
 import { sortByAttention, toSummary } from './data.js';
+import { CSP } from './static.js';
+
+/** The only two hosts the static site may fetch from, besides itself: the live data path (src/server/live). */
+export const LIVE_CONNECT_HOSTS: readonly string[] = ['https://api.github.com', 'https://raw.githubusercontent.com'];
+
+/** The local server's CSP with `connect-src` widened to the live hosts. Everything else stays identical. */
+export const STATIC_CSP = CSP.replace("connect-src 'self'", `connect-src 'self' ${LIVE_CONNECT_HOSTS.join(' ')}`);
+
+/** `live.json` at the site root: which repo the hosted demo reads live, and which loop id to open first. */
+export interface LiveConfig {
+  repo: string;
+  loop: string;
+}
+
+export const SELF_LIVE_CONFIG: LiveConfig = { repo: 'Minntooos/Compounding-Loop', loop: 'compounding-loop' };
+
+/**
+ * GitHub Pages cannot set headers, so the CSP goes into a meta tag as the first child of `<head>`.
+ * (`frame-ancestors` is ignored in a meta tag; Pages sends its own framing rules.)
+ */
+export function staticIndexHtml(html: string): string {
+  const meta = `<meta http-equiv="Content-Security-Policy" content="${STATIC_CSP.replace(/; frame-ancestors [^;]+/, '')}">`;
+  if (!/<head[^>]*>/i.test(html)) throw new Error('index.html has no <head>');
+  return html.replace(/<head[^>]*>/i, (head) => `${head}\n    ${meta}`);
+}
 
 /**
  * The read-only API as plain files, for hosting the demo on GitHub Pages (no server there).
@@ -14,6 +39,7 @@ export function staticApiFiles(snapshot: DemoSnapshot, version: string): Map<str
   for (const loop of snapshot.loops) files.set(`api/loops/${loop.id}.json`, loop);
   files.set('api/inbox.json', snapshot.inbox);
   files.set('api/checks.json', snapshot.checks);
+  files.set('live.json', SELF_LIVE_CONFIG);
   return files;
 }
 

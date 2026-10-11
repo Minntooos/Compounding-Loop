@@ -5,7 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { DemoSnapshot } from '../../../src/core/types.js';
 import { createApp, startServer } from '../../../src/server/index.js';
 import { CSP, mimeFor, resolveInside } from '../../../src/server/static.js';
-import { staticApiFiles, writeStaticApi } from '../../../src/server/static-export.js';
+import { LIVE_CONNECT_HOSTS, SELF_LIVE_CONFIG, STATIC_CSP, staticApiFiles, staticIndexHtml, writeStaticApi } from '../../../src/server/static-export.js';
 import { loadDemoSnapshot } from '../../../src/server/data.js';
 
 let root: string;
@@ -103,12 +103,36 @@ describe('serving the dashboard', async () => {
   });
 });
 
+describe('static CSP and live config', () => {
+  it('allows exactly the two GitHub hosts in connect-src and nothing else extra', () => {
+    const connect = STATIC_CSP.split('; ').find((d) => d.startsWith('connect-src'));
+    expect(connect).toBe("connect-src 'self' https://api.github.com https://raw.githubusercontent.com");
+    expect([...(STATIC_CSP.match(/https?:\/\/[^\s;]+/g) ?? [])].sort()).toEqual([...LIVE_CONNECT_HOSTS].sort());
+    expect(STATIC_CSP.replace(connect ?? '', '')).toBe(CSP.replace("connect-src 'self'", ''));
+    expect(STATIC_CSP).not.toMatch(/unsafe-eval|\*/);
+  });
+  it('leaves the local server CSP closed to the network', () => {
+    expect(CSP).toContain("connect-src 'self';");
+    expect(CSP).not.toMatch(/github/);
+  });
+  it('writes live.json for the self loop', () => {
+    expect(SELF_LIVE_CONFIG).toEqual({ repo: 'Minntooos/Compounding-Loop', loop: 'compounding-loop' });
+    expect(staticApiFiles({ generatedAt: 'x', loops: [], inbox: [], checks: [] }, '1').get('live.json')).toEqual(SELF_LIVE_CONFIG);
+  });
+  it('puts the CSP meta tag first in <head>, without frame-ancestors', () => {
+    const out = staticIndexHtml('<!doctype html><html><head><meta charset="utf-8"><title>x</title></head><body></body></html>');
+    expect(out).toMatch(/<head>\s*<meta http-equiv="Content-Security-Policy" content="default-src 'none'; [^"]*api\.github\.com[^"]*"><meta charset/);
+    expect(out).not.toContain('frame-ancestors');
+    expect(() => staticIndexHtml('<html></html>')).toThrow(/head/);
+  });
+});
+
 describe('static demo export', () => {
   const snapshot = { generatedAt: 'x', loops: [{ id: 'a', name: 'a', state: 'done', reason: '', round: 1, roundsTotal: 1, run: 0, runLimit: 1, timeline: [], contract: [], knowledge: [], decisions: [], history: [] }], inbox: [], checks: [] } as DemoSnapshot;
 
   it('lists one file per API read route', () => {
     const files = staticApiFiles(snapshot, '1.2.3');
-    expect([...files.keys()].sort()).toEqual(['api/checks.json', 'api/health.json', 'api/inbox.json', 'api/loops.json', 'api/loops/a.json']);
+    expect([...files.keys()].sort()).toEqual(['api/checks.json', 'api/health.json', 'api/inbox.json', 'api/loops.json', 'api/loops/a.json', 'live.json']);
     expect(files.get('api/health.json')).toEqual({ ok: true, version: '1.2.3', demo: true });
     expect(files.get('api/loops.json')).toEqual([expect.not.objectContaining({ timeline: expect.anything() })]);
   });
