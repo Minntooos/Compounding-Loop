@@ -4,10 +4,13 @@ All notable changes are listed here. Format follows [Keep a Changelog](https://k
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-11
+
 ### Fixed
 - The dashboard build uses relative asset paths, so the GitHub Pages demo works under `/Compounding-Loop/`.
+- Windows: `npm test` passes; `loop run` and `loop doctor` start Claude Code from npm/pnpm `.cmd` shims; the session lock is kept until the work settles after Ctrl-C.
 
-### Added (0.2.0 "Lanes")
+### Added ("Lanes")
 - Lanes: `loop init --lanes`, `loop lanes add`, `loop run --lane`, `loop check-lanes [--range]`, lane block in `loop status`, lane health checks.
 - `loop doctor`; `loop new` keeps the folder when `gh` fails; `loop answer --push`; Windows npm-global `claude.cmd` support.
 - Lanes templates, lane and control-room prompts, GitHub Actions `lanes.yml`, method chapter 16 (kit).
