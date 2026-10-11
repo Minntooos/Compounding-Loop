@@ -171,7 +171,7 @@ export interface RunResult {
 /** `loop run`: one build round now, using the same prompt the scheduler uses. */
 export async function runRound(
   dir: string,
-  options: { dryRun: boolean; skipPermissions: boolean; model?: string; lane?: string },
+  options: { dryRun: boolean; skipPermissions: boolean; model?: string; lane?: string; as?: string },
   spawner: Spawner = realSpawn,
 ): Promise<RunResult> {
   const { lane } = options;
@@ -180,7 +180,8 @@ export async function runRound(
   const { text, source } = await loadPromptText(dir, packageRoot, lane);
   const lockFile = path.join(dir, laneDir, 'session.lock');
   const lockNote = `Note from \`loop run\`: it created \`${path.posix.join(...laneDir.split(path.sep), 'session.lock')}\` for this very session. That lock is yours, not another session's: ignore it in the lock step and do not delete it.`;
-  const prompt = `${buildRunPrompt(text, { name: path.basename(path.resolve(dir)), lane: lane ?? '' })}\n${lockNote}\n`;
+  const asNote = options.as ? `\nNote from \`loop run\`: you are running as \`${options.as}\`. A claim naming \`${options.as}\` is yours, not a teammate's: ignore it in the claim step.` : '';
+  const prompt = `${buildRunPrompt(text, { name: path.basename(path.resolve(dir)), lane: lane ?? '' })}\n${lockNote}${asNote}\n`;
   const stopFiles = [...(lane ? [path.join(laneDir, 'DONE.md'), path.join(laneDir, 'BLOCKED.md')] : []), 'DONE.md', 'BLOCKED.md'];
   for (const stop of stopFiles) {
     if (await exists(path.join(dir, stop))) return { skipped: `${stop} exists: nothing to do`, prompt, source };

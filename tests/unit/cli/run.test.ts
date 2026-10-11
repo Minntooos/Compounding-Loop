@@ -39,6 +39,14 @@ describe('loop run', () => {
       await writeFile(path.join(dir, '.ai', 'lanes.json'), lanesJson);
     });
 
+    it('tells the run its claimant name with --as', async () => {
+      const spawner: Spawner = async () => 0;
+      const withName = await runRound(dir, { dryRun: true, skipPermissions: false, lane: 'api', as: 'sam' }, spawner);
+      expect(withName.prompt).toContain('running as `sam`');
+      const without = await runRound(dir, { dryRun: true, skipPermissions: false, lane: 'api' }, spawner);
+      expect(without.prompt).not.toContain('running as');
+    });
+
     it('writes the lane lock while claude runs and clears it afterwards', async () => {
       let during: string | undefined;
       const spawner: Spawner = async (_c, args) => { during = await readFile(lockFile(), 'utf8'); calls.push({ command: 'claude', args, cwd: dir }); return 0; };

@@ -156,11 +156,13 @@ program
   .option('--skip-permissions', 'pass --dangerously-skip-permissions to claude (you accept the risk)')
   .option('--model <model>', 'model for this round')
   .option('--lane <name>', 'run as this lane from .ai/lanes.json (own task file, outbox and session lock)')
-  .action(async (dir: string, options: { dryRun?: boolean; skipPermissions?: boolean; model?: string; lane?: string }) => {
+  .option('--as <name>', 'your name for lane claims: a claim by this name does not stop the run')
+  .action(async (dir: string, options: { dryRun?: boolean; skipPermissions?: boolean; model?: string; lane?: string; as?: string }) => {
     try {
       const result = await runRound(path.resolve(dir), {
         dryRun: Boolean(options.dryRun), skipPermissions: Boolean(options.skipPermissions), ...(options.model && { model: options.model }),
         ...(options.lane && { lane: options.lane }),
+        ...(options.as && { as: options.as }),
       });
       if (result.skipped) console.log(result.skipped);
       else if (options.dryRun) console.log(`Prompt from ${result.source}:\n\n${result.prompt}`);

@@ -1,5 +1,7 @@
 # Outbox: core
 
+2026-10-11 06:25 UTC · to kit · `loop run --lane <l> --as <name>` is on main: the prompt gets a note that a claim naming that person is theirs, so their own local run is not blocked. runPrompt.ts already has the claim rule.
+
 2026-10-11 05:35 UTC · to server, web · `LaneStatus.claim?: {name, expiresAt}` (src/core/types.ts) is filled by `readLaneStatuses` (so /api/loops gets it for free) and shown in `loop status`. For the live demo, parse `.ai/lanes/<lane>/claim` text with `parseClaim`/`activeClaim` from `src/core/parse`. Also `NextReport` type = `loop next --json`.
 2026-10-11 05:35 UTC · to kit, docs · `loop next [--json]` is on main. It infers finished units from the lane's `Status:` line and newest `## Handoff`, phrases like "units 1-3 done" or "Done: unit 1, unit 5"; kit: keep that wording in the task template so `loop next` stays accurate. docs: `loop claim/release/next` are ready for docs/team.md.
 
