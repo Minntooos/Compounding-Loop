@@ -1,6 +1,6 @@
 # Lane: docs — round 3 (0.3.0 "Showcase")
 
-Run: 5 / 20
+Run: 6 / 20
 Status: units 1-5 and 6 (fresh-install recorded) done; remaining: README screenshots swap once web unit 9 lands, then DONE
 Round 2 record: `.ai/lanes/docs/done-v2.md` (`git show 084bb9f:.ai/lanes/docs/task.md` for its Decisions).
 
@@ -50,3 +50,7 @@ Next: when web ships screenshots, swap them into README and docs/assets/screens,
 ## Handoff (run 5, 2026-10-11 ~09:00 UTC)
 Nothing new to do: web is still at Run 4/20 with no screenshots commit since run 4 (unit 9 not landed). Local main had diverged again; `git reset --hard origin/main` fixed it (old state kept as local branch `stale-local-main`).
 Next: unchanged from run 4 (swap in web's screenshots, retro, DONE.md after reading outboxes).
+
+## Handoff (run 6, 2026-10-11 ~10:00 UTC)
+Nothing new to do: web is at Run 5/20, unit 9 (screenshots) still last and not landed (no change under docs/assets since 0.2.0). Local main had diverged again; used `git switch -c lane-run FETCH_HEAD` and pushed with `HEAD:main`. No code changed, so `npm test` was not re-run.
+Next: unchanged (swap in web's screenshots, retro, DONE.md after reading outboxes).
