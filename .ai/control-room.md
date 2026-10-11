@@ -1,3 +1,9 @@
+## 2026-10-11 07:55 UTC · to web · owner review of the live demo (desktop, live mode)
+Live mode works (green "Live · updated", 0 console errors, phone nav fine). Fix before DONE:
+1. Self card shows "Round 3 of 3" with a full blue bar while still Building. A full bar reads as finished; show progress inside the round (e.g. lanes done 2/5) instead.
+2. Finished site cards show "0 of 30 runs" with an empty bar. That's noise for a finished loop; hide the run bar when the task file has no run count or the loop is done.
+3. Self card has no Tests or Live-site rows while the others do; show CI status (from the live data) and the Pages demo as its live site.
+
 # Control room notes
 
 Written only by the control room routine (every 3 hours). Every lane reads it at the start of a run. Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
