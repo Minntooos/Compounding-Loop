@@ -17,3 +17,4 @@ export { expectedSlots, formatRunEntry, matchSlots, missedInARow, parseRunLog, r
 export type { RunEntry, SlotOutcome, SlotResult } from './runs.js';
 export { parseChangelog, releaseFor } from './changelog.js';
 export type { ChangelogSection, Release } from './changelog.js';
+export { commitLane, latestControlNotes } from './controlRoom.js';

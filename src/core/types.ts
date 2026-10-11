@@ -43,6 +43,8 @@ export interface LoopCommit {
   /** ISO 8601 UTC. */
   at: string;
   message: string;
+  /** Display name of the author, never an email (added in Round 4). */
+  author?: string;
 }
 
 /** One row of the fleet view. */

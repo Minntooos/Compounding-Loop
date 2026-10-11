@@ -99,8 +99,23 @@ describe('checkCommitFiles', () => {
     expect(checkCommitFiles(config, 'core', ['random.txt'])[0]?.message).toMatch(/no lane owns it/);
     expect(checkCommitFiles(config, 'core', ['.ai/lanes/web/outbox.md'])[0]?.message).toMatch(/lane "web"/);
   });
-  it('lets control touch anything and rejects unknown lanes', () => {
-    expect(checkCommitFiles(config, CONTROL_LANE, ['web/a.ts'])).toEqual([]);
+  it('rejects unknown lanes', () => {
+    expect(checkCommitFiles(config, CONTROL_LANE, ['.ai/a.md'])).toEqual([]);
     expect(checkCommitFiles(config, 'ghost', ['a'])[0]?.message).toMatch(/unknown lane "ghost"/);
+  });
+});
+
+describe('checkCommitFiles: release and control lanes', () => {
+  const config = { lanes: [{ name: 'web', owns: ['web/**'] }], shared: [] };
+  it('release may touch only version files and the CHANGELOG', () => {
+    expect(checkCommitFiles(config, 'release', ['package.json', 'package-lock.json', 'plugin/.claude-plugin/plugin.json', 'CHANGELOG.md'])).toEqual([]);
+    const bad = checkCommitFiles(config, 'release', ['package.json', 'web/app.ts', 'src/core/types.ts']);
+    expect(bad.map((v) => v.file)).toEqual(['web/app.ts', 'src/core/types.ts']);
+    expect(bad[0]?.message).toContain('may touch only package.json');
+  });
+  it('control may touch .ai, IDEA.md and the root DONE.md only', () => {
+    expect(checkCommitFiles(config, 'control', ['.ai/PAUSED', '.ai/lanes/web/task.md', 'IDEA.md', 'DONE.md'])).toEqual([]);
+    expect(checkCommitFiles(config, 'control', ['src/cli/run.ts', 'README.md']).map((v) => v.file)).toEqual(['src/cli/run.ts', 'README.md']);
+    expect(checkCommitFiles(config, 'control', ['.ai\\PAUSED'])).toEqual([]);
   });
 });

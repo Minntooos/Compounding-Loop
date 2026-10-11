@@ -37,7 +37,7 @@ describe('loop check-lanes', () => {
   it('passes good commits and reports untagged ones without failing', async () => {
     await commit('src/api/a.ts', 'api: a\n\nLane: api');
     await commit('package.json', 'deps\n\nLane: ui');
-    await commit('src/ui/b.ts', 'ui: b\n\nLane: control');
+    await commit('.ai/x.md', 'control: x\n\nLane: control');
     const result = await runCheckLanes(dir);
     expect(result.problems).toEqual([]);
     expect(result.untagged).toHaveLength(1);

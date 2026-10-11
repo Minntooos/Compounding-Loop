@@ -9,8 +9,8 @@ Goal judged: repo state the dashboard reads (PAUSED, run log, ship-check, next-r
 | R4-1 | No `.ai/PAUSED`: owner switches routines on and off one by one | blocker for web/kit | FIXED: `loop pause/resume`, browser-safe `parsePaused`/`isPaused`, `StopMarkers.paused`, `loop run` and `loop status` honour it |
 | R4-2 | Runs leave no record: a skipped or limit-hit run is invisible | blocker for web/server | FIXED: `loop runs log` / `loop runs [--json]`, browser-safe `parseRunLog`, `expectedSlots`, `matchSlots`, `missedInARow` |
 | R4-3 | `loop next-round` is single-loop only | major | FIXED: `--brief <file> [--dry-run] [--json] [--no-commit]` (src/core/laneRound.ts pure plan, src/cli/laneRound.ts applies) |
-| R4-4 | `check-lanes` has no `release`/`control` path rules | major | open: unit 7 |
-| R4-5 | `LoopCommit` has no author, control-room notes not parsed per lane | major | open: unit 6 |
+| R4-4 | `check-lanes` has no `release`/`control` path rules | major | FIXED: `Lane: release` may touch package.json, lockfile, plugin.json, CHANGELOG.md; `Lane: control` .ai/**, IDEA.md, DONE.md |
+| R4-5 | `LoopCommit` has no author, control-room notes not parsed per lane | major | FIXED: `author?` on LoopCommit, `latestControlNotes`, `commitLane` (parse/controlRoom.ts) |
 
 ## Round 3 (2026-10-11)
 

@@ -137,9 +137,21 @@ export interface LaneViolation {
   message: string;
 }
 
+/** Release commits (version bump, CHANGELOG) and control commits (pause, next round) are not lanes; each may touch only these paths. */
+export const RELEASE_LANE = 'release';
+const RELEASE_PATHS = ['package.json', 'package-lock.json', 'plugin/**/plugin.json', 'CHANGELOG.md'];
+const CONTROL_PATHS = ['.ai/**', 'IDEA.md', 'DONE.md'];
+
+function restrictedLaneViolations(lane: string, files: readonly string[]): LaneViolation[] {
+  const allowed = lane === RELEASE_LANE ? RELEASE_PATHS : CONTROL_PATHS;
+  return files
+    .filter((file) => !matchesAny(allowed, file))
+    .map((file) => ({ file: normalizePath(file), message: `lane "${lane}" touched ${normalizePath(file)}, but it may touch only ${allowed.join(', ')}.` }));
+}
+
 /** Files a commit with the given `Lane:` trailer may not touch, each with a fix-it message. */
 export function checkCommitFiles(config: LanesConfig, lane: string, files: readonly string[]): LaneViolation[] {
-  if (lane === CONTROL_LANE) return [];
+  if (lane === CONTROL_LANE || lane === RELEASE_LANE) return restrictedLaneViolations(lane, files);
   const self = config.lanes.find((l) => l.name === lane);
   if (!self) {
     const known = config.lanes.map((l) => l.name).join(', ');

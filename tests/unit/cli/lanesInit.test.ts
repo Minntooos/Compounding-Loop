@@ -52,7 +52,7 @@ describe('lanes init', () => {
     loop(dir, 'lanes', 'add', 'c', '--owns', 'c/**', 'docs/**');
     expect(JSON.parse(await read('.ai/lanes.json')).lanes.map((l: { name: string }) => l.name)).toEqual(['a', 'b', 'c']);
     expect(await read('CLAUDE.md')).toContain('Lanes in this repo: a, b, c');
-    git('add', '-A'); git('commit', '-q', '-m', 'setup\n\nLane: control');
+    git('add', '-A'); git('commit', '-q', '-m', 'setup');
     expect((await runCheckLanes(dir)).problems).toEqual([]);
     await writeFile(path.join(dir, 'a-file.txt'), 'x');
     git('add', '-A'); git('commit', '-q', '-m', 'oops\n\nLane: a');
