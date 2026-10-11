@@ -1,10 +1,14 @@
 import type { ReactNode } from 'react';
 
+/** Placeholder blocks in roughly the final layout, so the page does not jump; static under reduced motion (index.css). */
 export function Loading({ what = 'Loading…' }: { what?: string }) {
   return (
-    <p role="status" aria-busy="true" style={{ color: 'var(--muted)' }}>
-      {what}
-    </p>
+    <div aria-busy="true">
+      <p role="status" style={{ color: 'var(--muted)' }}>{what}</p>
+      <div aria-hidden className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {[0, 1, 2].map((i) => <div key={i} className="h-28 animate-pulse rounded-lg border" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }} />)}
+      </div>
+    </div>
   );
 }
 
