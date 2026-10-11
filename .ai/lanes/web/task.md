@@ -56,3 +56,6 @@ Unit 8 mostly done: shared `Notice` (QueryState.tsx), `PausedLiveNotice` under t
 
 ## Handoff (run 5)
 Owner review (control-room 07:55) done: laned building loops show "N of M lanes done" instead of the round bar, run bar hidden when done or run=0, live self card gets CI row + Live site (assumed GitHub Pages URL, unverified; `LoopSummary.ci`/`demoUrl` added to core types, additive). Remaining: per-screen skeleton shapes, self-card story line, then unit 9 (screenshots to docs/assets/screens/, independent design review into .ai/audit/web.md, tell docs).
+
+## Handoff (run 6)
+Unit 9 done: after screenshots (demo mode: strip + snapshot chip; new `self` screen from the live server) in web/design/after and docs/assets/screens; independent review recorded in .ai/audit/web.md; loop tabs are now one scrollable row. Capture fix: tests/e2e/screenshots.spec.ts routes /api/health to 404 so shots show demo mode. Remaining minors (see audit): loop header "Round 2/3 · Run 36/250" is mono text, no bar; per-screen skeleton shapes; self-card story line vs Done badge; fleet cards lack run bars. Main green (120 e2e + 452 unit). Lane DONE not yet written: fix the minors first, then DONE.md.

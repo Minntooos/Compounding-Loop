@@ -70,7 +70,7 @@ export function LoopDetail({ id }: { id: string }) {
         <StatusBadge state={loop.state} /><span style={{ color: 'var(--muted)' }}>{loop.reason}</span>
         <span className="font-mono text-[12px]">Round {loop.round}/{loop.roundsTotal} · Run {loop.run}/{loop.runLimit}</span>
       </div>
-      <div role="tablist" aria-label="Loop sections" className="flex flex-wrap gap-1 border-b" style={{ borderColor: 'var(--border)' }}>
+      <div role="tablist" aria-label="Loop sections" className="flex gap-1 overflow-x-auto whitespace-nowrap border-b" style={{ borderColor: 'var(--border)' }}>
         {tabs.map((t) => (
           <button key={t} type="button" role="tab" tabIndex={tab === t ? 0 : -1} onKeyDown={(e) => onTabKey(e, tabs, tab, setTab)} id={`tab-${t}`} aria-controls="loop-panel" aria-selected={tab === t} onClick={() => setTab(t)} className="rounded-t px-3 py-2 aria-selected:border-b-2 aria-selected:font-semibold" style={{ borderColor: 'var(--accent)' }}>{t}</button>
         ))}
