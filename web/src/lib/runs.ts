@@ -53,3 +53,18 @@ export function testsText(tests: LoopRun['tests']): string | undefined {
   if (!tests) return undefined;
   return tests.failed > 0 ? `${tests.failed} failed, ${tests.passed} passed` : `${tests.passed} passed`;
 }
+
+export interface TestPoint { at: string; lane?: string; passed: number; failed: number }
+
+/** Runs that recorded a test result, oldest first (the chart's x order). */
+export function testSeries(runs: LoopRun[]): TestPoint[] {
+  return runs
+    .filter((r): r is LoopRun & { tests: { passed: number; failed: number } } => r.tests !== undefined)
+    .map((r) => ({ at: r.at, lane: r.lane, passed: r.tests.passed, failed: r.tests.failed }))
+    .sort((a, b) => a.at.localeCompare(b.at));
+}
+
+/** Newest point with failing tests, undefined when every recorded run passed. */
+export function lastFailure(series: TestPoint[]): TestPoint | undefined {
+  return [...series].reverse().find((p) => p.failed > 0);
+}

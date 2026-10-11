@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { LoopRun } from '../../../src/core/types.js';
-import { filterRuns, groupRunsByDay, silentLanes, testsText } from '../../../web/src/lib/runs.js';
+import { filterRuns, groupRunsByDay, lastFailure, silentLanes, testSeries, testsText } from '../../../web/src/lib/runs.js';
 
 const run = (lane: string, at: string, outcome: LoopRun['outcome'] = 'pushed'): LoopRun => ({ lane, at, outcome, units: [], commits: [] });
 
@@ -26,5 +26,18 @@ describe('runs helpers', () => {
     expect(testsText(undefined)).toBeUndefined();
     expect(testsText({ passed: 12, failed: 0 })).toBe('12 passed');
     expect(testsText({ passed: 12, failed: 2 })).toBe('2 failed, 12 passed');
+  });
+});
+
+describe('test history', () => {
+  const withTests = (at: string, passed: number, failed: number): LoopRun => ({ ...run('web', at), tests: { passed, failed } });
+  const runs = [withTests('2026-10-11T21:00:00Z', 50, 0), run('core', '2026-10-11T20:30:00Z'), withTests('2026-10-11T20:00:00Z', 48, 2), withTests('2026-10-10T20:00:00Z', 40, 0)];
+  it('keeps only runs with tests, oldest first', () => {
+    expect(testSeries(runs).map((p) => p.passed)).toEqual([40, 48, 50]);
+    expect(testSeries([])).toEqual([]);
+  });
+  it('finds the newest failing run or nothing', () => {
+    expect(lastFailure(testSeries(runs))).toEqual({ at: '2026-10-11T20:00:00Z', lane: 'web', passed: 48, failed: 2 });
+    expect(lastFailure([{ at: 'x', passed: 1, failed: 0 }])).toBeUndefined();
   });
 });

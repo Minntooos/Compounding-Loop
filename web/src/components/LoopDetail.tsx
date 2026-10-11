@@ -6,6 +6,7 @@ import { api } from '../api/client';
 import { Timeline } from './Timeline';
 import { LanesTab } from './LanesTab';
 import { RunsTab } from './RunsTab';
+import { TestsTab } from './TestsTab';
 import { ReleasesTab } from './ReleasesTab';
 import { ShipPanel } from './ShipPanel';
 import { ControlBar } from './ControlBar';
@@ -16,9 +17,9 @@ import { statusLine } from '../lib/card';
 import { runLimitText, siteOf } from '../lib/settings';
 
 const BASE_TABS = ['Timeline', 'Contract', 'Knowledge', 'Decisions', 'Settings'] as const;
-type Tab = (typeof BASE_TABS)[number] | 'Lanes' | 'Runs' | 'Releases';
+type Tab = (typeof BASE_TABS)[number] | 'Lanes' | 'Runs' | 'Tests' | 'Releases';
 /** Lanes (after Timeline) and Runs (after Lanes) appear only for loops that send them. */
-const tabsFor = (loop: Detail): Tab[] => ['Timeline', ...(loop.lanes ? ['Lanes' as const] : []), ...(loop.runs ? ['Runs' as const] : []), ...BASE_TABS.slice(1), ...(loop.releases ? ['Releases' as const] : [])];
+const tabsFor = (loop: Detail): Tab[] => ['Timeline', ...(loop.lanes ? ['Lanes' as const] : []), ...(loop.runs ? ['Runs' as const, 'Tests' as const] : []), ...BASE_TABS.slice(1), ...(loop.releases ? ['Releases' as const] : [])];
 
 // Entries are plain text from repo files: rendered as text nodes only, never as HTML.
 function TextList({ items, empty }: { items: string[]; empty: string }) {
@@ -32,6 +33,7 @@ function TabBody({ tab, loop }: { tab: Tab; loop: Detail }) {
       return <Timeline commits={loop.timeline} />;
     case 'Lanes': return <LanesTab lanes={loop.lanes ?? []} />;
     case 'Runs': return <RunsTab runs={loop.runs ?? []} paused={loop.paused !== undefined} quiet={(loop.lanes ?? []).filter((l) => l.state === 'done' || l.state === 'blocked').map((l) => l.name)} {...(loop.nextRuns && { nextRuns: loop.nextRuns })} />;
+    case 'Tests': return <TestsTab runs={loop.runs ?? []} />;
     case 'Releases': return <ReleasesTab releases={loop.releases ?? []} />;
     case 'Contract':
       if (loop.contract.length === 0) return <p style={{ color: 'var(--muted)' }}>No contract lines yet. They appear when the task file has a Done-when list.</p>;

@@ -112,6 +112,28 @@ test('Runs tab shows all four outcomes by word, filters by lane and warns after 
   expect(axe.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')).toEqual([]);
 });
 
+test('Tests tab shows the latest result, the last failure and an accessible chart', async ({ page }) => {
+  await withRuns(page, [
+    run('web', 10, 'pushed', { tests: { passed: 50, failed: 0 } }),
+    run('server', 130, 'tests-failed', { tests: { passed: 38, failed: 2 } }),
+    run('core', 250, 'pushed', { tests: { passed: 30, failed: 0 } }),
+  ]);
+  await page.goto('/#/loop/laned');
+  await page.getByRole('tab', { name: 'Tests' }).click();
+  await expect(page.getByTestId('tests-latest')).toContainText('50 tests pass');
+  await expect(page.getByTestId('tests-last-failure')).toContainText('lane server');
+  await expect(page.getByRole('img', { name: /Tests per recorded run, 3 runs/ })).toBeVisible();
+  const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(axe.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')).toEqual([]);
+});
+
+test('Tests tab explains when no run recorded tests', async ({ page }) => {
+  await withRuns(page, [run('web', 10, 'pushed')]);
+  await page.goto('/#/loop/laned');
+  await page.getByRole('tab', { name: 'Tests' }).click();
+  await expect(page.getByText('No test results yet')).toBeVisible();
+});
+
 test('Runs tab explains an empty log and is absent for loops without runs', async ({ page }) => {
   await withRuns(page, []);
   await page.goto('/#/loop/laned');

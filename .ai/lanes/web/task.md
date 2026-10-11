@@ -1,7 +1,7 @@
 # Lane: web — round 4 (0.4.0 "Control")
 
-Run: 2 / 20
-Status: units 1 (partial), 2, 3 (most), 4 shipped (Runs tab, card status line), 6 partly (Ready to ship panel read-only, Releases tab, paused notice); ControlBar (Pause/Resume, Next round, Release with confirm dialog) shipped; Tests tab, doctor on Health, control notes on self card, launch drafts + Copy, Inbox edit links, Release as filled primary, post-action toast, 7-8 open
+Run: 3 / 20
+Status: units 1 (partial), 2, 3 (most), 4 shipped (Runs tab, card status line), 6 partly (Ready to ship panel read-only, Releases tab, paused notice); ControlBar (Pause/Resume, Next round, Release with confirm dialog) shipped; Tests tab (done run 3), doctor on Health, control notes on self card, launch drafts + Copy, Inbox edit links, Release as filled primary, post-action toast, 7-8 open
 Round 3 record: `.ai/lanes/web/done-v3.md` (`git show b3b51a5:.ai/lanes/web/task.md` for its Decisions).
 
 ## Contract
@@ -30,11 +30,12 @@ Round 3 record: `.ai/lanes/web/done-v3.md` (`git show b3b51a5:.ai/lanes/web/task
 
 ## Next run starts here
 1. Unit 5 left: toast after a local action; live score/URL fallback (Copy + blank new-file page) when a brief is too long.
-2. Unit 6 rest: Tests tab (chart from `loop.runs[].tests`), launch drafts + Release button on ShipPanel, `loop.controlNotes` on self card, commit author is done, Inbox edit links (`editFileUrl`), doctor on Health (`GET /api/doctor`).
+2. Unit 6 rest: (Tests tab shipped in run 3: `TestsTab.tsx`, `testSeries`/`lastFailure` in lib/runs.ts) launch drafts + Release button on ShipPanel, `loop.controlNotes` on self card, commit author is done, Inbox edit links (`editFileUrl`), doctor on Health (`GET /api/doctor`).
 3. Remaining A: per-lane Contract/Decisions via `laneNotes`, site pages + live link, phone theme button check, then units 7-8.
 4. Runs tab silent notice is client-derived (`web/src/lib/runs.ts silentLanes`, guarded for paused/done/blocked); ask server to expose its own list if they disagree.
 
 ## Guesses
+- Tests tab vs DESIGN.md (reviewer, run 3): still bars not a line, table is sr-only not a disclosure, no commit link in Last failure, no loading/error/rate-limited states, tiny chart at 375 px (set preserveAspectRatio/height). Fix in unit 7.
 
 ## Tried
 
