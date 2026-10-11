@@ -1,6 +1,6 @@
 # Lane: docs — round 3 (0.3.0 "Showcase")
 
-Run: 3 / 20
+Run: 4 / 20
 Status: units 1-5 and 6 (fresh-install recorded) done; remaining: README screenshots swap once web unit 9 lands, then DONE
 Round 2 record: `.ai/lanes/docs/done-v2.md` (`git show 084bb9f:.ai/lanes/docs/task.md` for its Decisions).
 
@@ -42,3 +42,7 @@ Next: unit 3 (README first screen, new screenshots, live-demo link, FAQ rate-lim
 ## Handoff (run 3, 2026-10-11 ~07:00 UTC)
 Done: unit 3 except screenshots (README leads with "Watch this repo build itself", snapshot/rate-limit FAQ), unit 4 (launch FAQ now honest: check-lanes flags one commit; Show HN leads with live demo; CHANGELOG), `/loop-lanes` in getting-started, unit 6 (fresh-install recorded in .ai/audit/docs.md).
 Next: when web ships new screenshots (their unit 9), swap them into README and docs/assets/screens, then run the retro and write DONE.md (read outboxes first). Local main had unrelated history again at run start; `git reset --hard origin/main` fixed it.
+
+## Handoff (run 4, 2026-10-11 ~08:00 UTC)
+Nothing new to do: web unit 9 (new screenshots) has not landed (web Run 4/20, unit 9 last; control room asked web for self-card fixes first). Local main had diverged from origin again; `git reset --hard origin/main` fixed it (old state kept as local branch `backup-stale-main`).
+Next: when web ships screenshots, swap them into README and docs/assets/screens, run the retro, write DONE.md (read outboxes first).
