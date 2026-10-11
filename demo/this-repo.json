@@ -567,26 +567,22 @@
       {
         "sha": "82b38ae",
         "at": "2026-10-10T22:28:38.000Z",
-        "message": "control: vitest hookTimeout 20s and half the cores on Windows",
-        "author": "read"
+        "message": "control: vitest hookTimeout 20s and half the cores on Windows"
       },
       {
         "sha": "4a3535d",
         "at": "2026-10-10T22:15:36.000Z",
-        "message": "control: note for core about npm-installed claude.cmd on Windows",
-        "author": "read"
+        "message": "control: note for core about npm-installed claude.cmd on Windows"
       },
       {
         "sha": "fa3952f",
         "at": "2026-10-10T21:53:11.000Z",
-        "message": "core: shared paths pass check-lanes even inside another lane's glob",
-        "author": "read"
+        "message": "core: shared paths pass check-lanes even inside another lane's glob"
       },
       {
         "sha": "7d57b7a",
         "at": "2026-10-10T21:53:11.000Z",
-        "message": "control: make npm test pass on Windows; web owns tests/unit/web",
-        "author": "read"
+        "message": "control: make npm test pass on Windows; web owns tests/unit/web"
       },
       {
         "sha": "dff830c",
@@ -861,8 +857,7 @@
       {
         "sha": "3385cdf",
         "at": "2026-10-08T17:58:34.000Z",
-        "message": "Release 0.1.0",
-        "author": "unknown"
+        "message": "Release 0.1.0"
       },
       {
         "sha": "36953a0",
@@ -873,14 +868,12 @@
       {
         "sha": "b85e7d3",
         "at": "2026-10-08T14:30:53.000Z",
-        "message": "Close three launch gaps: settings route, recorded test results, full Code of Conduct",
-        "author": "unknown"
+        "message": "Close three launch gaps: settings route, recorded test results, full Code of Conduct"
       },
       {
         "sha": "6bfd42b",
         "at": "2026-10-08T14:20:51.000Z",
-        "message": "Fix tests on Windows: run tsx through node, use an absolute missing-file URL",
-        "author": "unknown"
+        "message": "Fix tests on Windows: run tsx through node, use an absolute missing-file URL"
       },
       {
         "sha": "7555d39",
@@ -1233,20 +1226,17 @@
       {
         "sha": "74b8626",
         "at": "2026-10-08T04:58:48.000Z",
-        "message": "Add control room notes file that every lane reads",
-        "author": "unknown"
+        "message": "Add control room notes file that every lane reads"
       },
       {
         "sha": "0c397a2",
         "at": "2026-10-08T04:55:53.000Z",
-        "message": "Set up Compounding Loop for five parallel build lanes",
-        "author": "unknown"
+        "message": "Set up Compounding Loop for five parallel build lanes"
       },
       {
         "sha": "2539ddd",
         "at": "2026-10-05T22:14:08.000Z",
-        "message": "Add the Compounding Loop method",
-        "author": "unknown"
+        "message": "Add the Compounding Loop method"
       }
     ],
     "contract": [

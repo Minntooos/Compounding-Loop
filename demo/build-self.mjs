@@ -17,6 +17,9 @@ export const ROUND_THREE_COMMIT = 'b3b51a5';
 export const SNAPSHOT_COMMIT = ROUND_THREE_COMMIT;
 export const ROUND_ONE_LANES = ['core', 'kit', 'server', 'web', 'docs'];
 
+// Git identities that are not people (an unset user.name in a sandbox); the dashboard shows no author for them.
+const PLACEHOLDER_AUTHORS = new Set(['unknown', 'read']);
+
 const git = async (cwd, ...args) => (await execFileAsync('git', args, { cwd, maxBuffer: 16 * 1024 * 1024 })).stdout;
 
 /** `Run: N / LIMIT` from a lane's task.md. */
@@ -34,11 +37,12 @@ export function laneOfCommit(subject, body = '') {
 }
 
 export async function buildSelf(repoDir) {
-  const log = await git(repoDir, 'log', '--format=%h%x1f%cI%x1f%an%x1f%s%x1f%b%x1e', SNAPSHOT_COMMIT);
+  const log = await git(repoDir, 'log', '--abbrev=7', '--format=%h%x1f%cI%x1f%an%x1f%s%x1f%b%x1e', SNAPSHOT_COMMIT);
   const commits = log.split('\x1e').map((r) => r.trim()).filter(Boolean).map((r) => {
     const [sha, at, name, subject, body = ''] = r.split('\x1f');
     const author = scrubText(name.trim());
-    return { sha, at: new Date(at).toISOString(), message: scrubText(subject), ...(author && !author.includes('@') && { author }), lane: laneOfCommit(subject, body) };
+    const named = author && !author.includes('@') && !PLACEHOLDER_AUTHORS.has(author.toLowerCase());
+    return { sha, at: new Date(at).toISOString(), message: scrubText(subject), ...(named && { author }), lane: laneOfCommit(subject, body) };
   });
   const lanes = [];
   for (const name of ROUND_ONE_LANES) {
