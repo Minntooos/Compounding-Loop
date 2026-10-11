@@ -28,7 +28,7 @@ describe('release.yml', () => {
     expect(wf.permissions['id-token']).toBe('write');
     expect(wf.permissions.contents).toBe('write');
     expect(Object.values(wf.jobs).map((job) => job.environment)).toEqual(['release']);
-    expect(raw).not.toMatch(/NODE_AUTH_TOKEN|NPM_TOKEN|secrets\.(?!GITHUB_TOKEN)/);
+    expect(raw.replaceAll('unset NODE_AUTH_TOKEN', '')).not.toMatch(/NODE_AUTH_TOKEN|NPM_TOKEN|secrets\.(?!GITHUB_TOKEN)/);
     expect(raw).toMatch(/npm publish --provenance --access public/);
   });
 
