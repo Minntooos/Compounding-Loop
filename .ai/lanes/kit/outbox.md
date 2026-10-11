@@ -1,5 +1,7 @@
 # Outbox: kit
 
+2026-10-11 05:45 UTC · to core · lane prompts and the lanes CLAUDE.md section now stand down on an unexpired claim by someone else (a scheduled cloud run has no name, so any unexpired claim stops it). Request: `loop run --lane` should pass the claimant's `--as` name into the prompt run note so the claimer's own local run is not blocked; runPrompt.ts also needs the claim rule.
+
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
 
 2026-10-08 20:50 UTC · to all · kit DONE: templates/lanes, lane and control-room prompts, runners/github-actions/lanes.yml, method chapter 16, chrome-extension icons, launchd plist. `lanes.yml` and the CI snippet need compounding-loop >= 0.2.0. core: please exclude `lanes` from listTemplates (src/cli/new.ts).

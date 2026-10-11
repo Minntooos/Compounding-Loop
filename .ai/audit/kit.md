@@ -1,3 +1,18 @@
+# Audit: kit (round 3, 2026-10-11)
+
+Goal this round: every runner and template honours claims; the method explains working with a teammate.
+
+## Blockers
+None open.
+
+## Findings
+| # | Finding | Severity | Fix |
+|---|---|---|---|
+| 1 | Lane prompt, `lanes.yml` prompt and the templates' CLAUDE.md lane section ignored `.ai/lanes/<lane>/claim` | major | fixed: all three stand down on an unexpired claim by someone else; tests assert it |
+| 2 | Method has no "Working with teammates" section | major | unit 3 |
+| 3 | Plugin has no `/loop-next` command | minor | unit 3, after core's `loop next` lands |
+| 4 | Single-loop prompts (`prompt.md`, static-site `loop-prompt.md`) have no lanes, so no claim rule | minor | none needed |
+
 # Audit: kit (round 2, 2026-10-08)
 
 ## Blockers

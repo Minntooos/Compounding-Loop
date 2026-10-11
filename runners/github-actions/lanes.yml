@@ -77,6 +77,7 @@ jobs:
             Read CLAUDE.md and follow it exactly. Your task file is .ai/lanes/${{ matrix.lane }}/task.md.
             Every commit ends with the trailer line "Lane: ${{ matrix.lane }}". Push to main, never to a claude/ branch.
             Stop if DONE.md or BLOCKED.md exists at the root or in .ai/lanes/${{ matrix.lane }}/.
+            If .ai/lanes/${{ matrix.lane }}/claim names someone else and its expiry (name · expires <ISO UTC time>, compared with `date -u`) is in the future, a teammate is working this lane: reply "Nothing to do" and stop. An expired claim counts as none.
             Never publish, spend money, or add secrets or tracking.
           claude_args: >-
             --max-turns 200

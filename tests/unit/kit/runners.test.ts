@@ -144,6 +144,12 @@ describe('runners/routine lane prompts', () => {
     }
   });
 
+  it('lane prompt stands down on someone else\'s unexpired claim', () => {
+    for (const needle of ['.ai/lanes/{{lane}}/claim', 'names someone other than', 'expiry (an ISO UTC timestamp, compared with `date -u`) is in the future', 'expired claim counts as none']) {
+      expect(lane, needle).toContain(needle);
+    }
+  });
+
   it('control room prompt keeps budget, stalled, leak and done handling', () => {
     for (const needle of ['run budget reached', 'stalled', 'Leak check', 'DONE.md', 'Lane: control', 'check-lanes', 'Never force-push', 'Never spend money']) {
       expect(control, needle).toContain(needle);
@@ -188,6 +194,11 @@ describe('runners/github-actions/lanes.yml', () => {
     expect(lane.permissions).toEqual({ contents: 'write' });
     expect(lane.steps.find((s) => s.uses?.startsWith('actions/checkout'))?.with?.['persist-credentials']).toBe(true);
     expect(wf.jobs.verify?.steps.find((s) => s.uses?.startsWith('actions/checkout'))?.with?.['persist-credentials']).toBe(false);
+  });
+
+  it('tells the lane to stand down on someone else\'s unexpired claim', () => {
+    expect(text).toContain('.ai/lanes/${{ matrix.lane }}/claim names someone else');
+    expect(text).toContain('expired claim counts as none');
   });
 
   it('names secrets only through the secrets context', () => {

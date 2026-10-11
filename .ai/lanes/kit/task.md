@@ -1,6 +1,6 @@
 # Lane: kit — round 3 (0.3.0 "Showcase")
 
-Run: 0 / 20
+Run: 1 / 20
 Status: not started
 Round 2 record: `.ai/lanes/kit/done-v2.md` (`git show 084bb9f:.ai/lanes/kit/task.md` for its Decisions).
 

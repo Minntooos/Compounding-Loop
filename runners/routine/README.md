@@ -27,7 +27,7 @@ With several lanes, create one routine per lane plus one control room routine.
 | `lane-prompt.md` | `{{name}}` project, `{{lane}}` lane name | one per lane, hourly |
 | `control-room-prompt.md` | `{{name}}` project, `{{lanes}}` lane names, comma separated | one, every 3 hours |
 
-`loop run --lane <name>` fills them for local runs. In the cloud, paste the filled text into the routine. In the cloud nothing writes the lock; it only matters when a local `loop run --lane` is active too. The lane prompt stands down on a fresh `.ai/lanes/<lane>/session.lock`, stops on root or lane `DONE.md`/`BLOCKED.md`, and ends every commit with `Lane: <lane>`.
+`loop run --lane <name>` fills them for local runs. In the cloud, paste the filled text into the routine. In the cloud nothing writes the lock; it only matters when a local `loop run --lane` is active too. The lane prompt stands down on a fresh `.ai/lanes/<lane>/session.lock`, stops on root or lane `DONE.md`/`BLOCKED.md`, stands down when `.ai/lanes/<lane>/claim` names someone else and has not expired (see `loop claim`), and ends every commit with `Lane: <lane>`.
 
 ### Staggered cron for N lanes
 

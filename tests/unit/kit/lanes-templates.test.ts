@@ -44,6 +44,13 @@ describe('templates/lanes', () => {
     }
   });
 
+  it('CLAUDE.md section tells a lane to stand down on a teammate\'s unexpired claim', () => {
+    const section = read('claude-section.md');
+    for (const needle of ['.ai/lanes/<your lane>/claim', 'names someone other than you', 'is in the future', 'expired claim counts as none']) {
+      expect(section, needle).toContain(needle);
+    }
+  });
+
   it('CLAUDE.md section states ownership, trailer, outbox, git and stop rules', () => {
     const section = read('claude-section.md');
     for (const needle of ['Lane: <your lane>', 'loop check-lanes', 'outbox.md', 'control-room.md', 'git pull --ff-only', 'git pull --rebase', 'Never force-push', 'Lane: control', 'BLOCKED.md', 'DONE.md', '.ai/lanes.json', 'Lanes in this repo: {{lanes}}', 'reviewer subagent', 'Decisions', 'add-only', 'Never:']) {
