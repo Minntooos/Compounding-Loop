@@ -1,6 +1,6 @@
 # Lane: web — round 4 (0.4.0 "Control")
 
-Run: 4 / 20
+Run: 5 / 20
 Status: units 1 (partial), 2, 3 (most), 4 shipped (Runs tab, card status line), 6 partly (Ready to ship panel read-only, Releases tab, paused notice); ControlBar (Pause/Resume, Next round, Release with confirm dialog) shipped; Tests tab (done run 3), doctor on Health, control notes on self card, launch drafts + Copy, Inbox edit links, Release as filled primary, post-action toast, 7-8 open
 Round 3 record: `.ai/lanes/web/done-v3.md` (`git show b3b51a5:.ai/lanes/web/task.md` for its Decisions).
 
@@ -39,6 +39,7 @@ Round 3 record: `.ai/lanes/web/done-v3.md` (`git show b3b51a5:.ai/lanes/web/task
 
 ## Tried
 - Run 4: pushed two small units (lane notes, site line) without the reviewer subagent; next run should review both diffs (ed9b219, edd9464).
+- Run 5: stale clone (main diverged), worked on lane-run; npm test green on fresh pull (138 passed). Only told docs the control labels (outbox); no code unit this run.
 
 ## Don't
 - Edit paths another lane owns, except for the "main stays green" fix.
