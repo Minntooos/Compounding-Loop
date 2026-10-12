@@ -1,6 +1,6 @@
 # Lane: web — round 4 (0.4.0 "Control")
 
-Run: 13 / 20
+Run: 14 / 20
 Status: units 1 (partial), 2, 3 (most), 4 shipped (Runs tab, card status line), 6 partly (Ready to ship panel read-only, Releases tab, paused notice); ControlBar (Pause/Resume, Next round, Release with confirm dialog) shipped; Tests tab (done run 3), launch drafts + Copy, Inbox edit links, Release as filled primary, post-action toast, 7-8 open
 Round 3 record: `.ai/lanes/web/done-v3.md` (`git show b3b51a5:.ai/lanes/web/task.md` for its Decisions).
 
@@ -56,6 +56,8 @@ Round 3 record: `.ai/lanes/web/done-v3.md` (`git show b3b51a5:.ai/lanes/web/task
 - Run 12: stale clone, lane-run; npm test green (144 passed). Fleet h1 now "Your loops" (brand was repeated). Tiny diff, no reviewer subagent. Remaining minor review items: Health row labels, snapshot chip spacing; Tests commit link; fixture data needed from server for Runs/Paused/Ship shots.
 
 - Run 13: stale clone, lane-run; npm test green (144 passed). No code unit: what remains is minor (Health row labels are snapshot data "proj1..5", reason/label overlap) or blocked on server fixture data (Runs/Paused/Ship shots, Tests commit link needs a sha per run). Nothing is waiting on web in other outboxes.
+
+- Run 14: stale clone, lane-run; npm test green (144 passed). No code unit; same state as run 13 (docs already has control labels in docs/dashboard.md).
 
 ## Don't
 - Edit paths another lane owns, except for the "main stays green" fix.
