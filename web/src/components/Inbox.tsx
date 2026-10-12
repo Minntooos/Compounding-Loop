@@ -2,10 +2,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import type { InboxItem } from '@core/types';
 import { api, hasServer, postAnswer } from '../api/client';
+import { editFileUrl } from '../../../src/server/controls.js';
+import { slugOf } from '../lib/controls';
 import { relativeTime } from '../lib/format';
 import { LoadError, Loading } from './QueryState';
 
-function Item({ item, selected, answer, onAnswer, onDone, readOnly }: { item: InboxItem; selected: boolean; answer: string; onAnswer: (v: string) => void; onDone: (msg: string) => void; readOnly: boolean }) {
+function Item({ item, selected, answer, onAnswer, onDone, readOnly, slug }: { item: InboxItem; selected: boolean; answer: string; onAnswer: (v: string) => void; onDone: (msg: string) => void; readOnly: boolean; slug?: string }) {
   const qc = useQueryClient();
   const send = useMutation({
     mutationFn: (text: string) => postAnswer(item.loopId, item.file, text),
@@ -18,7 +20,7 @@ function Item({ item, selected, answer, onAnswer, onDone, readOnly }: { item: In
     <li data-selected={selected} aria-current={selected ? 'true' : undefined} className="space-y-3 rounded-lg border p-4 data-[selected=true]:border-[var(--accent)]" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
       <div className="flex justify-between gap-2"><a href={`#/loop/${encodeURIComponent(item.loopId)}`} className="font-semibold underline">{item.loopId}</a><span style={{ color: 'var(--muted)' }}>{relativeTime(item.since)}</span></div>
       <p className="whitespace-pre-wrap">{item.question}</p>
-      {readOnly ? <p style={{ color: 'var(--muted)' }}>Read-only demo: answer with <code>loop answer</code> in the loop’s folder.</p> : <>
+      {readOnly ? <p style={{ color: 'var(--muted)' }}>Read-only demo: answer with <code>loop answer</code> in the loop’s folder{slug && item.file ? <>, or <a className="underline" href={editFileUrl(slug, item.file)} target="_blank" rel="noreferrer">edit {item.file} on GitHub<span className="sr-only"> (opens in a new tab)</span></a></> : null}.</p> : <>
       <label className="block text-[13px]" style={{ color: 'var(--muted)' }}>Your answer (best guess pre-filled)
         <textarea value={answer} onChange={(e) => onAnswer(e.target.value)} rows={3} className="mt-1 w-full rounded border p-2 font-mono" style={{ background: 'var(--bg)', borderColor: 'var(--border)', color: 'var(--text)' }} />
       </label>
@@ -35,6 +37,7 @@ export function Inbox() {
   const q = useQuery({ queryKey: ['inbox'], queryFn: api.inbox });
   const [sel, setSel] = useState(0);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const loops = useQuery({ queryKey: ['loops'], queryFn: api.loops });
   const server = useQuery({ queryKey: ['server'], queryFn: hasServer });
   const [notice, setNotice] = useState('');
   const items = q.data ?? [];
@@ -60,7 +63,7 @@ export function Inbox() {
     <ul className="space-y-3" aria-label="Questions">
       {items.map((it, i) => {
         const key = `${it.loopId}/${it.file}`;
-        return <Item key={key} item={it} selected={i === cur} answer={drafts[key] ?? it.bestGuess} onAnswer={(v) => setDrafts((d) => ({ ...d, [key]: v }))} onDone={setNotice} readOnly={server.data === false} />;
+        return <Item key={key} item={it} selected={i === cur} answer={drafts[key] ?? it.bestGuess} onAnswer={(v) => setDrafts((d) => ({ ...d, [key]: v }))} onDone={setNotice} readOnly={server.data === false} slug={slugOf(loops.data?.find((l) => l.id === it.loopId)?.repoUrl ?? loops.data?.find((l) => l.id === it.loopId)?.url)} />;
       })}
     </ul>
     </>

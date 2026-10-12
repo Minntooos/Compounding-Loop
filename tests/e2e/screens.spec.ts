@@ -178,3 +178,15 @@ test('health shows the doctor report from the server', async ({ page }) => {
   await expect(page.getByRole('list', { name: 'Health checks' }).getByRole('listitem')).toHaveCount(10);
   expect(errors).toEqual([]);
 });
+
+test('static demo: a question links to its BLOCKED.md on GitHub', async ({ page }) => {
+  await page.route('**/api/health', (r) => r.fulfill({ status: 404, contentType: 'application/json', body: '{}' }));
+  await page.route('**/api/inbox.json', (r) => r.fulfill({ json: [{ loopId: 'compounding-loop', file: 'BLOCKED.md', question: 'Which colour?', bestGuess: 'Blue', since: '2026-10-08T01:00:00Z' }] }));
+  // The bundled snapshot has no repoUrl for the Pages-hosted self loop; live data adds it, so give it one here.
+  await page.route('**/api/loops.json', async (r) => {
+    const rows = (await (await r.fetch({ url: r.request().url().replace('/api/loops.json', '/api/loops') })).json()) as { id: string; repoUrl?: string }[];
+    await r.fulfill({ json: rows.map((l) => (l.id === 'compounding-loop' ? { ...l, repoUrl: 'https://github.com/Minntooos/Compounding-Loop' } : l)) });
+  });
+  await page.goto('/#/inbox');
+  await expect(page.getByRole('link', { name: /edit BLOCKED\.md on GitHub/ })).toHaveAttribute('href', 'https://github.com/Minntooos/Compounding-Loop/edit/main/BLOCKED.md');
+});
