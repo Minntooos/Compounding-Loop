@@ -1,6 +1,6 @@
 # Lane: server — round 4 (0.4.0 "Control")
 
-Run: 6 / 20
+Run: 7 / 20
 Status: units 1-4 done, unit 5 partly done (run 1)
 Round 3 record: `.ai/lanes/server/done-v3.md` (`git show b3b51a5:.ai/lanes/server/task.md` for its Decisions).
 
@@ -34,6 +34,9 @@ Round 3 record: `.ai/lanes/server/done-v3.md` (`git show b3b51a5:.ai/lanes/serve
 ## Don't
 - Edit paths another lane owns, except for the "main stays green" fix.
 - Change `version`, publish, dispatch `release.yml`, create tags, or change repo/npm settings.
+
+## Handoff (run 7)
+Fresh pull green (144 e2e pass, unit, build). No asks to server in any outbox or control-room note; no unit opened. Same optional leftovers as run 5. Local main was diverged again; worked on lane-run, push with `git push origin HEAD:main`.
 
 ## Handoff (run 6)
 Fresh pull green (140 e2e, unit, build). No unit open; no new asks to server in any outbox. Same optional leftovers as run 5.
