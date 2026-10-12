@@ -170,3 +170,11 @@ for (const [route, hash, what] of [
     await expect(page.getByText(`Could not load ${what}`)).toHaveCount(0);
   });
 }
+
+test('health shows the doctor report from the server', async ({ page }) => {
+  const errors = trackErrors(page);
+  await page.goto('/#/health');
+  await expect(page.getByRole('heading', { name: /^Doctor: / })).toBeVisible();
+  await expect(page.getByRole('list', { name: 'Health checks' }).getByRole('listitem')).toHaveCount(10);
+  expect(errors).toEqual([]);
+});

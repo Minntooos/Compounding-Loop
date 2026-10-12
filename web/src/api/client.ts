@@ -95,7 +95,16 @@ setSnapshotLoader(async (id) => {
   return detail?.timeline ?? [];
 });
 
+export interface DoctorReport { report: string; passed: boolean }
+
 export const api = {
+  /** `loop doctor` output from a running dashboard server; undefined on static hosting, where there is nothing to run. */
+  doctor: async (): Promise<DoctorReport | undefined> => {
+    if (!(await hasServer())) return undefined;
+    const res = await fetchJson('/doctor');
+    if (!res?.ok) throw new Error('GET /api/doctor failed');
+    return (await res.json()) as DoctorReport;
+  },
   loops: () => getJson<LoopSummary[]>('/loops', () => mockSnapshot.loops)
     .then((rows) => withLive(rows, (r, live) => mergeLoops(r, live.detail, live.checks))).then(sortByAttention),
   loop: (id: string) => getJson<LoopDetail | null>(`/loops/${encodeURIComponent(id)}`, () => mockSnapshot.loops.find((l) => l.id === id) ?? null, null)
