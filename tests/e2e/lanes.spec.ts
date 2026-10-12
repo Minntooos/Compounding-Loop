@@ -128,6 +128,10 @@ test('Tests tab shows the latest result, the last failure and an accessible char
   await expect(page.getByTestId('tests-latest')).toContainText('50 tests pass');
   await expect(page.getByTestId('tests-last-failure')).toContainText('lane server');
   await expect(page.getByRole('img', { name: /Tests per recorded run, 3 runs/ })).toBeVisible();
+  // The bars fill the box at any width (no letterboxing on a phone).
+  const chart = await page.getByRole('img', { name: /Tests per recorded run/ }).boundingBox();
+  const heights = await page.locator('svg[role="img"] rect').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height));
+  expect(Math.max(...heights)).toBeGreaterThan(chart!.height * 0.9);
   const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
   expect(axe.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')).toEqual([]);
 });

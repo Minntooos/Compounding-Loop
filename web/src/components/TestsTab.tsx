@@ -29,7 +29,7 @@ export function TestsTab({ runs }: { runs: LoopRun[] }) {
       </p>
       <figure className="rounded-lg border p-3" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
         <figcaption className="mb-1 text-[12px]" style={{ color: 'var(--muted)' }}>Tests per recorded run, oldest to newest</figcaption>
-        <svg role="img" aria-label={label} viewBox={`0 0 ${W} ${H}`} className="h-24 w-full">
+        <svg role="img" aria-label={label} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="h-24 w-full">
           {series.map((p, i) => {
             const total = p.passed + p.failed;
             const h = Math.max(2, (total / max) * (H - 4));

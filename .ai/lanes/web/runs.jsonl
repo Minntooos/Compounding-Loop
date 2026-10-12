@@ -3,3 +3,4 @@
 {"at":"2026-10-11T23:47:55.000Z","lane":"web","units":["lane-notes"],"tests":{"passed":136,"failed":0},"pushed":true,"note":"per-lane Contract/Decisions/Knowledge"}
 {"at":"2026-10-11T23:50:47.000Z","lane":"web","units":["site-line"],"tests":{"passed":138,"failed":0},"pushed":true,"note":"pages count and live-site link on loop page; units 7-8 open"}
 {"at":"2026-10-12T02:55:18.000Z","lane":"web","units":["doctor-health","inbox-edit-links","control-notes"],"tests":{"passed":144,"failed":0},"pushed":true,"note":"run 7; units 7-8 open"}
+{"at":"2026-10-12T03:48:44.000Z","lane":"web","units":["tests-chart-fill"],"tests":{"passed":144,"failed":0},"pushed":true,"note":"run 8; units 7-8 open"}
