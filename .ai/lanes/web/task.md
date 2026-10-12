@@ -1,6 +1,6 @@
 # Lane: web — round 4 (0.4.0 "Control")
 
-Run: 14 / 20
+Run: 15 / 20
 Status: units 1 (partial), 2, 3 (most), 4 shipped (Runs tab, card status line), 6 partly (Ready to ship panel read-only, Releases tab, paused notice); ControlBar (Pause/Resume, Next round, Release with confirm dialog) shipped; Tests tab (done run 3), launch drafts + Copy, Inbox edit links, Release as filled primary, post-action toast, 7-8 open
 Round 3 record: `.ai/lanes/web/done-v3.md` (`git show b3b51a5:.ai/lanes/web/task.md` for its Decisions).
 
@@ -62,3 +62,5 @@ Round 3 record: `.ai/lanes/web/done-v3.md` (`git show b3b51a5:.ai/lanes/web/task
 ## Don't
 - Edit paths another lane owns, except for the "main stays green" fix.
 - Change `version`, publish, dispatch `release.yml`, create tags, or change repo/npm settings.
+
+- Run 15: stale clone, lane-run; npm test green (144 passed). Control room said done-when met; wrote DONE.md (Lane finished).
