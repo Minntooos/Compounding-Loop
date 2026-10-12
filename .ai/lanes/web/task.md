@@ -1,6 +1,6 @@
 # Lane: web — round 4 (0.4.0 "Control")
 
-Run: 9 / 20
+Run: 10 / 20
 Status: units 1 (partial), 2, 3 (most), 4 shipped (Runs tab, card status line), 6 partly (Ready to ship panel read-only, Releases tab, paused notice); ControlBar (Pause/Resume, Next round, Release with confirm dialog) shipped; Tests tab (done run 3), launch drafts + Copy, Inbox edit links, Release as filled primary, post-action toast, 7-8 open
 Round 3 record: `.ai/lanes/web/done-v3.md` (`git show b3b51a5:.ai/lanes/web/task.md` for its Decisions).
 
@@ -48,6 +48,8 @@ Round 3 record: `.ai/lanes/web/done-v3.md` (`git show b3b51a5:.ai/lanes/web/task
 - Run 8: stale clone, worked on lane-run; Tests chart preserveAspectRatio=none (+ e2e). Small diff pushed without reviewer subagent. Units 7-8 (states, screenshots, design review) still open.
 
 - Run 9: stale clone, worked on lane-run; npm test green on fresh pull. Tests tab data table is now a visible "Show as table" disclosure (+ e2e). Small diff, no reviewer subagent. Still open in unit 7: Tests commit link, rate-limited state; unit 8 screenshots + design review.
+
+- Run 10: stale clone, lane-run; npm test green (144 passed). Re-shot docs/assets/screens (laptop, demo mode). Tried Runs/Tests tab shots: the self loop has no run log in the snapshot, so the tabs don't exist there; dropped. Needs run-log fixture data (server) before those can be shot. Still open: Tests commit link (needs sha per run), unit 8 independent design review.
 
 ## Don't
 - Edit paths another lane owns, except for the "main stays green" fix.
