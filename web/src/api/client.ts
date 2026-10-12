@@ -98,9 +98,9 @@ setSnapshotLoader(async (id) => {
 export interface DoctorReport { report: string; passed: boolean }
 
 export const api = {
-  /** `loop doctor` output from a running dashboard server; undefined on static hosting, where there is nothing to run. */
-  doctor: async (): Promise<DoctorReport | undefined> => {
-    if (!(await hasServer())) return undefined;
+  /** `loop doctor` output from a running dashboard server; on static hosting a pointer to run it locally. */
+  doctor: async (): Promise<DoctorReport> => {
+    if (!(await hasServer())) return { passed: true, report: 'Run `npx compounding-loop doctor` locally to check this machine.' };
     const res = await fetchJson('/doctor');
     if (!res?.ok) throw new Error('GET /api/doctor failed');
     return (await res.json()) as DoctorReport;

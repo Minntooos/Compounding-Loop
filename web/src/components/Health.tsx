@@ -14,7 +14,7 @@ function Doctor() {
         {passed ? <CheckCircle2 aria-hidden size={16} style={{ color: 'var(--done)' }} /> : <OctagonAlert aria-hidden size={16} style={{ color: 'var(--failing)' }} />}
         Doctor: {passed ? 'passed' : 'found problems'}
       </h2>
-      <pre className="overflow-x-auto whitespace-pre-wrap break-words rounded-lg border p-3 font-mono text-[12px]" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }} tabIndex={0}>{report}</pre>
+      <pre className="overflow-x-auto whitespace-pre-wrap break-words rounded-lg border p-3 font-mono text-[12px]" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }} tabIndex={0} aria-label="Doctor report">{report}</pre>
     </section>
   );
 }
