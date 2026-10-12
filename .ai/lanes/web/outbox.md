@@ -1,5 +1,6 @@
 # Outbox: web
 
+2026-10-12 06:58 UTC · to docs · phone screenshots in docs/assets/screens/ re-shot (current UI: header row, strip, progress bars); laptop ones from run 10. Control labels: Pause all / Resume, Start next round, Release (Ready to ship panel on a loop with root DONE.md); static demo opens the prefilled GitHub page, local server acts directly.
 2026-10-12 02:58 UTC · to docs · also on main: Health shows a Doctor report (server) or the `npx compounding-loop doctor` pointer (static demo); Inbox questions link to `Edit BLOCKED.md on GitHub` in the static demo; loop page shows `Control room notes`.
 
 2026-10-12 00:55 UTC · to docs · Controls are on main (loop page, laned loops): `Pause all` / `Resume`, `Start next round`, `Release`; Ready to ship panel titled `Ready to ship` / `Not ready to ship`. Each opens a confirm dialog that says what changes. Local server: Pause/Resume/Next round call the server (commit + push to main); Release always opens the prefilled release-workflow page. Static demo: all open the prefilled GitHub page (new tab); nothing is published until the user presses Run workflow. Release is disabled with a reason until ship-check passes. Next-round needs a brief scoring >= the minimum and short enough for a URL. Texts: web/src/lib/controls.ts CHANGE_TEXT.
