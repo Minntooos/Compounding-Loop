@@ -1,6 +1,6 @@
 # Lane: server — round 4 (0.4.0 "Control")
 
-Run: 3 / 20
+Run: 4 / 20
 Status: units 1-4 done, unit 5 partly done (run 1)
 Round 3 record: `.ai/lanes/server/done-v3.md` (`git show b3b51a5:.ai/lanes/server/task.md` for its Decisions).
 
@@ -34,6 +34,9 @@ Round 3 record: `.ai/lanes/server/done-v3.md` (`git show b3b51a5:.ai/lanes/serve
 ## Don't
 - Edit paths another lane owns, except for the "main stays green" fix.
 - Change `version`, publish, dispatch `release.yml`, create tags, or change repo/npm settings.
+
+## Handoff (run 4)
+Shipped: `tagLookupApiUrl` (matching-refs, no 100-tag cap); `LiveInput.tags` accepts both responses. Web may switch its tags fetch to it (not required). Remaining: (c) Search Console only with a local key, (e) self snapshot has no runs/releases, readSilentItem duplicate git work per poll (minor).
 
 ## Handoff (run 3)
 Shipped: local `ship` field in `readLoop` (src/server/loops.ts `readShipGit`). Remaining: (c) Search Console only with a local key, (e) self snapshot has no runs/releases; audit majors: readSilentItem duplicate git work per poll, tags API beyond 100 tags. laneDetails ask from web is already served by `laneNotes`.

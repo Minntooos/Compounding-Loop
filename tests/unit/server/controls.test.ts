@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { briefFitsUrl, buildLiveLoop, deleteFileUrl, editFileUrl, latestReleaseRunApiUrl, newFileUrl, nextRoundUrl, pauseUrl, releaseWorkflowUrl, resumeUrl, tagsApiUrl } from '../../../src/server/live/index.js';
+import { briefFitsUrl, buildLiveLoop, deleteFileUrl, editFileUrl, latestReleaseRunApiUrl, newFileUrl, nextRoundUrl, pauseUrl, releaseWorkflowUrl, resumeUrl, tagLookupApiUrl, tagsApiUrl } from '../../../src/server/live/index.js';
 
 const SLUG = 'Minntooos/Compounding-Loop';
 const NOW = new Date('2026-10-11T12:00:00Z');
@@ -21,6 +21,7 @@ describe('GitHub URL builders', () => {
     expect(releaseWorkflowUrl(SLUG)).toBe(`https://github.com/${SLUG}/actions/workflows/release.yml`);
     expect(latestReleaseRunApiUrl(SLUG)).toBe(`https://api.github.com/repos/${SLUG}/actions/workflows/release.yml/runs?per_page=1`);
     expect(tagsApiUrl(SLUG)).toBe(`https://api.github.com/repos/${SLUG}/tags?per_page=100`);
+    expect(tagLookupApiUrl(SLUG, '0.4.0')).toBe(`https://api.github.com/repos/${SLUG}/git/matching-refs/tags/v0.4.0`);
   });
 
   it('the Inbox links to the web editor for BLOCKED.md and a lane file', () => {
@@ -76,6 +77,8 @@ describe('control data in the live loop', () => {
     const ready = buildLiveLoop({ ...base, files }).detail.ship;
     expect(ready?.items.map((i) => [i.id, i.ok]).filter(([id]) => id !== 'tests')).toEqual([['done', true], ['findings', true], ['changelog', true], ['tag', true], ['clean', true]]);
     const tagged = buildLiveLoop({ ...base, tags: [{ name: 'v0.4.0' }], files }).detail.ship;
+    // The matching-refs response (no 100-tag cap) reads the same.
+    expect(buildLiveLoop({ ...base, tags: [{ ref: 'refs/tags/v0.4.0' }], files }).detail.ship).toEqual(tagged);
     expect(tagged?.ready).toBe(false);
     expect(tagged?.items.find((i) => i.id === 'tag')?.ok).toBe(false);
     expect(buildLiveLoop({ ...base, files: { ...files, 'DONE.md': undefined } }).detail.ship).toBeUndefined();

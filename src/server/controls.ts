@@ -69,6 +69,9 @@ export const latestReleaseRunApiUrl = (slug: string): string => `${API}/repos/${
 /** API URL listing the repo's tags (for the ship-check "tag does not exist yet" item). */
 export const tagsApiUrl = (slug: string): string => `${API}/repos/${checkedSlug(slug)}/tags?per_page=100`;
 
+/** API URL matching one release tag by prefix; unlike `tagsApiUrl` it is not capped by the repo's first 100 tags. Response items carry `ref: "refs/tags/<name>"`. */
+export const tagLookupApiUrl = (slug: string, version: string): string => `${API}/repos/${checkedSlug(slug)}/git/matching-refs/tags/v${encodeURIComponent(version)}`;
+
 /** True when `nextRoundUrl` can carry this brief; otherwise the UI offers Copy and the blank new-file page. */
 export function briefFitsUrl(slug: string, brief: string): boolean {
   try {

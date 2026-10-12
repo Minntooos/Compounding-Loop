@@ -20,8 +20,15 @@ const pausedInfo = (text: string): NonNullable<LoopDetail['paused']> => {
   return { by, ...(at && { at: at.toISOString() }), ...(reason && { reason }) };
 };
 
-/** Tag names from the GitHub tags response; anything else is no tags. */
-const tagNames = (json: unknown): string[] => (Array.isArray(json) ? json.flatMap((t) => (typeof t === 'object' && t !== null && typeof (t as { name?: unknown }).name === 'string' ? [(t as { name: string }).name] : [])) : []);
+/** Tag names from the GitHub tags response (`name`) or the matching-refs response (`ref: refs/tags/<name>`); anything else is no tags. */
+const tagNames = (json: unknown): string[] =>
+  Array.isArray(json)
+    ? json.flatMap((t: unknown) => {
+        const { name, ref } = (typeof t === 'object' && t !== null ? t : {}) as { name?: unknown; ref?: unknown };
+        if (typeof name === 'string') return [name];
+        return typeof ref === 'string' && ref.startsWith('refs/tags/') ? [ref.slice('refs/tags/'.length)] : [];
+      })
+    : [];
 
 const pausedAtOf = (text: string): { at?: Date } => {
   const { at } = parsePaused(text);
@@ -41,7 +48,7 @@ export interface LiveInput {
   /** Commits of the bundled snapshot (full history up to its pin); merged under the live ones without duplicates. */
   snapshotCommits?: readonly LoopCommit[];
   runs: unknown;
-  /** Parsed JSON of the tags response (`tagsApiUrl`); without it the ship-check assumes the tag is free. */
+  /** Parsed JSON of the tags response (`tagsApiUrl` or `tagLookupApiUrl`); without it the ship-check assumes the tag is free. */
   tags?: unknown;
   /** The loop's public site (the repo's GitHub Pages), from `live.json`; shown as the site instead of the repo. */
   pagesUrl?: string;
