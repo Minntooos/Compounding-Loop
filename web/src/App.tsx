@@ -10,7 +10,7 @@ import { Inbox } from './components/Inbox';
 import { LoopDetail } from './components/LoopDetail';
 import { NewLoop } from './components/NewLoop';
 import { Settings } from './components/Settings';
-import { Toasts, type Toast } from './components/Toasts';
+import { onToast, Toasts, type Toast } from './components/Toasts';
 import { WelcomeStrip } from './components/WelcomeStrip';
 import { getLive, liveStore } from './api/live';
 import { mockSnapshot } from './api/mock';
@@ -101,6 +101,7 @@ function Shell() {
     window.setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 5_000);
   }, []);
   useLiveUpdates(server.data, notify);
+  useEffect(() => onToast(notify), [notify]);
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     try { localStorage.setItem('theme', theme); } catch { /* storage blocked */ }

@@ -203,6 +203,16 @@ test('control buttons confirm what changes and open the exact prefilled GitHub p
   expect(axe.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')).toEqual([]);
 });
 
+test('a local Pause shows a toast and closes the dialog', async ({ page }) => {
+  await withLanedLoop(page);
+  await page.route('**/api/loops/laned/pause', (route) => route.fulfill({ json: { changed: true, pushed: true } }));
+  await page.goto('/#/loop/laned');
+  await page.getByRole('button', { name: 'Pause all' }).click();
+  await page.getByTestId('control-dialog').getByRole('button', { name: 'Pause', exact: true }).click();
+  await expect(page.getByTestId('toast')).toContainText('Paused');
+  await expect(page.getByTestId('control-dialog')).toHaveCount(0);
+});
+
 test('Contract, Decisions and Knowledge group by lane, with an empty state per lane', async ({ page }) => {
   await withLanedLoop(page);
   await page.goto('/#/loop/laned');

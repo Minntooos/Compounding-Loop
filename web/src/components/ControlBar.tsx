@@ -3,9 +3,12 @@ import { useEffect, useRef, useState } from 'react';
 import { lintBrief, MIN_BRIEF_SCORE } from '@core/brief';
 import type { LoopDetail } from '@core/types';
 import { hasServer, postControl } from '../api/client';
+import { toast } from './Toasts';
 import { CHANGE_TEXT, githubUrl, releaseBlocker, slugOf, VERB, type ControlAction } from '../lib/controls';
 
 const PENDING: Record<ControlAction, string> = { pause: 'Pausing…', resume: 'Resuming…', 'next-round': 'Starting…', release: 'Opening…' };
+
+const DONE: Record<ControlAction, string> = { pause: 'Paused: lane runs will stop until you resume', resume: 'Resumed: lane runs continue on their next schedule', 'next-round': 'Next round started', release: 'Release workflow opened' };
 
 function ConfirmDialog({ loop, action, local, onClose }: { loop: LoopDetail; action: ControlAction; local: boolean; onClose: () => void }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -35,6 +38,7 @@ function ConfirmDialog({ loop, action, local, onClose }: { loop: LoopDetail; act
         // Lanes read main on GitHub: a commit that was not pushed has not changed anything for them.
         if (reply.pushError || reply.pushed === false) { setError(`Committed here but not pushed${reply.pushError ? `: ${reply.pushError}` : ''}. Push main to finish.`); setBusy(false); return; }
         if (reply.changed === false) { setError('Nothing to change: it was already in that state.'); setBusy(false); return; }
+        toast(DONE[action]);
         onClose();
       } catch (e) { setError(e instanceof Error ? e.message : String(e)); setBusy(false); }
       return;

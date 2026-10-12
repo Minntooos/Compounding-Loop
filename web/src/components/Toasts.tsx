@@ -10,3 +10,17 @@ export function Toasts({ toasts }: { toasts: Toast[] }) {
     </div>
   );
 }
+
+const EVENT = 'cl-toast';
+
+/** Show a toast from anywhere without threading a callback through the tree; App listens and renders it. */
+export function toast(text: string): void {
+  window.dispatchEvent(new CustomEvent<string>(EVENT, { detail: text }));
+}
+
+/** Subscribe to `toast()` calls; returns the unsubscribe function. */
+export function onToast(fn: (text: string) => void): () => void {
+  const handler = (e: Event) => { if (e instanceof CustomEvent && typeof e.detail === 'string') fn(e.detail); };
+  window.addEventListener(EVENT, handler);
+  return () => window.removeEventListener(EVENT, handler);
+}
