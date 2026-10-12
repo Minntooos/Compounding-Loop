@@ -128,6 +128,9 @@ test('Tests tab shows the latest result, the last failure and an accessible char
   await expect(page.getByTestId('tests-latest')).toContainText('50 tests pass');
   await expect(page.getByTestId('tests-last-failure')).toContainText('lane server');
   await expect(page.getByRole('img', { name: /Tests per recorded run, 3 runs/ })).toBeVisible();
+  // The data is also available as a table behind a disclosure.
+  await page.getByText('Show as table').click();
+  await expect(page.getByRole('table', { name: 'Tests per recorded run' }).getByRole('row')).toHaveCount(4);
   // The bars fill the box at any width (no letterboxing on a phone).
   const chart = await page.getByRole('img', { name: /Tests per recorded run/ }).boundingBox();
   const heights = await page.locator('svg[role="img"] rect').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height));

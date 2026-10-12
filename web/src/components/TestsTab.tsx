@@ -45,11 +45,14 @@ export function TestsTab({ runs }: { runs: LoopRun[] }) {
             );
           })}
         </svg>
-        <table className="sr-only">
-          <caption>Tests per recorded run</caption>
-          <thead><tr><th scope="col">Run</th><th scope="col">Passed</th><th scope="col">Failed</th></tr></thead>
-          <tbody>{series.map((p, i) => <tr key={`${p.at}-${i}`}><td>{stamp(p.at)}</td><td>{p.passed}</td><td>{p.failed}</td></tr>)}</tbody>
-        </table>
+        <details className="mt-2">
+          <summary className="cursor-pointer text-[13px]" style={{ color: 'var(--muted)' }}>Show as table</summary>
+          <table className="mt-2 w-full text-left text-[13px]">
+            <caption className="sr-only">Tests per recorded run</caption>
+            <thead><tr><th scope="col">Run</th><th scope="col">Passed</th><th scope="col">Failed</th></tr></thead>
+            <tbody>{series.map((p, i) => <tr key={`${p.at}-${i}`}><td>{stamp(p.at)}</td><td>{p.passed}</td><td>{p.failed}</td></tr>)}</tbody>
+          </table>
+        </details>
       </figure>
     </div>
   );
