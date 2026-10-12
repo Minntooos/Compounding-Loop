@@ -133,7 +133,7 @@ function Shell() {
       </header>
       <main className="mx-auto max-w-6xl px-4 py-6">
         {server.data === false && route.name === 'fleet' && <WelcomeStrip />}
-        <h1 className="mb-5 text-[28px] font-semibold">{route.name === 'fleet' ? 'Compounding Loop' : route.name === 'loop' ? route.id : NAV.find((n) => n.route.name === route.name)?.label}</h1>
+        <h1 className="mb-5 text-[28px] font-semibold">{route.name === 'fleet' ? 'Your loops' : route.name === 'loop' ? route.id : NAV.find((n) => n.route.name === route.name)?.label}</h1>
         <PausedLiveNotice />
         <Page route={route} theme={theme} setTheme={setTheme} />
       </main>

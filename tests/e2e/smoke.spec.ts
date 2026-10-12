@@ -4,6 +4,6 @@ test('dashboard shell loads without console errors', async ({ page }) => {
   const errors: string[] = [];
   page.on('console', (msg) => { if (msg.type() === 'error') errors.push(msg.text()); });
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Compounding Loop');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your loops');
   expect(errors).toEqual([]);
 });
