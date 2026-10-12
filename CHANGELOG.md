@@ -4,14 +4,23 @@ All notable changes are listed here. Format follows [Keep a Changelog](https://k
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-12
+
+0.3.0 was never published to npm, so everything under `[0.3.0]` also ships for the first time in 0.4.0.
+
 ### Added ("Control")
-- Note: 0.3.0 was bumped in the changelog but never published to npm; everything under `[0.3.0]` ships for the first time in 0.4.0.
 - Pause and resume: `loop pause` / `loop resume` write and remove `.ai/PAUSED`; lane prompts, templates and workflows stop at their first step while it exists; plugin command `/loop-pause`.
 - Run log: `loop runs` and `loop runs log` keep one line per scheduled run in `.ai/lanes/<lane>/runs.jsonl`, so missed runs are visible.
 - `loop ship-check [--json]` lists what is missing before a release and exits 0 only when ready; `loop next-round --brief` (laned repos) starts the next round from a brief file.
 - `.github/workflows/release.yml`: manual, dry-run by default, npm trusted publishing (OIDC, provenance, no token) behind the `release` environment. Setup: [Release](docs/release.md).
 - `.github/workflows/next-round.yml`: pushing `.ai/next-round.md` starts the next round and deletes the file.
 - Workflow structure tests (no token secret, `id-token: write`, `environment: release`, dispatch only).
+- Dashboard controls: Runs tab with usage-limit stops, Pause/Resume, Start next round, Release and a Ready to ship panel. Each opens a prefilled GitHub page or a `workflow_dispatch` run; no tokens in the browser. Releases and Tests-over-time tabs; Inbox links to edit `BLOCKED.md` on GitHub in the static demo.
+- Commit authors on the timeline, the control-room summary on the loop page, and the CHANGELOG parser behind the Releases tab.
+
+### Fixed
+- Dashboard: full commit history (no 100-commit cap), a "release waiting" attention item instead of "Nothing needs you", per-lane run limits, Contract and Decisions per lane, health rows labelled by result, dated snapshot numbers, round-done wording, no console errors, the `release` lane on release commits, and header controls that no longer wrap at phone width.
+- `loop check-lanes` is stricter and knows the `release` and `control` lanes; lane runners and templates recover from a stale cloud clone.
 
 ## [0.3.0] - 2026-10-11
 
