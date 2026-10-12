@@ -1,6 +1,6 @@
 # Lane: server — round 4 (0.4.0 "Control")
 
-Run: 4 / 20
+Run: 5 / 20
 Status: units 1-4 done, unit 5 partly done (run 1)
 Round 3 record: `.ai/lanes/server/done-v3.md` (`git show b3b51a5:.ai/lanes/server/task.md` for its Decisions).
 
@@ -34,6 +34,9 @@ Round 3 record: `.ai/lanes/server/done-v3.md` (`git show b3b51a5:.ai/lanes/serve
 ## Don't
 - Edit paths another lane owns, except for the "main stays green" fix.
 - Change `version`, publish, dispatch `release.yml`, create tags, or change repo/npm settings.
+
+## Handoff (run 5)
+Fresh pull green (138 e2e, unit, build). No new code: remaining items are optional/minor. (c) Search Console only with a local key (not started; needs a key and network, nothing in the brief requires it). (e) the pinned self snapshot (b3b51a5) predates run logs, so it has no `runs`; `releases` could be parsed from CHANGELOG at the pin. readSilentItem repeats readTimeline/readRuns per inbox poll (cache per tick if it ever shows slow). Local main was stale (diverged); worked on branch lane-run, pushing with `git push origin HEAD:main`.
 
 ## Handoff (run 4)
 Shipped: `tagLookupApiUrl` (matching-refs, no 100-tag cap); `LiveInput.tags` accepts both responses. Web may switch its tags fetch to it (not required). Remaining: (c) Search Console only with a local key, (e) self snapshot has no runs/releases, readSilentItem duplicate git work per poll (minor).
