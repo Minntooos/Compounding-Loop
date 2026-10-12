@@ -9,6 +9,7 @@ import { RunsTab } from './RunsTab';
 import { TestsTab } from './TestsTab';
 import { ReleasesTab } from './ReleasesTab';
 import { LaneNotesView } from './LaneNotesView';
+import { relativeTime } from '../lib/format';
 import { ShipPanel } from './ShipPanel';
 import { ControlBar } from './ControlBar';
 import { StatusBadge } from './StatusBadge';
@@ -104,6 +105,16 @@ export function LoopDetail({ id }: { id: string }) {
       )}
       {loop.lanes && <ControlBar loop={loop} />}
       {loop.ship && <ShipPanel ship={loop.ship} />}
+      {loop.controlNotes && loop.controlNotes.length > 0 && (
+        <section aria-labelledby="control-notes-h" className="space-y-1 rounded-lg border p-3" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
+          <h2 id="control-notes-h" className="text-[13px] font-semibold">Control room notes</h2>
+          <ul className="space-y-1">
+            {loop.controlNotes.map((n) => (
+              <li key={`${n.lane}/${n.at}`}><strong>{n.lane}</strong> <span style={{ color: 'var(--muted)' }}>{relativeTime(n.at)}</span><br />{n.text}</li>
+            ))}
+          </ul>
+        </section>
+      )}
       <div role="tablist" aria-label="Loop sections" className="flex gap-1 overflow-x-auto whitespace-nowrap border-b" style={{ borderColor: 'var(--border)' }}>
         {tabs.map((t) => (
           <button key={t} type="button" role="tab" tabIndex={tab === t ? 0 : -1} onKeyDown={(e) => onTabKey(e, tabs, tab, setTab)} id={`tab-${t}`} aria-controls="loop-panel" aria-selected={tab === t} onClick={() => setTab(t)} className="rounded-t px-3 py-2 aria-selected:border-b-2 aria-selected:font-semibold" style={{ borderColor: 'var(--accent)' }}>{t}</button>

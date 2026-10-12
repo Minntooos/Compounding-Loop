@@ -158,6 +158,7 @@ test('loop page shows the pause notice, the Ready to ship checklist and the Rele
         ...loop, id: 'laned', name: 'laned-loop', lanes: LANES,
         paused: { by: 'Mina', at: '2026-10-11T14:05:00Z', reason: 'budget' },
         ship: { ready: false, openFindings: ['server: pause hangs on a prompt'], items: [{ id: 'tests', label: 'Tests pass', ok: true, detail: '176 passed' }, { id: 'tag', label: 'Tag is free', ok: false, detail: 'v0.4.0 exists' }] },
+        controlNotes: [{ lane: 'kit', at: '2026-10-12T00:35:00Z', text: 'Ask core in the outbox instead.' }],
         releases: [{ version: '0.4.0', date: '2026-10-12', sections: [{ title: 'Added', items: ['Runs tab'] }], items: ['Runs tab'] }, { version: 'Unreleased', sections: [], items: [] }],
       },
     });
@@ -168,6 +169,7 @@ test('loop page shows the pause notice, the Ready to ship checklist and the Rele
   await expect(ship.getByRole('heading', { name: 'Not ready to ship' })).toBeVisible();
   await expect(ship).toContainText('v0.4.0 exists');
   await expect(ship).toContainText('pause hangs on a prompt');
+  await expect(page.getByRole('region', { name: 'Control room notes' })).toContainText('Ask core in the outbox instead.');
   await page.getByRole('tab', { name: 'Releases' }).click();
   await expect(page.getByTestId('release-row')).toHaveCount(2);
   await page.getByText('0.4.0', { exact: true }).click();
