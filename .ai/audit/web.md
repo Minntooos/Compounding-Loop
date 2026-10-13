@@ -24,6 +24,9 @@ Method: read IDEA.md Round 5 A and C against `web/src` on a fresh pull (`npm tes
 
 **Status (run 1):** R5-1, R5-2, R5-5, R5-7, R5-8 fixed with tests. `tests/e2e/attention.spec.ts` failed on the old code (banner/badge 2 vs 1, shipped still waiting) and passes now; unit tests for `attentionItems`, `releasedText`, `headerRound`, `testStamp`, `releaseBlocker`. R5-10 fixed in run 1 (Releases tag/npm chips, shipped replaces Ready to ship and Release; lanes.spec.ts). R5-6 fixed in run 1 too (`tests/e2e/phone-tabs.spec.ts` failed before: Settings cut at 375 px with no fade). Open: R5-3 (waits on server's state field), R5-4, R5-9 e2e.
 
+### Unit 7, run 4: docs screenshot set
+`SCREENS=1 npx playwright test screenshots` now writes the docs set to `web/design/docs/` (docs owns `docs/assets/screens/` and copies it): 7 screens × 2 themes × laptop 1440×900 @1x (top 1500 px) and phone 375×812 @2x (top 1218 px). The spec asserts every file under 400 kB (largest 290 kB; the old self phone shots were 5.4 MB). Code reviewer: no blockers; fixed its notes (shoot once from the laptop project, 1500 px laptop cap for headroom, baseURL from config). Open, not web's data: the self shots show the bundled round-3 self snapshot ("Round 3 done · 0.3.0"); a re-shoot after server's round 5 fixtures will show the cockpit.
+
 ### C8 design review, run 3 (C4 steer composer)
 Independent reviewer subagent, local-mode screenshots at 1440 and 375 px, both themes: home, loop page, Steer dialog with text, Lanes tab. (The demo snapshot has no laned loop, so demo mode was covered by `tests/e2e/steer.spec.ts` instead.)
 Five questions from home: needs me **yes**; running or stalled **partly** (self card "Done" vs "round 4 is running now": server's snapshot fixture, open from run 2); limit stops **yes** ("not checked"); CI **yes**; ready to ship **partly** (strip says Release waiting; the Ship segment needs `ship` in the snapshot).
