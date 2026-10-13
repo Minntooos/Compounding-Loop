@@ -67,6 +67,12 @@ test('local: Save posts the entry to the server and closes; the loop steer comma
   await dialog.getByText('Or run it from a terminal').click();
   await expect(dialog.getByTestId('steer-command')).toHaveText("npx compounding-loop steer -- core 'Fix \"the strip\"'");
   await expect(dialog.getByRole('button', { name: 'Copy command' })).toBeEnabled();
+  // Opening the fold scrolls Copy command clear of the sticky footer, also at 375 px (design review, run 5).
+  await expect.poll(async () => {
+    const copy = await dialog.getByRole('button', { name: 'Copy command' }).boundingBox();
+    const save = await dialog.getByRole('button', { name: 'Save' }).boundingBox();
+    return copy && save ? copy.y + copy.height <= save.y : false;
+  }).toBe(true);
   // Centred and inside the viewport, with its buttons reachable (design review, run 3).
   const box = await dialog.boundingBox();
   const vp = page.viewportSize();

@@ -107,7 +107,9 @@ export function SteerDialog({ loop, lane: initialLane, local, onClose }: { loop:
       <pre id="steer-preview" data-testid="steer-preview" className="mt-1 max-h-40 overflow-auto whitespace-pre-wrap rounded border p-2 font-mono text-[12px] [overflow-wrap:anywhere]" style={field}>{draft.entry}</pre>
       {local && <p className="mt-2 text-[13px]" style={{ color: 'var(--muted)' }}>Save writes this entry, wakes the lane if it sleeps or is snoozed, then commits and pushes.</p>}
       {local && !empty && (
-        <details className="mt-2 text-[13px]">
+        // The fold is the last thing above the sticky footer: opening it scrolls the dialog to its end, so Copy command is
+        // never left under the footer (design review, run 5). scrollIntoView does not account for the sticky footer.
+        <details className="mt-2 text-[13px]" onToggle={(e) => { const d = e.currentTarget.closest('dialog'); if (e.currentTarget.open && d) d.scrollTop = d.scrollHeight; }}>
           <summary className="min-h-11 cursor-pointer content-center">Or run it from a terminal</summary>
           <pre id="steer-command" data-testid="steer-command" className="mt-1 whitespace-pre-wrap rounded border p-2 font-mono text-[12px] [overflow-wrap:anywhere]" style={field}>{command}</pre>
           <button type="button" onClick={() => void copyCommand()} className="mt-2 min-h-11 rounded border px-4" style={{ borderColor: 'var(--border)' }}>Copy command</button>

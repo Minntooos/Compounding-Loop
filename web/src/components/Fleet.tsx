@@ -3,7 +3,7 @@ import { Fragment, useState } from 'react';
 import { Inbox as InboxIcon } from 'lucide-react';
 import type { InboxItem, LoopState, LoopSummary } from '@core/types';
 import { api, hasServer } from '../api/client';
-import { cardFacts, laneProgress, statusLine, roundProgress, runBudget, SELF_BUILD_ID, selfFirst } from '../lib/card';
+import { cardBadge, cardFacts, laneProgress, statusLine, roundProgress, runBudget, SELF_BUILD_ID, selfFirst } from '../lib/card';
 import { STATE_LABEL } from '../lib/format';
 import { attentionItems } from '../lib/lanes';
 import { needsYouRows } from '../lib/needsYou';
@@ -44,7 +44,7 @@ function LoopCard({ loop }: { loop: LoopSummary }) {
       <a href={`#/loop/${encodeURIComponent(loop.id)}`} data-testid="loop-card" className="block h-full rounded-lg border p-3 sm:p-4" style={{ background: 'var(--surface)', borderColor: self ? 'var(--accent)' : 'var(--border)' }}>
         <div className="flex items-start justify-between gap-2">
           <h2 className="break-all text-[15px] font-semibold">{loop.name}</h2>
-          <StatusBadge state={loop.state} />
+          <StatusBadge state={cardBadge(loop)} />
         </div>
         <p className="mt-1 [overflow-wrap:anywhere]" style={{ color: 'var(--muted)' }}>{statusLine(loop)}</p>
         {(rounds || lanes || runs) && <div className="mt-3 space-y-2">

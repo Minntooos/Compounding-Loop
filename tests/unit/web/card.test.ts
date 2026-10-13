@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activityStamp, headerRound, releasedText, cardFacts, statusLine, laneProgress, roundProgress, runBudget, selfFirst } from '../../../web/src/lib/card.js';
+import { activityStamp, cardBadge, headerRound, releasedText, cardFacts, statusLine, laneProgress, roundProgress, runBudget, selfFirst } from '../../../web/src/lib/card.js';
 
 describe('fleet card model', () => {
   it('puts the self-build loop first and keeps the rest in order', () => {
@@ -73,5 +73,20 @@ describe('round 5 A1/A8 card text', () => {
     expect(headerRound({ round: 5, roundsTotal: 5, reason: 'Building', roundLabel: 'Round 5' })).toBe('Round 5');
     expect(headerRound({ round: 2, roundsTotal: 3, reason: 'Building' })).toBe('Round 2/3');
     expect(headerRound({ round: 0, roundsTotal: 0, reason: 'x' })).toBeUndefined();
+  });
+});
+
+describe('cardBadge', () => {
+  const off = { limitStops5h: 3, running: [], sleeping: [], routinesLookOff: true };
+  const lane = (state: 'building' | 'stalled') => ({ name: 'web', state, run: 1, limit: 20, locked: false, unanswered: [] });
+  it('a building or waiting loop reads Stalled when its routines look off or a lane stalled, like the strip', () => {
+    expect(cardBadge({ state: 'building', runOutcomes: off })).toBe('stalled');
+    expect(cardBadge({ state: 'waiting', lanes: [lane('building'), lane('stalled')] })).toBe('stalled');
+    expect(cardBadge({ state: 'building', runOutcomes: { ...off, routinesLookOff: false }, lanes: [lane('building')] })).toBe('building');
+  });
+  it('failing, blocked and done keep their own badge', () => {
+    expect(cardBadge({ state: 'failing', runOutcomes: off })).toBe('failing');
+    expect(cardBadge({ state: 'blocked', runOutcomes: off })).toBe('blocked');
+    expect(cardBadge({ state: 'done', runOutcomes: off })).toBe('done');
   });
 });

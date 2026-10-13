@@ -83,3 +83,15 @@ export function headerRound(loop: Pick<LoopSummary, 'round' | 'roundsTotal' | 'r
   if (!text) return undefined;
   return new RegExp(`\\bround ${count(loop.round)}\\b`, 'i').test(loop.reason) ? undefined : text;
 }
+
+/** A fleet card's badge: the loop state, or Stalled when the strip says so (DESIGN §12 C1: one state word per loop). */
+export type CardBadge = LoopSummary['state'] | 'stalled';
+
+/**
+ * Failing and blocked keep their badge; a building or waiting loop whose routines look off or whose lane stalled reads
+ * Stalled, so the card never says Building while the strip and Needs you say it stalled (design review, run 5).
+ */
+export function cardBadge(loop: Pick<LoopSummary, 'state' | 'lanes' | 'runOutcomes'>): CardBadge {
+  if (loop.state !== 'building' && loop.state !== 'waiting') return loop.state;
+  return loop.runOutcomes?.routinesLookOff || loop.lanes?.some((l) => l.state === 'stalled') ? 'stalled' : loop.state;
+}

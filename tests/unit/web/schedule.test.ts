@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { laneScheduleState, scheduleButtons, scheduleClock, scheduleToast, snoozePresets, steerAckChip } from '../../../web/src/lib/schedule.js';
+import { laneHold, laneScheduleState, scheduleButtons, scheduleClock, scheduleToast, snoozePresets, steerAckChip } from '../../../web/src/lib/schedule.js';
 
 const now = new Date('2026-10-13T12:40:00Z');
 const entry = (over: Partial<{ notBefore: string | null; sleeping: boolean; paused: boolean; reason: string | null }>) => ({ notBefore: null, sleeping: false, paused: false, reason: null, ...over });
@@ -70,5 +70,21 @@ describe('schedule controls (C5)', () => {
     expect(scheduleToast('snooze', 'web', true, '3 h')).toBe('Snoozed web for 3 h: it skips its runs until then');
     expect(scheduleToast('wake', 'web', true)).toMatch(/^Woke web/);
     expect(scheduleToast('pause', 'web', false)).toBe('Nothing to change: web already was that way');
+  });
+});
+
+describe('laneHold', () => {
+  it('a building or waiting lane held back by the schedule shows the hold, not Building', () => {
+    expect(laneHold('building', 'paused')).toBe('paused');
+    expect(laneHold('waiting', 'sleeping')).toBe('sleeping');
+    expect(laneHold('building', 'snoozed')).toBe('snoozed');
+    expect(laneHold('building', 'loop-paused')).toBe('loop-paused');
+  });
+  it('a due lane, or a stalled, blocked or done one, keeps its own badge', () => {
+    expect(laneHold('building', 'due')).toBeUndefined();
+    expect(laneHold('building', undefined)).toBeUndefined();
+    expect(laneHold('stalled', 'paused')).toBeUndefined();
+    expect(laneHold('blocked', 'sleeping')).toBeUndefined();
+    expect(laneHold('done', 'stopped')).toBeUndefined();
   });
 });

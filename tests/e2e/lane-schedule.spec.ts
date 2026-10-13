@@ -40,12 +40,24 @@ test('each lane states its schedule as a sentence', async ({ page }) => {
   await expect(row(page, 'kit').getByTestId('lane-schedule')).toHaveText('Snoozed until 15:15 UTC · idle twice in a row');
   await expect(row(page, 'server').getByTestId('lane-schedule')).toHaveText('Paused · release week');
   await expect(row(page, 'docs').getByTestId('lane-schedule')).toHaveText('Sleeping · 3 idle runs · docs waits for the first features');
+  // The badge never contradicts the sentence: a held-back lane is not "Building" (design review, run 5).
+  await expect(row(page, 'core').getByTestId('lane-badge')).toHaveText('Building');
+  await expect(row(page, 'kit').getByTestId('lane-badge')).toHaveText('Snoozed');
+  await expect(row(page, 'server').getByTestId('lane-badge')).toHaveText('Paused');
+  await expect(row(page, 'docs').getByTestId('lane-badge')).toHaveText('Sleeping');
   expect(errors).toEqual([]);
+});
+
+test('a fleet card whose routines look off says Stalled, like the strip', async ({ page }) => {
+  await serve(page, { ...LOOP, runOutcomes: { limitStops5h: 4, running: [], sleeping: [], routinesLookOff: true } });
+  await page.goto('/#/');
+  await expect(page.getByTestId('loop-card').getByTestId('status-badge')).toHaveText('Stalled');
 });
 
 test('the whole loop paused holds every lane', async ({ page }) => {
   await serve(page, { ...LOOP, paused: { by: 'sam', at: '2026-10-13T12:00:00Z' } });
   await expect(page.getByTestId('lane-schedule')).toHaveText(Array(4).fill('Paused with the whole loop'));
+  await expect(page.getByTestId('lane-row').getByTestId('lane-badge')).toHaveText(Array(4).fill('Paused'));
 });
 
 test('steer history lists each entry with its acknowledgement, newest first', async ({ page }) => {

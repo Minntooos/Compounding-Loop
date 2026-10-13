@@ -32,6 +32,18 @@ export function laneScheduleState(input: { entry?: ScheduleEntry; idleRuns?: num
   }
 }
 
+/** The schedule hold a lane badge shows instead of Building/Waiting. */
+export type LaneHold = 'loop-paused' | 'paused' | 'sleeping' | 'snoozed';
+
+/**
+ * A building or waiting lane that the schedule holds back runs nothing, so its badge says the hold, not "Building" next to
+ * "Paused" (design review, run 5). Stalled, blocked and done keep their badge: the schedule is not their story.
+ */
+export function laneHold(laneState: LaneState, kind: LaneScheduleKind | undefined): LaneHold | undefined {
+  if (laneState !== 'building' && laneState !== 'waiting') return undefined;
+  return kind === 'loop-paused' || kind === 'paused' || kind === 'sleeping' || kind === 'snoozed' ? kind : undefined;
+}
+
 /** The acknowledgement chip under a steer entry (DESIGN §12 C4 Steer history). */
 export function steerAckChip(ack: SteerAck | undefined, laneState?: LaneState): { tone: 'done' | 'blocked' | 'muted'; text: string } {
   // A finished lane never runs again, so an unread entry is not "waiting": it will not be picked up.

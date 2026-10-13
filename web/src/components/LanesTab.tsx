@@ -6,7 +6,7 @@ import { LaneBadge } from './LaneBadge';
 import { ScheduleControls } from './ScheduleControls';
 import { ProgressBar } from './ProgressBar';
 import { openSteer } from '../lib/steerEvents';
-import { laneScheduleState, steerAckChip, type LaneScheduleKind } from '../lib/schedule';
+import { laneHold, laneScheduleState, steerAckChip, type LaneScheduleKind } from '../lib/schedule';
 import { timeUtc, dayHeading } from '../lib/timeline';
 
 const SCHEDULE_ICON: Record<LaneScheduleKind, typeof Clock> = { due: Clock, stopped: CircleSlash, 'loop-paused': Pause, paused: Pause, sleeping: Moon, snoozed: AlarmClock };
@@ -72,7 +72,7 @@ function LaneRow({ lane, cockpit }: { lane: LaneStatus; cockpit: LanesCockpit })
     <li data-testid="lane-row" className="rounded-lg border p-3" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
         <h3 className="break-all font-mono text-[14px] font-semibold">{lane.name}</h3>
-        <LaneBadge state={lane.state} />
+        <LaneBadge state={lane.state} hold={laneHold(lane.state, schedule?.kind)} />
         <span className="font-mono text-[12px]">Run {lane.run}/{lane.limit}</span>
         <span data-testid="lane-claim" className="font-mono text-[12px]" style={{ color: lane.claim ? 'var(--text)' : 'var(--muted)' }}>{claimText(lane.claim)}</span>
         <span className="inline-flex items-center gap-1 text-[12px]" style={{ color: 'var(--muted)' }}>
