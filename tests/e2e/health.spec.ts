@@ -33,6 +33,32 @@ test('an unmeasured check reads Not checked with how to check it, and is not cou
   expect(errors).toEqual([]);
 });
 
+test('a long proof wraps between words at 375 px, splitting only a word too long for the line', async ({ page }) => {
+  const proof = 'GET https://quiltcalculators-and-more.netlify.app returned 200';
+  await page.route('**/api/checks', (route) => route.fulfill({ json: [{ ...CHECKS[1], proof }] }));
+  await page.setViewportSize({ width: 375, height: 800 });
+  await page.goto('/#/health');
+  const code = page.getByRole('list', { name: 'Health checks' }).locator('code', { hasText: 'returned' });
+  await expect(code).toHaveText(proof);
+  // Try hosts of every length from 10 to 40 characters, so some line end always falls inside "returned" or "200"
+  // under character-level breaking ("ret / urned" and "20 / 0" were the bug). One client rect per word = one line.
+  const split = await code.evaluate((el) => {
+    const bad: string[] = [];
+    for (let n = 10; n <= 40; n++) {
+      el.textContent = `GET https://${'q'.repeat(n)}.netlify.app returned 200`;
+      const text = el.firstChild as Text;
+      for (const word of ['returned', '200']) {
+        const range = document.createRange();
+        const at = text.data.lastIndexOf(word);
+        range.setStart(text, at); range.setEnd(text, at + word.length);
+        if (range.getClientRects().length > 1) bad.push(`${n}: ${word}`);
+      }
+    }
+    return bad;
+  });
+  expect(split).toEqual([]);
+});
+
 for (const theme of ['light', 'dark'] as const) {
   test(`axe: Health with all three states in the ${theme} theme`, async ({ page }) => {
     await page.addInitScript((t) => localStorage.setItem('theme', t), theme);
