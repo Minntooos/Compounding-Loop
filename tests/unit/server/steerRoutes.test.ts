@@ -37,7 +37,7 @@ describe('parseSteerBody', () => {
     expect(parseSteerBody({ lane: 'core', text: 'do X' })).toEqual({ ok: true, value: { lane: 'core', text: 'do X', standing: false } });
     expect(parseSteerBody({ lane: 'core', text: 'x', standing: true, author: 'Ann' })).toEqual({ ok: true, value: { lane: 'core', text: 'x', standing: true, author: 'Ann' } });
   });
-  it.each([undefined, null, 'x', {}, { lane: 'core' }, { lane: 'core', text: '  ' }, { lane: '', text: 'x' }, { lane: 'core', text: 'x', standing: 'yes' }])('rejects %j', (body) => {
+  it.each([undefined, null, 'x', {}, { lane: 'core' }, { lane: 'core', text: '  ' }, { lane: '', text: 'x' }, { lane: 'all', text: 'x' }, { lane: 'core', text: 'x', standing: 'yes' }])('rejects %j', (body) => {
     expect(parseSteerBody(body).ok).toBe(false);
   });
 });

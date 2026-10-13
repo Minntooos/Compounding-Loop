@@ -10,3 +10,4 @@
 {"at":"2026-10-13T02:38:23.000Z","lane":"server","units":["A1-shipped-vs-DONE","releases-absent-unchecked"],"tests":{"passed":156,"failed":0},"pushed":true,"note":"run 2: web A1 data fixes; fixtures next"}
 {"at":"2026-10-13T05:40:32.000Z","lane":"server","units":["A2-schedule-aware-run-slots"],"tests":{"passed":187,"failed":0},"pushed":true,"note":"run 3: buildRuns honours schedule.json, routinesLookOff; fixtures next"}
 {"at":"2026-10-13T06:46:08.000Z","lane":"server","units":["cockpit-data","demo-fixtures","live-fetch-schedule-steer"],"tests":{"passed":961,"failed":0},"pushed":true,"note":"run 4: runOutcomes/schedule/idleRuns/steer + demo fixtures; POST routes next"}
+{"at":"2026-10-13T07:39:39.000Z","lane":"server","units":["post-steer-schedule-routes","steer-schedule-url-builders"],"tests":{"passed":198,"failed":0},"pushed":true,"note":"run 5: unit 4 routes + URL builders; draft-brief SSE next"}

@@ -1,7 +1,7 @@
 # Lane: server — round 5 (0.5.0 "Cockpit")
 
 Run: 5 / 20
-Status: units 1-2 done (audit, A1, A7) + A2 (run 3) + cockpit data & demo fixtures (run 4); next: unit 4 POST routes
+Status: units 1-4 done (audit, A1, A7, A2, cockpit data, demo fixtures, POST steer/schedule + URL builders); next: unit 5 draft-brief SSE
 Round 4 record: `.ai/lanes/server/done-v4.md` (`git show 02874e8:.ai/lanes/server/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
@@ -41,6 +41,7 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
+Run 5: unit 4 done: POST /api/loops/:id/steer and /schedule (src/server/actionBody.ts parsers, LoopControls.steer/schedule in loops.ts over core's runSteer/runScheduleAction), steerNewFileUrl/steerEditUrl/scheduleEditUrl/scheduleEditText in controls.ts, contracts recorded. Reviewer: lane 'all' rejected for steer (fixed). Known minor: chunked bodies skip the 64 KB cap (as next-round). Next: unit 5 draft-brief SSE (reuse buildDraftPrompt/draftClaudeArgs/runDraft/lintBrief, fake claude in tests), unit 7 pace routes, then web's ask: demo self loop lanes should show Due/Snoozed/Sleeping (update demo/cockpit-fixture.mjs lane states + snapshotAt), A3, A5 (switch urls.ts round count to core's countRounds).
 Run 4: unit 3 done: RunOutcomes/schedule/idleRuns/steer on LoopSummary/LoopDetail (runs.ts outcomesOf, loops.ts, live/build.ts; live now fetches schedule.json + steer.md, was missing), demo/cockpit-fixture.mjs feeds this-repo.json (no nextRuns on purpose, see contracts). Next: unit 4 POST …/steer & …/schedule + prefilled GitHub URL builders, then 5 draft-brief SSE, 7 pace, A3 HealthCheck.state, A5 round count from headings (core's countRounds). Reviewer idea not done: end-to-end tests of readLoop/buildLiveLoop for schedule/steer fields.
 Run 3: A2 done: buildRuns takes `schedule` (not-due slots dropped from missing/silent) and returns `routinesLookOff` (stopped lanes/all-stopped = done). Not yet surfaced on LoopSummary/LoopDetail (web asked for `runOutcomes`; needs a shape + wiring in loops.ts/live/build.ts). Still to do: A3 HealthCheck.state, A5 round count from headings, units 3-5 (fixtures first, web is waiting).
 Run 2: shipped now also needs tag not older than DONE.md (local mode only; live has tag names only, no dates: still open for live); annotateReleases leaves tag/npm absent when unchecked. Still to do: A3 HealthCheck.state/howToCheck, A5 round count from headings (core's countRounds in src/core/repo.ts), A2 classifyRunSlots in src/server/runs.ts, then units 3-5.

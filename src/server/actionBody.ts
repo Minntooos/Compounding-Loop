@@ -16,6 +16,8 @@ const asRecord = (body: unknown): Record<string, unknown> => (typeof body === 'o
 export function parseSteerBody(body: unknown): Parsed<SteerBody> {
   const { lane, text, standing, author } = asRecord(body);
   if (!nonEmpty(lane)) return { ok: false, error: 'lane must be a non-empty string' };
+  // `all` only means every lane for a schedule wake; it is never a lane to steer.
+  if (lane === 'all') return { ok: false, error: 'steer one lane at a time; "all" is not a lane' };
   if (!nonEmpty(text)) return { ok: false, error: 'text must be a non-empty string' };
   if (standing !== undefined && typeof standing !== 'boolean') return { ok: false, error: 'standing must be true or false' };
   return { ok: true, value: { lane, text, standing: standing === true, ...(nonEmpty(author) && { author }) } };
