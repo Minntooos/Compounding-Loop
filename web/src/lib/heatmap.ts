@@ -9,6 +9,12 @@ export const HEAT_LABEL: Record<HeatOutcome, string> = {
   'limit-stop': 'limit stop', failed: 'failed', paused: 'paused', done: 'done',
 };
 
+/** Detail line under a Runs-tab row whose word needs an explanation. */
+export const HEAT_HINT: Partial<Record<HeatOutcome, string>> = {
+  'limit-stop': 'no run line: usage limit or a failed start',
+  running: 'inside its 50-minute run window',
+};
+
 /** Legend order: what ran, then what did not, then expected silence. */
 export const HEAT_ORDER: HeatOutcome[] = ['worked', 'idle', 'running', 'failed', 'limit-stop', 'not-due', 'paused', 'done'];
 

@@ -3,18 +3,6 @@ import { dayHeading, timeUtc } from './timeline.js';
 
 export type RunOutcome = LoopRun['outcome'];
 
-export const OUTCOME_LABEL: Record<RunOutcome, string> = {
-  pushed: 'Pushed',
-  'nothing-pushed': 'Ran, pushed nothing',
-  'tests-failed': 'Tests failed',
-  'no-run-recorded': 'No run recorded',
-};
-
-/** Detail line under an outcome that needs an explanation. */
-export const OUTCOME_HINT: Partial<Record<RunOutcome, string>> = {
-  'no-run-recorded': 'usage limit, idle or failed',
-};
-
 /** Missing scheduled slots in a row (newest first) at which the tab warns; matches the server's attention item. */
 export const SILENT_THRESHOLD = 3;
 

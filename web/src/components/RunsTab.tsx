@@ -1,31 +1,33 @@
-import { AlertTriangle, CheckCircle2, Circle, CircleDashed, XCircle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { LoopRun } from '@core/types';
 import { dayHeading, laneColor, timeUtc } from '../lib/timeline';
-import { heatCellLabel, heatOutcome } from '../lib/heatmap';
+import { HEAT_HINT, HEAT_LABEL, heatCellLabel, heatOutcome, type HeatOutcome } from '../lib/heatmap';
 import type { RunFocus } from '../lib/route';
-import { HeatMap } from './HeatMap';
-import { filterRuns, groupRunsByDay, listedRuns, OUTCOME_HINT, OUTCOME_LABEL, silentLanes, testsText, type RunOutcome } from '../lib/runs';
+import { HeatGlyph, HeatMap } from './HeatMap';
+import { filterRuns, groupRunsByDay, listedRuns, silentLanes, testsText } from '../lib/runs';
 
-const ICON = { pushed: CheckCircle2, 'nothing-pushed': Circle, 'tests-failed': XCircle, 'no-run-recorded': CircleDashed } as const;
-const COLOR: Record<RunOutcome, string> = {
-  pushed: 'var(--done)', 'nothing-pushed': 'var(--muted)', 'tests-failed': 'var(--failing)', 'no-run-recorded': 'var(--blocked)',
+// Same words and glyphs as the heat map (DESIGN §12 C3); the text colour repeats the glyph, never replaces it.
+const COLOR: Record<HeatOutcome, string> = {
+  worked: 'var(--done)', idle: 'var(--muted)', 'not-due': 'var(--muted)', running: 'var(--building)',
+  'limit-stop': 'var(--blocked)', failed: 'var(--failing)', paused: 'var(--muted)', done: 'var(--muted)',
 };
+const sentence = (o: HeatOutcome) => HEAT_LABEL[o].charAt(0).toUpperCase() + HEAT_LABEL[o].slice(1);
 
 // Lane names, units and notes come from repo files: rendered as text nodes only.
 function RunRow({ run, picked }: { run: LoopRun; picked: boolean }) {
   const ref = useRef<HTMLLIElement>(null);
   // Opened from a heat-map cell: bring the slot into view once, without stealing focus from the page.
   useEffect(() => { if (picked) ref.current?.scrollIntoView({ block: 'center' }); }, [picked]);
-  const Icon = ICON[run.outcome];
+  const outcome = heatOutcome(run);
   const tests = testsText(run.tests);
-  const hint = OUTCOME_HINT[run.outcome];
+  const hint = HEAT_HINT[outcome];
   return (
-    <li ref={ref} data-testid="run-row" data-outcome={run.outcome} aria-current={picked ? 'true' : undefined} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 rounded-r border-l-[3px] py-1 pl-3" style={{ borderColor: laneColor(run.lane), ...(picked && { background: 'var(--surface-2)', outline: '1px solid var(--accent)' }) }}>
+    <li ref={ref} data-testid="run-row" data-outcome={outcome} aria-current={picked ? 'true' : undefined} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 rounded-r border-l-[3px] py-1 pl-3" style={{ borderColor: laneColor(run.lane), ...(picked && { background: 'var(--surface-2)', outline: '1px solid var(--accent)' }) }}>
       <span className="font-mono text-[12px]" style={{ color: laneColor(run.lane) }}>{run.lane}</span>
       <time dateTime={run.at} className="font-mono text-[12px] tabular-nums" style={{ color: 'var(--muted)' }}>{timeUtc(run.at)}</time>
-      <span className="inline-flex items-center gap-1.5 text-[13px] font-medium" style={{ color: COLOR[run.outcome] }}>
-        <Icon aria-hidden size={15} />{OUTCOME_LABEL[run.outcome]}
+      <span className="inline-flex items-center gap-1.5 self-center text-[13px] font-medium" style={{ color: COLOR[outcome] }}>
+        <HeatGlyph outcome={outcome} size={15} />{sentence(outcome)}
       </span>
       {hint && <span className="text-[12px]" style={{ color: 'var(--muted)' }}>{hint}</span>}
       {run.units.length > 0 && <span className="min-w-0 [overflow-wrap:anywhere]">{run.units.join(', ')}</span>}

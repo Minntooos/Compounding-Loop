@@ -108,7 +108,7 @@ test('Runs tab shows all four outcomes by word, filters by lane and warns after 
   await page.getByRole('tab', { name: 'Runs' }).click();
   const rows = page.getByTestId('run-row');
   await expect(rows).toHaveCount(6);
-  for (const word of ['Pushed', 'Ran, pushed nothing', 'Tests failed', 'No run recorded']) await expect(page.getByText(word).first()).toBeVisible();
+  for (const word of ['Worked', 'Idle', 'Failed', 'Limit stop']) await expect(rows.getByText(word, { exact: true }).first()).toBeVisible();
   await expect(page.getByText('2 failed, 38 passed')).toBeVisible();
   await expect(page.getByTestId('runs-silent')).toContainText('kit');
   await page.getByRole('button', { name: 'web', exact: true }).click();

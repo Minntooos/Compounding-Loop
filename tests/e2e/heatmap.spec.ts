@@ -58,7 +58,8 @@ test('focusing a cell shows its words; following it opens that slot in the Runs 
   const picked = page.locator('[data-testid="run-row"][aria-current="true"]');
   await expect(picked).toHaveCount(1);
   await expect(picked).toContainText('core');
-  await expect(picked).toContainText('Tests failed');
+  await expect(picked).toContainText('Failed');
+  await expect(picked.locator('svg[data-outcome="failed"]')).toHaveCount(1);
   // The same cell again, from the Timeline: no hashchange, still opens Runs.
   await page.getByRole('tab', { name: 'Timeline' }).click();
   await page.getByTestId('heatmap').getByRole('link', { name: 'core 11:05 UTC: failed, 2 failing' }).click();
