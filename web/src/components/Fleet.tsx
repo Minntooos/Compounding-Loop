@@ -95,12 +95,14 @@ export function Fleet() {
       </section>
     );
   }
+  // A live update can empty the chosen filter (the loop resumed or recovered); show every card again rather than none.
+  const shown = filter !== 'all' && badgeFilters(loops.data).some((f) => f.badge === filter) ? filter : 'all';
   return (
     <div className="space-y-5">
       <NeedsYou loops={loops.data} inbox={inbox.data} demo={write.data === false} />
-      <FilterBar loops={loops.data} value={filter} onChange={setFilter} />
+      <FilterBar loops={loops.data} value={shown} onChange={setFilter} />
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loops">
-        {selfFirst(loops.data.filter((l) => filter === 'all' || cardBadge(l) === filter)).map((l) => <LoopCard key={l.id} loop={l} />)}
+        {selfFirst(loops.data.filter((l) => shown === 'all' || cardBadge(l) === shown)).map((l) => <LoopCard key={l.id} loop={l} />)}
       </ul>
     </div>
   );

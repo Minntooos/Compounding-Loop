@@ -112,3 +112,28 @@ test('the status filter counts cards by their badge: a paused loop is under Paus
   await expect(cards.getByTestId('status-badge')).toHaveText('Paused');
   expect(errors).toEqual([]);
 });
+
+test('a chosen filter that a live update empties falls back to every card', async ({ page }) => {
+  const paused = { ...DEMO_LOOPS[0], id: 'paused-one', name: 'paused-one', state: 'building', paused: { by: 'owner' } };
+  let loops = [...DEMO_LOOPS, paused];
+  await page.route('**/api/loops', (route) => route.fulfill({ json: loops }));
+  // The demo server only sends `ready`, so drive the live-update listener by hand (as in toasts.spec.ts).
+  await page.addInitScript(() => {
+    class FakeEventSource {
+      listeners: Record<string, (() => void)[]> = {};
+      constructor() { (window as unknown as { fakeEs: FakeEventSource }).fakeEs = this; }
+      addEventListener(type: string, fn: () => void) { (this.listeners[type] ??= []).push(fn); }
+      close() { /* nothing to close */ }
+      emit(type: string) { this.listeners[type]?.forEach((fn) => fn()); }
+    }
+    (window as unknown as { EventSource: unknown }).EventSource = FakeEventSource;
+  });
+  await page.goto('/');
+  await page.waitForFunction(() => Boolean((window as unknown as { fakeEs?: unknown }).fakeEs));
+  await page.getByRole('group', { name: 'Filter by status' }).getByRole('button', { name: 'Paused (1)' }).click();
+  await expect(page.getByTestId('loop-card')).toHaveCount(1);
+  // The owner resumes it: the Paused filter is gone, so the fleet shows every card instead of an empty grid.
+  loops = [...DEMO_LOOPS, { ...paused, state: 'done', paused: undefined }];
+  await page.evaluate(() => (window as unknown as { fakeEs: { emit(t: string): void } }).fakeEs.emit('loop-updated'));
+  await expect(page.getByTestId('loop-card')).toHaveCount(DEMO_LOOPS.length + 1);
+});

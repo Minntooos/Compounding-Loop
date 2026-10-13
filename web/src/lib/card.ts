@@ -101,8 +101,8 @@ export function cardBadge(loop: Pick<LoopSummary, 'state' | 'lanes' | 'runOutcom
   return loop.paused ? 'paused' : loop.state;
 }
 
-/** Fleet filter order: what needs the owner first, finished loops last. */
-const BADGE_ORDER: readonly CardBadge[] = ['failing', 'blocked', 'stalled', 'building', 'waiting', 'paused', 'done'];
+/** Fleet filter order: what needs the owner first, then the strip's precedence (DESIGN §12: Stalled > Running > Paused > Idle > Done). */
+const BADGE_ORDER: readonly CardBadge[] = ['failing', 'blocked', 'stalled', 'building', 'paused', 'waiting', 'done'];
 
 /**
  * The fleet filter's buttons with their counts, keyed by the badge each card shows (`cardBadge`), so "Building (1)" never
