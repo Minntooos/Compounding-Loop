@@ -64,6 +64,7 @@ export function trailingIdleRuns(runs: readonly RunEntry[]): number {
 
 /**
  * The idle backoff for one lane: 1 idle run -> not before last run + 3 h, 2 -> + 6 h, 3 or more -> sleeping.
+ * It only looks at the log, so a caller that has just woken the lane must skip it until a new run is logged.
  * No trailing idle run leaves the entry alone (an owner's snooze or pause survives). A paused entry is never changed.
  */
 export function applyBackoff(runs: readonly RunEntry[], entry: ScheduleEntry | undefined, _now: Date): ScheduleEntry {
@@ -72,7 +73,9 @@ export function applyBackoff(runs: readonly RunEntry[], entry: ScheduleEntry | u
   if (idle === 0 || current.paused) return current;
   if (idle >= 3) return { ...current, sleeping: true, notBefore: null, reason: `${idle} idle runs in a row` };
   const last = [...runs].sort((a, b) => a.at.localeCompare(b.at)).at(-1) as RunEntry;
-  const notBefore = new Date(new Date(last.at).getTime() + (idle === 1 ? 3 : 6) * HOUR_MS).toISOString();
+  const backoff = new Date(last.at).getTime() + (idle === 1 ? 3 : 6) * HOUR_MS;
+  // An owner's later snooze wins over the automatic backoff.
+  const notBefore = new Date(Math.max(backoff, current.notBefore ? new Date(current.notBefore).getTime() : 0)).toISOString();
   return { ...current, sleeping: false, notBefore, reason: `${idle} idle run${idle === 1 ? '' : 's'} in a row` };
 }
 
@@ -94,8 +97,9 @@ export function wakeReasons(input: WakeInput): WakeReason[] {
   const reasons: WakeReason[] = [];
   if (unacknowledged(input.steer).length > 0) reasons.push('steer');
   const lane = input.lane.toLowerCase();
-  const since = input.lastRunAt ?? '';
-  if (input.messages.some((m) => m.at > since && m.to.some((t) => t === lane || t === 'all'))) reasons.push('message');
+  const since = input.lastRunAt ? new Date(input.lastRunAt).getTime() : -Infinity;
+  const stamp = (at: string) => new Date(at.includes('T') ? at : `${at.replace(' UTC', '').replace(' ', 'T')}:00Z`).getTime();
+  if (input.messages.some((m) => stamp(m.at) > since && m.to.some((t) => t.toLowerCase() === lane || t.toLowerCase() === 'all'))) reasons.push('message');
   if (input.newRound) reasons.push('new-round');
   return reasons;
 }

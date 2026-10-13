@@ -14,7 +14,7 @@ export function steerHeading(at: Date, author: string, scope: SteerScope): strin
 /** One entry as it is written to the file (heading, text, blank line). Newlines in the author would break the heading. */
 export function formatSteerEntry(entry: { at: Date; author: string; scope: SteerScope; text: string }): string {
   const author = entry.author.replace(/[\r\n·]+/g, ' ').replace(/\s+/g, ' ').trim() || 'unknown';
-  return `${steerHeading(entry.at, author, entry.scope)}\n${entry.text.trim()}\n`;
+  return `${steerHeading(entry.at, author, entry.scope)}\n${entry.text.trim().replace(/^##(?= )/gm, '###')}\n`;
 }
 
 function parseAck(line: string): SteerAck | undefined {

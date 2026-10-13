@@ -174,6 +174,22 @@ describe('writing steer entries', () => {
   });
 });
 
+describe('review fixes', () => {
+  it('a body line starting with "## " does not cut the entry or lose its ack', () => {
+    const at = new Date('2026-10-13T12:34:00Z');
+    const text = `${formatSteerEntry({ at, author: 'o', scope: 'next-run', text: 'Do X\n## Plan\nmore' })}→ done in run 3\n`;
+    expect(parseSteer(text)[0]).toMatchObject({ ack: { state: 'done', run: 3 } });
+    expect(parseSteer(text)[0]?.text).toContain('more');
+  });
+  it('wakeReasons reads outbox-style times and mixed-case names', () => {
+    expect(wakeReasons({ lane: 'core', lastRunAt: '2026-10-13T01:00:00Z', steer: [], messages: [{ at: '2026-10-13 02:00 UTC', to: ['Core'] }] })).toEqual(['message']);
+  });
+  it('a later owner snooze survives the backoff', () => {
+    const e = applyBackoff([run('2026-10-13T09:00:00Z')], { ...dueEntry(), notBefore: '2026-10-14T00:00:00Z' }, now);
+    expect(e.notBefore).toBe('2026-10-14T00:00:00.000Z');
+  });
+});
+
 describe('browser-safe entry point', () => {
   it('exports the schedule and steer parsers', () => {
     expect(typeof parse.parseSchedule).toBe('function');
