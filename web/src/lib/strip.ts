@@ -81,7 +81,8 @@ function roundSegment(loops: Summary[], detail: Detail | undefined, scoped: bool
     const round = loop.roundLabel ?? (loop.roundsTotal > 0 ? `Round ${loop.round} of ${loop.roundsTotal}` : undefined);
     const progress = doneWhenProgress(detail);
     const text = [round, progress].filter(Boolean).join(' · ');
-    return text ? { id: 'round', text, tone: 'text', icon: 'round' } : undefined;
+    // The phone strip leaves it to the loop header (which shows the round), so line 2 stays one line at 375 px.
+    return text ? { id: 'round', text, short: '', tone: 'text', icon: 'round' } : undefined;
   }
   const done = loops.filter((l) => l.state === 'done').length;
   // The phone strip leaves the fleet's round count to the cards below it.

@@ -110,3 +110,13 @@ test('an open tab re-reads the clock: Likely running turns Idle once the run win
   await page.clock.fastForward('06:00');
   await expect(state).toHaveText('Idle', { useInnerText: true });
 });
+
+test('at 375 px a loop page strip stays on two lines (the round is in the loop header)', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 800 });
+  await page.goto('/#/loop/compounding-loop');
+  const strip = page.getByTestId('status-strip');
+  await expect(strip.locator('[data-segment="ci"]')).toBeVisible();
+  await expect(strip.locator('[data-segment="round"]')).toBeHidden();
+  const tops = await strip.locator('[data-segment]').evaluateAll((els) => els.filter((e) => e.getBoundingClientRect().width > 0).map((e) => Math.round(e.getBoundingClientRect().top)));
+  expect(new Set(tops).size).toBeLessThanOrEqual(2);
+});

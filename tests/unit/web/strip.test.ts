@@ -62,6 +62,7 @@ describe('stripSegments', () => {
     const details = new Map([['a', { ship, contract: [{ text: 'x', pass: true }, { text: 'y', pass: false }], nextRuns: [{ lane: 'web', at: '2026-10-13T04:15:00Z' }, { lane: 'core', at: '2026-10-14T01:00:00Z' }] }]]);
     const segs = stripSegments({ loops: [l], scoped: true, attention: 1, details, now: NOW });
     expect(text(segs, 'round')).toBe('Round 5 done · 0.5.0 · 1 of 2 done-whens');
+    expect(segs.find((s) => s.id === 'round')?.short).toBe('');
     expect(text(segs, 'ship')).toBe('Not ready · failing check: Tag v0.5.0 is free');
     expect(text(segs, 'next')).toBe('next: web 04:15 UTC');
     expect(text(segs, 'state')).toBe('Release waiting');
