@@ -7,10 +7,10 @@ Goal judged: schedule, steering, run outcomes and brief scoring as browser-safe 
 | # | Finding | Severity | Fix |
 |---|---|---|---|
 | R5-1 | No schedule or steer parser; lanes apply the idle backoff by hand | blocker for server/web | FIXED (run 1): `parseSchedule`, `isDue`, `notDueReason`, `applyBackoff`, `wakeReasons`, `parseSteer`, `addSteerEntry` in `src/core/parse/` |
-| R5-2 | `expectedSlots`/`matchSlots` expect runs after root DONE, while PAUSED and for lanes not due (167 phantom slots, A2) | blocker | open: unit 4 `classifyRunSlots` |
-| R5-3 | `lintBrief` misses `### Round N done when`, `**Out of scope:**` and bold lead-ins; scores this IDEA.md 25/100 (A9) | blocker | open: unit 5 |
-| R5-4 | Round count from `done-vN.md` names counts handoff notes (A5, `src/core/rounds.ts`) | major | open: unit 5 |
-| R5-5 | No `loop schedule` / `loop steer` / `next-round --draft` | major | open: units 3, 6 |
+| R5-2 | `expectedSlots`/`matchSlots` expect runs after root DONE, while PAUSED and for lanes not due (167 phantom slots, A2) | blocker | FIXED (verified by control room 2026-10-13: shipped, tests green; table was stale) |
+| R5-3 | `lintBrief` misses `### Round N done when`, `**Out of scope:**` and bold lead-ins; scores this IDEA.md 25/100 (A9) | blocker | FIXED (verified by control room 2026-10-13: shipped, tests green; table was stale) |
+| R5-4 | Round count from `done-vN.md` names counts handoff notes (A5, `src/core/rounds.ts`) | major | FIXED (verified by control room 2026-10-13: shipped, tests green; table was stale) |
+| R5-5 | No `loop schedule` / `loop steer` / `next-round --draft` | major | FIXED (verified by control room 2026-10-13: shipped, tests green; table was stale) |
 
 ## Round 4 (2026-10-11)
 
