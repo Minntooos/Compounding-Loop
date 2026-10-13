@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import type { LoopDetail, SteerScope } from '@core/types';
 import { postSteer } from '../api/client';
-import { slugOf } from '../lib/controls';
+import { notPushedText, slugOf } from '../lib/controls';
 import { steerCommand, steerDraft, steerEditUrl, steerNewFileUrl, steerText } from '../lib/steer';
 import { copyText } from './WelcomeStrip';
 import { toast } from './Toasts';
@@ -58,7 +58,7 @@ export function SteerDialog({ loop, lane: initialLane, local, onClose }: { loop:
       void qc.invalidateQueries();
       setBusy(false);
       // Lanes read main on GitHub: an entry that was committed but not pushed has not reached them.
-      if (reply.pushError || reply.pushed === false) { setSaved(true); setError(`Saved and committed here, but not pushed${reply.pushError ? `: ${reply.pushError}` : ''}. Push main so the lane sees it.`); return; }
+      if (reply.pushError || reply.pushed === false) { setSaved(true); setError(notPushedText(loop.id, reply.pushError, 'Saved and committed')); return; }
       toast(`Steer entry saved for ${lane}: it reads it at the start of its next run`);
       onClose();
     } catch (e) { setError(e instanceof Error ? e.message : String(e)); setBusy(false); }

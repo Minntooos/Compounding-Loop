@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { githubUrl, releaseBlocker, slugOf } from '../../../web/src/lib/controls.js';
+import { githubUrl, notPushedText, releaseBlocker, slugOf } from '../../../web/src/lib/controls.js';
 
 const NOW = new Date('2026-10-11T14:05:00Z');
 describe('dashboard controls', () => {
@@ -27,5 +27,10 @@ describe('dashboard controls', () => {
 
   it('adds no colon of its own (round 5 A8: "Release is off: Tests pass: no result")', () => {
     expect(releaseBlocker({ ship: { ready: false, openFindings: [], items: [{ id: 't', label: 'Tests pass', ok: false, detail: 'no result' }] } })).not.toContain(':');
+  });
+  it('says where to push when a local write committed but did not push', () => {
+    expect(notPushedText('my-loop', 'no upstream.')).toBe('Committed in the my-loop folder but not pushed: no upstream. Run git push there so the lanes see it.');
+    expect(notPushedText('my-loop', undefined, 'Saved and committed')).toBe('Saved and committed in the my-loop folder but not pushed. Run git push there so the lanes see it.');
+    expect(notPushedText('my-loop', '  ')).toBe('Committed in the my-loop folder but not pushed. Run git push there so the lanes see it.');
   });
 });

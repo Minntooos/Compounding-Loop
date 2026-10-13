@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { MIN_BRIEF_SCORE } from '@core/brief';
 import type { LoopDetail } from '@core/types';
 import { postControl, streamDraftBrief } from '../api/client';
-import { CHANGE_TEXT, githubUrl, slugOf } from '../lib/controls';
+import { CHANGE_TEXT, githubUrl, notPushedText, slugOf } from '../lib/controls';
 import { briefVerdict, draftInputsFor, draftPrompt, ingredientGroups } from '../lib/draft';
 import { copyText } from './WelcomeStrip';
 import { toast } from './Toasts';
@@ -91,7 +91,7 @@ export function NextRoundDialog({ loop, local, onClose }: { loop: LoopDetail; lo
       const reply = await postControl(loop.id, 'next-round', { brief });
       await qc.invalidateQueries();
       // Lanes read main on GitHub: a commit that was not pushed has not started anything for them.
-      if (reply.pushError || reply.pushed === false) { setCommitted(true); setError(`Committed here but not pushed${reply.pushError ? `: ${reply.pushError}` : ''}. Push main to finish.`); setBusy(false); return; }
+      if (reply.pushError || reply.pushed === false) { setCommitted(true); setError(notPushedText(loop.id, reply.pushError)); setBusy(false); return; }
       toast(`Round ${inputs.round} started`);
       onClose();
     } catch (e) { setError(e instanceof Error ? e.message : String(e)); setBusy(false); }

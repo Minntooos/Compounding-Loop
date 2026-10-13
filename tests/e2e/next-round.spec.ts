@@ -121,7 +121,7 @@ test('local: committed but not pushed offers Close, not a Retry that would start
   const dialog = page.getByTestId('control-dialog');
   await dialog.getByLabel('Brief for round 6').fill(GOOD_BRIEF);
   await dialog.getByRole('button', { name: 'Start round 6' }).click();
-  await expect(dialog.getByRole('alert')).toHaveText('Committed here but not pushed: no upstream. Push main to finish.');
+  await expect(dialog.getByRole('alert')).toHaveText(/^Committed in the \S+ folder but not pushed: no upstream\. Run git push there so the lanes see it\.$/);
   await expect(dialog.getByRole('button', { name: /Retry|Start round/ })).toHaveCount(0);
   await expect(dialog.getByRole('button', { name: 'Close' })).toBeFocused();
   await dialog.getByRole('button', { name: 'Close' }).click();

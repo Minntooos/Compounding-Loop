@@ -7,7 +7,7 @@ import { toast } from './Toasts';
 import { SteerDialog } from './SteerDialog';
 import { NextRoundDialog } from './NextRoundDialog';
 import { onSteer } from '../lib/steerEvents';
-import { CHANGE_TEXT, githubUrl, releaseBlocker, slugOf, VERB, type ControlAction } from '../lib/controls';
+import { CHANGE_TEXT, githubUrl, notPushedText, releaseBlocker, slugOf, VERB, type ControlAction } from '../lib/controls';
 
 const PENDING: Record<ControlAction, string> = { pause: 'Pausing…', resume: 'Resuming…', 'next-round': 'Starting…', release: 'Opening…' };
 
@@ -42,7 +42,7 @@ function ConfirmDialog({ loop, action, local, onClose }: { loop: LoopDetail; act
         const reply = await postControl(loop.id, action, action === 'pause' ? { reason: reason || undefined } : {});
         await qc.invalidateQueries();
         // Lanes read main on GitHub: a commit that was not pushed has not changed anything for them.
-        if (reply.pushError || reply.pushed === false) { setCommitted(true); setError(`Committed here but not pushed${reply.pushError ? `: ${reply.pushError}` : ''}. Push main to finish.`); setBusy(false); return; }
+        if (reply.pushError || reply.pushed === false) { setCommitted(true); setError(notPushedText(loop.id, reply.pushError)); setBusy(false); return; }
         if (reply.changed === false) { setError('Nothing to change: it was already in that state.'); setBusy(false); return; }
         toast(DONE[action]);
         onClose();

@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { canWrite, postSchedule } from '../api/client';
 import { scheduleButtons, scheduleEditUrl, scheduleToast, snoozePresets, type LaneScheduleKind, type ScheduleButton } from '../lib/schedule';
+import { notPushedText } from '../lib/controls';
 import { toast } from './Toasts';
 
 const LABEL: Record<ScheduleButton, string> = { pause: 'Pause lane', resume: 'Resume', snooze: 'Snooze until…', wake: 'Wake now' };
@@ -51,7 +52,7 @@ export function ScheduleControls({ loopId, lane, kind, slug, now }: { loopId: st
       moved.current = true;
       setOpen(undefined);
       // Lanes read main on GitHub: a schedule change that was committed but not pushed has not reached them.
-      if (reply.pushError || reply.pushed === false) setError(`Committed here but not pushed${reply.pushError ? `: ${reply.pushError}` : ''}. Push main so the lane sees it.`);
+      if (reply.pushError || reply.pushed === false) setError(notPushedText(loopId, reply.pushError));
       else toast(scheduleToast(action, lane, reply.changed !== false, until?.label));
     } catch (e) { setError(e instanceof Error ? e.message : String(e)); }
     setBusy(false);

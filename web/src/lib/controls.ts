@@ -37,3 +37,13 @@ export function releaseBlocker(loop: Pick<LoopDetail, 'ship'>): string | undefin
   const first = loop.ship.items.find((i) => !i.ok);
   return first ? `Release is off · ${first.label} · ${first.detail.replace(/\.$/, '')}` : 'Release is off until every ship check passes.';
 }
+
+/**
+ * The one sentence every local write shows when it committed but did not push. Lanes read main on GitHub, so the
+ * change has not reached them yet. A local loop's id is its folder name (src/server/loops.ts), so the sentence can
+ * say where to push. `done` is what was written ("Committed", "Saved and committed").
+ */
+export function notPushedText(loopId: string, pushError: string | undefined, done = 'Committed'): string {
+  const why = pushError?.trim().replace(/\.$/, '');
+  return `${done} in the ${loopId} folder but not pushed${why ? `: ${why}` : ''}. Run git push there so the lanes see it.`;
+}

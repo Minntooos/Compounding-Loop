@@ -4,6 +4,7 @@ import { Gauge } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { canWrite, postPace } from '../api/client';
 import { lanePace, PACE_DOWNSHIFT, PACE_FLOOR, PACE_SUMMARY, PACE_WORD, PACES, paceEditUrl, paceFileText, paceToast, type LoopPace } from '../lib/pace';
+import { notPushedText } from '../lib/controls';
 import { toast } from './Toasts';
 import { copyText } from './WelcomeStrip';
 
@@ -35,7 +36,7 @@ export function PaceChooser({ loopId, pace, lane, slug, onClose }: { loopId: str
       await qc.invalidateQueries();
       setBusy(false);
       // Lanes read main on GitHub: a pace that was committed but not pushed has not reached them.
-      if (reply.pushError || reply.pushed === false) { setError(`Committed here but not pushed${reply.pushError ? `: ${reply.pushError}` : ''}. Push main so the lanes see it.`); return; }
+      if (reply.pushError || reply.pushed === false) { setError(notPushedText(loopId, reply.pushError)); return; }
       toast(paceToast(picked, lane, reply.changed !== false, pace.pace));
       onClose();
     } catch (e) { setError(e instanceof Error ? e.message : String(e)); setBusy(false); }
