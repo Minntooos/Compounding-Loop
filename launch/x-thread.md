@@ -10,7 +10,9 @@
 
 5/ New in 0.2.0: lanes. Several scheduled runs, one repo, each owning its own paths. `loop check-lanes` fails any commit outside its lane. This repo was built by five lanes.
 
-6/ Open source, MIT, no telemetry. Demo on the real data: https://minntooos.github.io/Compounding-Loop/
+6/ New in 0.5.0: steer a running loop from the dashboard or `loop steer`, snooze or sleep a lane, and idle lanes back off on their own so a finished loop costs nothing.
+
+7/ Open source, MIT, no telemetry. Demo on the real data: https://minntooos.github.io/Compounding-Loop/
 https://github.com/Minntooos/Compounding-Loop
 
 ## Likely objections + answers (for the owner)
