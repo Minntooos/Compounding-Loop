@@ -120,3 +120,36 @@ describe('merge', () => {
     expect(mergeFacts([c('a')], undefined, [])).toHaveLength(1);
   });
 });
+
+describe('loadLive release state (round 5 A1, C7)', () => {
+  const files: Record<string, string> = {
+    'package.json': '{"name":"compounding-loop","version":"0.4.0"}',
+    'DONE.md': '# Done\n',
+    'CHANGELOG.md': '# Changelog\n\n## [0.4.0] - 2026-10-12\n### Added\n- Runs tab\n',
+  };
+  const repo = (overrides: Record<string, () => Response> = {}) => fakeGitHub({
+    '/git/trees/': () => json({ tree: [{ path: '.ai/lanes.json' }, ...Object.keys(files).map((path) => ({ path }))] }),
+    ...Object.fromEntries(Object.entries(files).map(([p, text]) => [`/main/${p}`, () => new Response(text)])),
+    ...overrides,
+  });
+
+  it('asks GitHub for the v<version> tag and npm for the package, and passes both to the builder', async () => {
+    const gh = repo({
+      '/git/matching-refs/tags/v0.4.0': () => json([{ ref: 'refs/tags/v0.4.0' }]),
+      'registry.npmjs.org/compounding-loop': () => json({ 'dist-tags': { latest: '0.4.0' }, versions: { '0.4.0': {} }, time: { '0.4.0': '2026-10-13T00:40:00Z' } }),
+    });
+    const live = await loadLive(gh.fetch, { repo: 'a/b' }, NOW);
+    expect(gh.urls.some((u) => u.includes('/git/matching-refs/tags/v0.4.0'))).toBe(true);
+    expect(gh.urls.some((u) => u.startsWith('https://registry.npmjs.org/compounding-loop'))).toBe(true);
+    expect(live.detail.shipped?.version).toBe('0.4.0');
+  });
+
+  it('a failed tag or npm request does not lose the page and claims no release', async () => {
+    const gh = repo({
+      '/git/matching-refs/': () => new Response('{}', { status: 403 }),
+      'registry.npmjs.org': () => { throw new Error('offline'); },
+    });
+    const live = await loadLive(gh.fetch, { repo: 'a/b' }, NOW);
+    expect(live.detail.shipped).toBeUndefined();
+  });
+});

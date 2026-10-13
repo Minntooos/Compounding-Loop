@@ -1,4 +1,4 @@
-import { buildLiveLoop, commitsSinceUrl, GITHUB_API, hasMoreCommits, snapshotSince, isRepoSlug, laneFilePaths, liveUrls, rawUrl, BASE_FILES, type LiveLoop } from '../../../src/server/live/index.js';
+import { buildLiveLoop, commitsSinceUrl, npmPackageUrl, packageName, packageVersion, tagLookupApiUrl, GITHUB_API, hasMoreCommits, snapshotSince, isRepoSlug, laneFilePaths, liveUrls, rawUrl, BASE_FILES, type LiveLoop } from '../../../src/server/live/index.js';
 import { parseLanesConfig } from '../../../src/core/parse/index.js';
 import type { LoopCommit } from '../../../src/core/types.js';
 
@@ -85,6 +85,35 @@ export async function loadLive(fetchFn: Fetch, config: LiveConfig, now: Date, sn
   ]);
   const lanesText = base['.ai/lanes.json'];
   const lanes = lanesText === undefined ? [] : (parseLanesConfig(lanesText).config?.lanes ?? []);
-  const laneFiles = await fetchFiles(fetchFn, config.repo, laneFilePaths(lanes.map((l) => l.name)), present);
-  return buildLiveLoop({ slug: config.repo, ...(config.loop && { id: config.loop }), commits, runs, ...(snapshot.length > 0 && { snapshotCommits: snapshot }), files: { ...base, ...laneFiles }, now });
+  const pkg = base['package.json'];
+  const [laneFiles, tags, npm] = await Promise.all([
+    fetchFiles(fetchFn, config.repo, laneFilePaths(lanes.map((l) => l.name)), present),
+    releaseTags(fetchFn, config.repo, packageVersion(pkg)),
+    npmDocument(fetchFn, packageName(pkg)),
+  ]);
+  return buildLiveLoop({
+    slug: config.repo, ...(config.loop && { id: config.loop }), commits, runs, ...(snapshot.length > 0 && { snapshotCommits: snapshot }),
+    files: { ...base, ...laneFiles }, now, ...(tags !== undefined && { tags }), ...(npm !== undefined && { npm }),
+  });
+}
+
+/** The tag refs for `v<version>` (A1 "shipped"), or undefined when there is no version or GitHub would not say: then nothing is claimed about tags. */
+async function releaseTags(fetchFn: Fetch, slug: string, version: string | undefined): Promise<unknown> {
+  if (version === undefined) return undefined;
+  try {
+    return await apiJson(fetchFn, tagLookupApiUrl(slug, version));
+  } catch {
+    return undefined; // garnish, like the runs list: a rate limit here must not lose the page
+  }
+}
+
+/** npm's package document (the registry allows any origin); undefined for a repo without a package name or when npm is unreachable. */
+async function npmDocument(fetchFn: Fetch, name: string | undefined): Promise<unknown> {
+  if (name === undefined) return undefined;
+  try {
+    const res = await fetchFn(npmPackageUrl(name), { headers: { accept: 'application/json' } });
+    return res.ok ? ((await res.json()) as unknown) : undefined;
+  } catch {
+    return undefined;
+  }
 }
