@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { DEMO_LOOPS, pinDemoLoops } from './demoLoops';
 
 const lane = (name: string, state: string, extra: object = {}) => ({
   name, state, run: 7, limit: 30, locked: state === 'building', unanswered: [],
@@ -19,11 +20,7 @@ const LANE_NOTES = [
 
 // Serve the demo with a laned loop added: the dashboard must show lanes whenever the API sends them.
 async function withLanedLoop(page: Page) {
-  await page.route('**/api/loops', async (route) => {
-    const res = await route.fetch();
-    const loops = (await res.json()) as Record<string, unknown>[];
-    await route.fulfill({ response: res, json: [...loops, { ...loops[0], id: 'laned', name: 'laned-loop', state: 'failing', reason: 'lane web is stalled', lanes: LANES }] });
-  });
+  await pinDemoLoops(page, [{ ...DEMO_LOOPS[0], id: 'laned', name: 'laned-loop', state: 'failing', reason: 'lane web is stalled', lanes: LANES }]);
   await page.route('**/api/loops/laned', async (route) => {
     const res = await route.fetch({ url: route.request().url().replace('/laned', '/proj2') });
     const loop = (await res.json()) as Record<string, unknown>;
@@ -78,12 +75,13 @@ test('fleet filter by status narrows the cards and can be cleared', async ({ pag
   await expect(cards).toHaveCount(all);
 });
 
-test('the demo serves this repo as a laned loop with five finished lanes', async ({ page }) => {
+test('the demo serves this repo as a laned loop with its five lanes', async ({ page }) => {
   await page.goto('/#/loop/compounding-loop');
   await page.getByRole('tab', { name: 'Lanes' }).click();
   const rows = page.getByTestId('lane-row');
   await expect(rows).toHaveCount(5);
-  for (let i = 0; i < 5; i++) await expect(rows.nth(i)).toContainText('Done');
+  // Any round of the self snapshot: server moves it forward, so only the lanes themselves are fixed.
+  for (const name of ['core', 'kit', 'server', 'web', 'docs']) await expect(rows.getByRole('heading', { name, exact: true })).toHaveCount(1);
 });
 
 const iso = (minsAgo: number) => new Date(Date.now() - minsAgo * 60_000).toISOString();

@@ -1,0 +1,295 @@
+[
+ {
+  "id": "proj2",
+  "name": "clearpoolmath.netlify.app",
+  "url": "https://clearpoolmath.netlify.app",
+  "state": "done",
+  "reason": "all 5 rounds done",
+  "round": 5,
+  "roundsTotal": 5,
+  "run": 0,
+  "runLimit": 30,
+  "tests": {
+   "passed": 543,
+   "failed": 0,
+   "at": "2026-10-06T21:42:27.420Z"
+  },
+  "live": {
+   "ok": true,
+   "status": 200,
+   "leaked": []
+  },
+  "pages": 40,
+  "lastCommit": {
+   "sha": "ec5adac",
+   "at": "2026-10-06T21:41:25.000Z",
+   "message": "Volume page: shorten meta description to 145 chars so npm run check passes"
+  },
+  "snapshotAt": "2026-10-06T21:44:10.086Z"
+ },
+ {
+  "id": "compounding-loop",
+  "name": "compounding-loop (this repo)",
+  "url": "https://minntooos.github.io/Compounding-Loop/",
+  "demoUrl": "https://minntooos.github.io/Compounding-Loop/",
+  "repoUrl": "https://github.com/Minntooos/Compounding-Loop",
+  "state": "done",
+  "reason": "rounds 1 to 3 built unattended by five parallel lanes, all done",
+  "round": 3,
+  "roundsTotal": 4,
+  "roundLabel": "Round 3 done · 0.3.0",
+  "run": 63,
+  "runLimit": 350,
+  "lastCommit": {
+   "sha": "b3b51a5",
+   "at": "2026-10-11T14:51:27.000Z",
+   "message": "Release 0.3.0: version bump and CHANGELOG",
+   "author": "Minntooos",
+   "lane": "control"
+  },
+  "snapshotAt": "2026-10-11T14:51:27.000Z",
+  "lanes": [
+   {
+    "name": "core",
+    "state": "done",
+    "run": 14,
+    "limit": 70,
+    "lastCommit": {
+     "sha": "1256361",
+     "subject": "core: round 3 lane DONE",
+     "at": "2026-10-11T07:10:24.000Z"
+    },
+    "locked": false,
+    "unanswered": []
+   },
+   {
+    "name": "kit",
+    "state": "done",
+    "run": 9,
+    "limit": 70,
+    "lastCommit": {
+     "sha": "5dd559c",
+     "subject": "kit: lane DONE for round 3",
+     "at": "2026-10-11T10:22:58.000Z"
+    },
+    "locked": false,
+    "unanswered": []
+   },
+   {
+    "name": "server",
+    "state": "done",
+    "run": 6,
+    "limit": 70,
+    "lastCommit": {
+     "sha": "d03b48a",
+     "subject": "server: round 3 lane DONE",
+     "at": "2026-10-11T07:33:57.000Z"
+    },
+    "locked": false,
+    "unanswered": []
+   },
+   {
+    "name": "web",
+    "state": "done",
+    "run": 21,
+    "limit": 70,
+    "lastCommit": {
+     "sha": "4a797ed",
+     "subject": "web: run 8, lane DONE for round 3",
+     "at": "2026-10-11T12:46:04.000Z"
+    },
+    "locked": false,
+    "unanswered": []
+   },
+   {
+    "name": "docs",
+    "state": "done",
+    "run": 13,
+    "limit": 70,
+    "lastCommit": {
+     "sha": "4574135",
+     "subject": "docs: retro, dashboard page covers lanes and live demo, drop stale screenshot script, lane DONE",
+     "at": "2026-10-11T11:58:52.000Z"
+    },
+    "locked": false,
+    "unanswered": []
+   }
+  ],
+  "runOutcomes": {
+   "limitStops5h": 2,
+   "running": [
+    "web"
+   ],
+   "sleeping": [
+    "kit",
+    "docs"
+   ],
+   "paused": [],
+   "routinesLookOff": false,
+   "nextDue": {
+    "lane": "core",
+    "at": "2026-10-13T13:05:00.000Z"
+   }
+  },
+  "lastRun": {
+   "lane": "server",
+   "at": "2026-10-13T12:25:00.000Z",
+   "outcome": "pushed"
+  },
+  "draftInputs": {
+   "name": "compounding-loop",
+   "round": 6,
+   "next": [
+    {
+     "source": ".ai/lanes/core/DONE.md",
+     "items": [
+      "`loop pace` per lane in the dashboard",
+      "Windows path tests for the schedule commands"
+     ]
+    },
+    {
+     "source": ".ai/lanes/web/DONE.md",
+     "items": [
+      "Compress the phone screenshots",
+      "A keyboard shortcut list"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "source": ".ai/audit/server.md",
+     "text": "A3 · HealthCheck.state is missing on local checks"
+    }
+   ],
+   "steer": [
+    {
+     "lane": "server",
+     "entries": [
+      {
+       "at": "2026-10-13T11:30:00.000Z",
+       "author": "owner",
+       "scope": "next-run",
+       "text": "Put run-log fixtures in the demo snapshot first; web is waiting on them."
+      }
+     ]
+    }
+   ],
+   "outOfScope": [
+    "Hosted dashboard",
+    "Billing"
+   ]
+  }
+ },
+ {
+  "id": "proj5",
+  "name": "mathtank.netlify.app",
+  "url": "https://mathtank.netlify.app",
+  "state": "done",
+  "reason": "all 5 rounds done",
+  "round": 5,
+  "roundsTotal": 5,
+  "run": 0,
+  "runLimit": 30,
+  "tests": {
+   "passed": 433,
+   "failed": 0,
+   "at": "2026-10-06T21:44:00.875Z"
+  },
+  "live": {
+   "ok": true,
+   "status": 200,
+   "leaked": []
+  },
+  "pages": 37,
+  "lastCommit": {
+   "sha": "1afd71d",
+   "at": "2026-10-06T17:14:30.000Z",
+   "message": "v5 complete: DONE.md, log, knowledge note, remove task.md"
+  },
+  "snapshotAt": "2026-10-06T21:44:10.086Z"
+ },
+ {
+  "id": "proj1",
+  "name": "powerstationruntime.netlify.app",
+  "url": "https://powerstationruntime.netlify.app",
+  "state": "done",
+  "reason": "all 5 rounds done",
+  "round": 5,
+  "roundsTotal": 5,
+  "run": 0,
+  "runLimit": 30,
+  "tests": {
+   "passed": 278,
+   "failed": 0,
+   "at": "2026-10-06T21:41:53.269Z"
+  },
+  "live": {
+   "ok": true,
+   "status": 200,
+   "leaked": []
+  },
+  "pages": 55,
+  "lastCommit": {
+   "sha": "11d2403",
+   "at": "2026-10-06T21:24:58.000Z",
+   "message": "v5 done: DONE.md, retro log; remove task.md"
+  },
+  "snapshotAt": "2026-10-06T21:44:10.086Z"
+ },
+ {
+  "id": "proj4",
+  "name": "quiltcalculators.netlify.app",
+  "url": "https://quiltcalculators.netlify.app",
+  "state": "done",
+  "reason": "all 5 rounds done",
+  "round": 5,
+  "roundsTotal": 5,
+  "run": 0,
+  "runLimit": 30,
+  "tests": {
+   "passed": 452,
+   "failed": 0,
+   "at": "2026-10-06T21:43:23.963Z"
+  },
+  "live": {
+   "ok": true,
+   "status": 200,
+   "leaked": []
+  },
+  "pages": 43,
+  "lastCommit": {
+   "sha": "4f17620",
+   "at": "2026-10-06T17:12:15.000Z",
+   "message": "DONE.md: v5 complete; retro log and knowledge; release the session lock"
+  },
+  "snapshotAt": "2026-10-06T21:44:10.086Z"
+ },
+ {
+  "id": "proj3",
+  "name": "yarnsums.netlify.app",
+  "url": "https://yarnsums.netlify.app",
+  "state": "done",
+  "reason": "all 5 rounds done",
+  "round": 5,
+  "roundsTotal": 5,
+  "run": 0,
+  "runLimit": 30,
+  "tests": {
+   "passed": 419,
+   "failed": 0,
+   "at": "2026-10-06T21:42:57.028Z"
+  },
+  "live": {
+   "ok": true,
+   "status": 200,
+   "leaked": []
+  },
+  "pages": 40,
+  "lastCommit": {
+   "sha": "83f5c6d",
+   "at": "2026-10-06T17:52:28.000Z",
+   "message": "Remove credit-session lock: cloud credit is used up, routines take over"
+  },
+  "snapshotAt": "2026-10-06T21:44:10.086Z"
+ }
+]

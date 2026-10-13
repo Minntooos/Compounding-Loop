@@ -71,7 +71,8 @@ test('a loop page strip describes only that loop', async ({ page }, info) => {
   await page.goto('/#/loop/compounding-loop');
   const strip = page.getByTestId('status-strip');
   await expect(strip).toHaveAccessibleName('Loop status');
-  await expect(strip.locator('[data-segment="state"]')).not.toContainText('·');
+  // The fleet strip names the loop ("Done · compounding-loop"); a loop page never does (it may name a lane).
+  await expect(strip.locator('[data-segment="state"]')).not.toContainText(/compounding-loop|loops/);
   // The demo self loop carries server's example run outcomes (two limit stops in the last 5 h).
   await expect(strip.locator('[data-segment="limits"]')).toHaveText(info.project.name === 'phone' ? '2 limit stops' : '2 limit stops in 5 h', { useInnerText: true });
 });

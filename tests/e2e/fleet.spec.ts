@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { pinDemoLoops } from './demoLoops';
 
 function trackErrors(page: Page): string[] {
   const errors: string[] = [];
@@ -14,6 +15,7 @@ const SITES: [string, number][] = [
 
 test('fleet shows the five demo sites with their numbers and the release waiting on the owner', async ({ page }) => {
   const errors = trackErrors(page);
+  await pinDemoLoops(page);
   await page.goto('/');
   await expect(page.getByRole('link', { name: /1 thing needs you/ })).toBeVisible();
   const cards = page.getByTestId('loop-card');
@@ -71,6 +73,7 @@ test('keyboard: tab reaches nav and cards with visible focus; Ctrl+K palette nav
 });
 
 test('cards show a round bar (run budget only while running); the self-build card comes first; no empty rows', async ({ page }) => {
+  await pinDemoLoops(page);
   await page.goto('/');
   const cards = page.getByTestId('loop-card');
   await expect(cards.first()).toContainText('compounding-loop');

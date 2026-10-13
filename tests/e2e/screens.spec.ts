@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { DEMO_LOOPS, pinDemoLoops } from './demoLoops';
 
 function trackErrors(page: Page): string[] {
   const errors: string[] = [];
@@ -77,6 +78,7 @@ test('inbox: empty state in demo; a question can be accepted with j/k/a and the 
 });
 
 test('fleet shows "needs you" when the inbox has questions', async ({ page }) => {
+  await pinDemoLoops(page);
   await page.route('**/api/inbox', (r) => r.fulfill({ json: [{ loopId: 'a', file: 'BLOCKED.md', question: 'q', bestGuess: 'g', since: '2026-10-08T01:00:00Z' }] }));
   await page.goto('/');
   await expect(page.getByRole('link', { name: /2 things need you/ })).toBeVisible();
@@ -146,7 +148,7 @@ test('loop tabs move with the arrow keys', async ({ page }) => {
 
 test('a failed load shows an error with a working retry', async ({ page }) => {
   let fail = true;
-  await page.route('**/api/loops', (route) => (fail ? route.fulfill({ status: 500, body: 'boom' }) : route.continue()));
+  await page.route('**/api/loops', (route) => (fail ? route.fulfill({ status: 500, body: 'boom' }) : route.fulfill({ json: DEMO_LOOPS })));
   await page.goto('/');
   const alert = page.getByRole('alert').filter({ hasText: 'Could not load the fleet' });
   await expect(alert).toBeVisible();
