@@ -1,7 +1,7 @@
 # Lane: web — round 5 (0.5.0 "Cockpit")
 
-Run: 5 / 20
-Status: units 1-3 done; 4 done (C4 local Save + C5 buttons shipped run 5); Routines-look-off row done; 7: docs screenshot set done; C7 chips done; next: run-5 design-review opens (badge vs schedule), then C3 heat map
+Run: 6 / 20
+Status: units 1-4 done; Routines-look-off row done; 7: docs screenshot set done; C7 chips done; run-5 design-review opens fixed in run 6; next: C6 (draft-brief SSE is on main), C3 when server adds slot `kind` to runs
 Round 4 record: `.ai/lanes/web/done-v4.md` (`git show 02874e8:.ai/lanes/web/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
@@ -45,6 +45,8 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - 2026-10-13 run 5: "Routines look off" replaces the server inbox's `lanes-not-running` item for that loop (`liveInbox`, also on the Inbox page) and its stalled-lane rows: that item blames the usage limit, which resets within 5 h, so after 6 h of silence its advice is wrong (reviewer blocker). Asked server to skip it at the source.
 - 2026-10-13 run 5: local steer composer is one *Save* button, not Save + Save and wake: server's `POST …/steer` (core `runSteer`) always wakes a held-back lane. The CLI command stays folded under "Or run it from a terminal".
 - 2026-10-13 run 5: C5 buttons ship without a toast Undo (Toasts has no actions; the opposite button undoes) and the demo shows one *Edit schedule on GitHub* link, not a prefilled schedule.json: core's schedule transform is node-only (src/cli/schedule.ts) and web must not re-implement it.
+- 2026-10-13 run 6: the routines-off Needs-you row keeps "Open loop", not a Wake POST (`lane: "all"`): routines look off means due slots had no run at all, so the schedule is not what holds the lanes; waking would change nothing and read as a fix. Easy to reverse.
+- 2026-10-13 run 6: a held-back building/waiting lane's badge shows the hold (Paused/Sleeping/Snoozed, muted) and a routines-off or stalled-lane building/waiting loop reads Stalled on its card and header (`laneHold`, `cardBadge`, `stateReason`, `chipHold`). Failing/blocked/done keep their badge.
 - 2026-10-13 run 4: C5 buttons wait for server's `POST …/schedule`; this unit ships the state sentence and the steer history only.
 
 ## Confirmed
@@ -62,7 +64,7 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
-Run 5 (2026-10-13 07:43-08:15 UTC; stale clone, worked on branch `lane-run` and pushed `HEAD:main`) shipped: (1) "Routines look off" attention item (`attentionItems` kind `routines-off`, `liveInbox` drops the server's `lanes-not-running` item for that loop and its stalled-lane rows; Needs-you row with explain; strip Stalled) — tests in lanes/needsYou/strip unit + attention.spec.ts; (2) local steer composer *Save* via `postSteer` (`web/src/api/client.ts`), unpushed commit → "Saved" disabled, CLI command folded under "Or run it from a terminal" — steer.spec.ts; (3) C5 buttons `web/src/components/ScheduleControls.tsx` (+ `scheduleButtons`, `snoozePresets`, `scheduleToast` in lib/schedule.ts) via `postSchedule`; demo = "Edit schedule on GitHub" link — lane-schedule.spec.ts; (4) run-5 design review recorded in `.ai/audit/web.md`.
-Do first next run (design review opens): lane badge vs schedule sentence contradiction ("Building · Paused"), fleet card badge Building while strip says Stalled for routines-off (`Fleet.tsx:47`, `LanesTab.tsx` LaneRow); routines-off row locally could POST wake `lane: "all"` (server supports it) instead of Open loop; steer dialog terminal fold scroll-into-view at 375 px.
-Waiting on server: skip `silentLanesItem` when routinesLookOff (asked in outbox; web already hides it), demo self lanes not all done, C6 draft-brief SSE, pace routes (C9).
-Next after that: C3 heat map from `loop.runs` (outcome vocabulary in DESIGN §12), then C6, C9. Re-shoot the docs set after server's demo fixtures change. Design reviewer recipe: fixture routes as in tests/e2e/lane-schedule.spec.ts (local mode = `**/api/loops`), Playwright executablePath under /opt/pw-browsers; never `pkill -f` a pattern that matches your own shell command (it killed the shell in run 5).
+Run 6 (2026-10-13 08:44-09:12 UTC; stale clone, branch `lane-run`, pushed `HEAD:main`) shipped e01a78c + 841eab1: badges never contradict the schedule or strip — `laneHold` (schedule.ts) gives LaneBadge a Paused/Sleeping/Snoozed hold on the Lanes tab; `cardBadge`/`stateReason`/`chipHold` (card.ts) make fleet card + loop header read Stalled / "Routines look off" and card chips show sleeping/loop-paused lanes; schedule sentence drops its glyph when the badge holds; steer dialog terminal fold scrolls the dialog to its end (scrollIntoView did not clear the sticky footer — CONFIRMED by the laptop e2e failing first). Tests: card/schedule unit, lane-schedule.spec.ts (badges, Stalled card, chips), steer.spec.ts (Copy above Save). Run 6 design review in `.ai/audit/web.md`.
+Do first next run: C6 next round — Draft with Claude via server's `POST /api/loops/:id/draft-brief` (SSE: progress {step}, then draft {draft,score,gaps} or error {error,status}; see .ai/contracts.md), ingredients, Copy prompt; Go stays a separate click. DESIGN.md §12 already has the C6 entry (web/DESIGN.md:181); build it, then the design review.
+Waiting on server: slot `kind` on `LoopDetail.runs[]` + not-due/paused/done slots (C3 heat map, asked 09:10), `RunOutcomes.paused` lanes (fleet chips), demo self lane states, pace routes (C9).
+Open minors: `cardBadge` ignores a loop pause (status line says Paused); "Limit stops not checked" while routines look off hides a known count. Design reviewer recipe: fixture routes as in tests/e2e/lane-schedule.spec.ts, `vite preview --port 4180`, Playwright executablePath under /opt/pw-browsers; never `pkill -f` a pattern matching your own shell. In one e2e test, re-serving new fixtures after hash navigation shows cached data: use a separate test.
