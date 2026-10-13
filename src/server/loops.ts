@@ -233,6 +233,18 @@ async function readInboxItem(dir: string): Promise<InboxItem | undefined> {
 const pushQuietly = (dir: string) =>
   execFileAsync('git', ['push'], { cwd: dir, timeout: 30_000, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }).then(() => true, () => false);
 
+/** Like `pushQuietly`, but says why a push failed (git's last line), so the UI can show the reason next to "not pushed". */
+export async function pushWithReason(dir: string): Promise<{ pushed: boolean; pushError?: string }> {
+  try {
+    await execFileAsync('git', ['push'], { cwd: dir, timeout: 30_000, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } });
+    return { pushed: true };
+  } catch (error) {
+    const text = String((error as { stderr?: unknown }).stderr ?? (error as Error).message ?? '');
+    const last = text.split('\n').map((l) => l.trim()).filter(Boolean).pop();
+    return { pushed: false, pushError: last ?? 'git push failed' };
+  }
+}
+
 /** A DataSource over a folder of loop clones, re-read on every call so the dashboard is never stale. */
 export function projectsSource(projectsDir: string, now: () => Date = () => new Date(), claude: AbortableClaude = abortableClaude): DataSource {
   const all = async () => Promise.all((await findLoopDirs(projectsDir)).map((dir) => readLoop(dir, now())));
@@ -292,8 +304,8 @@ export function projectsSource(projectsDir: string, now: () => Date = () => new 
         await writeFile(briefFile, brief.endsWith('\n') ? brief : `${brief}\n`);
         // A failed round must not leave the brief behind for a lane's `git add -A`.
         const { committed } = await exclusive(dir, () => runLaneRound(dir, { briefFile, dryRun: false, commit: true, now: now() })).finally(() => rm(briefFile, { force: true }));
-        const pushed = committed ? await pushQuietly(dir) : undefined;
-        return { changed: true, committed, ...(pushed !== undefined && { pushed }) };
+        const push = committed ? await pushWithReason(dir) : undefined;
+        return { changed: true, committed, ...(push && { pushed: push.pushed, ...(push.pushError !== undefined && { pushError: push.pushError }) }) };
       },
       steer: async (id, lane, text, options = {}) => {
         const dir = await loopDir(id);
