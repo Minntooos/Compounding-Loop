@@ -192,7 +192,7 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
   };
   const blockedText = input.files['BLOCKED.md'];
   const inbox: InboxItem[] = blockedText === undefined ? [] : [{ loopId: id, file: 'BLOCKED.md', ...pick(parseBlocked(blockedText)), since: (newest ?? { at: input.now.toISOString() }).at }];
-  const silent = runsData && silentLanesItem(id, runsData.silentLanes, input.now.toISOString());
+  const silent = runsData && silentLanesItem(id, runsData.silentLanes, input.now.toISOString(), runsData.routinesLookOff);
   if (silent) inbox.push(silent);
   if (releaseWaiting) inbox.push(releaseInboxItem(id, version, (newest ?? { at: input.now.toISOString() }).at));
   return { detail, inbox, checks: checks.map(withLabel) };

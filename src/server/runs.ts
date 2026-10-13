@@ -152,9 +152,9 @@ export function buildRuns(input: RunsInput): RunsData {
   };
 }
 
-/** The attention item for lanes that stopped running, or none. */
-export function silentLanesItem(loopId: string, silent: RunsData['silentLanes'], since: string): InboxItem | undefined {
-  if (silent.length === 0) return undefined;
+/** The attention item for lanes that stopped running, or none. After 6 h of silence the usage-limit advice is wrong, so the "Routines look off" row replaces it. */
+export function silentLanesItem(loopId: string, silent: RunsData['silentLanes'], since: string, routinesLookOff = false): InboxItem | undefined {
+  if (silent.length === 0 || routinesLookOff) return undefined;
   return {
     loopId,
     file: '.ai/lanes.json',

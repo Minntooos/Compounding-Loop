@@ -65,7 +65,7 @@ function pausedInfo(text: string): NonNullable<LoopSummary['paused']> {
   return { by, ...(at && { at: at.toISOString() }), ...(reason && { reason }) };
 }
 
-async function readRuns(dir: string, lanes: readonly LaneStatus[], lanesJson: string | undefined, timeline: readonly LoopCommit[], now: Date) {
+async function readRuns(dir: string, lanes: readonly LaneStatus[], lanesJson: string | undefined, timeline: readonly LoopCommit[], now: Date, hasDone = false) {
   const cron = new Map((parseLanesConfig(lanesJson ?? '').config?.lanes ?? []).map((l) => [l.name, l.cron] as const));
   const pausedText = await readOptional(path.join(dir, '.ai', 'PAUSED'));
   const scheduleText = await readOptional(path.join(dir, '.ai', 'schedule.json'));
@@ -74,7 +74,7 @@ async function readRuns(dir: string, lanes: readonly LaneStatus[], lanesJson: st
   const laneNames = lanes.map((l) => l.name);
   const logs = Object.fromEntries(await Promise.all(laneNames.map(async (n) => [n, await readOptional(path.join(dir, '.ai', 'lanes', n, 'runs.jsonl'))] as const)));
   const steerTexts = Object.fromEntries(await Promise.all(laneNames.map(async (n) => [n, await readOptional(path.join(dir, '.ai', 'lanes', n, 'steer.md'))] as const)));
-  const data = buildRuns({ steerTexts, lanes: laneNames.map((name) => ({ name, ...(cron.get(name) && { cron: cron.get(name) as string }), stopped: ['done', 'blocked'].includes(lanes.find((l) => l.name === name)?.state ?? '') || lanes.find((l) => l.name === name)?.claim !== undefined })), logs, commits: timeline, now, ...(schedule && { schedule }), ...(pausedText !== undefined && { paused: pausedAt ? { at: pausedAt } : {} }) });
+  const data = buildRuns({ steerTexts, lanes: laneNames.map((name) => ({ name, ...(cron.get(name) && { cron: cron.get(name) as string }), stopped: hasDone || ['done', 'blocked'].includes(lanes.find((l) => l.name === name)?.state ?? '') || lanes.find((l) => l.name === name)?.claim !== undefined })), logs, commits: timeline, now, ...(schedule && { schedule }), ...(pausedText !== undefined && { paused: pausedAt ? { at: pausedAt } : {} }) });
   return { ...data, ...(schedule && { schedule }) };
 }
 
@@ -112,7 +112,7 @@ export async function readLoop(dir: string, now: Date = new Date()): Promise<Loo
   ]);
   const [changelogText, controlText, pausedText] = await Promise.all(['CHANGELOG.md', path.join('.ai', 'control-room.md'), path.join('.ai', 'PAUSED')].map((f) => readOptional(path.join(dir, f))));
   const notes = controlText === undefined || !lanes ? [] : Object.entries(latestControlNotes(controlText, laneNames)).map(([lane, n]) => ({ lane, at: n.at, text: n.text }));
-  const runsData = lanes && (await readRuns(dir, lanes, lanesJson, timeline, now));
+  const runsData = lanes && (await readRuns(dir, lanes, lanesJson, timeline, now, baseFacts.hasDone));
   // Any failing health check turns the loop "failing" with that check's reason (IDEA.md status rule 5).
   const checks = await checkLoop(dir, baseFacts, now, undefined, lanes);
   const facts = { ...baseFacts, healthFailures: checks.filter((c) => !c.ok).map((c) => c.reason) };
@@ -200,8 +200,9 @@ async function readSilentItem(dir: string, now: Date): Promise<InboxItem | undef
   const lanes = await readLaneStatuses(dir, now);
   if (!lanes) return undefined;
   const names = lanes.map((l) => l.name);
-  const runs = await readRuns(dir, lanes, await readOptional(path.join(dir, '.ai', 'lanes.json')), await readTimeline(dir, 300, names), now);
-  return silentLanesItem(path.basename(dir), runs.silentLanes, now.toISOString());
+  const hasDone = (await readOptional(path.join(dir, 'DONE.md'))) !== undefined;
+  const runs = await readRuns(dir, lanes, await readOptional(path.join(dir, '.ai', 'lanes.json')), await readTimeline(dir, 300, names), now, hasDone);
+  return silentLanesItem(path.basename(dir), runs.silentLanes, now.toISOString(), runs.routinesLookOff);
 }
 
 async function readInboxItem(dir: string): Promise<InboxItem | undefined> {

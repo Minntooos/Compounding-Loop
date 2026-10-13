@@ -45,6 +45,8 @@ describe('buildRuns', () => {
     expect(buildRuns({ lanes, logs: {}, commits: [], now: NOW }).silentLanes).toEqual([]);
     expect(buildRuns({ lanes: [{ name: 'core', cron: '0 * * * *', stopped: true }], logs: {}, commits: known, now: NOW }).silentLanes).toEqual([]);
     expect(silentLanesItem('x', [], NOW.toISOString())).toBeUndefined();
+    // after 6 h of silence the usage-limit advice is dropped; the routines-look-off row takes over
+    expect(silentLanesItem('x', quiet.silentLanes, NOW.toISOString(), true)).toBeUndefined();
   });
 
   it('a slot with a commit but no log line counts as run (the agent forgot the log step)', () => {

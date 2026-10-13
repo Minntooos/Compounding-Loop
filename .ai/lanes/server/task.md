@@ -1,6 +1,6 @@
 # Lane: server — round 5 (0.5.0 "Cockpit")
 
-Run: 5 / 20
+Run: 6 / 20
 Status: units 1-4 done (audit, A1, A7, A2, cockpit data, demo fixtures, POST steer/schedule + URL builders); next: unit 5 draft-brief SSE
 Round 4 record: `.ai/lanes/server/done-v4.md` (`git show 02874e8:.ai/lanes/server/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
