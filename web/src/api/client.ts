@@ -79,6 +79,18 @@ export async function postControl(loopId: string, action: 'pause' | 'resume' | '
   return reply;
 }
 
+export interface SteerReply extends ControlReply { lanes?: string[] }
+
+/** POST a steer entry to the local server: core's `runSteer` writes it, wakes the lane if the schedule holds it back, and commits. */
+export async function postSteer(loopId: string, body: { lane: string; text: string; standing?: boolean; author?: string }): Promise<SteerReply> {
+  const res = await fetch(`/api/loops/${encodeURIComponent(loopId)}/steer`, {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+  });
+  const reply = (await res.json().catch(() => ({}))) as SteerReply & { error?: string };
+  if (!res.ok) throw new Error(reply.error ?? `Steer failed (${res.status})`);
+  return reply;
+}
+
 /** Static hosting only: the snapshot's rows, with the self-build loop replaced by its live GitHub state when that loads. */
 async function withLive<T>(snapshot: T, merge: (rows: T, live: NonNullable<Awaited<ReturnType<typeof getLive>>>) => T): Promise<T> {
   if (await hasServer()) return snapshot;

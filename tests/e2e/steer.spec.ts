@@ -55,19 +55,49 @@ test('a lane row opens the composer for that lane, and S opens it from the page'
   await expect(page.getByTestId('steer-dialog')).toHaveCount(1);
 });
 
-test('local: the composer offers the loop steer command', async ({ page }) => {
+test('local: Save posts the entry to the server and closes; the loop steer command stays as a fallback', async ({ page }) => {
   await serve(page, { demo: false });
+  const posted: unknown[] = [];
+  await page.route('**/api/loops/self/steer', (r) => { posted.push(r.request().postDataJSON()); return r.fulfill({ json: { ok: true, changed: true, lanes: ['web'], pushed: true } }); });
   await page.goto('/#/loop/self');
   await page.getByRole('button', { name: 'Steer', exact: true }).click();
   const dialog = page.getByTestId('steer-dialog');
+  await expect(dialog.getByRole('button', { name: 'Save' })).toBeDisabled();
   await dialog.getByLabel('Tell the lane what to do, in plain words').fill('Fix "the strip"');
+  await dialog.getByText('Or run it from a terminal').click();
   await expect(dialog.getByTestId('steer-command')).toHaveText("npx compounding-loop steer -- core 'Fix \"the strip\"'");
   await expect(dialog.getByRole('button', { name: 'Copy command' })).toBeEnabled();
   // Centred and inside the viewport, with its buttons reachable (design review, run 3).
   const box = await dialog.boundingBox();
   const vp = page.viewportSize();
   expect(box && vp && box.x > 0 && box.y > 0 && box.y + box.height <= vp.height && Math.abs(box.x + box.width / 2 - vp.width / 2) < 2).toBe(true);
-  await expect(dialog.getByRole('button', { name: 'Copy command' })).toBeInViewport();
+  await expect(dialog.getByRole('button', { name: 'Save' })).toBeInViewport();
+  await dialog.getByLabel('Lane', { exact: true }).selectOption('web');
+  await dialog.getByLabel('Unit (optional)').fill('4');
+  await dialog.getByRole('radio', { name: 'Standing' }).check();
+  await dialog.getByRole('button', { name: 'Save' }).click();
+  await expect(page.getByTestId('steer-dialog')).toHaveCount(0);
+  await expect(page.getByText('Steer entry saved for web')).toBeVisible();
+  // An empty name is left out, so core writes the author from git user.name.
+  expect(posted).toEqual([{ lane: 'web', text: 'Unit 4: Fix "the strip"', standing: true }]);
+});
+
+test('local: a server error stays in the dialog; an unpushed commit is Saved, never saved twice', async ({ page }) => {
+  await serve(page, { demo: false });
+  let reply: { status: number; json: object } = { status: 422, json: { error: 'Say who you are: set git user.name or fill in your name' } };
+  await page.route('**/api/loops/self/steer', (r) => r.fulfill(reply));
+  await page.goto('/#/loop/self');
+  await page.getByRole('button', { name: 'Steer', exact: true }).click();
+  const dialog = page.getByTestId('steer-dialog');
+  await dialog.getByLabel('Tell the lane what to do, in plain words').fill('Go');
+  await dialog.getByRole('button', { name: 'Save' }).click();
+  await expect(dialog.getByTestId('steer-error')).toHaveText(/Say who you are/);
+  reply = { status: 200, json: { ok: true, changed: true, lanes: ['core'], pushed: false, pushError: 'no upstream' } };
+  await dialog.getByRole('button', { name: 'Save' }).click();
+  await expect(dialog.getByTestId('steer-error')).toHaveText(/not pushed: no upstream/);
+  // The entry is committed: a second Save would write it twice.
+  await expect(dialog.getByRole('button', { name: 'Saved' })).toBeDisabled();
+  await expect(dialog.getByRole('button', { name: 'Close' })).toBeEnabled();
 });
 
 for (const theme of ['light', 'dark'] as const) {

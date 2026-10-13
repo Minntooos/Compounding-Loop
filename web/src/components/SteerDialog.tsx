@@ -1,7 +1,9 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import type { LoopDetail, SteerScope } from '@core/types';
+import { postSteer } from '../api/client';
 import { slugOf } from '../lib/controls';
-import { steerCommand, steerDraft, steerEditUrl, steerNewFileUrl } from '../lib/steer';
+import { steerCommand, steerDraft, steerEditUrl, steerNewFileUrl, steerText } from '../lib/steer';
 import { copyText } from './WelcomeStrip';
 import { toast } from './Toasts';
 
@@ -11,7 +13,8 @@ const field = { background: 'var(--bg)', borderColor: 'var(--border)' };
 
 /**
  * C4: tell a lane what to do in one sentence. The preview is core's own formatter output, so what you see is what lands in steer.md.
- * Demo: copies the entry and opens GitHub's editor for the file. Local: copies the `loop steer` command (it saves, wakes the lane and commits).
+ * Demo: copies the entry and opens GitHub's editor for the file. Local: Save posts it to the server, which writes it with core's
+ * `runSteer` (also waking the lane if the schedule holds it back) and commits; the `loop steer` command stays as a fallback.
  */
 export function SteerDialog({ loop, lane: initialLane, local, onClose }: { loop: LoopDetail; lane?: string; local: boolean; onClose: () => void }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -22,6 +25,11 @@ export function SteerDialog({ loop, lane: initialLane, local, onClose }: { loop:
   const [text, setText] = useState('');
   const [author, setAuthor] = useState(local ? '' : 'owner');
   const [note, setNote] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string>();
+  // Committed but not pushed: the entry exists, so a second Save would write it twice.
+  const [saved, setSaved] = useState(false);
+  const qc = useQueryClient();
   useEffect(() => {
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : undefined;
     ref.current?.showModal();
@@ -36,13 +44,26 @@ export function SteerDialog({ loop, lane: initialLane, local, onClose }: { loop:
   const empty = blockedText(text) !== undefined;
   const blocked = blockedText(text) ?? (!local && !slug ? 'This loop has no GitHub repository to open.' : undefined);
 
+  async function copyCommand() {
+    const ok = await copyText(command, document.getElementById('steer-command'));
+    setNote(ok ? 'Command copied. Run it in the repo: it saves the entry, wakes the lane and commits.' : 'Select the command above and copy it (Ctrl+C).');
+  }
+
+  async function save() {
+    setBusy(true); setError(undefined);
+    try {
+      const reply = await postSteer(loop.id, { lane, text: steerText(unit, text), ...(scope === 'standing' && { standing: true }), ...(author.trim() && { author: author.trim() }) });
+      void qc.invalidateQueries();
+      setBusy(false);
+      // Lanes read main on GitHub: an entry that was committed but not pushed has not reached them.
+      if (reply.pushError || reply.pushed === false) { setSaved(true); setError(`Saved and committed here, but not pushed${reply.pushError ? `: ${reply.pushError}` : ''}. Push main so the lane sees it.`); return; }
+      toast(`Steer entry saved for ${lane}: it reads it at the start of its next run`);
+      onClose();
+    } catch (e) { setError(e instanceof Error ? e.message : String(e)); setBusy(false); }
+  }
+
   async function act() {
-    if (local) {
-      const ok = await copyText(command, document.getElementById('steer-command'));
-      setNote(ok ? 'Command copied. Run it in the repo: it saves the entry, wakes the lane and commits.' : 'Select the command above and copy it (Ctrl+C).');
-      if (ok) toast(`Steer command for ${lane} copied`);
-      return;
-    }
+    if (local) return save();
     // Open first, inside the click: a popup opened after an await can be blocked.
     if (slug) window.open(steerEditUrl(slug, lane), '_blank', 'noopener,noreferrer');
     const ok = await copyText(draft.entry, document.getElementById('steer-preview'));
@@ -50,7 +71,7 @@ export function SteerDialog({ loop, lane: initialLane, local, onClose }: { loop:
   }
 
   return (
-    <dialog ref={ref} onClose={onClose} aria-labelledby="steer-title" data-testid="steer-dialog" className="w-[min(36rem,calc(100vw-2rem))] rounded-lg border p-4" style={{ background: 'var(--surface)', color: 'var(--text)', borderColor: 'var(--border)' }}>
+    <dialog ref={ref} onClose={onClose} onCancel={(e) => { if (busy) e.preventDefault(); }} aria-labelledby="steer-title" data-testid="steer-dialog" className="w-[min(36rem,calc(100vw-2rem))] rounded-lg border p-4" style={{ background: 'var(--surface)', color: 'var(--text)', borderColor: 'var(--border)' }}>
       <h2 id="steer-title" className="text-[15px] font-semibold">Steer a lane</h2>
       <p className="mt-1 text-[13px]" style={{ color: 'var(--muted)' }}>The lane reads it at the start of its next run and answers under it.</p>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -84,11 +105,14 @@ export function SteerDialog({ loop, lane: initialLane, local, onClose }: { loop:
       </label>
       <p className="mt-3 text-[13px]">Preview · <code className="font-mono text-[12px]">{draft.path}</code></p>
       <pre id="steer-preview" data-testid="steer-preview" className="mt-1 max-h-40 overflow-auto whitespace-pre-wrap rounded border p-2 font-mono text-[12px] [overflow-wrap:anywhere]" style={field}>{draft.entry}</pre>
+      {local && <p className="mt-2 text-[13px]" style={{ color: 'var(--muted)' }}>Save writes this entry, wakes the lane if it sleeps or is snoozed, then commits and pushes.</p>}
       {local && !empty && (
-        <>
-          <p className="mt-3 text-[13px]">Command (bash, zsh, Git Bash)</p>
+        <details className="mt-2 text-[13px]">
+          <summary className="min-h-11 cursor-pointer content-center">Or run it from a terminal</summary>
           <pre id="steer-command" data-testid="steer-command" className="mt-1 whitespace-pre-wrap rounded border p-2 font-mono text-[12px] [overflow-wrap:anywhere]" style={field}>{command}</pre>
-        </>
+          <button type="button" onClick={() => void copyCommand()} className="mt-2 min-h-11 rounded border px-4" style={{ borderColor: 'var(--border)' }}>Copy command</button>
+          <span className="ml-2 text-[12px]" style={{ color: 'var(--muted)' }}>bash, zsh, Git Bash</span>
+        </details>
       )}
       {!local && (
         <p className="mt-2 text-[13px]" style={{ color: 'var(--muted)' }}>
@@ -98,9 +122,10 @@ export function SteerDialog({ loop, lane: initialLane, local, onClose }: { loop:
       )}
       {blocked && <p role="status" className="mt-2 text-[13px]" style={{ color: 'var(--muted)' }}>{blocked}</p>}
       {note && <p role="status" data-testid="steer-note" className="mt-2 text-[13px]">{note}</p>}
+      {error && <p role="alert" data-testid="steer-error" className="mt-2 text-[13px]" style={{ color: 'var(--failing)' }}>{error}</p>}
       <div className="sticky -bottom-4 -mx-4 -mb-4 mt-4 flex flex-wrap justify-end gap-2 border-t p-4" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
-        <button type="button" onClick={onClose} className="min-h-11 rounded border px-4" style={{ borderColor: 'var(--border)' }}>{note ? 'Close' : 'Cancel'}</button>
-        <button type="button" disabled={blocked !== undefined} onClick={() => void act()} className="min-h-11 rounded px-4 font-semibold disabled:opacity-60" style={{ background: 'var(--accent)', color: 'var(--bg)' }}>{local ? 'Copy command' : 'Edit on GitHub'}</button>
+        <button type="button" onClick={onClose} disabled={busy} className="min-h-11 rounded border px-4 disabled:opacity-60" style={{ borderColor: 'var(--border)' }}>{note || saved ? 'Close' : 'Cancel'}</button>
+        <button type="button" disabled={blocked !== undefined || busy || saved} onClick={() => void act()} className="min-h-11 rounded px-4 font-semibold disabled:opacity-60" style={{ background: 'var(--accent)', color: 'var(--bg)' }}>{local ? (busy ? 'Saving…' : saved ? 'Saved' : 'Save') : 'Edit on GitHub'}</button>
       </div>
     </dialog>
   );
