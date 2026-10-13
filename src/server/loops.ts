@@ -7,7 +7,9 @@ import { runDoctor } from '../cli/doctor.js';
 import { gatherDraftPrompt, realClaude, type ClaudeRunner } from '../cli/draft.js';
 import { runLaneRound } from '../cli/laneRound.js';
 import { runPause, runResume } from '../cli/pause.js';
+import { readPolicy, runPaceSet } from '../cli/pace.js';
 import { runScheduleAction, runSteer } from '../cli/schedule.js';
+import { paceFor } from '../core/parse/policy.js';
 import { readLaneStatuses } from '../cli/laneStatus.js';
 import { lintBrief } from '../core/brief.js';
 import { draftClaudeArgs } from '../core/draftBrief.js';
@@ -66,6 +68,11 @@ export async function readTimeline(dir: string, limit = 50, laneNames: readonly 
 function pausedInfo(text: string): NonNullable<LoopSummary['paused']> {
   const { by, at, reason } = parsePaused(text);
   return { by, ...(at && { at: at.toISOString() }), ...(reason && { reason }) };
+}
+
+async function paceState(dir: string): Promise<NonNullable<LoopDetail['pace']>> {
+  const policy = await readPolicy(dir);
+  return { pace: policy.pace, overrides: Object.fromEntries(Object.keys(policy.lanes).map((lane) => [lane, paceFor(policy, lane)])) };
 }
 
 async function readRuns(dir: string, lanes: readonly LaneStatus[], lanesJson: string | undefined, timeline: readonly LoopCommit[], now: Date, hasDone = false) {
@@ -158,6 +165,7 @@ export async function readLoop(dir: string, now: Date = new Date()): Promise<Loo
     ...(changelogText !== undefined && { releases: annotateReleases(parseChangelog(changelogText), shipGit?.tags, undefined) }),
     ...(runsData && lastRunOf(runsData.runs) && { lastRun: lastRunOf(runsData.runs) }),
     ...(runsData && { runs: runsData.runs, nextRuns: runsData.nextRuns, runOutcomes: runsData.outcomes, idleRuns: runsData.idleRuns, ...(runsData.schedule && { schedule: runsData.schedule }), ...(runsData.steer.length > 0 && { steer: runsData.steer }) }),
+    ...(runsData && { pace: await paceState(dir) }),
     ...(ship && { ship }),
     ...(releaseWaiting && { releaseWaiting }),
     ...(shippedNow && version && { shipped: { version, ...(releaseDate && { date: releaseDate }), npm: 'unknown' as const } }),
@@ -306,6 +314,12 @@ export function projectsSource(projectsDir: string, now: () => Date = () => new 
         } finally {
           drafting.delete(dir);
         }
+      },
+      pace: async (id, preset, lane) => {
+        const dir = await loopDir(id);
+        if (dir === undefined) return undefined;
+        const { changed, pushed, pushError } = await exclusive(dir, () => runPaceSet(dir, preset, { now: now(), ...(lane !== undefined && { lane }) }));
+        return { changed: changed.length > 0, lanes: changed, ...(pushed !== undefined && { pushed }), ...(pushError !== undefined && { pushError }) };
       },
       schedule: async (id, action) => {
         const dir = await loopDir(id);

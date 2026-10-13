@@ -31,6 +31,8 @@ export interface LoopControls {
   steer(id: string, lane: string, text: string, options?: { standing?: boolean; author?: string }): Promise<(ControlResult & { lanes: string[] }) | undefined>;
   /** Pause, resume, snooze or wake one lane (`all` for wake) in `.ai/schedule.json`. */
   schedule(id: string, action: LaneScheduleAction): Promise<(ControlResult & { lanes: string[] }) | undefined>;
+  /** Sets the loop's pace, or one lane's, in `.ai/policy.json`. */
+  pace(id: string, pace: string, lane?: string): Promise<(ControlResult & { lanes: string[] }) | undefined>;
   /** Drafts the next round's brief with `claude -p` (read-only tools), reporting steps as it goes. Writes nothing: the owner reviews the draft, then sends it to `nextRound`. */
   draftBrief(id: string, options: { model?: string }, onProgress: (step: string) => void): Promise<BriefDraft | undefined>;
 }
@@ -62,7 +64,7 @@ export function sortByAttention<T extends { state: LoopState; name: string }>(lo
 
 /** The detail-only fields stay out of the fleet list. */
 export function toSummary(detail: LoopDetail): LoopSummary {
-  const { controlNotes: _controlNotes, releases: _releases, ship: _ship, runs: _runs, nextRuns: _nextRuns, schedule: _schedule, idleRuns: _idleRuns, steer: _steer, laneNotes: _laneNotes, timeline: _timeline, contract: _contract, knowledge: _knowledge, decisions: _decisions, history: _history, ...summary } = detail;
+  const { controlNotes: _controlNotes, releases: _releases, ship: _ship, runs: _runs, nextRuns: _nextRuns, schedule: _schedule, pace: _pace, idleRuns: _idleRuns, steer: _steer, laneNotes: _laneNotes, timeline: _timeline, contract: _contract, knowledge: _knowledge, decisions: _decisions, history: _history, ...summary } = detail;
   return summary;
 }
 

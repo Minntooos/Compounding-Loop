@@ -1,4 +1,6 @@
 // Pure: turns the JSON body of a steer or schedule POST into a typed action, or says what is wrong with it (HTTP 400).
+import { PACES, isPace } from '../core/parse/policy.js';
+import type { Pace } from '../core/types.js';
 import type { LaneScheduleAction } from './data.js';
 
 export interface SteerBody {
@@ -39,6 +41,13 @@ export function parseScheduleBody(body: unknown): Parsed<LaneScheduleAction> {
     default:
       return { ok: false, error: 'action must be pause, resume, snooze or wake' };
   }
+}
+
+export function parsePaceBody(body: unknown): Parsed<{ pace: Pace; lane?: string }> {
+  const { pace, lane } = asRecord(body);
+  if (!isPace(pace)) return { ok: false, error: `pace must be one of: ${PACES.join(', ')}` };
+  if (lane !== undefined && (!nonEmpty(lane) || lane === 'all')) return { ok: false, error: 'lane must be a lane name; leave it out to set the whole loop' };
+  return { ok: true, value: { pace, ...(lane !== undefined && { lane }) } };
 }
 
 /** An optional `model` for `claude -p --model`; it is an argument, never a shell string, but keep it to model-id characters anyway. */

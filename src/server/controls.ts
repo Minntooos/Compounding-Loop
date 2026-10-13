@@ -1,7 +1,7 @@
 // Pure (no Node imports): the GitHub pages the static dashboard opens instead of holding a token. Every URL is a
 // function of the repo slug, so a user with write access to the repo is the only one who can finish the action.
-import { formatPaused, formatSchedule, formatSteerEntry, PAUSED_FILE, SCHEDULE_FILE, steerPath } from '../core/parse/index.js';
-import type { Schedule, SteerScope } from '../core/types.js';
+import { POLICY_FILE, formatPaused, formatPolicy, formatSchedule, withPace, formatSteerEntry, PAUSED_FILE, SCHEDULE_FILE, steerPath } from '../core/parse/index.js';
+import type { Pace, Policy, Schedule, SteerScope } from '../core/types.js';
 import { isRepoSlug } from './live/urls.js';
 
 export const RELEASE_WORKFLOW = 'release.yml';
@@ -81,6 +81,12 @@ export const scheduleEditUrl = (slug: string, branch = 'main'): string => editFi
 
 /** The whole `schedule.json` text after the edit, in the exact format `loop schedule` writes. */
 export const scheduleEditText = (schedule: Schedule): string => formatSchedule(schedule);
+
+/** Pace edit: the editor page for `.ai/policy.json`; the UI copies `paceEditText` to paste over the file. */
+export const paceEditUrl = (slug: string, branch = 'main'): string => editFileUrl(slug, POLICY_FILE, branch);
+
+/** The whole `policy.json` text after setting the loop's pace (or one lane's), in the exact format `loop pace` writes. */
+export const paceEditText = (policy: Policy, pace: Pace, lane?: string): string => formatPolicy(withPace(policy, pace, lane));
 
 /** The Actions page where the owner presses "Run workflow" for the release workflow. */
 export const releaseWorkflowUrl = (slug: string): string => `${GITHUB}/${checkedSlug(slug)}/actions/workflows/${RELEASE_WORKFLOW}`;

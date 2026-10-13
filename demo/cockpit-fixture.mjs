@@ -91,12 +91,15 @@ export function cockpitFixture() {
   });
   const shownFrom = FIXTURE_NOW.getTime() - SHOWN_HOURS * 3_600_000;
   const runs = data.runs.filter((r) => new Date(r.at).getTime() >= shownFrom);
-  const newest = runs[0];
+  // Slots nobody expected a run for are not "the last run".
+  const newest = runs.find((r) => !['not-due', 'paused', 'done'].includes(r.kind));
   return {
     runs,
     runOutcomes: data.outcomes,
     idleRuns: data.idleRuns,
     schedule: SCHEDULE,
+    // One lane override so the pace UI shows both a loop default and an exception.
+    pace: { pace: 'balanced', overrides: { web: 'careful' } },
     steer: data.steer,
     ...(newest && { lastRun: { lane: newest.lane, at: newest.at, outcome: newest.outcome } }),
   };

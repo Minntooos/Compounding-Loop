@@ -1566,6 +1566,7 @@
         "lane": "server",
         "at": "2026-10-13T12:25:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T12:37:00.000Z",
         "units": [
           "unit 48"
@@ -1578,9 +1579,18 @@
         "note": "unit shipped"
       },
       {
+        "lane": "kit",
+        "at": "2026-10-13T12:15:00.000Z",
+        "outcome": "no-run-recorded",
+        "kind": "not-due",
+        "units": [],
+        "commits": []
+      },
+      {
         "lane": "core",
         "at": "2026-10-13T12:05:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T12:17:00.000Z",
         "units": [
           "unit 48"
@@ -1593,9 +1603,18 @@
         "note": "unit shipped"
       },
       {
+        "lane": "docs",
+        "at": "2026-10-13T11:45:00.000Z",
+        "outcome": "no-run-recorded",
+        "kind": "not-due",
+        "units": [],
+        "commits": []
+      },
+      {
         "lane": "web",
         "at": "2026-10-13T11:35:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T11:47:00.000Z",
         "units": [
           "unit 47"
@@ -1611,6 +1630,7 @@
         "lane": "server",
         "at": "2026-10-13T11:25:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T11:37:00.000Z",
         "units": [
           "unit 47"
@@ -1623,9 +1643,18 @@
         "note": "unit shipped"
       },
       {
+        "lane": "kit",
+        "at": "2026-10-13T11:15:00.000Z",
+        "outcome": "no-run-recorded",
+        "kind": "not-due",
+        "units": [],
+        "commits": []
+      },
+      {
         "lane": "core",
         "at": "2026-10-13T11:05:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T11:17:00.000Z",
         "units": [
           "unit 47"
@@ -1638,9 +1667,18 @@
         "note": "unit shipped"
       },
       {
+        "lane": "docs",
+        "at": "2026-10-13T10:45:00.000Z",
+        "outcome": "no-run-recorded",
+        "kind": "not-due",
+        "units": [],
+        "commits": []
+      },
+      {
         "lane": "web",
         "at": "2026-10-13T10:35:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T10:47:00.000Z",
         "units": [
           "unit 46"
@@ -1656,6 +1694,15 @@
         "lane": "server",
         "at": "2026-10-13T10:25:00.000Z",
         "outcome": "no-run-recorded",
+        "kind": "missed",
+        "units": [],
+        "commits": []
+      },
+      {
+        "lane": "kit",
+        "at": "2026-10-13T10:15:00.000Z",
+        "outcome": "no-run-recorded",
+        "kind": "not-due",
         "units": [],
         "commits": []
       },
@@ -1663,6 +1710,7 @@
         "lane": "core",
         "at": "2026-10-13T10:05:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T10:17:00.000Z",
         "units": [
           "unit 46"
@@ -1678,6 +1726,7 @@
         "lane": "docs",
         "at": "2026-10-13T09:45:00.000Z",
         "outcome": "nothing-pushed",
+        "kind": "idle",
         "endedAt": "2026-10-13T09:57:00.000Z",
         "units": [],
         "commits": [],
@@ -1687,6 +1736,7 @@
         "lane": "web",
         "at": "2026-10-13T09:35:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T09:47:00.000Z",
         "units": [
           "unit 45"
@@ -1702,6 +1752,7 @@
         "lane": "server",
         "at": "2026-10-13T09:25:00.000Z",
         "outcome": "no-run-recorded",
+        "kind": "missed",
         "units": [],
         "commits": []
       },
@@ -1709,6 +1760,7 @@
         "lane": "kit",
         "at": "2026-10-13T09:15:00.000Z",
         "outcome": "nothing-pushed",
+        "kind": "idle",
         "endedAt": "2026-10-13T09:27:00.000Z",
         "units": [],
         "commits": [],
@@ -1718,6 +1770,7 @@
         "lane": "core",
         "at": "2026-10-13T09:05:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T09:17:00.000Z",
         "units": [
           "unit 45"
@@ -1733,6 +1786,7 @@
         "lane": "docs",
         "at": "2026-10-13T08:45:00.000Z",
         "outcome": "nothing-pushed",
+        "kind": "idle",
         "endedAt": "2026-10-13T08:57:00.000Z",
         "units": [],
         "commits": [],
@@ -1742,6 +1796,7 @@
         "lane": "web",
         "at": "2026-10-13T08:35:00.000Z",
         "outcome": "nothing-pushed",
+        "kind": "idle",
         "endedAt": "2026-10-13T08:47:00.000Z",
         "units": [],
         "commits": [],
@@ -1751,6 +1806,7 @@
         "lane": "server",
         "at": "2026-10-13T08:25:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T08:37:00.000Z",
         "units": [
           "unit 44"
@@ -1766,6 +1822,7 @@
         "lane": "kit",
         "at": "2026-10-13T08:15:00.000Z",
         "outcome": "nothing-pushed",
+        "kind": "idle",
         "endedAt": "2026-10-13T08:27:00.000Z",
         "units": [],
         "commits": [],
@@ -1775,6 +1832,7 @@
         "lane": "core",
         "at": "2026-10-13T08:05:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T08:17:00.000Z",
         "units": [
           "unit 44"
@@ -1790,6 +1848,7 @@
         "lane": "docs",
         "at": "2026-10-13T07:45:00.000Z",
         "outcome": "nothing-pushed",
+        "kind": "idle",
         "endedAt": "2026-10-13T07:57:00.000Z",
         "units": [],
         "commits": [],
@@ -1799,6 +1858,7 @@
         "lane": "web",
         "at": "2026-10-13T07:35:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T07:47:00.000Z",
         "units": [
           "unit 43"
@@ -1814,6 +1874,7 @@
         "lane": "server",
         "at": "2026-10-13T07:25:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T07:37:00.000Z",
         "units": [
           "unit 43"
@@ -1829,6 +1890,7 @@
         "lane": "kit",
         "at": "2026-10-13T07:15:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T07:27:00.000Z",
         "units": [
           "unit 43"
@@ -1844,6 +1906,7 @@
         "lane": "core",
         "at": "2026-10-13T07:05:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T07:17:00.000Z",
         "units": [
           "unit 43"
@@ -1859,6 +1922,7 @@
         "lane": "docs",
         "at": "2026-10-13T06:45:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T06:57:00.000Z",
         "units": [
           "unit 42"
@@ -1874,6 +1938,7 @@
         "lane": "web",
         "at": "2026-10-13T06:35:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T06:47:00.000Z",
         "units": [
           "unit 42"
@@ -1889,6 +1954,7 @@
         "lane": "server",
         "at": "2026-10-13T06:25:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T06:37:00.000Z",
         "units": [
           "unit 42"
@@ -1904,6 +1970,7 @@
         "lane": "kit",
         "at": "2026-10-13T06:15:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T06:27:00.000Z",
         "units": [
           "unit 42"
@@ -1919,6 +1986,7 @@
         "lane": "core",
         "at": "2026-10-13T06:05:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T06:17:00.000Z",
         "units": [
           "unit 42"
@@ -1934,6 +2002,7 @@
         "lane": "docs",
         "at": "2026-10-13T05:45:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T05:57:00.000Z",
         "units": [
           "unit 41"
@@ -1949,6 +2018,7 @@
         "lane": "web",
         "at": "2026-10-13T05:35:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T05:47:00.000Z",
         "units": [
           "unit 41"
@@ -1964,6 +2034,7 @@
         "lane": "server",
         "at": "2026-10-13T05:25:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T05:37:00.000Z",
         "units": [
           "unit 41"
@@ -1979,6 +2050,7 @@
         "lane": "kit",
         "at": "2026-10-13T05:15:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T05:27:00.000Z",
         "units": [
           "unit 41"
@@ -1994,6 +2066,7 @@
         "lane": "core",
         "at": "2026-10-13T05:05:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T05:17:00.000Z",
         "units": [
           "unit 41"
@@ -2009,6 +2082,7 @@
         "lane": "docs",
         "at": "2026-10-13T04:45:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T04:57:00.000Z",
         "units": [
           "unit 40"
@@ -2024,6 +2098,7 @@
         "lane": "web",
         "at": "2026-10-13T04:35:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T04:47:00.000Z",
         "units": [
           "unit 40"
@@ -2039,6 +2114,7 @@
         "lane": "server",
         "at": "2026-10-13T04:25:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T04:37:00.000Z",
         "units": [
           "unit 40"
@@ -2054,6 +2130,7 @@
         "lane": "kit",
         "at": "2026-10-13T04:15:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T04:27:00.000Z",
         "units": [
           "unit 40"
@@ -2069,6 +2146,7 @@
         "lane": "core",
         "at": "2026-10-13T04:05:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T04:17:00.000Z",
         "units": [
           "unit 40"
@@ -2084,6 +2162,7 @@
         "lane": "docs",
         "at": "2026-10-13T03:45:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T03:57:00.000Z",
         "units": [
           "unit 39"
@@ -2099,6 +2178,7 @@
         "lane": "web",
         "at": "2026-10-13T03:35:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T03:47:00.000Z",
         "units": [
           "unit 39"
@@ -2114,6 +2194,7 @@
         "lane": "server",
         "at": "2026-10-13T03:25:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T03:37:00.000Z",
         "units": [
           "unit 39"
@@ -2129,6 +2210,7 @@
         "lane": "kit",
         "at": "2026-10-13T03:15:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T03:27:00.000Z",
         "units": [
           "unit 39"
@@ -2144,6 +2226,7 @@
         "lane": "core",
         "at": "2026-10-13T03:05:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T03:17:00.000Z",
         "units": [
           "unit 39"
@@ -2159,6 +2242,7 @@
         "lane": "docs",
         "at": "2026-10-13T02:45:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T02:57:00.000Z",
         "units": [
           "unit 38"
@@ -2174,6 +2258,7 @@
         "lane": "web",
         "at": "2026-10-13T02:35:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T02:47:00.000Z",
         "units": [
           "unit 38"
@@ -2189,6 +2274,7 @@
         "lane": "server",
         "at": "2026-10-13T02:25:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T02:37:00.000Z",
         "units": [
           "unit 38"
@@ -2204,6 +2290,7 @@
         "lane": "kit",
         "at": "2026-10-13T02:15:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T02:27:00.000Z",
         "units": [
           "unit 38"
@@ -2219,6 +2306,7 @@
         "lane": "core",
         "at": "2026-10-13T02:05:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T02:17:00.000Z",
         "units": [
           "unit 38"
@@ -2234,6 +2322,7 @@
         "lane": "docs",
         "at": "2026-10-13T01:45:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T01:57:00.000Z",
         "units": [
           "unit 37"
@@ -2249,6 +2338,7 @@
         "lane": "web",
         "at": "2026-10-13T01:35:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T01:47:00.000Z",
         "units": [
           "unit 37"
@@ -2264,6 +2354,7 @@
         "lane": "server",
         "at": "2026-10-13T01:25:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T01:37:00.000Z",
         "units": [
           "unit 37"
@@ -2279,6 +2370,7 @@
         "lane": "kit",
         "at": "2026-10-13T01:15:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T01:27:00.000Z",
         "units": [
           "unit 37"
@@ -2294,6 +2386,7 @@
         "lane": "core",
         "at": "2026-10-13T01:05:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T01:17:00.000Z",
         "units": [
           "unit 37"
@@ -2309,6 +2402,7 @@
         "lane": "docs",
         "at": "2026-10-13T00:45:00.000Z",
         "outcome": "pushed",
+        "kind": "worked",
         "endedAt": "2026-10-13T00:57:00.000Z",
         "units": [
           "unit 36"
@@ -2330,6 +2424,7 @@
         "kit",
         "docs"
       ],
+      "paused": [],
       "routinesLookOff": false,
       "nextDue": {
         "lane": "core",
@@ -2433,6 +2528,12 @@
       "lane": "server",
       "at": "2026-10-13T12:25:00.000Z",
       "outcome": "pushed"
+    },
+    "pace": {
+      "pace": "balanced",
+      "overrides": {
+        "web": "careful"
+      }
     }
   },
   "checks": [

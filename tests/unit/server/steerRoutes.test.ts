@@ -3,7 +3,8 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { parseScheduleBody, parseSteerBody } from '../../../src/server/actionBody.js';
+import { parsePaceBody, parseScheduleBody, parseSteerBody } from '../../../src/server/actionBody.js';
+import { paceEditText, paceEditUrl } from '../../../src/server/controls.js';
 import { createApp } from '../../../src/server/index.js';
 
 const IDENT = { GIT_AUTHOR_NAME: 't', GIT_AUTHOR_EMAIL: 't@example.com', GIT_COMMITTER_NAME: 't', GIT_COMMITTER_EMAIL: 't@example.com' };
@@ -118,5 +119,42 @@ describe('POST /api/loops/:id/schedule', () => {
   it('is read-only in the demo', async () => {
     const demo = await (await createApp({ demo: true })).request('http://127.0.0.1:4321/api/loops/proj1/schedule', { method: 'POST', body: JSON.stringify({ action: 'wake', lane: 'all' }), headers: { 'content-type': 'application/json' } });
     expect(demo.status).toBe(409);
+  });
+});
+
+describe('POST /api/loops/:id/pace', () => {
+  it('sets the loop pace and a lane override, reports no change when repeated, and shows both on the detail', async () => {
+    const set = await post('pace', { pace: 'fast' });
+    expect(set.status).toBe(200);
+    expect(await set.json()).toMatchObject({ ok: true, changed: true, lanes: ['all'] });
+    expect(JSON.parse(read('.ai/policy.json'))).toMatchObject({ pace: 'fast' });
+    expect(await (await post('pace', { pace: 'fast' })).json()).toMatchObject({ changed: false });
+    expect(await (await post('pace', { pace: 'careful', lane: 'web' })).json()).toMatchObject({ changed: true, lanes: ['web'] });
+    const app = await createApp({ demo: false, projectsDir: root });
+    const detail = await (await app.request('http://127.0.0.1:4321/api/loops/laned')).json();
+    expect(detail.pace).toEqual({ pace: 'fast', overrides: { web: 'careful' } });
+    expect(git('log', '--format=%s', '-2')).toContain('Pace: web careful');
+  });
+
+  it('rejects bad bodies (400), unknown lanes (422), unknown loops (404) and the demo (409)', async () => {
+    expect((await post('pace', { pace: 'warp' })).status).toBe(400);
+    expect((await post('pace', { pace: 'fast', lane: 'all' })).status).toBe(400);
+    expect((await post('pace', { pace: 'fast', lane: 'ghost' })).status).toBe(422);
+    expect((await post('pace', { pace: 'fast' }, 'nope')).status).toBe(404);
+    const demo = await (await createApp({ demo: true })).request('http://127.0.0.1:4321/api/loops/proj1/pace', { method: 'POST', body: JSON.stringify({ pace: 'fast' }), headers: { 'content-type': 'application/json' } });
+    expect(demo.status).toBe(409);
+  });
+});
+
+describe('parsePaceBody and the policy URL builders', () => {
+  it('accepts a preset with an optional lane', () => {
+    expect(parsePaceBody({ pace: 'sprint' })).toEqual({ ok: true, value: { pace: 'sprint' } });
+    expect(parsePaceBody({ pace: 'careful', lane: 'web' })).toEqual({ ok: true, value: { pace: 'careful', lane: 'web' } });
+    for (const bad of [undefined, {}, { pace: 'x' }, { pace: 'fast', lane: '' }, { pace: 'fast', lane: 3 }]) expect(parsePaceBody(bad).ok).toBe(false);
+  });
+  it('builds the editor URL and the exact file text', () => {
+    expect(paceEditUrl('Minntooos/Compounding-Loop')).toBe('https://github.com/Minntooos/Compounding-Loop/edit/main/.ai/policy.json');
+    const text = paceEditText({ version: 1, pace: 'balanced', lanes: {} }, 'careful', 'web');
+    expect(JSON.parse(text)).toEqual({ version: 1, pace: 'balanced', lanes: { web: { pace: 'careful' } } });
   });
 });

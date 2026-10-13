@@ -5,7 +5,7 @@ import { serve } from '@hono/node-server';
 import { Hono, type Context } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import { DEFAULT_WATCH, EventBus, watchProjects, type WatchOptions } from './events.js';
-import { parseDraftBody, parseScheduleBody, parseSteerBody, type Parsed } from './actionBody.js';
+import { parseDraftBody, parsePaceBody, parseScheduleBody, parseSteerBody, type Parsed } from './actionBody.js';
 import { projectsSource } from './loops.js';
 import { SECURITY_HEADERS, staticHandler } from './static.js';
 import { loadDemoSnapshot, snapshotSource, type DataSource, type LoopControls } from './data.js';
@@ -135,6 +135,11 @@ export async function createApp(options: AppOptions): Promise<Hono> {
     const action = await validated(c, parseScheduleBody);
     if (action instanceof Response) return action;
     return control(c, (controls) => controls.schedule(c.req.param('id'), action));
+  });
+  app.post('/api/loops/:id/pace', async (c) => {
+    const body = await validated(c, parsePaceBody);
+    if (body instanceof Response) return body;
+    return control(c, (controls) => controls.pace(c.req.param('id'), body.pace, body.lane));
   });
   // Draft the next brief: SSE `progress` steps, then `draft` ({draft, score, gaps}) or `error`. Nothing is written to the clone.
   app.post('/api/loops/:id/draft-brief', async (c) => {
