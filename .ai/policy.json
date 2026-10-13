@@ -1,5 +1,8 @@
 {
   "version": 1,
-  "pace": "balanced",
-  "lanes": {}
+  "pace": "sprint",
+  "lanes": {
+    "web": {"pace": "fast"}
+  },
+  "reason": "Owner 2026-10-13: go light on tests to save plan usage. Web stays fast to keep its design reviewer on shared units. Never push red; CI checks every push."
 }
