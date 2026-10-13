@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { LoopRun } from '../../../src/core/types.js';
-import { filterRuns, groupRunsByDay, lastFailure, silentLanes, testSeries, testsText } from '../../../web/src/lib/runs.js';
+import { filterRuns, groupRunsByDay, lastFailure, silentLanes, testSeries, testsText, testStamp } from '../../../web/src/lib/runs.js';
 
 const run = (lane: string, at: string, outcome: LoopRun['outcome'] = 'pushed'): LoopRun => ({ lane, at, outcome, units: [], commits: [] });
 
@@ -39,5 +39,11 @@ describe('test history', () => {
   it('finds the newest failing run or nothing', () => {
     expect(lastFailure(testSeries(runs))).toEqual({ at: '2026-10-11T20:00:00Z', lane: 'web', passed: 48, failed: 2 });
     expect(lastFailure([{ at: 'x', passed: 1, failed: 0 }])).toBeUndefined();
+  });
+});
+
+describe('testStamp (round 5 A4)', () => {
+  it('says UTC once', () => {
+    expect(testStamp('2026-10-11T14:53:00Z')).toBe('Sun 11 Oct 14:53 UTC');
   });
 });

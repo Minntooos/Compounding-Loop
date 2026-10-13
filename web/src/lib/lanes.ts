@@ -1,4 +1,4 @@
-import type { LaneState, LaneStatus, LoopSummary } from '../../../src/core/types.js';
+import type { InboxItem, LaneState, LaneStatus, LoopSummary } from '../../../src/core/types.js';
 
 export const LANE_LABEL: Record<LaneState, string> = {
   building: 'Building', waiting: 'Waiting', blocked: 'Blocked', done: 'Done', stalled: 'Stalled',
@@ -18,21 +18,40 @@ export function lanesNeedingYou(lanes: LaneStatus[] | undefined): LaneStatus[] {
   return [...stalled, ...orphaned];
 }
 
-/** A laned loop whose round is done has a root DONE.md: the release (and the next round) wait for the owner. */
-export function releaseWaiting(loop: Pick<LoopSummary, 'state' | 'lanes'>): boolean {
-  return loop.state === 'done' && loop.lanes !== undefined && loop.lanes.length > 0;
+/** A laned loop whose round is done has a root DONE.md: the release (and the next round) wait for the owner, until the version has shipped. */
+export function releaseWaiting(loop: Pick<LoopSummary, 'state' | 'lanes' | 'shipped'>): boolean {
+  return loop.state === 'done' && loop.lanes !== undefined && loop.lanes.length > 0 && !loop.shipped;
 }
 
+/** One thing that needs the owner. `inbox` items come from the server's inbox; the rest are worked out from the loop summaries. */
+type InboxLike = Pick<InboxItem, 'loopId' | 'kind'>;
+
+export type AttentionItem<I extends InboxLike = InboxItem> =
+  | { kind: 'inbox'; loopId: string; item: I }
+  | { kind: 'lane'; loopId: string; lane: LaneStatus }
+  | { kind: 'failing'; loopId: string }
+  | { kind: 'release'; loopId: string };
+
 /**
- * The "Needs you" total: inbox items, plus per loop its lane problems, or 1 for a failing loop that has none.
- * The inbox only lists a root BLOCKED.md, so a blocked lane is counted here, unless that loop already has an inbox item.
+ * The one attention list: the banner count, the nav badge and the Needs-you rows all read it, so they cannot disagree.
+ * Per loop: its lane problems, else 1 for a failing loop or a waiting release. A blocked lane or a waiting release that the
+ * inbox already lists for that loop is not listed twice.
  */
-export function needsYouCount(loops: LoopSummary[], inbox: { loopId: string }[]): number {
-  return loops.reduce((sum, l) => {
-    const inInbox = inbox.some((i) => i.loopId === l.id);
-    const lanes = lanesNeedingYou(l.lanes).filter((x) => !(inInbox && x.state === 'blocked')).length;
-    return sum + (lanes > 0 ? lanes : l.state === 'failing' || releaseWaiting(l) ? 1 : 0);
-  }, inbox.length);
+export function attentionItems<I extends InboxLike>(loops: LoopSummary[], inbox: I[]): AttentionItem<I>[] {
+  const items: AttentionItem<I>[] = inbox.map((item) => ({ kind: 'inbox', loopId: item.loopId, item }));
+  for (const l of loops) {
+    const mine = inbox.filter((i) => i.loopId === l.id);
+    const lanes = lanesNeedingYou(l.lanes).filter((x) => !(mine.length > 0 && x.state === 'blocked'));
+    if (lanes.length > 0) items.push(...lanes.map((lane): AttentionItem<I> => ({ kind: 'lane', loopId: l.id, lane })));
+    else if (l.state === 'failing') items.push({ kind: 'failing', loopId: l.id });
+    else if (releaseWaiting(l) && !mine.some((i) => i.kind === 'release')) items.push({ kind: 'release', loopId: l.id });
+  }
+  return items;
+}
+
+/** The "Needs you" total; see `attentionItems`. */
+export function needsYouCount(loops: LoopSummary[], inbox: InboxLike[]): number {
+  return attentionItems(loops, inbox).length;
 }
 
 /** "web → server: …" for one unanswered message. */

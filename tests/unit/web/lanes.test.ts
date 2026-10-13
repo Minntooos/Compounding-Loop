@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { LaneStatus, LoopSummary } from '../../../src/core/types.js';
-import { releaseWaiting, claimText, describeUnanswered, lanesNeedingYou, needsYouCount, waitingOnFinished } from '../../../web/src/lib/lanes.js';
+import { attentionItems, releaseWaiting, claimText, describeUnanswered, lanesNeedingYou, needsYouCount, waitingOnFinished } from '../../../web/src/lib/lanes.js';
 
 const lane = (name: string, state: LaneStatus['state'], waitingOn?: string[]): LaneStatus => ({ name, state, run: 1, limit: 30, locked: false, unanswered: [], ...(waitingOn ? { waitingOn } : {}) });
 const loop = (state: LoopSummary['state'], lanes?: LaneStatus[]): LoopSummary => ({ id: 'x', name: 'x', state, ...(lanes ? { lanes } : {}) }) as LoopSummary;
@@ -46,5 +46,29 @@ describe('releaseWaiting (round 4 A2)', () => {
     expect(releaseWaiting({ state: 'done' })).toBe(false);
     expect(releaseWaiting({ state: 'building', lanes })).toBe(false);
     expect(needsYouCount([{ id: 'a', state: 'done', lanes } as never], [])).toBe(1);
+  });
+});
+
+describe('attentionItems (round 5 A1, A4)', () => {
+  const lanes = [{ name: 'web', state: 'done' }] as never;
+  const done = { id: 'L', name: 'L', state: 'done', lanes } as unknown as LoopSummary;
+  const release = { loopId: 'L', kind: 'release' as const, file: 'DONE.md', question: 'Release 0.4.0', bestGuess: '', since: '2026-10-12T00:00:00Z' };
+
+  it('lists a waiting release once even when the inbox also has it (the banner said 2, the inbox 1)', () => {
+    expect(needsYouCount([done], [release])).toBe(1);
+    expect(attentionItems([done], [release]).map((i) => i.kind)).toEqual(['inbox']);
+    expect(attentionItems([done], []).map((i) => i.kind)).toEqual(['release']);
+  });
+
+  it('a shipped release leaves the list', () => {
+    const shipped = { ...done, shipped: { version: '0.4.0', date: '2026-10-13', npm: 'latest' } } as LoopSummary;
+    expect(releaseWaiting(shipped)).toBe(false);
+    expect(needsYouCount([shipped], [])).toBe(0);
+  });
+
+  it('keeps blocked-lane de-duplication and failing loops', () => {
+    const blocked = { ...loop('blocked', [lane('a', 'blocked'), lane('b', 'stalled')]), id: 'B' };
+    const question = { ...release, loopId: 'B', kind: 'question' as const };
+    expect(attentionItems([blocked, { ...loop('failing'), id: 'F' }], [question]).map((i) => `${i.kind}:${i.loopId}`)).toEqual(['inbox:B', 'lane:B', 'failing:F']);
   });
 });

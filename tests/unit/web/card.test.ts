@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activityStamp, cardFacts, statusLine, laneProgress, roundProgress, runBudget, selfFirst } from '../../../web/src/lib/card.js';
+import { activityStamp, headerRound, releasedText, cardFacts, statusLine, laneProgress, roundProgress, runBudget, selfFirst } from '../../../web/src/lib/card.js';
 
 describe('fleet card model', () => {
   it('puts the self-build loop first and keeps the rest in order', () => {
@@ -57,5 +57,21 @@ describe('fleet card model', () => {
     expect(statusLine({ reason: 'x', lastRun: { lane: 'web', at: '2026-10-11T21:44:00Z', outcome: 'pushed' } })).toBe('x · last run 21:44 UTC: pushed');
     expect(statusLine({ reason: 'x', paused: { by: 'Mina', at: '2026-10-11T14:05:00Z', reason: 'budget' } })).toBe('Paused by Mina since 14:05 UTC · budget');
     expect(statusLine({ reason: 'x', paused: { by: 'Mina' } })).toBe('Paused by Mina');
+  });
+});
+
+describe('round 5 A1/A8 card text', () => {
+  it('a shipped laned round says "0.4.0 released 13 Oct" instead of "release waiting on you"', () => {
+    const lanes = [{}];
+    const shipped = { version: '0.4.0', date: '2026-10-13T00:40:00Z', npm: 'latest' as const };
+    expect(roundProgress({ round: 4, roundsTotal: 4, state: 'done', lanes, shipped })?.text).toBe('Round 4 done · 0.4.0 released 13 Oct');
+    expect(roundProgress({ round: 4, roundsTotal: 4, state: 'done', lanes })?.text).toBe('Round 4 done · release waiting on you');
+    expect(releasedText({ version: '1.0.0', npm: 'unknown' })).toBe('1.0.0 released');
+  });
+  it('the loop header names the round once', () => {
+    expect(headerRound({ round: 5, roundsTotal: 5, reason: 'Round 5: building', roundLabel: 'Round 5' })).toBeUndefined();
+    expect(headerRound({ round: 5, roundsTotal: 5, reason: 'Building', roundLabel: 'Round 5' })).toBe('Round 5');
+    expect(headerRound({ round: 2, roundsTotal: 3, reason: 'Building' })).toBe('Round 2/3');
+    expect(headerRound({ round: 0, roundsTotal: 0, reason: 'x' })).toBeUndefined();
   });
 });

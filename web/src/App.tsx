@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tan
 import { Moon, Sun } from 'lucide-react';
 import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { Notice } from './components/QueryState';
+import { needsYouCount } from './lib/lanes';
 import { api, hasServer } from './api/client';
 import { CommandPalette } from './components/CommandPalette';
 import { Fleet } from './components/Fleet';
@@ -83,6 +84,8 @@ function Shell() {
   const inbox = useQuery({ queryKey: ['inbox'], queryFn: api.inbox });
   const loops = useQuery({ queryKey: ['loops'], queryFn: api.loops });
   const server = useQuery({ queryKey: ['server'], queryFn: hasServer });
+  // Same list as the fleet banner, so the badge and the banner always agree (A4).
+  const attention = needsYouCount(loops.data ?? [], inbox.data ?? []);
   const snapshotDate = shortDateUtc(newestActivity(loops.data ?? [], mockSnapshot.generatedAt));
   const qc = useQueryClient();
   useEffect(() => {
@@ -121,7 +124,7 @@ function Shell() {
             {NAV.map((n) => (
               <a key={n.label} href={href(n.route)} aria-current={current === n.route.name ? 'page' : undefined}
                 className="flex min-h-11 shrink-0 items-center whitespace-nowrap rounded px-3 py-1.5 aria-[current=page]:bg-[var(--border)] md:min-h-0">
-                {n.label}{n.route.name === 'inbox' && inbox.data?.length ? <span className="ml-1.5 rounded-full px-1.5 text-[12px]" style={{ background: 'var(--blocked)', color: 'var(--bg)' }}>{inbox.data.length}</span> : null}
+                {n.label}{n.route.name === 'inbox' && attention > 0 ? <span data-testid="nav-attention" className="ml-1.5 rounded-full px-1.5 text-[12px]" style={{ background: 'var(--blocked)', color: 'var(--bg)' }}>{attention}</span> : null}
               </a>
             ))}
           </nav>

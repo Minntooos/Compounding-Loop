@@ -11,11 +11,20 @@ export function selfFirst<T extends { id: string }>(loops: T[]): T[] {
 const count = (n: number) => (Number.isFinite(n) && n > 0 ? Math.floor(n) : 0);
 
 /** Round progress: "Round 2 of 3", "Round 2 of 2 done". Text keeps the real numbers; only the bar width is clamped. Undefined without a round total. */
-export function roundProgress(loop: Pick<LoopSummary, 'round' | 'roundsTotal' | 'state'> & { lanes?: unknown[] }): { value: number; max: number; text: string } | undefined {
+export function roundProgress(loop: Pick<LoopSummary, 'round' | 'roundsTotal' | 'state' | 'shipped'> & { lanes?: unknown[] }): { value: number; max: number; text: string } | undefined {
   const total = count(loop.roundsTotal);
   if (total === 0) return undefined;
   const round = count(loop.round);
-  return { value: Math.min(round, total), max: total, text: loop.state === 'done' && loop.lanes?.length ? `Round ${round} done · release waiting on you` : `Round ${round} of ${total}${loop.state === 'done' ? ' done' : ''}` };
+  const laned = loop.state === 'done' && loop.lanes?.length;
+  const text = laned ? `Round ${round} done · ${loop.shipped ? releasedText(loop.shipped) : 'release waiting on you'}` : `Round ${round} of ${total}${loop.state === 'done' ? ' done' : ''}`;
+  return { value: Math.min(round, total), max: total, text };
+}
+
+/** "0.4.0 released 13 Oct" (the date is left out when unknown). */
+export function releasedText(shipped: NonNullable<LoopSummary['shipped']>): string {
+  const d = shipped.date ? new Date(shipped.date) : undefined;
+  const day = d && !Number.isNaN(d.getTime()) ? ` ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()] ?? ''}` : '';
+  return `${shipped.version} released${day}`;
 }
 
 /** Lane progress for a loop that is still building: "2 of 5 lanes done". The round bar would read as finished once round = total. */
@@ -66,4 +75,11 @@ export function statusLine(loop: Pick<LoopSummary, 'reason' | 'paused' | 'lastRu
     return `Paused by ${paused.by}${since}${paused.reason ? ` · ${paused.reason}` : ''}`;
   }
   return lastRun ? `${loop.reason} · last run ${lastRun.at.slice(11, 16)} UTC: ${RUN_WORD[lastRun.outcome]}` : loop.reason;
+}
+
+/** The loop header's round text: server's `roundLabel`, else "Round 2/3"; undefined when the status reason already names that round (A8: said once). */
+export function headerRound(loop: Pick<LoopSummary, 'round' | 'roundsTotal' | 'reason' | 'roundLabel'>): string | undefined {
+  const text = loop.roundLabel ?? (count(loop.roundsTotal) > 0 ? `Round ${count(loop.round)}/${count(loop.roundsTotal)}` : undefined);
+  if (!text) return undefined;
+  return new RegExp(`\\bround ${count(loop.round)}\\b`, 'i').test(loop.reason) ? undefined : text;
 }

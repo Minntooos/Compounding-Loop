@@ -1,12 +1,10 @@
 import { CheckCircle2, XCircle } from 'lucide-react';
 import type { LoopRun } from '@core/types';
-import { dayHeading, timeUtc } from '../lib/timeline';
-import { lastFailure, testSeries } from '../lib/runs';
+import { lastFailure, testSeries, testStamp as stamp } from '../lib/runs';
 
 const W = 600;
 const H = 100;
 
-const stamp = (at: string) => `${dayHeading(at.slice(0, 10))} ${timeUtc(at)} UTC`;
 
 /** Tests per recorded run (from the run log) as hand-written SVG bars: red segment = failing. */
 export function TestsTab({ runs }: { runs: LoopRun[] }) {

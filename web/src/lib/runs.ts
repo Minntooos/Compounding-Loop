@@ -1,4 +1,5 @@
 import type { LoopRun } from '../../../src/core/types.js';
+import { dayHeading, timeUtc } from './timeline.js';
 
 export type RunOutcome = LoopRun['outcome'];
 
@@ -67,4 +68,9 @@ export function testSeries(runs: LoopRun[]): TestPoint[] {
 /** Newest point with failing tests, undefined when every recorded run passed. */
 export function lastFailure(series: TestPoint[]): TestPoint | undefined {
   return [...series].reverse().find((p) => p.failed > 0);
+}
+
+/** "Sun 11 Oct 14:53 UTC" for a test result; `timeUtc` already ends in "UTC" (A4: it once read "UTC UTC"). */
+export function testStamp(at: string): string {
+  return `${dayHeading(at.slice(0, 10))} ${timeUtc(at)}`;
 }
