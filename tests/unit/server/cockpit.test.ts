@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Schedule } from '../../../src/core/types.js';
-import { BASE_FILES, buildRuns } from '../../../src/server/live/index.js';
+import { BASE_FILES, buildLiveLoop, buildRuns } from '../../../src/server/live/index.js';
 
 // 12:20 UTC: the 12:00 slot is 20 minutes old (inside the run window), 11:00 and earlier are settled.
 const NOW = new Date('2026-10-11T12:20:00Z');
@@ -49,6 +49,16 @@ describe('buildRuns cockpit data', () => {
 describe('live file list', () => {
   it('fetches .ai/schedule.json (regression: live mode never read it, so snoozed lanes showed as missed)', () => {
     expect(BASE_FILES).toContain('.ai/schedule.json');
+  });
+
+  it('fetches .ai/policy.json and shows the loop pace with lane overrides (live mode had no pace)', () => {
+    expect(BASE_FILES).toContain('.ai/policy.json');
+    const lanesJson = JSON.stringify({ lanes: [{ name: 'core', owns: ['src/**'] }] });
+    const policy = JSON.stringify({ version: 1, pace: 'fast', lanes: { core: { pace: 'careful' } } });
+    const files = { '.ai/lanes.json': lanesJson, '.ai/policy.json': policy };
+    const { detail } = buildLiveLoop({ slug: 'o/n', commits: [], runs: {}, now: NOW, files });
+    expect(detail.pace).toEqual({ pace: 'fast', overrides: { core: 'careful' } });
+    expect(buildLiveLoop({ slug: 'o/n', commits: [], runs: {}, now: NOW, files: { '.ai/lanes.json': lanesJson } }).detail.pace).toBeUndefined();
   });
 });
 

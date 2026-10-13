@@ -1,6 +1,6 @@
 // Pure: turns fetched GitHub data into the dashboard's existing API shapes (no Node imports, runs in the browser).
 import { parseBlocked } from '../../core/blocked.js';
-import { activeClaim, commitLane, latestControlNotes, parseChangelog, parsePaused, parseLanesConfig, parseOutbox, parseRunCounter, parseSchedule, parseTaskFile } from '../../core/parse/index.js';
+import { activeClaim, commitLane, latestControlNotes, parseChangelog, parsePaused, parseLanesConfig, parseOutbox, paceFor, parsePolicy, parseRunCounter, parseSchedule, parseTaskFile } from '../../core/parse/index.js';
 import type { OutboxMessage } from '../../core/parse/index.js';
 import { shipCheck } from '../../core/shipCheck.js';
 import { deriveLaneState, stallMinutesFor, summarizeOutboxes } from '../../core/laneStatus.js';
@@ -142,6 +142,8 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
     ? buildRuns({ steerTexts: Object.fromEntries(laneNames.map((n) => [n, input.files[`.ai/lanes/${n}/steer.md`]])), lanes: laneConfig.map((l) => ({ name: l.name, ...(l.cron && { cron: l.cron }), stopped: hasDone || ['done', 'blocked'].includes(lanes.find((s) => s.name === l.name)?.state ?? '') || lanes.find((s) => s.name === l.name)?.claim !== undefined })), logs: Object.fromEntries(laneNames.map((n) => [n, input.files[`.ai/lanes/${n}/runs.jsonl`]])), commits: timeline, now: input.now, ...(input.files['.ai/schedule.json'] !== undefined && { schedule: parseSchedule(input.files['.ai/schedule.json']) }), ...(paused && { paused }) })
     : undefined;
   const schedule = input.files['.ai/schedule.json'] === undefined ? undefined : parseSchedule(input.files['.ai/schedule.json']);
+  const policyText = input.files['.ai/policy.json'];
+  const policy = policyText === undefined ? undefined : parsePolicy(policyText);
   const lastRun = runsData && lastRunOf(runsData.runs);
   const controlText = input.files['.ai/control-room.md'];
   const notes = controlText === undefined || !lanes ? [] : Object.entries(latestControlNotes(controlText, laneNames)).map(([lane, n]) => ({ lane, at: n.at, text: n.text }));
@@ -171,6 +173,7 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
     ...(pausedText !== undefined && { paused: pausedInfo(pausedText) }),
     ...(notes.length > 0 && { controlNotes: notes }),
     ...(changelogText !== undefined && { releases: annotateReleases(parseChangelog(changelogText), input.tags === undefined ? undefined : tags, npm) }),
+    ...(policy && { pace: { pace: policy.pace, overrides: Object.fromEntries(Object.keys(policy.lanes).map((lane) => [lane, paceFor(policy, lane)])) } }),
     ...(ship && { ship }),
     ...(lastRun && { lastRun }),
     ...(runsData && { runs: runsData.runs.slice(0, MAX_RUNS), nextRuns: runsData.nextRuns, runOutcomes: runsData.outcomes, idleRuns: runsData.idleRuns, ...(schedule && { schedule }), ...(runsData.steer.length > 0 && { steer: runsData.steer }) }),

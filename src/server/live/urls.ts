@@ -26,6 +26,7 @@ export const BASE_FILES: readonly string[] = [
   'package.json',
   '.ai/PAUSED',
   '.ai/schedule.json',
+  '.ai/policy.json',
   '.ai/control-room.md',
   'CHANGELOG.md',
   'DONE.md',
