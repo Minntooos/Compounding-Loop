@@ -144,6 +144,16 @@ describe('loadLive release state (round 5 A1, C7)', () => {
     expect(live.detail.shipped?.version).toBe('0.4.0');
   });
 
+  it('lists the repo tags too, so older CHANGELOG versions are not marked untagged', async () => {
+    const gh = repo({
+      '/tags?per_page=100': () => json([{ name: 'v0.3.0' }]),
+      '/git/matching-refs/': () => json([]),
+    });
+    const live = await loadLive(gh.fetch, { repo: 'a/b' }, NOW);
+    expect(gh.urls.some((u) => u.includes('registry.npmjs.org'))).toBe(false); // untagged version: npm would only 404
+    expect(live.detail.shipped).toBeUndefined();
+  });
+
   it('a failed tag or npm request does not lose the page and claims no release', async () => {
     const gh = repo({
       '/git/matching-refs/': () => new Response('{}', { status: 403 }),

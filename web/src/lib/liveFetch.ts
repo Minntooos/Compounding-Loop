@@ -1,4 +1,4 @@
-import { buildLiveLoop, commitsSinceUrl, npmPackageUrl, packageName, packageVersion, tagLookupApiUrl, GITHUB_API, hasMoreCommits, snapshotSince, isRepoSlug, laneFilePaths, liveUrls, rawUrl, BASE_FILES, type LiveLoop } from '../../../src/server/live/index.js';
+import { buildLiveLoop, commitsSinceUrl, npmPackageUrl, packageName, packageVersion, tagLookupApiUrl, tagsApiUrl, GITHUB_API, hasMoreCommits, snapshotSince, isRepoSlug, laneFilePaths, liveUrls, rawUrl, BASE_FILES, type LiveLoop } from '../../../src/server/live/index.js';
 import { parseLanesConfig } from '../../../src/core/parse/index.js';
 import type { LoopCommit } from '../../../src/core/types.js';
 
@@ -86,25 +86,29 @@ export async function loadLive(fetchFn: Fetch, config: LiveConfig, now: Date, sn
   const lanesText = base['.ai/lanes.json'];
   const lanes = lanesText === undefined ? [] : (parseLanesConfig(lanesText).config?.lanes ?? []);
   const pkg = base['package.json'];
-  const [laneFiles, tags, npm] = await Promise.all([
+  const version = packageVersion(pkg);
+  const [laneFiles, tags] = await Promise.all([
     fetchFiles(fetchFn, config.repo, laneFilePaths(lanes.map((l) => l.name)), present),
-    releaseTags(fetchFn, config.repo, packageVersion(pkg)),
-    npmDocument(fetchFn, packageName(pkg)),
+    releaseTags(fetchFn, config.repo, version),
   ]);
+  // npm answers 404 (a red console line) for a package that was never published, so ask only once the version is tagged.
+  const tagged = version !== undefined && (tags ?? []).some((t) => isTag(t, `v${version}`));
+  const npm = tagged ? await npmDocument(fetchFn, packageName(pkg)) : undefined;
   return buildLiveLoop({
     slug: config.repo, ...(config.loop && { id: config.loop }), commits, runs, ...(snapshot.length > 0 && { snapshotCommits: snapshot }),
     files: { ...base, ...laneFiles }, now, ...(tags !== undefined && { tags }), ...(npm !== undefined && { npm }),
   });
 }
 
-/** The tag refs for `v<version>` (A1 "shipped"), or undefined when there is no version or GitHub would not say: then nothing is claimed about tags. */
-async function releaseTags(fetchFn: Fetch, slug: string, version: string | undefined): Promise<unknown> {
-  if (version === undefined) return undefined;
-  try {
-    return await apiJson(fetchFn, tagLookupApiUrl(slug, version));
-  } catch {
-    return undefined; // garnish, like the runs list: a rate limit here must not lose the page
-  }
+/**
+ * The repo's newest 100 tags (for every Releases row) plus the exact `v<version>` lookup (A1 "shipped"; not capped at 100),
+ * as one array of tag items; undefined when GitHub answered neither, so nothing is claimed about tags.
+ */
+async function releaseTags(fetchFn: Fetch, slug: string, version: string | undefined): Promise<unknown[] | undefined> {
+  // Garnish, like the runs list: a rate limit here must not lose the page.
+  const get = (url: string) => apiJson(fetchFn, url).then((j) => (Array.isArray(j) ? (j as unknown[]) : undefined), () => undefined);
+  const [list, exact] = await Promise.all([get(tagsApiUrl(slug)), version === undefined ? undefined : get(tagLookupApiUrl(slug, version))]);
+  return list === undefined && exact === undefined ? undefined : [...(list ?? []), ...(exact ?? [])];
 }
 
 /** npm's package document (the registry allows any origin); undefined for a repo without a package name or when npm is unreachable. */
@@ -116,4 +120,10 @@ async function npmDocument(fetchFn: Fetch, name: string | undefined): Promise<un
   } catch {
     return undefined;
   }
+}
+
+/** A GitHub tags item (`name`) or matching-refs item (`ref: refs/tags/<name>`) for exactly this tag. */
+function isTag(item: unknown, tag: string): boolean {
+  const { name, ref } = (typeof item === 'object' && item !== null ? item : {}) as { name?: unknown; ref?: unknown };
+  return name === tag || ref === `refs/tags/${tag}`;
 }

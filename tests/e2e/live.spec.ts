@@ -10,6 +10,8 @@ async function mockLive(page: Page, github: 'ok' | 'rate-limited' | 'down') {
     const csp = (res.headers()['content-security-policy'] ?? '').replace("connect-src 'self'", "connect-src 'self' https://api.github.com https://raw.githubusercontent.com");
     await route.fulfill({ response: res, headers: { ...res.headers(), 'content-security-policy': csp } });
   });
+  // Never the real registry in tests (no network); a published-looking document keeps the console clean.
+  await page.route('https://registry.npmjs.org/**', (route) => route.fulfill({ json: { 'dist-tags': {}, versions: {} } }));
   await page.route('**/live.json', (route) => route.fulfill({ json: { repo: 'Minntooos/Compounding-Loop', loop: 'compounding-loop' } }));
   await page.route('https://api.github.com/**', (route) => {
     if (github === 'rate-limited') return route.fulfill({ status: 403, headers: { 'x-ratelimit-reset': String(Math.floor(Date.now() / 1000) + 1800) }, json: { message: 'rate limit exceeded' } });
