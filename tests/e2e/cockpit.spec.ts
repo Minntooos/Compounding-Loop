@@ -98,3 +98,15 @@ for (const theme of ['light', 'dark'] as const) {
     expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')).toEqual([]);
   });
 }
+
+test('an open tab re-reads the clock: Likely running turns Idle once the run window passes', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-10-13T03:00:00Z') });
+  const loop = { id: 'one', name: 'one', state: 'building', reason: 'Building', round: 1, roundsTotal: 2, run: 1, runLimit: 20, lastRun: { lane: 'web', at: '2026-10-13T02:15:00Z', outcome: 'pushed' } };
+  await page.route('**/api/loops', (r) => r.fulfill({ json: [loop] }));
+  await page.route('**/api/inbox', (r) => r.fulfill({ json: [] }));
+  await page.goto('/');
+  const state = page.getByTestId('status-strip').locator('[data-segment="state"]');
+  await expect(state).toHaveText('Likely running', { useInnerText: true });
+  await page.clock.fastForward('06:00');
+  await expect(state).toHaveText('Idle', { useInnerText: true });
+});

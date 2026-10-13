@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { AlertTriangle, Check, CheckCircle2, Circle, CircleDot, Clock, Inbox, Minus, Pause, RefreshCw, Tag, X, type LucideIcon } from 'lucide-react';
 import type { LoopDetail, LoopSummary } from '@core/types';
 import { api } from '../api/client';
@@ -34,6 +35,12 @@ function Item({ s, sep }: { s: Segment; sep: Sep }) {
  * loop; on a loop page, that loop. Its needs-you count is the shared attention list, like the banner, the nav badge and the Inbox.
  */
 export function StatusStrip({ loopId }: { loopId?: string }) {
+  // "Likely running" and the next-run time depend on the clock, so an open tab re-reads it every minute.
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(new Date()), 60_000);
+    return () => window.clearInterval(id);
+  }, []);
   const loops = useQuery({ queryKey: ['loops'], queryFn: api.loops });
   const inbox = useQuery({ queryKey: ['inbox'], queryFn: api.inbox });
   const all: LoopSummary[] = loops.data ?? [];
@@ -44,7 +51,7 @@ export function StatusStrip({ loopId }: { loopId?: string }) {
   if (!loops.data || !inbox.data || scoped.length === 0) return null;
   const items = attentionItems(scoped, inbox.data.filter((i) => loopId === undefined || i.loopId === loopId));
   const details = new Map<string, LoopDetail>(detail.data && detailId ? [[detailId, detail.data]] : []);
-  const segments = stripSegments({ loops: scoped, scoped: loopId !== undefined, attention: items.length, details, now: new Date() });
+  const segments = stripSegments({ loops: scoped, scoped: loopId !== undefined, attention: items.length, details, now });
   const [first, second, ...rest] = segments;
   const lineTwoStart = rest.find((s) => s.short !== '');
   return (
