@@ -1,7 +1,7 @@
 # Lane: web — round 5 (0.5.0 "Cockpit")
 
-Run: 9 / 20
-Status: units 1-6 and 8 done (A3 Health states + C9 pace run 9, C3 run 8, C6 run 7, C7 chips); next: unit 7 screenshots, then audit majors
+Run: 10 / 20
+Status: units 1-8 done (unit 7 cockpit screenshots run 10; A3 + C9 run 9); next: audit majors, starting with the demo read-only write controls
 Round 4 record: `.ai/lanes/web/done-v4.md` (`git show 02874e8:.ai/lanes/web/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
@@ -58,6 +58,7 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 
 - 2026-10-13 run 9: A3 before C9: server's 11:45 message waited on web (lane-run step 4.2). Health summary line counts states ("1 failing · 4 passing · 2 not checked"); an unchecked row names what it would measure and its badge says Not checked once.
 - 2026-10-13 run 9: C9 chooser is inline (four radios), not a dialog. No "remove lane override": core's `withPace` has none; choosing the loop's pace for a lane is labelled "the loop’s pace". Auto-downshift notice waits for data (asked core/server for a pace note). Demo shows the whole new policy.json before copying it, so a blocked clipboard can select it.
+- 2026-10-13 run 10: pushed the cockpit screenshots although the self shots show server's round 3 self snapshot (reviewer: "Done" header vs today's heat map, "Release waiting" vs "Release is off"): the spec and new shots are right, the data is server's; asked server to rebuild demo/this-repo.json and told docs not to copy `self-*` until re-shot. Easy to reverse (re-run the spec).
 
 ## Confirmed
 - CONFIRMED: Playwright route handlers that `route.fetch()` can fail a test with "Response has been disposed" when the test ends mid-fetch; cockpit.spec.ts serves static fixtures instead (3/3 green after, 1/4 flaky before).
@@ -74,11 +75,8 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
-Run 9 (2026-10-13 11:44-12:15 UTC; stale clone, branch `lane-run`, pushed `HEAD:main`) shipped two units, each reviewed (`.ai/audit/web.md` "A3 review, run 9", "C9 review, run 9"):
-- A3 Health three states: `web/src/lib/health.ts` (checkState, checkText, checkSummary, codeParts), `web/src/components/Health.tsx` (Pass/Fail/grey Not checked + "How to check" with code spans, summary line), liveMerge skips an unchecked test check as CI. Tests: tests/unit/web/health.test.ts, liveFetch.test.ts, tests/e2e/health.spec.ts (+axe both themes).
-- C9 Pace control: DESIGN.md "Pace control" paragraph; `web/src/lib/pace.ts`, `web/src/components/PaceControl.tsx` (PaceBlock at the Lanes tab head, PaceChooser inline per lane), `postPace` in client.ts, `cockpit.pace` from LoopDetail.tsx. Tests: tests/unit/web/pace.test.ts, tests/e2e/pace.spec.ts (demo URL + file text, local POST + error, focus/Escape, axe both themes, no overflow).
-npm test green: 880 unit, 245 e2e.
-Do first next run: unit 7 screenshots (web/design/docs/, include C6 dialog, heat map, Pace block, Health three states; PNG < 400 kB), then audit majors.
-Open minors: under `loop dashboard --demo` every write control (steer, schedule, pace, next round) shows its local Save and gets 409 "demo is read-only" (should read `settings.demo`/health `demo` and show the demo links instead; one cross-cutting fix); no actual auto-downshift notice (asked core/server for a pace note 12:10); `cardBadge` ignores a loop pause; "Limit stops not checked" while routines look off; Retry after "committed but not pushed" re-posts (ConfirmDialog, NextRoundDialog); heat-map minors in the audit; QUIET_KINDS duplicated in web/src/lib/runs.ts and src/server/runs.ts.
-Waiting on server: `draftInputs` on LoopDetail + claude abort on Stop (asked 09:58); demo self lane states.
-Design reviewer recipe: fixture routes as in tests/e2e/pace.spec.ts, `node bin/loop.js dashboard --demo --no-open --port 4181` or `vite preview`, a node script importing `node_modules/playwright/index.mjs` with executablePath `/opt/pw-browsers/chromium`; never `pkill -f` a pattern matching your own shell (it killed this run's shell once). Web lib files import core with relative `../../../src/core/*.js` (`@core` alias is Vite-only).
+Run 10 (2026-10-13 12:44-13:00 UTC; stale clone, branch `lane-run`, pushed `HEAD:main`) shipped unit 7: `tests/e2e/screenshots.spec.ts` adds `self-lanes` and `self-runs` (clicks the tab, asserts aria-selected), whole docs set re-shot in `web/design/docs/` (36 PNGs, all < 400 kB). Review in `.ai/audit/web.md` "Unit 7, run 10". npm test green: 245 e2e.
+Do first next run: once server rebuilds demo/this-repo.json for round 5, re-shoot `SCREENS=1 npx playwright test screenshots --project=laptop -g self` and tell docs. Then audit majors, first the demo read-only fix: under `loop dashboard --demo` (/api/health `demo: true`) ControlBar, ScheduleControls, PaceControl, steer composer, NextRoundDialog, Inbox `readOnly` and `needsYouRows(…, demo)` all key off `hasServer()`/`server.data === false` and show local Save → 409. Plan: one `canWrite()` in web/src/api/client.ts (server answers and health.demo !== true) used by the write controls only; App's snapshot chip, WelcomeStrip and live updates keep `hasServer`. Needs an e2e routing /api/health to `{ok:true,demo:true}`.
+Other open minors (from run 9 + reviewer run 10): no auto-downshift notice (waiting core/server pace note); `cardBadge` ignores a loop pause; "Limit stops not checked" while routines look off; Retry after "committed but not pushed" re-posts; heat-map minors; QUIET_KINDS duplicated (web/src/lib/runs.ts, src/server/runs.ts); phone strip drops round/next items so "1 needs you" has no detail; long URLs break mid-word on Health phone; laptop heat map has an empty 18-00 band; strip "Release waiting" vs ControlBar "Release is off until the round is done" on the self loop (check whether that is data or a rule mismatch).
+Waiting on server: round 5 self snapshot; `draftInputs` on LoopDetail + claude abort on Stop (asked 09:58); demo self lane states.
+Design reviewer recipe: fixture routes as in tests/e2e/pace.spec.ts, `node bin/loop.js dashboard --demo --no-open --port 4181` or `vite preview`, a node script importing `node_modules/playwright/index.mjs` with executablePath `/opt/pw-browsers/chromium`; never `pkill -f` a pattern matching your own shell. Web lib files import core with relative `../../../src/core/*.js` (`@core` alias is Vite-only).
