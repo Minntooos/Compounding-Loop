@@ -94,10 +94,9 @@ describe('helpers', () => {
 describe('run outcomes (server runOutcomes)', () => {
   const ro = (over: Partial<NonNullable<LoopSummary['runOutcomes']>> = {}) => ({ limitStops5h: 0, running: [], sleeping: [], routinesLookOff: false, ...over });
   const lanes = [lane('core', 'building'), lane('kit', 'building'), lane('docs', 'done')];
-  it('Running names the lanes on a loop page; Routines look off is Stalled', () => {
+  it('Running names the lanes on a loop page', () => {
     expect(loopStripState(loop({ lanes, runOutcomes: ro({ running: ['web'] }) }), NOW)).toBe('running');
     expect(text(stripSegments({ loops: [loop({ lanes, runOutcomes: ro({ running: ['web', 'core'] }) })], scoped: true, attention: 0, now: NOW }), 'state')).toBe('Running · web, core');
-    expect(loopStripState(loop({ lanes, runOutcomes: ro({ routinesLookOff: true }) }), NOW)).toBe('stalled');
   });
   it('Sleeping only when every lane with work is held back', () => {
     expect(allLanesSleeping(loop({ lanes, runOutcomes: ro({ sleeping: ['core', 'kit'] }) }))).toBe(true);
@@ -107,9 +106,13 @@ describe('run outcomes (server runOutcomes)', () => {
   });
   it('limit stops add up over loops that report them, else stay "not checked"', () => {
     expect(limitStopsOf([loop(), loop()])).toBeUndefined();
-    expect(limitStopsOf([loop({ runOutcomes: ro({ limitStops5h: 2 }) }), loop(), loop({ runOutcomes: ro() })])).toBe(2);
-    expect(text(stripSegments({ loops: [loop({ runOutcomes: ro({ limitStops5h: 2 }) })], scoped: true, attention: 0, now: NOW }), 'limits')).toBe('2 limit stops in 5 h');
-    expect(text(stripSegments({ loops: [loop({ runOutcomes: ro() })], scoped: true, attention: 0, now: NOW }), 'limits')).toBe('No limit stops');
+    // Loops without lanes have no runs; every laned loop must report.
+    expect(limitStopsOf([loop({ lanes, runOutcomes: ro({ limitStops5h: 2 }) }), loop(), loop({ lanes, runOutcomes: ro() })])).toBe(2);
+    expect(limitStopsOf([loop({ lanes, runOutcomes: ro() }), loop({ lanes })])).toBeUndefined();
+    // Gone silent: the server zeroes the count, which would read as "No limit stops".
+    expect(limitStopsOf([loop({ lanes, runOutcomes: ro({ routinesLookOff: true }) })])).toBeUndefined();
+    expect(text(stripSegments({ loops: [loop({ lanes, runOutcomes: ro({ limitStops5h: 2 }) })], scoped: true, attention: 0, now: NOW }), 'limits')).toBe('2 limit stops in 5 h');
+    expect(text(stripSegments({ loops: [loop({ lanes, runOutcomes: ro() })], scoped: true, attention: 0, now: NOW }), 'limits')).toBe('No limit stops');
   });
   it('next due comes from runOutcomes.nextDue', () => {
     expect(text(stripSegments({ loops: [loop({ runOutcomes: ro({ nextDue: { lane: 'core', at: '2026-10-13T03:05:00Z' } }) })], scoped: true, attention: 0, now: NOW }), 'next')).toBe('next: core 03:05 UTC');

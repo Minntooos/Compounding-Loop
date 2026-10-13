@@ -44,8 +44,6 @@ export function loopStripState(loop: Summary, now: Date): StripState {
   if (loop.lanes?.some((l) => l.state === 'stalled')) return 'stalled';
   if (releaseWaiting(loop)) return 'release-waiting';
   if (loop.paused) return 'paused';
-  // "Routines look off" (6 h of silence with runs due) is a stall of the whole loop.
-  if (loop.runOutcomes?.routinesLookOff) return 'stalled';
   if (loop.state === 'done') return loop.shipped ? 'released' : 'done';
   if (loop.runOutcomes?.running.length) return 'running';
   if (now.getTime() - lastActivity(loop) < RUN_WINDOW_MS) return 'likely-running';
@@ -59,10 +57,14 @@ export function allLanesSleeping(loop: Pick<LoopSummary, 'lanes' | 'runOutcomes'
   return open.length > 0 && open.every((l) => sleeping.has(l.name));
 }
 
-/** Usage-limit stops in the last 5 h over the loops that report run outcomes; undefined when none does ("not checked"). */
-export function limitStopsOf(loops: Pick<LoopSummary, 'runOutcomes'>[]): number | undefined {
-  const known = loops.map((l) => l.runOutcomes).filter((o) => o !== undefined);
-  return known.length ? known.reduce((n, o) => n + o.limitStops5h, 0) : undefined;
+/**
+ * Usage-limit stops in the last 5 h over the laned loops (only they have runs). Undefined ("not checked") unless every laned
+ * loop reports run outcomes and none has gone silent ("Routines look off" zeroes the count), so none and unknown never look alike.
+ */
+export function limitStopsOf(loops: Pick<LoopSummary, 'lanes' | 'runOutcomes'>[]): number | undefined {
+  const laned = loops.filter((l) => l.lanes !== undefined);
+  if (laned.length === 0 || laned.some((l) => !l.runOutcomes || l.runOutcomes.routinesLookOff)) return undefined;
+  return laned.reduce((n, l) => n + (l.runOutcomes?.limitStops5h ?? 0), 0);
 }
 
 const STATE_TONE: Record<StripState, Tone> = {
