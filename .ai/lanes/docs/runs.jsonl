@@ -1,3 +1,4 @@
 {"at":"2026-10-11T21:01:31Z","lane":"docs","units":["audit","release.yml","next-round.yml","docs/release.md"],"tests":{"passed":122,"failed":0},"pushed":true,"note":"dashboard.md waits on web buttons"}
 {"at": "2026-10-11T23:10:00Z", "lane": "docs", "units": ["dashboard-controls", "fresh-install-r4"], "tests": {"passed": 134, "failed": 0}, "pushed": true, "note": "run 3"}
 {"at":"2026-10-11T23:58:22Z","lane":"docs","units":["verify","DONE"],"tests":{"passed":138,"failed":0},"pushed":true,"note":"run 4, lane done"}
+{"at":"2026-10-13T18:58:44Z","lane":"docs","units":["audit-r5","steering.md","dashboard.md","README","CHANGELOG","docs tests"],"tests":{"passed":934,"failed":0},"pushed":true,"note":"run 1; sprint pace: check+typecheck+unit, e2e left to CI (docs-only diff)"}

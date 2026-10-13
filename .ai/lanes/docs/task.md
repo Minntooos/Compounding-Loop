@@ -1,7 +1,7 @@
 # Lane: docs — round 5 (0.5.0 "Cockpit")
 
-Run: 0 / 20
-Status: not started
+Run: 1 / 20
+Status: units 1-3 done (run 1); 4-6 remain
 Round 4 record: `.ai/lanes/docs/done-v4.md` (`git show 02874e8:.ai/lanes/docs/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
@@ -38,4 +38,5 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
-Not started. Read IDEA.md's Round 5 section and `.ai/lane-run.md`, then do unit 1.
+Run 1 shipped units 1-3 (audit, docs/steering.md incl. pace, dashboard.md controls, README section, CHANGELOG, docs.test.ts). Next: unit 4 (swap screenshots once web is DONE, <400 kB each; launch/ drafts mention steering and idle-for-free), recheck dashboard.md labels against web's final UI, run the fresh-install test from a packed tarball, then DONE only after core and web are DONE.
+Note: pull in run 1 diverged from origin, so I worked on branch `lane-run` and pushed with `git push origin HEAD:main`.

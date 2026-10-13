@@ -8,7 +8,7 @@ npx compounding-loop init
 
 [![npm](https://img.shields.io/npm/v/compounding-loop)](https://www.npmjs.com/package/compounding-loop) [![CI](https://github.com/Minntooos/Compounding-Loop/actions/workflows/ci.yml/badge.svg)](https://github.com/Minntooos/Compounding-Loop/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**[Watch this repo build itself](https://minntooos.github.io/Compounding-Loop/)**: the live demo reads this repo's commits from GitHub in your browser, next to the real five-site data. Working with a teammate? [Five steps](docs/team.md).
+**[Watch this repo build itself](https://minntooos.github.io/Compounding-Loop/)**: the live demo reads this repo's commits from GitHub in your browser, next to the real five-site data. Steering and scheduling: [Glance, steer, sleep](#glance-steer-sleep). Working with a teammate? [Five steps](docs/team.md).
 
 ![The Compounding Loop fleet screen: six loops, one with lanes](docs/assets/screens/fleet-light-laptop.png)
 
@@ -55,6 +55,18 @@ flowchart LR
 4. **Reviewer gate.** A fresh subagent attacks the diff before it is pushed.
 5. **Compounding.** Every run writes what it learned into a small indexed knowledge base the next run reads first.
 6. **Escalation.** When it is stuck it writes `BLOCKED.md`. You answer from the dashboard inbox or `loop answer`.
+
+## Glance, steer, sleep
+
+Leave a laned loop running, look at the dashboard, and steer it without opening a chat. The top strip says in five seconds whether anything needs you, whether lanes are running or stalled, whether runs hit the usage limit, whether CI is green and whether it is ready to ship.
+
+```sh
+npx compounding-loop steer docs "Update the README screenshots first"   # saved as a file in the repo, read at the lane's next run
+npx compounding-loop schedule snooze web 6h                             # or pause, resume, wake
+npx compounding-loop pace set sprint                                    # how much checking each run does
+```
+
+Lanes with nothing to do back off (3 h, then 6 h, then asleep until there is steering, a message or a new round), so a loop can stay on around the clock and a skipped run costs seconds. Routine prompts stay short and point at `.ai/lane-run.md`, so changing how every lane runs is one commit. Details: [Steer, schedule and pace a loop](docs/steering.md).
 
 ## Quick start
 
@@ -103,7 +115,7 @@ If you work at the keyboard and want to watch agents in parallel, those tools ar
 
 ## Docs
 
-[Getting started](docs/getting-started.md) · [Lanes](docs/lanes.md) · [Team](docs/team.md) · [Concepts](docs/concepts.md) · [Runners](docs/runners.md) · [Dashboard](docs/dashboard.md) · [Release](docs/release.md) · [Templates](docs/templates.md) · [FAQ](docs/faq.md) · [Troubleshooting](docs/troubleshooting.md) · [Contributing](CONTRIBUTING.md)
+[Getting started](docs/getting-started.md) · [Lanes](docs/lanes.md) · [Team](docs/team.md) · [Concepts](docs/concepts.md) · [Runners](docs/runners.md) · [Dashboard](docs/dashboard.md) · [Steering](docs/steering.md) · [Release](docs/release.md) · [Templates](docs/templates.md) · [FAQ](docs/faq.md) · [Troubleshooting](docs/troubleshooting.md) · [Contributing](CONTRIBUTING.md)
 
 ## FAQ
 

@@ -1,5 +1,24 @@
 # Audit: docs
 
+## Round 5 (2026-10-13, 0.5.0 "Cockpit")
+Goal judged: a stranger can steer, schedule and pace a loop from the docs alone.
+
+### Blockers
+None open.
+
+### Findings
+| # | Area | Evidence | Severity | One-line fix |
+|---|---|---|---|---|
+| 1 | Steering page | No `docs/steering.md`; thin prompts, `schedule.json`, `steer.md` and pace were documented only in runners/templates. | major | Written in run 1 from the real `--help` output and kit's prompt files. |
+| 2 | Dashboard page | Did not list the strip, Needs you, heat map, Steer, schedule, Pace or Draft controls. | major | Updated in run 1 for the controls found in `web/src/components`; recheck wording against web's final labels. |
+| 3 | README/CHANGELOG | No "Glance, steer, sleep"; `[Unreleased]` empty. | major | Added in run 1. |
+| 4 | Screenshots | `docs/assets/screens/` predates the cockpit; web still re-shooting. | major (waiting) | Swap in after web's DONE; keep each PNG under 400 kB. |
+| 5 | launch/ drafts | Still the 0.1.0 story. | minor | Unit 4. |
+| 6 | Fresh-install test | Not run for round 5 (needs a packed tarball and a built dist). | minor | Run before DONE. |
+| 7 | Doc tests | Nothing checked links or commands named in docs. | minor | `tests/unit/docs/docs.test.ts` added. |
+
+Cross-lane: none.
+
 ## Round 4 (2026-10-11, 0.4.0 "Control")
 Goal judged: the owner releases and starts rounds from GitHub buttons with no token in chat; every dashboard control has a page that says what it changes.
 

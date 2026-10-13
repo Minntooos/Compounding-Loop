@@ -4,6 +4,14 @@ All notable changes are listed here. Format follows [Keep a Changelog](https://k
 
 ## [Unreleased]
 
+### Added ("Cockpit", 0.5.0)
+- Steering: `loop steer <lane> "<text>" [--standing]` writes `.ai/lanes/<lane>/steer.md`, wakes the lane and commits; lanes acknowledge each entry with a `→` line.
+- Schedule: `loop schedule show|pause|resume|snooze|wake|update` over `.ai/schedule.json`; a lane that is not due replies "Not due" before installing anything, and idle lanes back off (3 h, 6 h, then sleep) and wake on steering, messages or a new round.
+- Pace: `.ai/policy.json` and `loop pace show|set` (careful, balanced, fast, sprint) set how much checking a run does; never a push with a failing check.
+- Thin routine prompts: lane and control-room routines point at `.ai/lane-run.md` / `.ai/control-run.md`; `loop init --lanes` writes them, with `schedule.json`, `steer.md` and `policy.json`.
+- `loop next-round --draft [--print-prompt]` drafts the next brief from the DONE lists, open findings and steering.
+- Dashboard: status strip, Needs-you rows with inline actions, lane × hour heat map of run outcomes, steer composer, schedule and pace controls, Draft with Claude. Docs: [Steer, schedule and pace a loop](docs/steering.md).
+
 ## [0.4.0] - 2026-10-12
 
 0.3.0 was never published to npm, so everything under `[0.3.0]` also ships for the first time in 0.4.0.
