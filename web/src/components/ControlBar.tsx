@@ -23,6 +23,9 @@ function ConfirmDialog({ loop, action, local, onClose }: { loop: LoopDetail; act
   const [error, setError] = useState<string>();
   // Committed but not pushed: the change is already written, so a Retry would commit it again; only pushing finishes it.
   const [committed, setCommitted] = useState(false);
+  const close = useRef<HTMLButtonElement>(null);
+  // The focused primary button goes away with the commit, so focus moves to Close instead of falling to the page.
+  useEffect(() => { if (committed) close.current?.focus(); }, [committed]);
   useEffect(() => {
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : undefined;
     ref.current?.showModal();
@@ -63,7 +66,7 @@ function ConfirmDialog({ loop, action, local, onClose }: { loop: LoopDetail; act
       {blocked && <p role="status" className="mt-2 text-[13px]" style={{ color: 'var(--muted)' }}>{blocked}</p>}
       {error && <p role="alert" className="mt-2 text-[13px]" style={{ color: 'var(--failing)' }}>{error}</p>}
       <div className="mt-4 flex flex-wrap justify-end gap-2">
-        <button type="button" disabled={busy} onClick={onClose} className="min-h-11 rounded border px-4 disabled:opacity-60" style={{ borderColor: 'var(--border)' }}>{committed ? 'Close' : 'Cancel'}</button>
+        <button ref={close} type="button" disabled={busy} onClick={onClose} className="min-h-11 rounded border px-4 disabled:opacity-60" style={{ borderColor: 'var(--border)' }}>{committed ? 'Close' : 'Cancel'}</button>
         {!committed && <button type="button" disabled={busy || blocked !== undefined} onClick={() => void confirm()} className="min-h-11 rounded px-4 font-semibold disabled:opacity-60" style={{ background: 'var(--accent)', color: 'var(--bg)' }}>{busy ? PENDING[action] : error ? 'Retry' : VERB[action]}</button>}
       </div>
     </dialog>

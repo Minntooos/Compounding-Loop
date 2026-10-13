@@ -32,6 +32,9 @@ export function NextRoundDialog({ loop, local, onClose }: { loop: LoopDetail; lo
   const [note, setNote] = useState<string>();
   // Committed but not pushed: the round is already written, so a Retry would start it twice; only pushing finishes it.
   const [committed, setCommitted] = useState(false);
+  const close = useRef<HTMLButtonElement>(null);
+  // The focused primary button goes away with the commit, so focus moves to Close instead of falling to the page.
+  useEffect(() => { if (committed) close.current?.focus(); }, [committed]);
   useEffect(() => {
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : undefined;
     ref.current?.showModal();
@@ -151,7 +154,7 @@ export function NextRoundDialog({ loop, local, onClose }: { loop: LoopDetail; lo
       {blocked && <p id="next-round-blocked" className="mt-2 text-[13px]" style={muted}>{blocked}</p>}
       {error && <p role="alert" className="mt-2 text-[13px]" style={{ color: 'var(--failing)' }}>{error}</p>}
       <div className="mt-4 flex flex-wrap justify-end gap-2">
-        <button type="button" disabled={busy} onClick={onClose} className="min-h-11 rounded border px-4 disabled:opacity-60" style={{ borderColor: 'var(--border)' }}>{committed ? 'Close' : 'Cancel'}</button>
+        <button ref={close} type="button" disabled={busy} onClick={onClose} className="min-h-11 rounded border px-4 disabled:opacity-60" style={{ borderColor: 'var(--border)' }}>{committed ? 'Close' : 'Cancel'}</button>
         {!committed && <button type="button" disabled={busy || streaming || blocked !== undefined} aria-describedby={blocked ? 'next-round-blocked' : undefined} onClick={() => void go()} className="min-h-11 rounded px-4 font-semibold disabled:opacity-60" style={{ background: 'var(--accent)', color: 'var(--bg)' }}>{busy ? 'Starting…' : error ? 'Retry' : `Start round ${inputs.round}`}</button>}
       </div>
     </dialog>

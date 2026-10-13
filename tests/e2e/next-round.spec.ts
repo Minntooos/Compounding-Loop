@@ -123,11 +123,12 @@ test('local: committed but not pushed offers Close, not a Retry that would start
   await dialog.getByRole('button', { name: 'Start round 6' }).click();
   await expect(dialog.getByRole('alert')).toHaveText('Committed here but not pushed: no upstream. Push main to finish.');
   await expect(dialog.getByRole('button', { name: /Retry|Start round/ })).toHaveCount(0);
+  await expect(dialog.getByRole('button', { name: 'Close' })).toBeFocused();
   await dialog.getByRole('button', { name: 'Close' }).click();
   await page.getByRole('button', { name: 'Pause all' }).click();
   await dialog.getByRole('button', { name: 'Pause', exact: true }).click();
   await expect(dialog.getByRole('alert')).toContainText('not pushed');
   await expect(dialog.getByRole('button', { name: /Retry|Pause/ })).toHaveCount(0);
-  await expect(dialog.getByRole('button', { name: 'Close' })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: 'Close' })).toBeFocused();
   expect(posted).toEqual(['next-round', 'pause']);
 });
