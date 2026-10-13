@@ -10,22 +10,23 @@ Method: read IDEA.md Round 5 A and C against `web/src` on a fresh pull (`npm tes
 | R5-1 | A4: the banner says 2 while the Inbox badge says 1. A release that is waiting is an inbox item (`kind: 'release'`) **and** adds 1 again through `releaseWaiting` | `web/src/lib/lanes.ts` `needsYouCount` (only blocked lanes are de-duplicated); `web/src/App.tsx` badge = `inbox.length` | one `attentionItems(loops, inbox)` list; banner, nav badge and (later) the status strip and Needs-you rows all read it |
 | R5-2 | A1: a shipped release still reads "waiting on you": `releaseWaiting` is true for any done laned loop, ignoring server's new `LoopSummary.shipped` | `lanes.ts releaseWaiting` | shipped → "0.4.0 released <date>" on the card, no attention item |
 | R5-3 | A3: Health shows "OK" for checks that were never measured (two states only) | `web/src/components/Health.tsx` `c.ok ? 'OK' : 'Failing'` | three states pass / fail / not checked (grey + how to check); needs a "not measured" signal from server (`HealthCheck.ok` is boolean): ask server, derive from `proof`/`reason` until then |
-| R5-4 | No cockpit: no status strip (C1), no Needs-you rows with inline actions (C2), no heat map (C3), no steer composer (C4), no schedule controls (C5) | `web/src` has none of them | units 3-5, DESIGN.md first |
+| R5-4 | No cockpit: no status strip (C1), no Needs-you rows with inline actions (C2), no heat map (C3), no steer composer (C4), no schedule controls (C5), no Draft-with-Claude stream, ingredients or Copy prompt in Next round (C6) | `web/src` has none of them | units 3-6; C8: DESIGN.md first and an independent design-review verdict per unit, recorded below |
 
 ### Major
 | # | Finding | Evidence | Fix |
 |---|---|---|---|
-| R5-5 | A4: Tests tab prints "Sun 11 Oct 14:53 UTC UTC" | `TestsTab.tsx` `stamp` appends " UTC" to `timeUtc`, which already ends in " UTC" | drop the second suffix; unit test on the stamp |
+| R5-5 | A4: Tests tab prints "Sun 11 Oct 14:53 UTC UTC" | `TestsTab.tsx` `stamp` appends " UTC" to `timeUtc` (`web/src/lib/timeline.ts`), which already ends in " UTC" | drop the second suffix; unit test on the stamp |
 | R5-6 | A6: at 375 px the main nav and the loop tab bar are clipped mid-word ("Settin", "Contrac") with no hint that they scroll; the active tab can sit off screen | `App.tsx` nav and `LoopDetail.tsx` tablist: `overflow-x-auto`, no fade, no `scrollIntoView` | edge fade while more content exists, active tab scrolled into view; e2e asserts every tab label is fully visible or reachable and the active one in view |
 | R5-7 | A8: the loop header repeats the round ("Round 5/5" next to the card's round label) and shows "Round N/M" instead of server's `roundLabel` | `LoopDetail.tsx:90` | show `roundLabel` once |
 | R5-8 | A8: "Release is off: Tests pass: no result" (two colons in one sentence) | `web/src/lib/controls.ts releaseBlocker` returns `label: detail` and `ControlBar.tsx:92` prefixes "Release is off:" | "Release is off until <label lower> (<detail>)." |
-| R5-9 | A7: local fleet cards render CI/tests/domain only in demo mode | `web/src/lib/card.ts` rows; server now fills `ci`, `tests`, `demoUrl` locally (server outbox 02:40) | render the same rows from the summary in both modes; e2e on a local-mode fixture |
+| R5-9 | A7: verify only. `cardFacts` already renders CI, tests and live site whenever the summary has them, in any mode; the gap was server data, which server filled locally (outbox 02:40) | `web/src/lib/card.ts` `cardFacts`, `Fleet.tsx` | regression e2e on a local-mode fixture with `ci`/`tests`/`demoUrl` |
 | R5-10 | C7: Releases list shows CHANGELOG only; no tag or npm state, and "Ready to ship" shows even when shipped | `ReleasesTab.tsx`, `ShipPanel.tsx` | tag + npm chips per version (server's `LoopRelease.tag/npm`), hide Ready-to-ship once `shipped` |
 
 ### Minor
-- Live mode does not fetch npm yet (server outbox 02:40: `npmPackageUrl(packageName(...))` → `buildLiveLoop({npm})`); the static CSP already allows the registry (server).
+- Live mode does not fetch npm yet (server outbox 02:40: `npmPackageUrl(packageName(...))` → `buildLiveLoop({npm})`); the static CSP already allows the registry (`src/server/static-export.ts` `LIVE_CONNECT_HOSTS`).
 - The demo has no run-log, schedule or steer fixtures yet (server unit 3); web uses Playwright-routed fixtures until then.
 - Phantom "no run recorded" slots (A2) are core/server's classifier; web only renders the outcome it gets.
+- A5 (proj2 "round 6/6" from a handoff `done-v5.md`) is server's round count and A9 (brief score) is core's `lintBrief`; web only displays both. Sent to their outboxes (web outbox 01:50).
 
 ## Round 4 (2026-10-11): the dashboard tells the truth and replaces the chat
 
