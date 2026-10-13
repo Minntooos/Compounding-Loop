@@ -1,6 +1,6 @@
 import type { LoopDetail, LoopSummary } from '../../../src/core/types.js';
 import { RUN_WINDOW_MS } from '../../../src/core/parse/outcomes.js';
-import { activityStamp, releasedText } from './card.js';
+import { activityStamp, lastActivity, releasedText } from './card.js';
 import { releaseWaiting } from './lanes.js';
 
 /** Segment 1 of the status strip (DESIGN.md §12), in precedence order: the first one any loop has wins on the fleet. */
@@ -29,12 +29,6 @@ type Summary = Pick<LoopSummary, 'id' | 'name' | 'state' | 'lanes' | 'shipped' |
 type Detail = Partial<Pick<LoopDetail, 'ship' | 'nextRuns' | 'contract' | 'laneNotes'>>;
 
 const loopHref = (id: string) => `#/loop/${encodeURIComponent(id)}`;
-
-/** The newest sign of work: a run's log line or a commit. */
-function lastActivity(loop: Pick<LoopSummary, 'lastRun' | 'lastCommit'>): number {
-  const times = [loop.lastRun?.at, loop.lastCommit?.at].map((t) => (t ? new Date(t).getTime() : NaN)).filter((t) => !Number.isNaN(t));
-  return times.length ? Math.max(...times) : NaN;
-}
 
 /**
  * One loop's state word. A stalled lane or "Routines look off" wins over everything (both are attention items), then a waiting release.

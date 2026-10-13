@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activityStamp, badgeFilters, cardBadge, chipHold, headerReason, stateReason, headerRound, releasedText, cardFacts, statusLine, laneProgress, roundProgress, runBudget, selfFirst } from '../../../web/src/lib/card.js';
+import { activityStamp, badgeFilters, cardBadge, chipHold, headerReason, stateReason, headerRound, releasedText, cardFacts, statusLine, laneProgress, roundProgress, runBudget, selfFirst, lastActivity } from '../../../web/src/lib/card.js';
 
 describe('fleet card model', () => {
   it('puts the self-build loop first and keeps the rest in order', () => {
@@ -36,6 +36,13 @@ describe('fleet card model', () => {
         { label: 'Tests', value: '5 passed, 1 failed' },
         { label: 'Live site', value: 'up (200)' },
       ]);
+  });
+  it('dates Last activity by the newer of the last run and the last commit', () => {
+    const lastCommit = { at: '2026-10-13T12:12:00Z' } as never;
+    expect(cardFacts({ lastCommit, lastRun: { at: '2026-10-13T12:25:00Z' } as never })).toContainEqual({ label: 'Last activity', value: '13 Oct 12:25 UTC' });
+    expect(cardFacts({ lastCommit, lastRun: { at: '2026-10-13T11:00:00Z' } as never })).toContainEqual({ label: 'Last activity', value: '13 Oct 12:12 UTC' });
+    expect(cardFacts({ lastRun: { at: '2026-10-13T11:00:00Z' } as never })).toContainEqual({ label: 'Last activity', value: '13 Oct 11:00 UTC' });
+    expect(lastActivity({})).toBeNaN();
   });
   it('shows lane progress for a building laned loop only', () => {
     const lanes = [{ state: 'done' }, { state: 'working' }, { state: 'done' }] as never;

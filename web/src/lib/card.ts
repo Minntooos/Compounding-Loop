@@ -9,6 +9,12 @@ export function selfFirst<T extends { id: string }>(loops: T[]): T[] {
   return [...loops.filter((l) => l.id === SELF_BUILD_ID), ...loops.filter((l) => l.id !== SELF_BUILD_ID)];
 }
 
+/** The newest sign of work, a run's log line or a commit (ms; NaN when neither is known). */
+export function lastActivity(loop: Pick<LoopSummary, 'lastRun' | 'lastCommit'>): number {
+  const times = [loop.lastRun?.at, loop.lastCommit?.at].map((t) => (t ? new Date(t).getTime() : NaN)).filter((t) => !Number.isNaN(t));
+  return times.length ? Math.max(...times) : NaN;
+}
+
 const count = (n: number) => (Number.isFinite(n) && n > 0 ? Math.floor(n) : 0);
 
 /** Round progress: "Round 2 of 3", "Round 2 of 2 done". Text keeps the real numbers; only the bar width is clamped. Undefined without a round total. */
@@ -52,11 +58,13 @@ export function activityStamp(iso: string): string {
 }
 
 /** Facts worth a row on a card. Rows without data are left out instead of printed as "no result". */
-export function cardFacts(loop: Pick<LoopSummary, 'tests' | 'live' | 'lastCommit' | 'nextRunAt' | 'ci' | 'demoUrl'> & { snapshotAt?: string }): { label: string; value: string }[] {
+export function cardFacts(loop: Pick<LoopSummary, 'tests' | 'live' | 'lastCommit' | 'lastRun' | 'nextRunAt' | 'ci' | 'demoUrl'> & { snapshotAt?: string }): { label: string; value: string }[] {
   const facts: { label: string; value: string }[] = [];
   // Bundled data never passes for live: say which day it is from.
   if (loop.snapshotAt) { const d = new Date(loop.snapshotAt); facts.push({ label: 'Data', value: `snapshot ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()] ?? ''}` }); }
-  if (loop.lastCommit) facts.push({ label: 'Last activity', value: activityStamp(loop.lastCommit.at) });
+  // Newest of run and commit: the card's story line names the last run, so a commit-only time could read older than it.
+  const active = lastActivity(loop);
+  if (!Number.isNaN(active)) facts.push({ label: 'Last activity', value: activityStamp(new Date(active).toISOString()) });
   if (loop.ci) facts.push({ label: 'CI', value: loop.ci.ok ? 'passing on main' : 'failing on main' });
   if (loop.tests) facts.push({ label: 'Tests', value: `${loop.tests.passed} passed${loop.tests.failed ? `, ${loop.tests.failed} failed` : ''}` });
   if (loop.live) facts.push({ label: 'Live site', value: loop.live.ok ? `up (${loop.live.status})` : `down (${loop.live.status})` });
