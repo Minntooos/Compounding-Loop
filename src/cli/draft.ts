@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process';
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { lintBrief, type BriefLint } from '../core/brief.js';
 import { buildDraftPrompt, draftClaudeArgs, extractOpenFindings, extractOutOfScope, nextRoundNumber } from '../core/draftBrief.js';
@@ -64,6 +64,13 @@ export async function gatherDraftPrompt(dir: string): Promise<string> {
   return buildDraftPrompt({ name, round: nextRoundNumber(idea), next, findings, steer, outOfScope: extractOutOfScope(idea) });
 }
 
+/** The draft goes inside the repo, as a new .md file (only the default draft file may be overwritten). */
+async function assertDraftTarget(dir: string, outFile: string, isDefault: boolean): Promise<void> {
+  const rel = path.relative(path.resolve(dir), outFile);
+  if (rel.startsWith('..') || path.isAbsolute(rel) || !/\.md$/i.test(outFile)) throw new Error(`--out must be a .md file inside ${dir}, not ${outFile}.`);
+  if (!isDefault && (await stat(outFile).then(() => true, () => false))) throw new Error(`${rel} already exists; pick a new file name for the draft (nothing is overwritten).`);
+}
+
 /** `loop next-round --draft`: builds the prompt, runs `claude -p` through the usual runner, writes the draft and scores it. */
 export async function runDraft(dir: string, options: DraftOptions = {}): Promise<DraftResult> {
   const prompt = await gatherDraftPrompt(dir);
@@ -72,6 +79,7 @@ export async function runDraft(dir: string, options: DraftOptions = {}): Promise
   if (!draft) throw new Error('Claude returned an empty draft. Run again, or use --print-prompt and paste the prompt into Claude Code yourself.');
   const rel = options.out ?? DRAFT_FILE;
   const outFile = path.resolve(dir, rel);
+  await assertDraftTarget(dir, outFile, rel === DRAFT_FILE);
   await mkdir(path.dirname(outFile), { recursive: true });
   await writeFile(outFile, `${draft}\n`);
   return { prompt, draft, outFile, lint: lintBrief(draft) };

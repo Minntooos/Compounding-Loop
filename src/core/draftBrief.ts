@@ -81,6 +81,6 @@ export function draftClaudeArgs(prompt: string, model?: string): string[] {
 
 /** The number of the round to draft: one above the highest `Round N` heading (2 when the brief has none, so it is round 1). */
 export function nextRoundNumber(ideaText: string): number {
-  const numbers = [...ideaText.matchAll(/^#{1,3}\s+Round\s+(\d+)\b/gim)].map((m) => Number(m[1]));
+  const numbers = [...ideaText.matchAll(/^#{1,2}\s+Round\s+(\d+)\b/gim)].map((m) => Number(m[1]));
   return Math.max(1, ...numbers) + 1;
 }

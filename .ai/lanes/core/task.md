@@ -1,7 +1,7 @@
 # Lane: core — round 5 (0.5.0 "Cockpit")
 
 Run: 1 / 20
-Status: in progress (units 1-5 done)
+Status: in progress (units 1-6 done)
 Round 4 record: `.ai/lanes/core/done-v4.md` (`git show 02874e8:.ai/lanes/core/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
@@ -39,5 +39,5 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
-Run 1 shipped units 1-5: audit; schedule/steer parsers + CLI (`src/cli/schedule.ts`); `classifyRunSlots` (`src/core/parse/outcomes.ts`, used by `loop runs`); `lintBrief` understands round briefs (inline `**Label:**` lead-ins, lettered A-E must-have sections, `Round N done when`; this IDEA.md Round 5 scores 100); `countRounds(brief, doneFiles)` in `src/core/repo.ts` (A5, used by readLoopFacts). Next: unit 6 `loop next-round --draft [--out .ai/next-round.draft.md] [--print-prompt]` via `runPrompt` (src/core/runPrompt.ts, src/cli/laneRound.ts for the pure-plan pattern); inputs: root/lane DONE "next 10" lists (`extractNextItems`), open audit findings, unacknowledged steer (`parseSteer`), IDEA.md out-of-scope. Then unit 7: audit minors; check-lanes: allow `.ai/schedule.json` for `Lane: <lane>` commits; reviewer pass on units 4-5 (not yet reviewed by a subagent).
-Notes: `schedule update --lane X` is what lanes run at step 8. A manual `wake` stays until the lane logs a run. Sandbox: origin main may not fast-forward; use branch `lane-run`, push `origin HEAD:main`.
+Run 1 shipped units 1-6: audit; schedule/steer parsers + CLI (`src/cli/schedule.ts`); `classifyRunSlots` (`src/core/parse/outcomes.ts`); `lintBrief` round briefs + `countRounds`; `loop next-round --draft [--out] [--print-prompt]` (`src/core/draftBrief.ts`, `src/cli/draft.ts`; `--out` confined to new .md files inside the repo). Next: unit 7. Known open minors: (a) `lintBrief` is generous with junk lettered sections (a `### A. stuff` with three short items scores 80; consider stricter vague check); (b) check-lanes should allow `.ai/schedule.json` for `Lane: <lane>` commits; (c) `loop schedule` push failure message names the pull; (d) tests/unit/kit/chrome-extension.test.ts is flaky under full-suite load (32 s). Then DONE per CLAUDE.md "Lane finished" if the contract holds (done-when: all tests listed in contract exist).
+Notes: `schedule update --lane X` is what lanes run at step 8. Sandbox: origin main may not fast-forward; use branch `lane-run`, push `origin HEAD:main`.

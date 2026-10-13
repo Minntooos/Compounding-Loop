@@ -25,6 +25,7 @@ describe('draft prompt pieces', () => {
   it('nextRoundNumber is one above the highest round heading', () => {
     expect(nextRoundNumber('## Round 5 (current)\n## Round 4\n# Round 1 brief')).toBe(6);
     expect(nextRoundNumber('# IDEA')).toBe(2);
+    expect(nextRoundNumber('## Round 5 (current)\n### Round 6 candidates')).toBe(6);
   });
   it('buildDraftPrompt includes every ingredient and the format the linter scores', () => {
     const prompt = buildDraftPrompt({
@@ -83,6 +84,15 @@ describe('loop next-round --draft', () => {
     expect(r.lint?.score).toBeLessThan(100);
     expect(seen).toContain('--allowedTools');
     expect(seen).toContain('m');
+  });
+
+  it('refuses --out outside the repo, non-.md files and existing files', async () => {
+    const claude: ClaudeRunner = async () => '## Round 3\ntext\n';
+    await expect(runDraft(dir, { claude, out: '../escaped.md' })).rejects.toThrow(/inside/);
+    await expect(runDraft(dir, { claude, out: path.join(tmpdir(), 'x.md') })).rejects.toThrow(/inside/);
+    await expect(runDraft(dir, { claude, out: 'package.json' })).rejects.toThrow(/\.md/);
+    await expect(runDraft(dir, { claude, out: 'IDEA.md' })).rejects.toThrow(/already exists/);
+    expect(await readFile(path.join(dir, 'IDEA.md'), 'utf8')).toContain('Round 2');
   });
 
   it('defaults to .ai/next-round.draft.md and refuses an empty answer', async () => {
