@@ -1,7 +1,7 @@
 # Lane: web — round 5 (0.5.0 "Cockpit")
 
-Run: 6 / 20
-Status: units 1-4 done; Routines-look-off row done; 7: docs screenshot set done; C7 chips done; run-5 design-review opens fixed in run 6; next: C6 (draft-brief SSE is on main), C3 when server adds slot `kind` to runs
+Run: 7 / 20
+Status: units 1-5 parts done (C3 waits on server); C6 done in run 7; C7 chips done; next: C6 screenshot design pass, then C3/C9 when server ships slot `kind` / pace routes
 Round 4 record: `.ai/lanes/web/done-v4.md` (`git show 02874e8:.ai/lanes/web/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
@@ -49,6 +49,9 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - 2026-10-13 run 6: a held-back building/waiting lane's badge shows the hold (Paused/Sleeping/Snoozed, muted) and a routines-off or stalled-lane building/waiting loop reads Stalled on its card and header (`laneHold`, `cardBadge`, `stateReason`, `chipHold`). Failing/blocked/done keep their badge.
 - 2026-10-13 run 4: C5 buttons wait for server's `POST …/schedule`; this unit ships the state sentence and the steer history only.
 
+- 2026-10-13 run 7: C6 ingredients come from `LoopDetail.draftInputs` (added to types.ts, core's `DraftInputs`); until server fills it, the dialog falls back to open findings + unread steer and says the DONE lists are missing, and the demo copies `npx compounding-loop next-round --draft --print-prompt` instead of a partial prompt (a partial one tells Claude there are no DONE lists). Easy to reverse.
+- 2026-10-13 run 7: the draft replaces the box text; "Put back my text" restores what the owner typed (kept across several drafts). The server sends the draft whole at the end (no token stream), so "streams" = progress steps in the status line.
+
 ## Confirmed
 - CONFIRMED: Playwright route handlers that `route.fetch()` can fail a test with "Response has been disposed" when the test ends mid-fetch; cockpit.spec.ts serves static fixtures instead (3/3 green after, 1/4 flaky before).
 - CONFIRMED: the demo's self loop is a done laned loop with a waiting release, so the demo Inbox shows a release row since run 1 (tests/e2e/screens.spec.ts routes `/api/loops` to [] for the empty state).
@@ -64,7 +67,7 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
-Run 6 (2026-10-13 08:44-09:12 UTC; stale clone, branch `lane-run`, pushed `HEAD:main`) shipped e01a78c + 841eab1: badges never contradict the schedule or strip — `laneHold` (schedule.ts) gives LaneBadge a Paused/Sleeping/Snoozed hold on the Lanes tab; `cardBadge`/`stateReason`/`chipHold` (card.ts) make fleet card + loop header read Stalled / "Routines look off" and card chips show sleeping/loop-paused lanes; schedule sentence drops its glyph when the badge holds; steer dialog terminal fold scrolls the dialog to its end (scrollIntoView did not clear the sticky footer — CONFIRMED by the laptop e2e failing first). Tests: card/schedule unit, lane-schedule.spec.ts (badges, Stalled card, chips), steer.spec.ts (Copy above Save). Run 6 design review in `.ai/audit/web.md`.
-Do first next run: C6 next round — Draft with Claude via server's `POST /api/loops/:id/draft-brief` (SSE: progress {step}, then draft {draft,score,gaps} or error {error,status}; see .ai/contracts.md), ingredients, Copy prompt; Go stays a separate click. DESIGN.md §12 already has the C6 entry (web/DESIGN.md:181); build it, then the design review.
-Waiting on server: slot `kind` on `LoopDetail.runs[]` + not-due/paused/done slots (C3 heat map, asked 09:10), `RunOutcomes.paused` lanes (fleet chips), demo self lane states, pace routes (C9).
-Open minors: `cardBadge` ignores a loop pause (status line says Paused); "Limit stops not checked" while routines look off hides a known count. Design reviewer recipe: fixture routes as in tests/e2e/lane-schedule.spec.ts, `vite preview --port 4180`, Playwright executablePath under /opt/pw-browsers; never `pkill -f` a pattern matching your own shell. In one e2e test, re-serving new fixtures after hash navigation shows cached data: use a separate test.
+Run 7 (2026-10-13 09:43-10:00 UTC; stale clone, branch `lane-run`, pushed `HEAD:main`) shipped C6: `NextRoundDialog.tsx` (Ingredients groups with counts, brief box with live score + costliest missing part, local *Draft with Claude* via `streamDraftBrief` in api/client.ts reading the SSE with `takeSseEvents`, Stop/Retry draft/Put back my text, demo *Copy prompt for Claude Code* or the `--print-prompt` command when `draftInputs` is absent, *Start round N* as its own click). ControlBar's ConfirmDialog no longer handles next-round. Pure parts in web/src/lib/draft.ts (unit: tests/unit/web/draft.test.ts); e2e tests/e2e/next-round.spec.ts (4 tests incl. axe). Review recorded in `.ai/audit/web.md` (C6 review, run 7).
+Do first next run: screenshot design pass on the C6 dialog (1440 + 375, both themes; recipe below), then C3 if server put slot `kind` on runs, else C9 if pace routes exist, else the open minors.
+Waiting on server: `draftInputs` on LoopDetail + claude abort on Stop (asked 09:58); slot `kind` on runs (C3, asked 09:10); `RunOutcomes.paused` lanes; demo self lane states; pace routes (C9).
+Open minors: `cardBadge` ignores a loop pause; "Limit stops not checked" while routines look off; Retry after "committed but not pushed" re-posts (ConfirmDialog and NextRoundDialog). Design reviewer recipe: fixture routes as in tests/e2e/lane-schedule.spec.ts, `vite preview --port 4180`, Playwright executablePath under /opt/pw-browsers; never `pkill -f` a pattern matching your own shell. Web code imports core with relative `../../../src/core/*.js` in lib files Vitest loads (`@core` alias is Vite-only).

@@ -13,6 +13,8 @@ type Stream = { kind: 'idle' } | { kind: 'streaming'; step: string } | { kind: '
 
 const field = { background: 'var(--bg)', borderColor: 'var(--border)' };
 
+const PRINT_PROMPT = 'npx compounding-loop next-round --draft --print-prompt';
+
 /**
  * C6: start the next round from a brief. Shows what a draft is made from, lets Claude Code draft it (local, streamed
  * from `POST …/draft-brief`) or copies core's prompt (demo), scores the brief live, and keeps Go as its own click.
@@ -52,7 +54,8 @@ export function NextRoundDialog({ loop, local, onClose }: { loop: LoopDetail; lo
     setStream({ kind: 'streaming', step: 'Starting…' });
     try {
       const result = await streamDraftBrief(loop.id, (step) => setStream({ kind: 'streaming', step }), controller.signal);
-      setMine(brief.trim() ? brief : undefined);
+      // Keep the owner's own text across several drafts: Put back restores what they typed, not an earlier draft.
+      setMine((m) => m ?? (brief.trim() ? brief : undefined));
       setBrief(result.draft);
       setStream({ kind: 'done', score: result.score });
     } catch (e) {
@@ -61,11 +64,15 @@ export function NextRoundDialog({ loop, local, onClose }: { loop: LoopDetail; lo
     }
   }
 
+  // Without the DONE lists the prompt would tell Claude there are none, so the demo copies the command that prints the full one.
+  const copied = complete ? prompt : PRINT_PROMPT;
   async function copyPrompt() {
     const pre = document.getElementById('draft-prompt');
-    const ok = await copyText(prompt, pre);
+    const ok = await copyText(copied, pre);
     if (!ok) pre?.closest('details')?.setAttribute('open', '');
-    setNote(ok ? 'Prompt copied. Paste it into Claude Code in your clone, then paste its brief into the box.' : 'Select the prompt below and copy it (Ctrl+C).');
+    setNote(!ok ? 'Select the text below and copy it (Ctrl+C).'
+      : complete ? 'Prompt copied. Paste it into Claude Code in your clone, then paste its brief into the box.'
+      : 'Command copied. Run it in your clone: it prints the full prompt for Claude Code. Paste the brief Claude writes into the box.');
   }
 
   async function go() {
@@ -102,7 +109,7 @@ export function NextRoundDialog({ loop, local, onClose }: { loop: LoopDetail; lo
                 : <p style={muted}>None</p>}
             </section>
           ))}
-          {!complete && <p style={muted}>This view has no DONE next-10 lists or last round’s out-of-scope; {local ? 'Draft with Claude reads them from the repo.' : 'run `npx compounding-loop next-round --draft --print-prompt` in your clone for the full prompt.'}</p>}
+          {!complete && <p style={muted}>This view has no DONE next-10 lists or last round’s out-of-scope; {local ? 'Draft with Claude reads them from the repo.' : <>run <code className="font-mono">{PRINT_PROMPT}</code> in your clone for the full prompt.</>}</p>}
         </div>
       </details>
 
@@ -118,32 +125,32 @@ export function NextRoundDialog({ loop, local, onClose }: { loop: LoopDetail; lo
           {streaming
             ? <button type="button" onClick={() => abort.current?.abort()} className="min-h-11 rounded border px-4" style={{ borderColor: 'var(--border)' }}>Stop</button>
             : <button type="button" disabled={busy} onClick={() => void draft()} className="min-h-11 rounded border px-4 disabled:opacity-60" style={{ borderColor: 'var(--accent)' }}>{stream.kind === 'failed' ? 'Retry draft' : 'Draft with Claude'}</button>}
-          {stream.kind === 'done' && mine !== undefined && <button type="button" onClick={() => { setBrief(mine); setMine(undefined); }} className="min-h-11 rounded border px-4" style={{ borderColor: 'var(--border)' }}>Put back my text</button>}
+          {stream.kind === 'done' && mine !== undefined && <button type="button" onClick={() => { setBrief(mine); setMine(undefined); setStream({ kind: 'idle' }); }} className="min-h-11 rounded border px-4" style={{ borderColor: 'var(--border)' }}>Put back my text</button>}
           <p role="status" data-testid="draft-status" className="basis-full text-[13px]" style={muted}>
             {stream.kind === 'streaming' ? stream.step
               : stream.kind === 'done' ? `Draft ready · score ${stream.score}/100. Edit it, then start the round.`
-              : stream.kind === 'cancelled' ? 'Stopped. Nothing was written.'
+              : stream.kind === 'cancelled' ? 'Stopped. Nothing was written; Claude Code may finish its run in the background for a few minutes.'
               : stream.kind === 'idle' ? 'Claude Code reads the repo and drafts a brief here (a few minutes). Nothing is written until you start the round.' : ''}
           </p>
           {stream.kind === 'failed' && <p role="alert" className="basis-full text-[13px]" style={{ color: 'var(--failing)' }}>Draft failed: {stream.error}</p>}
         </div>
       ) : (
         <div className="mt-3 text-[13px]">
-          <button type="button" onClick={() => void copyPrompt()} className="min-h-11 rounded border px-4" style={{ borderColor: 'var(--accent)' }}>Copy prompt for Claude Code</button>
+          <button type="button" onClick={() => void copyPrompt()} className="min-h-11 rounded border px-4" style={{ borderColor: 'var(--accent)' }}>{complete ? 'Copy prompt for Claude Code' : 'Copy the prompt command'}</button>
           {note && <p role="status" className="mt-1" style={muted}>{note}</p>}
           <details className="mt-2">
-            <summary className="min-h-11 cursor-pointer content-center">Show the prompt</summary>
-            <pre id="draft-prompt" className="max-h-48 overflow-auto whitespace-pre-wrap rounded border p-2 font-mono text-[12px]" style={field}>{prompt}</pre>
+            <summary className="min-h-11 cursor-pointer content-center">{complete ? 'Show the prompt' : 'Show the command'}</summary>
+            <pre id="draft-prompt" className="max-h-48 overflow-auto whitespace-pre-wrap rounded border p-2 font-mono text-[12px]" style={field}>{copied}</pre>
           </details>
           <p className="mt-1" style={muted}>GitHub opens on a page you still have to submit. Nothing is sent from this dashboard.</p>
         </div>
       )}
 
-      {blocked && <p className="mt-2 text-[13px]" style={muted}>{blocked}</p>}
+      {blocked && <p id="next-round-blocked" className="mt-2 text-[13px]" style={muted}>{blocked}</p>}
       {error && <p role="alert" className="mt-2 text-[13px]" style={{ color: 'var(--failing)' }}>{error}</p>}
       <div className="mt-4 flex flex-wrap justify-end gap-2">
         <button type="button" disabled={busy} onClick={onClose} className="min-h-11 rounded border px-4 disabled:opacity-60" style={{ borderColor: 'var(--border)' }}>Cancel</button>
-        <button type="button" disabled={busy || streaming || blocked !== undefined} onClick={() => void go()} className="min-h-11 rounded px-4 font-semibold disabled:opacity-60" style={{ background: 'var(--accent)', color: 'var(--bg)' }}>{busy ? 'Starting…' : error ? 'Retry' : `Start round ${inputs.round}`}</button>
+        <button type="button" disabled={busy || streaming || blocked !== undefined} aria-describedby={blocked ? 'next-round-blocked' : undefined} onClick={() => void go()} className="min-h-11 rounded px-4 font-semibold disabled:opacity-60" style={{ background: 'var(--accent)', color: 'var(--bg)' }}>{busy ? 'Starting…' : error ? 'Retry' : `Start round ${inputs.round}`}</button>
       </div>
     </dialog>
   );

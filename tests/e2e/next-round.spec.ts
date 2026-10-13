@@ -92,3 +92,16 @@ test('local: a failed draft says why and offers Retry draft; the brief stays edi
   await expect(dialog.getByRole('button', { name: 'Retry draft' })).toBeVisible();
   await expect(dialog.getByLabel('Brief for round 6')).toBeEditable();
 });
+
+test('demo without the DONE lists copies the command that prints the full prompt, not a partial prompt', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await serve(page, { demo: true });
+  const { draftInputs: _omit, ...partial } = LOOP;
+  await page.route('**/api/loops/self.json', (r) => r.fulfill({ json: partial }));
+  await page.goto('/#/loop/self');
+  await page.getByRole('button', { name: 'Start next round' }).click();
+  const dialog = page.getByTestId('control-dialog');
+  await expect(dialog.getByTestId('draft-ingredients')).toContainText('This view has no DONE next-10 lists');
+  await dialog.getByRole('button', { name: 'Copy the prompt command' }).click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('npx compounding-loop next-round --draft --print-prompt');
+});
