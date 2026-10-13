@@ -3,6 +3,7 @@ import { Moon, Sun } from 'lucide-react';
 import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { Notice } from './components/QueryState';
 import { needsYouCount } from './lib/lanes';
+import { useScrollFade } from './components/useScrollFade';
 import { api, hasServer } from './api/client';
 import { CommandPalette } from './components/CommandPalette';
 import { Fleet } from './components/Fleet';
@@ -115,12 +116,13 @@ function Shell() {
     { label: theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme', run: () => setTheme(theme === 'dark' ? 'light' : 'dark') },
   ];
   const current = route.name === 'loop' ? 'fleet' : route.name;
+  const navFade = useScrollFade<HTMLElement>(current);
   return (
     <>
       <header className="border-b" style={{ borderColor: 'var(--border)' }}>
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 md:gap-x-6 md:py-3">
           <a href="#/" className="order-1 flex items-center gap-2 text-[15px] font-semibold"><img src={`${import.meta.env.BASE_URL}logo.svg`} alt="" width={22} height={22} />Compounding Loop</a>
-          <nav aria-label="Main" className="order-3 -mx-4 flex w-[calc(100%+2rem)] gap-1 overflow-x-auto px-4 md:order-2 md:mx-0 md:w-auto md:flex-1 md:overflow-visible md:px-0">
+          <nav ref={navFade.ref} onScroll={navFade.onScroll} style={navFade.style} aria-label="Main" className="order-3 -mx-4 flex w-[calc(100%+2rem)] gap-1 overflow-x-auto px-4 md:order-2 md:mx-0 md:w-auto md:flex-1 md:overflow-visible md:px-0">
             {NAV.map((n) => (
               <a key={n.label} href={href(n.route)} aria-current={current === n.route.name ? 'page' : undefined}
                 className="flex min-h-11 shrink-0 items-center whitespace-nowrap rounded px-3 py-1.5 aria-[current=page]:bg-[var(--border)] md:min-h-0">
