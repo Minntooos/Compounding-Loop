@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { laneNotesFromTask } from '../src/server/taskBullets.ts';
 import { scrubText } from './build-demo.mjs';
-import { cockpitFixture, roundFiveHeader } from './cockpit-fixture.mjs';
+import { cockpitFixture, roundFiveHeader, roundFiveOverlay } from './cockpit-fixture.mjs';
 
 const execFileAsync = promisify(execFile);
 export const ROUND_ONE_COMMIT = '3385cdf';
@@ -98,6 +98,7 @@ export async function buildSelf(repoDir) {
     ...cockpitFixture(),
     ...header,
   };
+  Object.assign(detail, roundFiveOverlay(detail));
   const checks = [{ loopId: detail.id, kind: 'failing-tests', ok: true, reason: 'all tests pass', proof: `npm test was green at ${SNAPSHOT_COMMIT}` }];
   return { loop: detail, checks };
 }

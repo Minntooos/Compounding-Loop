@@ -2,6 +2,9 @@
 // schedule) have every outcome to show: worked, idle, limit stop, running, sleeping, snoozed. It is a hand-made
 // illustration of a round in progress, anchored at a fixed time so the snapshot never changes; the real data
 // comes from live mode. It runs through the same `buildRuns` as live and local data.
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { buildRuns } from '../src/server/runs.ts';
 
 /** The moment the example is drawn at. */
@@ -132,5 +135,37 @@ export function roundFiveHeader(lanes) {
     roundLabel: 'Round 5 · building',
     snapshotAt: FIXTURE_NOW.toISOString(),
     lanes: lanes.map((l) => ({ ...l, state: LANE_STATES[l.name] ?? l.state })),
+  };
+}
+
+/** This repo's real commits of 13 Oct up to the fixture's moment (round 5, newest first), so the commit list, lane cards and commits-per-day agree with the run data. */
+const ROUND_FIVE_COMMITS = JSON.parse(readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), 'round5-commits.json'), 'utf8'));
+
+// Round 5 done-whens per lane, some still open at the fixture's moment, so the strip counts only the passing ones.
+const ROUND_FIVE_CONTRACTS = {
+  core: [['`npm test` passes', true], ['Round 5 audit section with no open blocker', true], ['schedule, steer and pace parsers and commands ship with tests', true]],
+  kit: [['`npm test` passes', true], ['run-model templates and thin routine prompts ship', true]],
+  server: [['`npm test` passes', true], ['Round 5 audit section with no open blocker', false], ['every new route has unit tests and is in contracts.md', true], ['live mode shows the same cockpit fields as the demo', false]],
+  web: [['`npm test` passes', true], ['DESIGN.md covers every Round 5 screen', false], ['axe passes on the new screens in both themes', false]],
+  docs: [['the dashboard docs describe Steer, Pace and the schedule', false], ['README screenshots are the Round 5 ones', false]],
+};
+
+/**
+ * Round 5 facts for the demo's self loop: the day's commits on top of the pinned history, lane cards that point at them,
+ * per-lane contracts with open items, and the CI status the pace note talks about.
+ */
+export function roundFiveOverlay(detail) {
+  const known = new Set(ROUND_FIVE_COMMITS.map((c) => c.sha));
+  const timeline = [...ROUND_FIVE_COMMITS, ...detail.timeline.filter((c) => !known.has(c.sha))];
+  const lanes = detail.lanes.map((l) => {
+    const last = ROUND_FIVE_COMMITS.find((c) => c.lane === l.name);
+    return last ? { ...l, lastCommit: { sha: last.sha, subject: last.message, at: last.at } } : l;
+  });
+  return {
+    timeline,
+    lastCommit: timeline[0],
+    lanes,
+    laneNotes: detail.laneNotes.map((n) => ({ ...n, contract: (ROUND_FIVE_CONTRACTS[n.lane] ?? []).map(([text, pass]) => ({ text, pass })) })),
+    ci: { ok: true, reason: 'the latest run on main passed (it was red twice in the last 24 h)' },
   };
 }

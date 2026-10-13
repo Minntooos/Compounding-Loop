@@ -50,13 +50,31 @@ describe('shipped demo/this-repo.json (the sixth demo loop)', () => {
     const { loop } = await readShipped();
     expect(loop.timeline.length).toBeGreaterThan(100);
     expect(new Set(loop.timeline.map((c) => c.sha)).size).toBe(loop.timeline.length);
-    expect(loop.timeline[0]?.sha).toBe(SNAPSHOT_COMMIT);
-    // The history is pinned at the 0.3.0 commit; the snapshot is drawn later, at the fixture's moment.
+    // The pinned history (up to the 0.3.0 commit) sits under round 5's commits of the snapshot day.
+    expect(loop.timeline.some((c) => c.sha === SNAPSHOT_COMMIT)).toBe(true);
+    expect(loop.timeline[0]?.at.slice(0, 10)).toBe('2026-10-13');
     expect(loop.snapshotAt).toBe('2026-10-13T12:40:00.000Z');
     expect(loop.timeline.map((c) => c.at)).toEqual(loop.timeline.map((c) => c.at).sort().reverse());
     // Round 1 (the oldest day) is present, which the 100-commit cap used to cut off.
     expect(loop.timeline.at(-1)?.at.slice(0, 10)).toBe('2026-10-05');
     expect(loop.timeline.every((c) => c.author === undefined || (c.author !== '' && !c.author.includes('@')))).toBe(true);
+  });
+
+  it('agrees with its own run data: the snapshot day has commits, lane cards point at them, open done-whens and a CI status exist', async () => {
+    const { loop } = await readShipped();
+    const today = loop.timeline.filter((c) => c.at.slice(0, 10) === '2026-10-13');
+    expect(today.length).toBeGreaterThan(20);
+    expect(new Set(today.map((c) => c.lane))).toEqual(new Set(['core', 'kit', 'server', 'web', 'control']));
+    expect(loop.timeline.every((c) => c.at <= loop.snapshotAt!)).toBe(true);
+    expect(loop.lastCommit).toEqual(loop.timeline[0]);
+    for (const lane of loop.lanes ?? []) {
+      const last = loop.timeline.find((c) => c.lane === lane.name);
+      if (last) expect(lane.lastCommit?.sha).toBe(last.sha);
+    }
+    const contracts = (loop.laneNotes ?? []).flatMap((n) => n.contract);
+    expect(contracts.some((c) => c.pass)).toBe(true);
+    expect(contracts.some((c) => !c.pass)).toBe(true);
+    expect(loop.ci?.ok).toBe(true);
   });
 
   it('tags every commit with a lane and groups each lane\'s contract and decisions', async () => {
