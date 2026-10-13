@@ -8,3 +8,4 @@
 {"at":"2026-10-12T07:49:13.799Z","lane":"web","units":["fleet-h1"],"tests":{"passed":144,"failed":0},"pushed":true,"note":"run 12; units 7-8 partly open"}
 {"at":"2026-10-12T09:46:33.000Z","lane":"web","units":[],"tests":{"passed":144,"failed":0},"pushed":true,"note":"run 14; nothing actionable, remaining items blocked on server fixture data"}
 {"at":"2026-10-12T10:46:27.000Z","lane":"web","units":[],"tests":{"passed":144,"failed":0},"pushed":true,"note":"run 15; lane finished, DONE.md written"}
+{"at":"2026-10-13T02:17:16.402Z","lane":"web","units":["round 5 audit","DESIGN.md section 12","A1 A4 A8 attention list","A6 phone tab rows","C7 releases chips + live tag/npm"],"tests":{"passed":156,"failed":0},"pushed":true,"note":"run 1 (round 5); C8 screenshot design review still owed for run-1 UI units"}
