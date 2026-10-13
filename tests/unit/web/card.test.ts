@@ -135,6 +135,14 @@ describe('headerReason', () => {
     expect(headerReason({ state: 'building', reason: 'Building round 5', paused: { by: 'sam', reason: 'holiday' } })).toBeUndefined();
     expect(headerReason({ state: 'waiting', reason: 'Waiting', paused: { by: 'owner' } })).toBeUndefined();
   });
+  it('keeps a lock reason beside Paused: pausing does not stop the session that is still running', () => {
+    expect(headerReason({ state: 'building', reason: 'A session holds the lock', paused: { by: 'sam' } })).toBe('A session holds the lock');
+  });
+  it('a paused loop whose dropped reason named the round still shows the round', () => {
+    const loop = { state: 'building' as const, reason: 'round 5 "Cockpit" is being built', round: 5, roundsTotal: 5, roundLabel: 'Round 5 · building' };
+    expect(headerRound(loop)).toBeUndefined();
+    expect(headerRound({ ...loop, paused: { by: 'sam' } })).toBe('Round 5 · building');
+  });
   it('keeps the state reason when the badge is not Paused', () => {
     const off = { limitStops5h: 0, running: [], sleeping: [], routinesLookOff: true };
     expect(headerReason({ state: 'building', reason: 'Building', paused: { by: 'sam' }, runOutcomes: off })).toBe('Routines look off');

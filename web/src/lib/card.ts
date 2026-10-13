@@ -80,10 +80,12 @@ export function statusLine(loop: Pick<LoopSummary, 'reason' | 'paused' | 'lastRu
 }
 
 /** The loop header's round text: server's `roundLabel`, else "Round 2/3"; undefined when the status reason already names that round (A8: said once). */
-export function headerRound(loop: Pick<LoopSummary, 'round' | 'roundsTotal' | 'reason' | 'roundLabel'>): string | undefined {
+export function headerRound(loop: Pick<LoopSummary, 'round' | 'roundsTotal' | 'reason' | 'roundLabel'> & Partial<Pick<LoopSummary, 'state' | 'paused' | 'lanes' | 'runOutcomes'>>): string | undefined {
   const text = loop.roundLabel ?? (count(loop.roundsTotal) > 0 ? `Round ${count(loop.round)}/${count(loop.roundsTotal)}` : undefined);
   if (!text) return undefined;
-  return new RegExp(`\\bround ${count(loop.round)}\\b`, 'i').test(loop.reason) ? undefined : text;
+  // Only the reason the header actually shows counts: a paused loop drops it, so the round must show itself.
+  const shown = loop.state ? headerReason({ ...loop, state: loop.state }) : loop.reason;
+  return shown !== undefined && new RegExp(`\\bround ${count(loop.round)}\\b`, 'i').test(shown) ? undefined : text;
 }
 
 /** A fleet card's badge: the loop state, or Stalled / Paused when the strip says so (DESIGN §12 C1: one state word per loop). */
@@ -120,11 +122,12 @@ export function stateReason(loop: Pick<LoopSummary, 'reason'> & Partial<Pick<Loo
 }
 
 /**
- * The loop header's text beside its badge, or undefined beside a Paused badge: the build reason ("Building round 5") would
- * contradict it, and the paused notice under the header already says who paused it, when and why (said once, A8).
+ * The loop header's text beside its badge. Beside a Paused badge the build reason ("Building round 5") would contradict it,
+ * and the paused notice under the header says who paused it, when and why (said once, A8), so it is dropped; except a lock:
+ * pausing stops new runs, not the session that holds the lock, and nothing else says one is still running.
  */
 export function headerReason(loop: Parameters<typeof cardBadge>[0] & Pick<LoopSummary, 'reason'>): string | undefined {
-  return cardBadge(loop) === 'paused' ? undefined : stateReason(loop);
+  return cardBadge(loop) === 'paused' && !/\block\b/i.test(loop.reason) ? undefined : stateReason(loop);
 }
 
 /**
