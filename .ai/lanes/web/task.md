@@ -1,7 +1,7 @@
 # Lane: web — round 5 (0.5.0 "Cockpit")
 
-Run: 8 / 20
-Status: units 1-6 done (C3 heat map + Runs vocabulary run 8, C6 run 7, C7 chips); next: C9 pace control, then unit 7 screenshots
+Run: 9 / 20
+Status: units 1-6 and 8 done (A3 Health states + C9 pace run 9, C3 run 8, C6 run 7, C7 chips); next: unit 7 screenshots, then audit majors
 Round 4 record: `.ai/lanes/web/done-v4.md` (`git show 02874e8:.ai/lanes/web/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
@@ -56,6 +56,9 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - 2026-10-13 run 8: core's `missed` kind shows as *limit stop* (label adds "usage limit or a failed start"); core does not split limit stops from failed starts. `tests-failed` is *failed*. Without `kind`, outcome maps pushed→worked, nothing-pushed→idle, no-run-recorded→limit stop.
 - 2026-10-13 run 8: the heat map shows on the Timeline (overview) tab head and the Runs tab head; cell links are `#/loop/<id>?tab=Runs&run=<at>&lane=<lane>` (parseRoute reads `focus`), and the picked row is outlined and scrolled into view; a quiet slot (no row) gets one "no run was expected" line.
 
+- 2026-10-13 run 9: A3 before C9: server's 11:45 message waited on web (lane-run step 4.2). Health summary line counts states ("1 failing · 4 passing · 2 not checked"); an unchecked row names what it would measure and its badge says Not checked once.
+- 2026-10-13 run 9: C9 chooser is inline (four radios), not a dialog. No "remove lane override": core's `withPace` has none; choosing the loop's pace for a lane is labelled "the loop’s pace". Auto-downshift notice waits for data (asked core/server for a pace note). Demo shows the whole new policy.json before copying it, so a blocked clipboard can select it.
+
 ## Confirmed
 - CONFIRMED: Playwright route handlers that `route.fetch()` can fail a test with "Response has been disposed" when the test ends mid-fetch; cockpit.spec.ts serves static fixtures instead (3/3 green after, 1/4 flaky before).
 - CONFIRMED: the demo's self loop is a done laned loop with a waiting release, so the demo Inbox shows a release row since run 1 (tests/e2e/screens.spec.ts routes `/api/loops` to [] for the empty state).
@@ -71,7 +74,11 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
-Run 8 (2026-10-13 10:43-11:05 UTC; stale clone, branch `lane-run`, pushed `HEAD:main`) shipped C3: `web/src/lib/heatmap.ts` (heatOutcome, heatGrid, heatCellLabel, heatCellHref; unit tests/unit/web/heatmap.test.ts incl. route), `web/src/components/HeatMap.tsx` (table grid, SVG glyph per outcome, legend of all 8 words, readout line, 12 h fold + "Show 24 h" at 375 px), on the Timeline and Runs tab heads; route.ts `focus` query; RunsTab highlights the picked slot. e2e tests/e2e/heatmap.spec.ts (labels, legend, click-through, same cell twice, phone fold, axe both themes). Review in `.ai/audit/web.md` (C3 review, run 8). Also run 8: the Runs list now uses the heat-map words and glyphs (Worked/Idle/Likely running/Failed/Limit stop; DESIGN.md Runs tab paragraph updated), `heatOutcome` calls a no-kind nothing-pushed run with units *worked* (core's rule), `silentLanes` counts core's `missed` kind only (a running slot is not missed). The C6 screenshot design pass was not done (folded into later screenshot unit 7).
-Do first next run: C9 pace control (DESIGN.md entry first; data: `LoopDetail.pace`, `POST …/pace`, `paceEditUrl`/`paceEditText` in src/server/controls.ts, contracts.md "Pace (run 7)"), then unit 7 screenshots (include C6 dialog and heat map).
-Waiting on server: `draftInputs` on LoopDetail + claude abort on Stop (asked 09:58); demo self lane states; demo self snapshot has no `kind` on runs (heat map falls back to outcomes there).
-Open minors: `cardBadge` ignores a loop pause; "Limit stops not checked" while routines look off; Retry after "committed but not pushed" re-posts (ConfirmDialog and NextRoundDialog); heat map minors in the audit. QUIET_KINDS duplicated in web/src/lib/runs.ts and src/server/runs.ts. Design reviewer recipe: fixture routes as in tests/e2e/heatmap.spec.ts, `vite preview --port 4180`, a node script importing `node_modules/playwright/index.mjs` with executablePath `/opt/pw-browsers/chromium`; never `pkill -f` a pattern matching your own shell. Web lib files import core with relative `../../../src/core/*.js` (`@core` alias is Vite-only).
+Run 9 (2026-10-13 11:44-12:15 UTC; stale clone, branch `lane-run`, pushed `HEAD:main`) shipped two units, each reviewed (`.ai/audit/web.md` "A3 review, run 9", "C9 review, run 9"):
+- A3 Health three states: `web/src/lib/health.ts` (checkState, checkText, checkSummary, codeParts), `web/src/components/Health.tsx` (Pass/Fail/grey Not checked + "How to check" with code spans, summary line), liveMerge skips an unchecked test check as CI. Tests: tests/unit/web/health.test.ts, liveFetch.test.ts, tests/e2e/health.spec.ts (+axe both themes).
+- C9 Pace control: DESIGN.md "Pace control" paragraph; `web/src/lib/pace.ts`, `web/src/components/PaceControl.tsx` (PaceBlock at the Lanes tab head, PaceChooser inline per lane), `postPace` in client.ts, `cockpit.pace` from LoopDetail.tsx. Tests: tests/unit/web/pace.test.ts, tests/e2e/pace.spec.ts (demo URL + file text, local POST + error, focus/Escape, axe both themes, no overflow).
+npm test green: 880 unit, 245 e2e.
+Do first next run: unit 7 screenshots (web/design/docs/, include C6 dialog, heat map, Pace block, Health three states; PNG < 400 kB), then audit majors.
+Open minors: under `loop dashboard --demo` every write control (steer, schedule, pace, next round) shows its local Save and gets 409 "demo is read-only" (should read `settings.demo`/health `demo` and show the demo links instead; one cross-cutting fix); no actual auto-downshift notice (asked core/server for a pace note 12:10); `cardBadge` ignores a loop pause; "Limit stops not checked" while routines look off; Retry after "committed but not pushed" re-posts (ConfirmDialog, NextRoundDialog); heat-map minors in the audit; QUIET_KINDS duplicated in web/src/lib/runs.ts and src/server/runs.ts.
+Waiting on server: `draftInputs` on LoopDetail + claude abort on Stop (asked 09:58); demo self lane states.
+Design reviewer recipe: fixture routes as in tests/e2e/pace.spec.ts, `node bin/loop.js dashboard --demo --no-open --port 4181` or `vite preview`, a node script importing `node_modules/playwright/index.mjs` with executablePath `/opt/pw-browsers/chromium`; never `pkill -f` a pattern matching your own shell (it killed this run's shell once). Web lib files import core with relative `../../../src/core/*.js` (`@core` alias is Vite-only).
