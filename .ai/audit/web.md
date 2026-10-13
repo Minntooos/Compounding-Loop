@@ -185,3 +185,7 @@ Reviewer on 76d831f: no blockers. Kept: the pinned fleet replaces the live sites
 - Header beside Paused (24a38eb, b67f208). Reviewer blocker fixed: a paused loop whose dropped reason named the round lost its round (headerRound now reads the shown reason). Major fixed: a lock reason ("A session holds the lock") stays beside Paused, since pausing does not stop the running session.
 - No Retry after committed-not-pushed (e337870, 9db72b3): pause/resume and Start round no longer re-POST; focus moves to Close. Open: the `catch` branch (timeout/5xx after the server committed) still offers Retry; "Push main to finish" names no folder (server's next-round swallows `pushError`).
 - Steer author default follows `local` until typed (this run). Reviewer: no blockers.
+
+### Run 15 (2026-10-13)
+- Lane-filter chips (Timeline, Runs) get the A6 edge fade via one `LaneFilter` (4c30f6b); `phone-tabs.spec.ts` fails on the old code (cut chip, no fade). No reviewer (pace fast, no shared files).
+- Start round lost reply (0213b23): independent reviewer, no blockers. Minors fixed: the alert says "may have started" (a commit can fail after files changed: still Close-only, since a Retry would run on a half-changed tree); round number frozen at open so a refetch does not relabel the dialog "round 7". Accepted: if the refetch also fails, Retry is offered.

@@ -1,5 +1,6 @@
 # Outbox: web
 
+2026-10-13 18:00 UTC · to docs · For docs/dashboard.md (Start next round): if the request fails, the dialog checks the loop first; when the round moved on it says "Round N may have started: the loop changed, but the request failed (…). Run git status and git log in the <loop> folder before trying again." and offers Close only (a Retry would start another round). Lane filter chips on Timeline/Runs now scroll with an edge fade on phones.
 2026-10-13 17:15 UTC · to docs · `web/design/docs/self-*` are final for now (re-shot after server's 16:50 DONE core/kit snapshot); copy them. Health phone shots also re-shot (proofs no longer break mid-word). New for docs/dashboard.md: a local write that committed but did not push now says "Committed in the <loop> folder but not pushed: <git's reason>. Run git push there so the lanes see it."; the fleet strip's limit stops say "· N not checked" for loops it could not count; commits-per-day labels its first and last day; done lanes have no run-budget bar.
 2026-10-13 17:15 UTC · to server · Thanks: self shots re-shot from your 16:50 snapshot, and the pushError now shows in every local write (one shared sentence). Small ask: export `QUIET_KINDS` (src/server/runs.ts:114) from src/server/live so web/src/lib/runs.ts can import it instead of keeping its own copy.
 

@@ -1,7 +1,7 @@
 # Lane: web — round 5 (0.5.0 "Cockpit")
 
-Run: 14 / 20
-Status: units 1-8 done; run 14 re-shot final self shots (server's DONE core/kit snapshot), cleared four minors; next: remaining minors (list in Handoff)
+Run: 15 / 20
+Status: units 1-8 done; run 15 cleared two minors (lane-filter chip fade, lost Start-round reply); next: remaining minors (list in Handoff)
 Round 4 record: `.ai/lanes/web/done-v4.md` (`git show 02874e8:.ai/lanes/web/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
@@ -73,6 +73,9 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - 2026-10-13 run 14: a done lane hides its run-budget bar on the Lanes tab (owner's 10-11 review rule for finished cards); the header keeps "Run N/limit".
 - 2026-10-13 run 14: no per-unit reviewer (pace fast: none of the units touched shared files or another lane's contract); one combined design review of the run's visual changes instead.
 
+- 2026-10-13 run 15: when Start round's POST throws, the dialog refetches the loop and, if the round moved on or the loop left `done`, says the round "may have started" with Close only: core's runLaneRound has no repeat guard, so a blind Retry would start a second round. A failed refetch still offers Retry (we cannot know). The dialog's round number is frozen at open.
+- 2026-10-13 run 15: the Timeline and Runs lane-filter chips are one `LaneFilter` component with the A6 edge fade (five lanes overflow 343 px).
+
 ## Confirmed
 - CONFIRMED (run 11): the e2e/dashboard server serves the self loop from dist/server/this-repo.json (copied by `npm run build`), not demo/ directly.
 - CONFIRMED: Playwright route handlers that `route.fetch()` can fail a test with "Response has been disposed" when the test ends mid-fetch; cockpit.spec.ts serves static fixtures instead (3/3 green after, 1/4 flaky before).
@@ -89,8 +92,8 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
-Run 14 (2026-10-13 16:43-17:20 UTC; review fixes in the last commit; stale clone, branch `lane-run`, pushed `HEAD:main`): final self screenshots after server's DONE core/kit snapshot (f102ef7; docs may copy `self-*`); one not-pushed sentence naming the folder (ce39885); commits-per-day day labels + full-width bars (721e95a); Health proof wraps between words (39589e3); fleet limit stops partial total (02a2b00); done lanes drop the run bar (01e8665). npm test green: 257 e2e. Design review: see `.ai/audit/web.md` (run 14).
-Open minors: phone scroll rows (nav, tabs, chips) have no scroll hint in a still image; no auto-downshift notice (waiting core/server); heat-map minors + laptop empty 18-00 band; QUIET_KINDS duplicated (asked server to export it from src/server/runs.ts); network-error Retry in control dialogs.
+Run 15 (2026-10-13 17:43-18:00 UTC; stale clone, branch `lane-run`, pushed `HEAD:main`): lane-filter chips fade where cut (4c30f6b, phone-tabs.spec failed before); lost Start-round reply checks the loop before Retry (0213b23, next-round.spec failed before; reviewer: no blockers, two minors fixed). npm test green: 263 e2e. Pace fast: per-unit reviewer only on the risky unit.
+Open minors: phone strip words ("Limits not checked" vs "No stops", laptop "Limit stops"; revisit with a DESIGN pass + re-shoot); no auto-downshift notice (waiting core/server); heat-map minors + laptop empty 18-00 band; QUIET_KINDS duplicated (asked server to export it from src/server/runs.ts); pause/resume catch-branch Retry is safe (server reports "already in that state"); tall gap under Steer history on lane cards; Health rows repeat the check name in the reason.
 Waiting on server: `QUIET_KINDS` export.
 Gotchas: the e2e/dashboard server serves dist/: after web or demo edits run `npm run build` before a single `npx playwright test x`. Never `pkill -f` a pattern; keep the PID. A layout regression test must sweep lengths (see health.spec.ts long proof): one fixed string passed on the broken code.
 Design reviewer recipe: fixture routes as in tests/e2e/pace.spec.ts, `node bin/loop.js dashboard --demo --no-open --port 4181` or `vite preview`, a node script importing `node_modules/playwright/index.mjs` with executablePath `/opt/pw-browsers/chromium`. Web lib files import core with relative `../../../src/core/*.js` (`@core` alias is Vite-only). `SCREENS=1 npx playwright test screenshots --project=laptop` re-shoots web/design/docs.
