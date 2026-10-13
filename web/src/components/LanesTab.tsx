@@ -50,8 +50,8 @@ function SteerHistory({ lane, entries, laneState }: { lane: string; entries: Ste
   if (entries.length === 0) return null;
   const waiting = laneState === 'done' ? 0 : entries.filter((e) => !e.ack).length;
   return (
-    <details data-testid="steer-history" className="mt-2">
-      <summary className="min-h-11 cursor-pointer py-2 text-[13px] font-medium">Steer history · {entries.length}{waiting > 0 ? ` · ${waiting} waiting` : ''}</summary>
+    <details data-testid="steer-history" className="-mb-2 mt-1 open:mb-0">
+      <summary className="min-h-11 cursor-pointer py-2 text-[13px] font-medium leading-7">Steer history · {entries.length}{waiting > 0 ? ` · ${waiting} waiting` : ''}</summary>
       <ol aria-label={`Steer history of ${lane}`} className="space-y-2">
         {entries.map((e, i) => {
           const chip = steerAckChip(e.ack, laneState);
