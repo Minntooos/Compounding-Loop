@@ -15,7 +15,8 @@ export function ActivityChart({ commits }: { commits: LoopCommit[] }) {
   return (
     <figure data-testid="activity-chart" className="rounded-lg border p-3" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
       <figcaption className="mb-1 text-[12px]" style={{ color: 'var(--muted)' }}>Commits per day (UTC)</figcaption>
-      <svg role="img" aria-hidden="false" aria-label={label} viewBox={`0 0 ${W} ${H}`} className="h-20 w-full">
+      {/* Stretched, not letterboxed: the day labels below sit at the figure's edges, so the bars must reach them. */}
+      <svg role="img" aria-hidden="false" aria-label={label} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="block h-20 w-full">
         {days.map((d, i) => {
           const h = d.count === 0 ? 1 : Math.max(2, (d.count / max) * (H - 4));
           return (
@@ -25,6 +26,10 @@ export function ActivityChart({ commits }: { commits: LoopCommit[] }) {
           );
         })}
       </svg>
+      <div aria-hidden="true" data-testid="activity-axis" className="mt-1 flex justify-between text-[12px]" style={{ color: 'var(--muted)' }}>
+        <span>{dayHeading(days[0]!.day)}</span>
+        <span>{dayHeading(days[days.length - 1]!.day)}</span>
+      </div>
       <table className="sr-only">
         <caption>Commits per day (UTC)</caption>
         <thead><tr><th scope="col">Day</th><th scope="col">Commits</th></tr></thead>
