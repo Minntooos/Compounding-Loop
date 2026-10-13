@@ -37,7 +37,7 @@ const pausedAtOf = (text: string): { at?: Date } => {
 };
 
 /** Runs kept in the loop detail (newest first); older ones stay in git. */
-const MAX_RUNS = 200;
+const MAX_RUNS = 400; // 48 h of 5 lanes' slots plus the quiet ones the heat map keeps
 
 export interface LiveInput {
   /** `owner/name` */

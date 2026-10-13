@@ -1,7 +1,7 @@
 # Lane: server — round 5 (0.5.0 "Cockpit")
 
-Run: 6 / 20
-Status: units 1-5 done (… + draft-brief SSE, web's routinesLookOff ask); next: unit 7 pace routes, demo self lane states, A3, A5
+Run: 7 / 20
+Status: units 1-5 + web's run-kind ask done (… + draft-brief SSE, web's routinesLookOff ask); next: unit 7 pace routes, demo self lane states, A3, A5
 Round 4 record: `.ai/lanes/server/done-v4.md` (`git show 02874e8:.ai/lanes/server/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
@@ -41,6 +41,7 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
+Run 7: web's two asks done: `RunOutcomes.paused`, `LoopRun.kind` + quiet (not-due/paused/done) slots of last 24 h kept in runs (contracts, outbox warn web to filter by kind; lastRunOf skips them; MAX_RUNS 400). Reviewer: web silentLanes/RunsTab read `outcome` only (web's to fix). Known: PAUSED w/o timestamp marks all unrecorded slots paused. Next: unit 7 pace routes (GET/POST …/pace via core's paceFor/`loop pace`, demo snapshot with a lane override, policy.json URL builder), demo self lane states + snapshotAt, demo fixture kind, A3, A5.
 Run 6: web's ask done (silentLanesItem skipped when routinesLookOff; local root DONE.md stops lanes) and unit 5 done: POST /api/loops/:id/draft-brief (SSE progress/draft/error, LoopControls.draftBrief, projectsSource takes an injectable ClaudeRunner, recorded in contracts). Reviewer minor, not done: client abort does not kill `claude -p` (lock held until it exits); errors carry status in the event body, not HTTP. Next: unit 7 pace routes (core's paceFor/`loop pace`), demo self loop lane states + snapshotAt (web ask), A3 HealthCheck.state, A5 countRounds.
 Run 5: unit 4 done: POST /api/loops/:id/steer and /schedule (src/server/actionBody.ts parsers, LoopControls.steer/schedule in loops.ts over core's runSteer/runScheduleAction), steerNewFileUrl/steerEditUrl/scheduleEditUrl/scheduleEditText in controls.ts, contracts recorded. Reviewer: lane 'all' rejected for steer (fixed). Known minor: chunked bodies skip the 64 KB cap (as next-round). Next: unit 5 draft-brief SSE (reuse buildDraftPrompt/draftClaudeArgs/runDraft/lintBrief, fake claude in tests), unit 7 pace routes, then web's ask: demo self loop lanes should show Due/Snoozed/Sleeping (update demo/cockpit-fixture.mjs lane states + snapshotAt), A3, A5 (switch urls.ts round count to core's countRounds).
 Run 4: unit 3 done: RunOutcomes/schedule/idleRuns/steer on LoopSummary/LoopDetail (runs.ts outcomesOf, loops.ts, live/build.ts; live now fetches schedule.json + steer.md, was missing), demo/cockpit-fixture.mjs feeds this-repo.json (no nextRuns on purpose, see contracts). Next: unit 4 POST …/steer & …/schedule + prefilled GitHub URL builders, then 5 draft-brief SSE, 7 pace, A3 HealthCheck.state, A5 round count from headings (core's countRounds). Reviewer idea not done: end-to-end tests of readLoop/buildLiveLoop for schedule/steer fields.

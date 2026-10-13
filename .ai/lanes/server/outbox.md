@@ -1,5 +1,7 @@
 # Outbox: server
 
+2026-10-13 10:00 UTC · to web · done: `runOutcomes.paused` and `LoopRun.kind` (core's slot kind) are on LoopSummary/LoopDetail; `runs` now also keeps not-due/paused/done slots of the last 24 h. WARNING: those rows have `outcome: 'no-run-recorded'`, so web/src/lib/runs.ts silentLanes, RunsTab and card.ts must check `kind` (skip not-due/paused/done) or a sleeping lane reads as silent / "No run recorded".
+
 2026-10-13 08:41 UTC · to web · POST /api/loops/:id/draft-brief (SSE: progress {step}, then draft {draft,score,gaps} or error {error,status}) is on main; silentLanesItem is now skipped when routinesLookOff and a local root DONE.md stops lanes (your 08:12 asks). Still to come: demo self lane states, pace routes.
 
 2026-10-13 08:10 UTC · to web · `POST /api/loops/:id/steer` {lane,text,standing?,author?} and `POST /api/loops/:id/schedule` {action: pause|resume|snooze|wake, lane, reason?, until?} are on main (see .ai/contracts.md, Round 5). Demo helpers in src/server/controls.ts: steerNewFileUrl, steerEditUrl, scheduleEditUrl, scheduleEditText. Your demo self-loop lane-state ask is queued for a later run.

@@ -82,9 +82,9 @@ describe('pause, claims and commit attribution (reviewer findings)', () => {
   const known = [commit('old', '2026-10-01T00:00:00Z', 'core')];
   it('a paused loop is not silent: the runs reply "Paused" and log nothing', () => {
     expect(buildRuns({ lanes, logs: {}, commits: known, now: NOW, paused: { at: new Date('2026-10-11T03:00:00Z') } }).silentLanes).toEqual([]);
-    expect(buildRuns({ lanes, logs: {}, commits: known, now: NOW, paused: {} }).runs).toEqual([]);
+    expect(buildRuns({ lanes, logs: {}, commits: known, now: NOW, paused: {} }).runs.every((r) => r.kind === 'paused' && r.outcome === 'no-run-recorded')).toBe(true);
     const after = buildRuns({ lanes, logs: {}, commits: known, now: NOW, paused: { at: new Date('2026-10-11T09:30:00Z') } }).runs;
-    expect(after[0]?.at).toBe('2026-10-11T09:00:00.000Z');
+    expect(after.find((r) => r.kind !== 'paused')?.at).toBe('2026-10-11T09:00:00.000Z');
   });
   it('a claimed lane is not silent', () => {
     expect(buildRuns({ lanes: [{ ...lanes[0] as object, name: 'core', stopped: true }], logs: {}, commits: known, now: NOW }).silentLanes).toEqual([]);
@@ -126,8 +126,37 @@ describe('buildRuns with schedule.json (A2)', () => {
     const without = buildRuns({ lanes, logs: {}, commits: known, now: NOW });
     expect(without.runs.some((r) => r.outcome === 'no-run-recorded')).toBe(true);
     const withSchedule = buildRuns({ lanes, logs: {}, commits: known, now: NOW, schedule: sleeping });
-    expect(withSchedule.runs.some((r) => r.outcome === 'no-run-recorded')).toBe(false);
+    // Skipped slots of the last 24 h stay for the heat map, as kind 'not-due'; older ones and real misses do not.
+    const unexplained = withSchedule.runs.filter((r) => r.outcome === 'no-run-recorded' && r.kind !== 'not-due');
+    expect(unexplained).toEqual([]);
+    expect(withSchedule.runs.filter((r) => r.kind === 'not-due').length).toBeGreaterThan(0);
+    expect(withSchedule.runs.every((r) => r.kind !== 'not-due' || Date.parse(r.at) >= NOW.getTime() - 24 * 3_600_000)).toBe(true);
     expect(withSchedule.silentLanes).toEqual([]);
+  });
+
+  it('puts core\'s slot kind on every run and lists paused lanes in the outcomes', () => {
+    const logs = { core: line({ at: '2026-10-11T08:30:00Z', lane: 'core', units: ['a'], tests: { passed: 1, failed: 0 }, pushed: true }) + line({ at: '2026-10-11T09:30:00Z', lane: 'core', units: [], pushed: false }) };
+    const { runs } = buildRuns({ lanes, logs, commits: known, now: NOW });
+    expect(runs.find((r) => r.at === '2026-10-11T08:00:00.000Z')?.kind).toBe('worked');
+    expect(runs.find((r) => r.at === '2026-10-11T09:00:00.000Z')?.kind).toBe('idle');
+    expect(runs.find((r) => r.at === '2026-10-11T10:00:00.000Z')?.kind).toBe('missed');
+    const held = { version: 1 as const, lanes: { core: { notBefore: null, sleeping: false, paused: true, reason: null } } };
+    expect(buildRuns({ lanes, logs: {}, commits: known, now: NOW, schedule: held }).outcomes.paused).toEqual(['core']);
+    expect(buildRuns({ lanes, logs: {}, commits: known, now: NOW }).outcomes.paused).toEqual([]);
+  });
+
+  it('a quiet slot is never the fleet card\'s last run', () => {
+    const { runs } = buildRuns({ lanes, logs: {}, commits: known, now: NOW, schedule: sleeping });
+    expect(runs[0]?.kind).toBe('not-due');
+    expect(lastRunOf(runs)).toBeUndefined();
+  });
+
+  it('slots from .ai/PAUSED on read as paused; a stopped lane\'s read as done', () => {
+    const paused = buildRuns({ lanes, logs: {}, commits: known, now: NOW, paused: { at: new Date('2026-10-11T09:30:00Z') } }).runs;
+    expect(paused.filter((r) => r.kind === 'paused').length).toBeGreaterThan(0);
+    const done = buildRuns({ lanes: [{ name: 'core', cron: '0 * * * *', stopped: true }], logs: {}, commits: known, now: NOW }).runs;
+    expect(done.length).toBeGreaterThan(0);
+    expect(done.every((r) => r.kind === 'done')).toBe(true);
   });
 
   it('flags routinesLookOff after 6 h of silence with due slots, never when paused', () => {

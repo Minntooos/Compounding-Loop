@@ -111,6 +111,8 @@ export interface LoopRun {
   /** ISO 8601 UTC: the scheduled slot, or the end of the run when the lane has no cron. */
   at: string;
   outcome: 'pushed' | 'nothing-pushed' | 'tests-failed' | 'no-run-recorded';
+  /** Core's slot kind (worked, idle, not-due, paused, done, missed, running, tests-failed) for the heat map; not-due, paused and done slots of the last 24 h are kept. Server lane, Round 5. */
+  kind?: 'worked' | 'idle' | 'tests-failed' | 'not-due' | 'running' | 'missed' | 'paused' | 'done';
   /** When the run wrote its log line. */
   endedAt?: string;
   units: string[];
@@ -130,6 +132,8 @@ export interface RunOutcomes {
   running: string[];
   /** Lanes the schedule holds back (sleeping or snoozed; paused lanes are not listed). */
   sleeping: string[];
+  /** Lanes paused in schedule.json (server lane, Round 5). */
+  paused?: string[];
   /** Nothing logged for 6 h although runs were due: show "Routines look off" once. */
   routinesLookOff: boolean;
   /** The earliest upcoming slot of a lane that will run (its cron, not before its snooze ends). */

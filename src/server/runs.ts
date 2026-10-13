@@ -1,6 +1,6 @@
 // Pure (no Node imports): turns the per-lane run logs, the cron slots and the commits into the Runs tab's data.
 import { classifyRunSlots, expectedSlots, matchSlots, missedInARow, notDueReason, parseRunLog, parseSteer, trailingIdleRuns } from '../core/parse/index.js';
-import type { RunEntry, SlotResult } from '../core/parse/index.js';
+import type { RunEntry, RunOutcome, SlotResult } from '../core/parse/index.js';
 import type { InboxItem, LoopCommit, LoopRun, RunOutcomes, Schedule, SteerEntry } from '../core/types.js';
 
 export interface RunLane {
@@ -44,6 +44,8 @@ export interface RunsData {
 
 /** How far back the Runs tab looks. */
 export const RUNS_WINDOW_HOURS = 48;
+/** How far back the lane × hour grid needs the slots nobody expected a run for. */
+export const GRID_WINDOW_HOURS = 24;
 /** A slot this young may still be running (the log line is written at the end), so it is not "missing" yet. */
 export const SLOT_GRACE_MINUTES = 90;
 /** Missing runs in a row that raise the "lanes are not running" attention item. */
@@ -64,7 +66,7 @@ function notDueSlots(input: RunsInput, from: Date): { skipped: Map<string, Set<s
   return { skipped, routinesLookOff: !input.paused && classified.routinesLookOff, classified };
 }
 
-function laneRuns(lane: RunLane, input: RunsInput, skipped: ReadonlySet<string>): { runs: LoopRun[]; next?: string; missed: number } {
+function laneRuns(lane: RunLane, input: RunsInput, skipped: ReadonlySet<string>, kinds: ReadonlyMap<string, RunOutcome>): { runs: LoopRun[]; next?: string; missed: number } {
   const from = new Date(input.now.getTime() - RUNS_WINDOW_HOURS * HOUR);
   const everLogged = parseRunLog(input.logs[lane.name] ?? '');
   const entries = everLogged.filter((e) => new Date(e.at) > from);
@@ -78,7 +80,12 @@ function laneRuns(lane: RunLane, input: RunsInput, skipped: ReadonlySet<string>)
   const graceEnd = input.now.getTime() - SLOT_GRACE_MINUTES * MINUTE;
   const pausedFrom = input.paused ? (input.paused.at?.getTime() ?? -Infinity) : Infinity;
   const settled = results.filter((r) => r.outcome !== 'no-run-recorded' || (!skipped.has(r.slot) && new Date(r.slot).getTime() <= graceEnd && new Date(r.slot).getTime() < pausedFrom));
-  const all = [...settled, ...manual].sort((a, b) => a.slot.localeCompare(b.slot));
+  // The heat map wants the slots nobody expected a run for (not due, paused, done) of the last day too; they never count as missed.
+  // `.ai/PAUSED` is not in the classifier's input here (it would reclassify skipped slots); slots from the pause on read as paused.
+  const kindOfSlot = (r: SlotResult): RunOutcome | undefined => (!r.entry && r.outcome === 'no-run-recorded' && new Date(r.slot).getTime() >= pausedFrom && !['done'].includes(kinds.get(r.slot) ?? '') ? 'paused' : kinds.get(r.slot));
+  const gridFrom = input.now.getTime() - GRID_WINDOW_HOURS * HOUR;
+  const quiet = results.filter((r) => !settled.includes(r) && QUIET_KINDS.has(kindOfSlot(r) as RunOutcome) && new Date(r.slot).getTime() >= gridFrom);
+  const all = [...settled, ...quiet, ...manual].sort((a, b) => a.slot.localeCompare(b.slot));
   const loggedSessions = new Set(entries.flatMap((e) => (e.session ? [sessionKey(e.session)] : [])));
   const runs = all.map((r, i): LoopRun => {
     const windowStart = new Date(r.slot).getTime();
@@ -92,6 +99,7 @@ function laneRuns(lane: RunLane, input: RunsInput, skipped: ReadonlySet<string>)
       lane: lane.name,
       at: new Date(r.slot).toISOString(),
       outcome: r.outcome,
+      ...(kindFor(r, kindOfSlot(r)) && { kind: kindFor(r, kindOfSlot(r)) }),
       ...(r.entry && { endedAt: new Date(r.entry.at).toISOString() }),
       units: r.entry?.units ?? [],
       ...(r.entry?.tests && { tests: r.entry.tests }),
@@ -101,6 +109,15 @@ function laneRuns(lane: RunLane, input: RunsInput, skipped: ReadonlySet<string>)
   });
   return { runs, ...(next && { next }), // A lane that never logged a run or made a commit is new, not silent.
   missed: !lane.stopped && !input.paused && (everLogged.length > 0 || own.length > 0) ? missedInARow(settled) : 0 };
+}
+
+const QUIET_KINDS: ReadonlySet<RunOutcome> = new Set<RunOutcome>(['not-due', 'paused', 'done']);
+
+/** Core's slot kind for a run: classified slots keep theirs, manual runs derive it from their log line. */
+function kindFor(r: SlotResult, kind: RunOutcome | undefined): RunOutcome | undefined {
+  if (kind) return kind;
+  if (!r.entry) return undefined;
+  return r.outcome === 'tests-failed' ? 'tests-failed' : r.outcome === 'pushed' || r.entry.units.length > 0 ? 'worked' : 'idle';
 }
 
 const at = (c: LoopCommit) => new Date(c.at).getTime();
@@ -130,6 +147,7 @@ function outcomesOf(input: RunsInput, classified: ReturnType<typeof classifyRunS
     limitStops5h: input.paused || routinesLookOff ? 0 : slots.filter((s) => s.kind === 'missed' && new Date(s.slot).getTime() >= since).length,
     running: input.paused ? [] : [...new Set(slots.filter((s) => s.kind === 'running').map((s) => s.lane))],
     sleeping,
+    paused: live.filter((l) => input.schedule?.lanes[l.name]?.paused === true).map((l) => l.name),
     routinesLookOff,
     ...(upcoming[0] && { nextDue: upcoming[0] }),
   };
@@ -137,7 +155,7 @@ function outcomesOf(input: RunsInput, classified: ReturnType<typeof classifyRunS
 
 export function buildRuns(input: RunsInput): RunsData {
   const { skipped, routinesLookOff, classified } = notDueSlots(input, new Date(input.now.getTime() - RUNS_WINDOW_HOURS * HOUR));
-  const perLane = input.lanes.map((lane) => ({ lane, ...laneRuns(lane, input, skipped.get(lane.name) ?? new Set()) }));
+  const perLane = input.lanes.map((lane) => ({ lane, ...laneRuns(lane, input, skipped.get(lane.name) ?? new Set(), new Map(classified.lanes.find((c) => c.lane === lane.name)?.slots.map((x) => [x.slot, x.kind]) ?? [])) }));
   return {
     runs: perLane.flatMap((l) => l.runs).sort((a, b) => b.at.localeCompare(a.at)),
     nextRuns: perLane.flatMap((l) => (l.next ? [{ lane: l.lane.name, at: l.next }] : [])),
@@ -167,6 +185,7 @@ export function silentLanesItem(loopId: string, silent: RunsData['silentLanes'],
 
 /** The newest run of any lane, for the fleet card. Missing runs count: they are what the owner needs to see. */
 export function lastRunOf(runs: readonly LoopRun[]): { lane: string; at: string; outcome: LoopRun['outcome'] } | undefined {
-  const newest = runs[0];
+  // Slots nobody expected a run for (kept for the heat map) are not "the last run".
+  const newest = runs.find((r) => !(r.kind && QUIET_KINDS.has(r.kind)));
   return newest && { lane: newest.lane, at: newest.at, outcome: newest.outcome };
 }
