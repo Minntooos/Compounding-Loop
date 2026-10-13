@@ -18,6 +18,7 @@ import { formatShipCheck, runShipCheck } from './shipCheck.js';
 import { formatRuns, logRun, readRuns } from './runs.js';
 import { runPause, runResume, type PauseResult } from './pause.js';
 import { runRound } from './run.js';
+import { formatScheduleReport, runScheduleAction, runScheduleShow, runScheduleUpdate, runSteer, type ScheduleAction, type ScheduleResult } from './schedule.js';
 
 const pkg = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')) as { version: string };
 
@@ -313,6 +314,81 @@ program
       fail(error);
     }
   });
+
+const scheduleNote = (r: ScheduleResult) => (r.pushed === false ? `\nCommitted, but the push failed: ${r.pushError}` : '');
+
+const scheduleCmd = program.command('schedule').description('Which lanes are due (.ai/schedule.json): show, pause, resume, snooze, wake, update');
+const scheduleOpts = <T extends Command>(c: T) =>
+  c.option('--no-commit', 'write the file but do not commit').option('--no-push', 'commit but do not push').option('--dir <dir>', 'repo folder', '.');
+type ScheduleFlags = { commit: boolean; push: boolean; dir: string };
+
+scheduleCmd
+  .command('show')
+  .description('Each lane: due, paused, sleeping or snoozed, with idle runs')
+  .option('--json', 'print the report as JSON (shape: ScheduleReport in src/cli/schedule.ts)')
+  .option('--dir <dir>', 'repo folder', '.')
+  .action(async (options: { json?: boolean; dir: string }) => {
+    try {
+      const report = await runScheduleShow(path.resolve(options.dir));
+      console.log(options.json ? JSON.stringify(report, null, 2) : formatScheduleReport(report));
+    } catch (error) {
+      fail(error);
+    }
+  });
+
+const simple = (name: string, args: string, description: string, build: (a: string[], o: { reason?: string }) => ScheduleAction, withReason: boolean) => {
+  const c = scheduleOpts(scheduleCmd.command(`${name} ${args}`).description(description));
+  if (withReason) c.option('--reason <text>', 'why');
+  c.action(async (...argv: unknown[]) => {
+    const opts = argv[argv.length - 2] as ScheduleFlags & { reason?: string };
+    const positional = argv.slice(0, -2) as string[];
+    try {
+      const r = await runScheduleAction(path.resolve(opts.dir), build(positional, opts), { commit: opts.commit, push: opts.push });
+      console.log(r.changed.length ? `${name}: ${r.changed.join(', ')}${scheduleNote(r)}` : `${name}: nothing to change.`);
+      if (r.pushed === false) process.exitCode = 1;
+    } catch (error) {
+      fail(error);
+    }
+  });
+};
+simple('pause', '<lane>', 'Hold a lane back until it is resumed', ([lane], o) => ({ action: 'pause', lane: lane as string, ...(o.reason && { reason: o.reason }) }), true);
+simple('resume', '<lane>', 'Undo `schedule pause`', ([lane]) => ({ action: 'resume', lane: lane as string }), false);
+simple('snooze', '<lane> <until>', 'Hold a lane back until a time (ISO, a date, or 3h / 2d)', ([lane, until], o) => ({ action: 'snooze', lane: lane as string, until: until as string, ...(o.reason && { reason: o.reason }) }), true);
+simple('wake', '<lane|all>', 'Make a sleeping or snoozed lane due now', ([lane]) => ({ action: 'wake', lane: lane as string }), false);
+
+scheduleOpts(scheduleCmd.command('update').description('Idle backoff from the run logs, and wake lanes that have steering, a message or a new round'))
+  .option('--new-round', 'a new round started: wake every lane')
+  .option('--lane <name>', 'change only this lane\'s entry and commit as that lane (the end-of-run backoff)')
+  .action(async (options: ScheduleFlags & { newRound?: boolean; lane?: string }) => {
+    try {
+      const r = await runScheduleUpdate(path.resolve(options.dir), { commit: options.commit, push: options.push, ...(options.newRound && { newRound: true }), ...(options.lane && { lane: options.lane }) });
+      console.log(r.changed.length ? `update: ${r.changed.join(', ')}${scheduleNote(r)}` : 'update: nothing to change.');
+      if (r.pushed === false) process.exitCode = 1;
+    } catch (error) {
+      fail(error);
+    }
+  });
+
+program
+  .command('steer')
+  .description('Leave a note for a lane in .ai/lanes/<lane>/steer.md, wake the lane and commit (Lane: control)')
+  .argument('<lane>', 'lane name')
+  .argument('<text>', 'what the lane should do')
+  .option('--standing', 'applies to every run until removed (default: the next run only)')
+  .option('--author <name>', 'your name (default: git config user.name)')
+  .option('--no-commit', 'write the file but do not commit')
+  .option('--no-push', 'commit but do not push')
+  .option('--dir <dir>', 'repo folder', '.')
+  .action(async (lane: string, text: string, options: SteerFlags) => {
+    try {
+      const r = await runSteer(path.resolve(options.dir), lane, text, { commit: options.commit, push: options.push, ...(options.standing && { standing: true }), ...(options.author && { author: options.author }) });
+      console.log(`Steer saved for ${lane}${options.standing ? ' (standing)' : ''}.${scheduleNote(r)}`);
+      if (r.pushed === false) process.exitCode = 1;
+    } catch (error) {
+      fail(error);
+    }
+  });
+type SteerFlags = ScheduleFlags & { standing?: boolean; author?: string };
 
 program
   .command('ship-check')

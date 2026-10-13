@@ -109,3 +109,14 @@ export const wakeEntry = (entry: ScheduleEntry | undefined): ScheduleEntry => ({
 
 /** True when the entry holds the lane back only because of the automatic backoff (not an owner's pause). */
 export const isBackedOff = (entry: ScheduleEntry | undefined, now: Date): boolean => !entry?.paused && notDueReason(entry, now) !== undefined;
+
+/**
+ * Reads the time a snooze lasts until: an ISO time, a date (midnight UTC), or a span from now such as `3h`, `2d`, `90m`.
+ * Undefined when unreadable or not after `now`.
+ */
+export function parseUntil(text: string, now: Date): Date | undefined {
+  const t = text.trim();
+  const span = /^\+?(\d+)\s*([mhd])$/i.exec(t);
+  const at = span ? new Date(now.getTime() + Number(span[1]) * ({ m: 60_000, h: HOUR_MS, d: 24 * HOUR_MS }[(span[2] as string).toLowerCase() as 'm' | 'h' | 'd'])) : new Date(/^\d{4}-\d\d-\d\d$/.test(t) ? `${t}T00:00:00Z` : t);
+  return Number.isNaN(at.getTime()) || at.getTime() <= now.getTime() ? undefined : at;
+}

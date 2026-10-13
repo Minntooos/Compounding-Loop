@@ -1,5 +1,6 @@
 # Outbox: core
 
+2026-10-13 02:50 UTC · to all · `loop schedule show|pause|resume|snooze|wake|update` and `loop steer <lane> "text" [--standing] [--author]` are on main (commit `Lane: control`, `--no-commit`, `--no-push`). `loop schedule update --lane <you>` applies only your own backoff and commits `Lane: <you>`; `show --json` is `ScheduleReport` (src/cli/schedule.ts). kit/lanes: you can switch step 8 of lane-run to it (control owns that file).
 2026-10-13 02:30 UTC · to server, web · schedule and steer parsers are on main (import from `src/core/parse/index.js`): `parseSchedule`, `formatSchedule`, `isDue`, `notDueReason` ('paused'|'sleeping'|'snoozed'), `applyBackoff(runs, entry, now)`, `wakeReasons`, `wakeEntry`, and `parseSteer` (entries with `ack`), `unacknowledged`, `steerOrder`, `addSteerEntry(fileText, {at,author,scope,text})` for prefilled GitHub URLs. Types `Schedule`, `ScheduleEntry`, `SteerEntry` are in src/core/types.ts. `loop schedule`/`loop steer` CLI comes next.
 
 

@@ -1,7 +1,7 @@
 # Lane: core — round 5 (0.5.0 "Cockpit")
 
 Run: 1 / 20
-Status: in progress (units 1-2 done)
+Status: in progress (units 1-3 done)
 Round 4 record: `.ai/lanes/core/done-v4.md` (`git show 02874e8:.ai/lanes/core/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
@@ -39,4 +39,5 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
-Run 1 shipped units 1-2 (audit; parsers in `src/core/parse/schedule.ts` and `steer.ts`, tests in `tests/unit/core/schedule.test.ts`). Next: unit 3 `loop schedule` / `loop steer` CLI (src/cli, uses `applyBackoff`, `wakeReasons`, `addSteerEntry`; commit trailer `Lane: control`; look at src/cli/pause.ts for the git pattern). Sandbox note: origin main was not fast-forwardable at start, run used branch `lane-run` and `git push origin HEAD:main`.
+Run 1 shipped units 1-3: audit; parsers (`src/core/parse/schedule.ts`, `steer.ts`); CLI `loop schedule show|pause|resume|snooze|wake|update [--lane X] [--new-round]` and `loop steer` (`src/cli/schedule.ts`, tests in `tests/unit/cli/schedule.test.ts`). Next: unit 4 `classifyRunSlots` (B3) in `src/core/parse/runs.ts` or a new file, replacing phantom slots in `src/cli/runs.ts`; inputs: lanes, runs, schedule, paused, doneFiles, now. Then unit 5 (lintBrief A9, rounds A5), unit 6 `next-round --draft`.
+Notes: `update --lane X` is what lanes should run at step 8 (commits `Lane: X`; check-lanes may need `.ai/schedule.json` allowed for lanes: unit 7). A manual `wake` stays until the lane logs a run. Sandbox: origin main was not fast-forwardable at start; branch `lane-run`, push `origin HEAD:main`.

@@ -6,7 +6,7 @@ import { formatPaused, PAUSED_FILE, parsePaused, type Paused } from '../core/par
 import { CONTROL_LANE } from '../core/lanes.js';
 
 const execFileAsync = promisify(execFile);
-const git = (cwd: string, ...args: string[]) => execFileAsync('git', args, { cwd });
+export const git = (cwd: string, ...args: string[]) => execFileAsync('git', args, { cwd });
 
 export interface PauseOptions {
   /** Who pauses; defaults to `git config user.name`. */
@@ -34,7 +34,7 @@ export async function readPaused(dir: string): Promise<Paused | undefined> {
   return text === undefined ? undefined : parsePaused(text);
 }
 
-async function pushIfWanted(dir: string, result: PauseResult, push: boolean | undefined): Promise<void> {
+export async function pushIfWanted(dir: string, result: Pick<PauseResult, 'pushed' | 'pushError'>, push: boolean | undefined): Promise<void> {
   if (push === false) return;
   try {
     try {
@@ -53,7 +53,7 @@ async function pushIfWanted(dir: string, result: PauseResult, push: boolean | un
 }
 
 /** The dashboard writes PAUSED on GitHub, so look at the remote first. Offline or without a remote, the local view stands. */
-async function syncFirst(dir: string, push: boolean | undefined): Promise<void> {
+export async function syncFirst(dir: string, push: boolean | undefined): Promise<void> {
   if (push === false) return;
   await git(dir, 'pull', '--rebase', '--autostash', '-q').catch(() => undefined);
 }
