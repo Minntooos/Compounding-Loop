@@ -132,4 +132,8 @@ describe('buildRuns with schedule.json (A2)', () => {
     expect(buildRuns({ lanes, logs: {}, commits: known, now: NOW, paused: {} }).routinesLookOff).toBe(false);
     expect(buildRuns({ lanes, logs: {}, commits: known, now: NOW, schedule: sleeping }).routinesLookOff).toBe(false);
   });
+
+  it('a finished or stopped lane never raises routinesLookOff', () => {
+    expect(buildRuns({ lanes: [{ name: 'core', cron: '0 * * * *', stopped: true }], logs: {}, commits: known, now: NOW }).routinesLookOff).toBe(false);
+  });
 });

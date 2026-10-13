@@ -50,7 +50,7 @@ function notDueSlots(input: RunsInput, from: Date): { skipped: Map<string, Set<s
   const commits = new Map<string, Date[]>();
   for (const c of input.commits) if (c.lane) commits.set(c.lane, [...(commits.get(c.lane) ?? []), new Date(c.at)]);
   const classified = classifyRunSlots({
-    lanes: input.lanes, runs, schedule: input.schedule ?? { version: 1, lanes: {} }, paused: false, rootDone: false, laneDone: new Set(), now: input.now, from, commits,
+    lanes: input.lanes, runs, schedule: input.schedule ?? { version: 1, lanes: {} }, paused: false, rootDone: input.lanes.length > 0 && input.lanes.every((l) => l.stopped), laneDone: new Set(input.lanes.filter((l) => l.stopped).map((l) => l.name)), now: input.now, from, commits,
   });
   const skipped = new Map(classified.lanes.map((l) => [l.lane, new Set(l.slots.filter((s) => s.kind === 'not-due').map((s) => s.slot))] as const));
   return { skipped, routinesLookOff: !input.paused && classified.routinesLookOff };

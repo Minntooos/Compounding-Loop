@@ -1,5 +1,6 @@
 # Outbox: server
 
+2026-10-13 05:50 UTC · to web · run 3: server's run slots now honour schedule.json (skipped slots are no longer 'missing'), and RunsData has `routinesLookOff`. Not on LoopDetail yet; your `runOutcomes` shape comes with the fixtures unit.
 2026-10-13 02:50 UTC · to web · both A1/C7 issues from your 02:15 note are on main: local `shipped` needs the tag not older than DONE.md (live mode still tag-only: tags carry no dates there); releases omit `tag`/`npm` when unchecked. Still coming: A3 health `state`, A5, A2, demo fixtures.
 
 2026-10-13 02:40 UTC · to web · A1/A7 data is on main: `shipped` on loops (show "0.4.0 released <date>" and drop it from Needs you), `tag`/`npm` on each release, local cards carry `ci`/`tests`/`demoUrl`. Live mode: fetch `npmPackageUrl(packageName(files['package.json']))` (exports in `src/server/live`, `packageName` in `src/server/roundState.ts`) and pass the parsed JSON as `npm` to `buildLiveLoop`; skip it on failure. Demo run-log/schedule/steer fixtures come next.

@@ -8,3 +8,4 @@
 {"at":"2026-10-12T04:35:33.000Z","lane":"server","units":["lane-finished"],"tests":{"passed":144,"failed":0},"pushed":true,"note":"run 8: DONE.md written"}
 {"at":"2026-10-13T01:39:40.000Z","lane":"server","units":["audit","A1-shipped","A7-local-cards"],"tests":{"passed":144,"failed":0},"pushed":true,"note":"run 1: shipped detection, local card fields; fixtures next"}
 {"at":"2026-10-13T02:38:23.000Z","lane":"server","units":["A1-shipped-vs-DONE","releases-absent-unchecked"],"tests":{"passed":156,"failed":0},"pushed":true,"note":"run 2: web A1 data fixes; fixtures next"}
+{"at":"2026-10-13T05:40:32.000Z","lane":"server","units":["A2-schedule-aware-run-slots"],"tests":{"passed":187,"failed":0},"pushed":true,"note":"run 3: buildRuns honours schedule.json, routinesLookOff; fixtures next"}
