@@ -1,7 +1,7 @@
 # Lane: web — round 5 (0.5.0 "Cockpit")
 
-Run: 0 / 20
-Status: not started
+Run: 1 / 20
+Status: in progress (unit 1)
 Round 4 record: `.ai/lanes/web/done-v4.md` (`git show 02874e8:.ai/lanes/web/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 

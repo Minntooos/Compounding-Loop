@@ -1,5 +1,32 @@
 # Audit: web
 
+## Round 5 (2026-10-13): the cockpit (glance, steer, sleep)
+
+Method: read IDEA.md Round 5 A and C against `web/src` on a fresh pull (`npm test` green: 144 e2e passed, 30 skipped by design), starting from the afa659e design review and the owner's P0 list. Judged as a senior product designer would: can the owner answer the five 5-second questions (anything need me? running or stalled? limit stops? CI? ready to ship?) from the home screen alone? Today: no. The fleet card answers "needs you" and CI only; "running", "limit stops" and "shipped" are not shown anywhere at a glance, and there is no way to steer without a chat.
+
+### Blockers
+| # | Finding | Evidence | Fix |
+|---|---|---|---|
+| R5-1 | A4: the banner says 2 while the Inbox badge says 1. A release that is waiting is an inbox item (`kind: 'release'`) **and** adds 1 again through `releaseWaiting` | `web/src/lib/lanes.ts` `needsYouCount` (only blocked lanes are de-duplicated); `web/src/App.tsx` badge = `inbox.length` | one `attentionItems(loops, inbox)` list; banner, nav badge and (later) the status strip and Needs-you rows all read it |
+| R5-2 | A1: a shipped release still reads "waiting on you": `releaseWaiting` is true for any done laned loop, ignoring server's new `LoopSummary.shipped` | `lanes.ts releaseWaiting` | shipped → "0.4.0 released <date>" on the card, no attention item |
+| R5-3 | A3: Health shows "OK" for checks that were never measured (two states only) | `web/src/components/Health.tsx` `c.ok ? 'OK' : 'Failing'` | three states pass / fail / not checked (grey + how to check); needs a "not measured" signal from server (`HealthCheck.ok` is boolean): ask server, derive from `proof`/`reason` until then |
+| R5-4 | No cockpit: no status strip (C1), no Needs-you rows with inline actions (C2), no heat map (C3), no steer composer (C4), no schedule controls (C5) | `web/src` has none of them | units 3-5, DESIGN.md first |
+
+### Major
+| # | Finding | Evidence | Fix |
+|---|---|---|---|
+| R5-5 | A4: Tests tab prints "Sun 11 Oct 14:53 UTC UTC" | `TestsTab.tsx` `stamp` appends " UTC" to `timeUtc`, which already ends in " UTC" | drop the second suffix; unit test on the stamp |
+| R5-6 | A6: at 375 px the main nav and the loop tab bar are clipped mid-word ("Settin", "Contrac") with no hint that they scroll; the active tab can sit off screen | `App.tsx` nav and `LoopDetail.tsx` tablist: `overflow-x-auto`, no fade, no `scrollIntoView` | edge fade while more content exists, active tab scrolled into view; e2e asserts every tab label is fully visible or reachable and the active one in view |
+| R5-7 | A8: the loop header repeats the round ("Round 5/5" next to the card's round label) and shows "Round N/M" instead of server's `roundLabel` | `LoopDetail.tsx:90` | show `roundLabel` once |
+| R5-8 | A8: "Release is off: Tests pass: no result" (two colons in one sentence) | `web/src/lib/controls.ts releaseBlocker` returns `label: detail` and `ControlBar.tsx:92` prefixes "Release is off:" | "Release is off until <label lower> (<detail>)." |
+| R5-9 | A7: local fleet cards render CI/tests/domain only in demo mode | `web/src/lib/card.ts` rows; server now fills `ci`, `tests`, `demoUrl` locally (server outbox 02:40) | render the same rows from the summary in both modes; e2e on a local-mode fixture |
+| R5-10 | C7: Releases list shows CHANGELOG only; no tag or npm state, and "Ready to ship" shows even when shipped | `ReleasesTab.tsx`, `ShipPanel.tsx` | tag + npm chips per version (server's `LoopRelease.tag/npm`), hide Ready-to-ship once `shipped` |
+
+### Minor
+- Live mode does not fetch npm yet (server outbox 02:40: `npmPackageUrl(packageName(...))` → `buildLiveLoop({npm})`); the static CSP already allows the registry (server).
+- The demo has no run-log, schedule or steer fixtures yet (server unit 3); web uses Playwright-routed fixtures until then.
+- Phantom "no run recorded" slots (A2) are core/server's classifier; web only renders the outcome it gets.
+
 ## Round 4 (2026-10-11): the dashboard tells the truth and replaces the chat
 
 Method: read IDEA.md Round 4 A/C/D against the code on a fresh pull (`npm test` green, 122 e2e). Regression tests were added with the fix in the same commit (not failing-first, noted honestly).
