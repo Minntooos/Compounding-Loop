@@ -203,6 +203,10 @@ export interface HealthCheck {
   proof: string;
   /** The check's result in words ("Tests pass", "Tests failing"), not its name; added by the server lane, Round 4. */
   label?: string;
+  /** pass, fail, or unchecked (never measured: `ok` stays true so it raises no alarm); added by the server lane, Round 5 A3. */
+  state?: 'pass' | 'fail' | 'unchecked';
+  /** For an unchecked check: the command or file that makes it measurable. */
+  howToCheck?: string;
 }
 
 /** The whole demo dataset, as written to `demo/five-sites.json`. */

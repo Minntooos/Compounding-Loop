@@ -1,6 +1,6 @@
 # Lane: server — round 5 (0.5.0 "Cockpit")
 
-Run: 8 / 20
+Run: 9 / 20
 Status: units 1-5 + web's run-kind ask done (… + draft-brief SSE, web's routinesLookOff ask); next: unit 7 pace routes, demo self lane states, A3, A5
 Round 4 record: `.ai/lanes/server/done-v4.md` (`git show 02874e8:.ai/lanes/server/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
@@ -41,6 +41,7 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
+Run 9: A3 done: `HealthCheck.state`/`howToCheck` (checkLabels.ts withLabel sets state; 3 unmeasured checks are `unchecked`), contracts + outbox to web. A5 live blocked on core (outbox ask: move countRounds to src/core/parse; then fetch IDEA.md in live/urls.ts BASE_FILES and use it). web's `kind` ask was already done in run 7. Next: live pace + live draftInputs, abortableClaude unit test, demo self building flip once web updates its e2e (see run 8), audit minors.
 Run 8: web's two asks done: `LoopDetail.draftInputs` (local: src/server/draftInputs.ts mirrors core's gatherDraftPrompt; demo self: cockpit-fixture DRAFT_INPUTS) and draft-brief aborts `claude` when the SSE client stops (src/server/claude.ts abortableClaude; projectsSource takes an AbortableClaude). Tried: flipping the demo self loop to Round 5 building (lane states, snapshotAt 13 Oct) broke 7 web e2e tests (fleet/lanes/screens/cockpit expect done), reverted; web must update those first, then add `cockpitLoop(lanes)` (state building, round 5, lanes building, snapshotAt FIXTURE_NOW). Next: that, A3 HealthCheck.state, A5 countRounds in urls.ts, live pace + live draftInputs, abortableClaude unit test.
 Run 7 (later): unit 7 done: LoopDetail.pace, POST …/pace (parsePaceBody, LoopControls.pace via runPaceSet), paceEditUrl/paceEditText, demo pace fixture patched into demo/this-repo.json (build-self.mjs cannot run on a shallow clone; patch the cockpit keys via cockpitFixture()). Not done: live mode does not fetch policy.json (pace absent in live). Next: demo self lane states + snapshotAt (web ask), A3 HealthCheck.state, A5 countRounds in urls.ts, audit minors, live pace.
 Run 7: web's two asks done: `RunOutcomes.paused`, `LoopRun.kind` + quiet (not-due/paused/done) slots of last 24 h kept in runs (contracts, outbox warn web to filter by kind; lastRunOf skips them; MAX_RUNS 400). Reviewer: web silentLanes/RunsTab read `outcome` only (web's to fix). Known: PAUSED w/o timestamp marks all unrecorded slots paused. Next: unit 7 pace routes (GET/POST …/pace via core's paceFor/`loop pace`, demo snapshot with a lane override, policy.json URL builder), demo self lane states + snapshotAt, demo fixture kind, A3, A5.

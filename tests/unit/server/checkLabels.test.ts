@@ -54,3 +54,22 @@ describe('where labels and formatted times are applied', () => {
     expect(checks[0]).toMatchObject({ kind: 'failing-tests', ok: false, label: 'Tests failing', proof: 'CI at 11 Oct 14:53 UTC' });
   });
 });
+
+describe('three-state checks (Round 5 A3: never-measured checks are "not checked", not OK)', () => {
+  it('derives pass/fail from ok and keeps an explicit unchecked', () => {
+    expect(withLabel({ kind: 'leak', ok: true }).state).toBe('pass');
+    expect(withLabel({ kind: 'leak', ok: false }).state).toBe('fail');
+    const unchecked = withLabel({ kind: 'failing-tests', ok: true, state: 'unchecked' as const });
+    expect(unchecked.state).toBe('unchecked');
+    expect(unchecked.label).toBe('Not checked');
+  });
+
+  it('marks the checks with nothing to measure as unchecked, with how to check', async () => {
+    const { failingTestsCheck, shortRunsCheck, leakCheck } = await import('../../../src/server/health.js');
+    for (const c of [failingTestsCheck(undefined), shortRunsCheck([]), leakCheck('[build]\n')]) {
+      expect(c.state).toBe('unchecked');
+      expect(c.howToCheck).toBeTruthy();
+    }
+    expect(failingTestsCheck({ passed: 3, failed: 0 } as never).state).toBeUndefined();
+  });
+});

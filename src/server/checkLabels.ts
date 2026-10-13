@@ -26,7 +26,13 @@ export function formatUtc(iso: string | Date): string {
   return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${two(d.getUTCHours())}:${two(d.getUTCMinutes())} UTC`;
 }
 
-/** Adds the result-stating `label` to a check (with or without its `loopId`); an existing label is kept. */
-export function withLabel<T extends { kind: HealthCheck['kind']; ok: boolean; label?: string }>(check: T): T & { label: string } {
-  return { ...check, label: check.label ?? checkLabel(check.kind, check.ok) };
+/** The three-way result: an explicit `state` wins, else it follows `ok`. */
+export function checkState(check: { ok: boolean; state?: NonNullable<HealthCheck['state']> }): NonNullable<HealthCheck['state']> {
+  return check.state ?? (check.ok ? 'pass' : 'fail');
+}
+
+/** Adds the result-stating `label` and the `state` to a check (with or without its `loopId`); an existing label is kept. */
+export function withLabel<T extends { kind: HealthCheck['kind']; ok: boolean; label?: string; state?: NonNullable<HealthCheck['state']> }>(check: T): T & { label: string; state: NonNullable<HealthCheck['state']> } {
+  const state = checkState(check);
+  return { ...check, state, label: check.label ?? (state === 'unchecked' ? 'Not checked' : checkLabel(check.kind, check.ok)) };
 }

@@ -26,7 +26,7 @@ export function leakCheck(netlifyToml: string | undefined): Check {
   if (netlifyToml === undefined) return { kind: 'leak', ok: true, reason: 'no netlify.toml: nothing is published by this repo', proof: 'netlify.toml not found' };
   const publish = /^\s*publish\s*=\s*["']([^"']*)["']/m.exec(netlifyToml)?.[1];
   // Only an explicit root counts: a missing publish may be set in the Netlify UI, so it is unknown, not a leak.
-  if (publish === undefined) return { kind: 'leak', ok: true, reason: 'netlify.toml sets no publish folder (unknown)', proof: 'publish not set in netlify.toml' };
+  if (publish === undefined) return { kind: 'leak', ok: true, reason: 'netlify.toml sets no publish folder (unknown)', proof: 'publish not set in netlify.toml', state: 'unchecked', howToCheck: 'Set `publish` in netlify.toml (or check the Netlify site settings) to a folder that is not the repo root' };
   const root = ['', '.', './', '/'].includes(publish.trim());
   return root
     ? { kind: 'leak', ok: false, reason: 'netlify.toml publishes the repo root, so .ai/ and CLAUDE.md are public', proof: `publish = ${JSON.stringify(publish)}` }
@@ -111,7 +111,7 @@ export function parseRunLog(text: string): RunRecord[] {
 
 /** Short runs: the last few runs all ended within seconds, the signature of a rate-limited account. */
 export function shortRunsCheck(runs: readonly RunRecord[]): Check {
-  if (runs.length === 0) return { kind: 'short-runs', ok: true, reason: 'no run log yet', proof: '.ai/runs.jsonl not found or empty (`loop run` writes it)' };
+  if (runs.length === 0) return { kind: 'short-runs', ok: true, reason: 'no run log yet', proof: '.ai/runs.jsonl not found or empty (`loop run` writes it)', state: 'unchecked', howToCheck: 'Run the loop with `loop run`; it writes .ai/runs.jsonl' };
   const recent = runs.slice(-SHORT_RUN_STREAK);
   const seconds = recent.map((r) => (r.endedAt.getTime() - r.startedAt.getTime()) / 1000);
   const failing = recent.length === SHORT_RUN_STREAK && seconds.every((s) => s < SHORT_RUN_SECONDS);
@@ -139,7 +139,7 @@ export function parseTestRecord(text: string): TestRecord | undefined {
 }
 
 export function failingTestsCheck(record: TestRecord | undefined): Check {
-  if (!record) return { kind: 'failing-tests', ok: true, reason: 'no test result recorded yet', proof: '.ai/last-test.json not found (the template `npm test` writes it; commit it)' };
+  if (!record) return { kind: 'failing-tests', ok: true, reason: 'no test result recorded yet', proof: '.ai/last-test.json not found (the template `npm test` writes it; commit it)', state: 'unchecked', howToCheck: 'Run `npm test` with the template script and commit .ai/last-test.json' };
   return {
     kind: 'failing-tests',
     ok: record.failed === 0,
