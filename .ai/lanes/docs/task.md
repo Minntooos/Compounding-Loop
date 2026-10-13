@@ -1,7 +1,7 @@
 # Lane: docs — round 5 (0.5.0 "Cockpit")
 
-Run: 2 / 20
-Status: units 1-3 done (run 1); 4-6 remain
+Run: 3 / 20
+Status: DONE (run 3)
 Round 4 record: `.ai/lanes/docs/done-v4.md` (`git show 02874e8:.ai/lanes/docs/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
@@ -42,3 +42,4 @@ Run 1 shipped units 1-3 (audit, docs/steering.md incl. pace, dashboard.md contro
 Note: pull in run 1 diverged from origin, so I worked on branch `lane-run` and pushed with `git push origin HEAD:main`.
 
 Run 2: unit 4 done (web's final screenshots copied to docs/assets/screens, all <400 kB; dashboard.md push-failure and "Round N may have started" wording; x-thread mentions steering/idle-for-free). Remaining: fresh-install test from packed tarball, recheck labels; DONE only after web is DONE (core, kit done).
+Run 3: refreshed fleet screenshots from web's final set, verified packed-tarball commands, wrote DONE.md.
