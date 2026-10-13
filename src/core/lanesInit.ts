@@ -13,6 +13,12 @@ export interface LaneTemplates {
   task: string;
   outbox: string;
   controlRoom: string;
+  /** Round 5 loop state: the run procedure, written once to `.ai/lane-run.md` and `.ai/control-run.md`. */
+  laneRun: string;
+  controlRun: string;
+  /** `.ai/schedule.json` (a lane missing from it is due) and the per-lane `steer.md`. */
+  schedule: string;
+  steer: string;
   /** The lane section merged into CLAUDE.md between markers. */
   claudeSection: string;
 }
@@ -50,6 +56,19 @@ Newest first. Format: \`YYYY-MM-DD HH:MM UTC · to <lane|all> · message\`.
   controlRoom: `# Control room notes
 
 Written only by the control room routine. Every lane reads it at the start of a run. Newest first. Format: \`YYYY-MM-DD HH:MM UTC · to <lane|all> · message\`.
+`,
+  laneRun: `# Lane run procedure
+
+Stop at once, without committing, when \`.ai/PAUSED\` exists, root or lane \`DONE.md\`/\`BLOCKED.md\` exists, or your lane is paused, sleeping or before its \`notBefore\` in \`.ai/schedule.json\`. Otherwise read the other lanes' outboxes and your \`steer.md\`, take the next unit from your task file, run the checks, commit with a \`Lane: <lane>\` trailer, push, and append a line to \`.ai/lanes/<lane>/runs.jsonl\`.
+`,
+  controlRun: `# Control room run procedure
+
+Stop when \`.ai/PAUSED\` or root \`DONE.md\` exists. Otherwise read every lane's task file, outbox and run log, write what you find to \`.ai/control-room.md\`, and commit with a \`Lane: control\` trailer.
+`,
+  schedule: '{\n  "version": 1,\n  "lanes": {}\n}\n',
+  steer: `# Steering for the {{lane}} lane
+
+Notes from the owner or a teammate, newest first. Entry format: \`## YYYY-MM-DD HH:MM UTC · <author> · next-run|standing\`, then the text. The lane adds one line under each entry it has read: \`→ done in run N\` or \`→ not done: <why>\`.
 `,
   claudeSection: `## Lanes
 
@@ -141,8 +160,12 @@ export function planLanes({ config, newLanes, templates, existing, force }: Lane
     const vars = { lane: name, owns: lane ? lane.owns.join(', ') : '', lanes: config.lanes.map((l) => l.name).join(', ') };
     state(`.ai/lanes/${name}/task.md`, fillPlaceholders(templates.task, vars));
     state(`.ai/lanes/${name}/outbox.md`, fillPlaceholders(templates.outbox, vars));
+    state(`.ai/lanes/${name}/steer.md`, fillPlaceholders(templates.steer, vars));
   }
   state('.ai/control-room.md', templates.controlRoom);
+  state('.ai/lane-run.md', templates.laneRun);
+  state('.ai/control-run.md', templates.controlRun);
+  state('.ai/schedule.json', templates.schedule);
 
   const section = fillPlaceholders(templates.claudeSection, { lanes: config.lanes.map((l) => l.name).join(', ') });
   // AGENTS.md is merged only when the repo already has one; CLAUDE.md is always installed.

@@ -7,7 +7,7 @@ import { packageRoot } from './init.js';
 
 const readIfExists = (file: string) => readFile(file, 'utf8').catch(() => undefined);
 
-/** Reads `templates/lanes/{task,outbox,control-room,claude-section}.md` from the package, with built-in fallbacks. */
+/** Reads `templates/lanes/{task,outbox,steer,control-room,lane-run,control-run,claude-section}.md and schedule.json` from the package, with built-in fallbacks. */
 export async function loadLaneTemplates(root: string = packageRoot): Promise<{ templates: LaneTemplates; missing: string[] }> {
   const missing: string[] = [];
   const read = async (name: string, fallback: string) => {
@@ -19,6 +19,10 @@ export async function loadLaneTemplates(root: string = packageRoot): Promise<{ t
     task: await read('task.md', FALLBACK_LANE_TEMPLATES.task),
     outbox: await read('outbox.md', FALLBACK_LANE_TEMPLATES.outbox),
     controlRoom: await read('control-room.md', FALLBACK_LANE_TEMPLATES.controlRoom),
+    laneRun: await read('lane-run.md', FALLBACK_LANE_TEMPLATES.laneRun),
+    controlRun: await read('control-run.md', FALLBACK_LANE_TEMPLATES.controlRun),
+    schedule: await read('schedule.json', FALLBACK_LANE_TEMPLATES.schedule),
+    steer: await read('steer.md', FALLBACK_LANE_TEMPLATES.steer),
     claudeSection: await read('claude-section.md', FALLBACK_LANE_TEMPLATES.claudeSection),
   };
   return { templates, missing };
@@ -47,7 +51,7 @@ export async function runAddLanes(
   const config = addLanes(existing, fresh.map((l, i) => ({ ...l, cron: l.cron ?? staggeredCron((existing?.lanes.length ?? 0) + i) })));
   const { templates, missing } = await loadLaneTemplates(root);
   const current = new Map<string, string>();
-  const dests = ['.ai/lanes.json', '.ai/control-room.md', 'CLAUDE.md', 'AGENTS.md', ...additions.flatMap((l) => [`.ai/lanes/${l.name}/task.md`, `.ai/lanes/${l.name}/outbox.md`])];
+  const dests = ['.ai/lanes.json', '.ai/control-room.md', '.ai/lane-run.md', '.ai/control-run.md', '.ai/schedule.json', 'CLAUDE.md', 'AGENTS.md', ...additions.flatMap((l) => [`.ai/lanes/${l.name}/task.md`, `.ai/lanes/${l.name}/outbox.md`, `.ai/lanes/${l.name}/steer.md`])];
   for (const dest of dests) {
     const text = await readIfExists(path.join(target, ...dest.split('/')));
     if (text !== undefined) current.set(dest, text);

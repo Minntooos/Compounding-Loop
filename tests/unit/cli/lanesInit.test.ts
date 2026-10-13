@@ -22,6 +22,8 @@ describe('lanes init', () => {
     expect(first.actions.filter((a) => a.kind !== 'skip').length).toBeGreaterThan(5);
     const config = JSON.parse(await read('.ai/lanes.json')) as { lanes: { cron: string }[] };
     expect(config.lanes.map((l) => l.cron)).toEqual(['7 * * * *', '19 * * * *']);
+    for (const file of ['.ai/lane-run.md', '.ai/control-run.md', '.ai/schedule.json', '.ai/lanes/api/steer.md']) expect((await read(file)).length).toBeGreaterThan(0);
+    expect(first.missing).toEqual([]);
     await writeFile(path.join(dir, '.ai', 'lanes', 'api', 'task.md'), 'my progress');
     const second = await runAddLanes(dir, lanes, { force: true, dryRun: false, existingOk: true });
     expect(second.actions.every((a) => a.kind === 'skip')).toBe(true);
