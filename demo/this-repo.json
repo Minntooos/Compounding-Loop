@@ -2533,7 +2533,8 @@
       "pace": "balanced",
       "overrides": {
         "web": "careful"
-      }
+      },
+      "note": "control room set web to careful: CI red twice in 24 h"
     },
     "draftInputs": {
       "name": "compounding-loop",

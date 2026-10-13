@@ -9,7 +9,8 @@ import { runLaneRound } from '../cli/laneRound.js';
 import { runPause, runResume } from '../cli/pause.js';
 import { readPolicy, runPaceSet } from '../cli/pace.js';
 import { runScheduleAction, runSteer } from '../cli/schedule.js';
-import { paceFor } from '../core/parse/policy.js';
+import { paceFor, POLICY_FILE } from '../core/parse/policy.js';
+import { policyNote } from './paceNote.js';
 import { readLaneStatuses } from '../cli/laneStatus.js';
 import { lintBrief } from '../core/brief.js';
 import { draftClaudeArgs } from '../core/draftBrief.js';
@@ -74,7 +75,8 @@ function pausedInfo(text: string): NonNullable<LoopSummary['paused']> {
 
 async function paceState(dir: string): Promise<NonNullable<LoopDetail['pace']>> {
   const policy = await readPolicy(dir);
-  return { pace: policy.pace, overrides: Object.fromEntries(Object.keys(policy.lanes).map((lane) => [lane, paceFor(policy, lane)])) };
+  const note = policyNote(await readOptional(path.join(dir, POLICY_FILE)));
+  return { pace: policy.pace, overrides: Object.fromEntries(Object.keys(policy.lanes).map((lane) => [lane, paceFor(policy, lane)])), ...(note && { note }) };
 }
 
 async function readRuns(dir: string, lanes: readonly LaneStatus[], lanesJson: string | undefined, timeline: readonly LoopCommit[], now: Date, hasDone = false) {

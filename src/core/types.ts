@@ -163,7 +163,7 @@ export interface LoopDetail extends LoopSummary {
   /** `.ai/schedule.json` as parsed (loops with lanes; absent when the file is). */
   schedule?: Schedule;
   /** `.ai/policy.json`: the loop's pace and each lane's override (server lane, Round 5; local and demo loops with lanes). */
-  pace?: { pace: Pace; overrides: Record<string, Pace> };
+  pace?: { pace: Pace; overrides: Record<string, Pace>; /** Why the control room last changed it (`reason` in policy.json). */ note?: string };
   /** Idle runs at the end of each lane's run log (the backoff counts these). */
   idleRuns?: Record<string, number>;
   /** Each lane's `.ai/lanes/<lane>/steer.md` entries, file order (newest first); lanes with a steer file only. */

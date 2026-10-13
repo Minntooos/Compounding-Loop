@@ -112,7 +112,7 @@ export function cockpitFixture() {
     idleRuns: data.idleRuns,
     schedule: SCHEDULE,
     // One lane override so the pace UI shows both a loop default and an exception.
-    pace: { pace: 'balanced', overrides: { web: 'careful' } },
+    pace: { pace: 'balanced', overrides: { web: 'careful' }, note: 'control room set web to careful: CI red twice in 24 h' },
     steer: data.steer,
     draftInputs: DRAFT_INPUTS,
     ...(newest && { lastRun: { lane: newest.lane, at: newest.at, outcome: newest.outcome } }),

@@ -60,6 +60,13 @@ describe('live file list', () => {
     expect(detail.pace).toEqual({ pace: 'fast', overrides: { core: 'careful' } });
     expect(buildLiveLoop({ slug: 'o/n', commits: [], runs: {}, now: NOW, files: { '.ai/lanes.json': lanesJson } }).detail.pace).toBeUndefined();
   });
+
+  it('carries the control room reason from policy.json as pace.note', () => {
+    const lanesJson = JSON.stringify({ lanes: [{ name: 'core', owns: ['src/**'] }] });
+    const policy = JSON.stringify({ version: 1, pace: 'balanced', reason: 'control room set pace to balanced: CI red twice in 24 h', lanes: {} });
+    const { detail } = buildLiveLoop({ slug: 'o/n', commits: [], runs: {}, now: NOW, files: { '.ai/lanes.json': lanesJson, '.ai/policy.json': policy } });
+    expect(detail.pace?.note).toBe('control room set pace to balanced: CI red twice in 24 h');
+  });
 });
 
 describe('routines look off', () => {

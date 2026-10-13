@@ -13,6 +13,7 @@ import { latestFinishedRun, mapCommits, mapRuns, type LiveCommit } from './githu
 import { packageVersion, releaseInboxItem, roundState } from '../roundState.js';
 import { buildRuns, lastRunOf, silentLanesItem } from '../runs.js';
 import { annotateReleases, isShipped, npmStateOf, parseNpmPackage } from '../shipped.js';
+import { policyNote } from '../paceNote.js';
 import { mergeCommits } from './merge.js';
 import { countRoundFiles } from './urls.js';
 
@@ -173,7 +174,7 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
     ...(pausedText !== undefined && { paused: pausedInfo(pausedText) }),
     ...(notes.length > 0 && { controlNotes: notes }),
     ...(changelogText !== undefined && { releases: annotateReleases(parseChangelog(changelogText), input.tags === undefined ? undefined : tags, npm) }),
-    ...(policy && { pace: { pace: policy.pace, overrides: Object.fromEntries(Object.keys(policy.lanes).map((lane) => [lane, paceFor(policy, lane)])) } }),
+    ...(policy && { pace: { pace: policy.pace, overrides: Object.fromEntries(Object.keys(policy.lanes).map((lane) => [lane, paceFor(policy, lane)])), ...(policyNote(policyText) && { note: policyNote(policyText) }) } }),
     ...(ship && { ship }),
     ...(lastRun && { lastRun }),
     ...(runsData && { runs: runsData.runs.slice(0, MAX_RUNS), nextRuns: runsData.nextRuns, runOutcomes: runsData.outcomes, idleRuns: runsData.idleRuns, ...(schedule && { schedule }), ...(runsData.steer.length > 0 && { steer: runsData.steer }) }),
