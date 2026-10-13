@@ -24,6 +24,7 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 4. Routes (B6) on top of core's commands as they land: `GET …/schedule`, `POST …/steer`, `POST …/schedule`, run outcomes from `classifyRunSlots`. Static demo: pure prefilled-GitHub-URL builders for steer and schedule edits.
 5. `POST …/draft-brief`: SSE progress from `next-round --draft`, ending with the draft and its score; a fake `claude` in tests.
 6. Audit majors, then minors.
+7. Pace (IDEA.md B7): `GET/POST …/pace` through core's `loop pace`, pace in the demo snapshot (one lane override), and the prefilled GitHub URL builder for `.ai/policy.json`.
 
 ## Decisions
 - Shipped = tag exists and (npm unreadable or npm latest == version). Local mode never calls npm (works offline). A shipped loop drops `ship` and the release inbox item; `shipped` carries version/date/npm.

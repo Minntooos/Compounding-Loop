@@ -23,6 +23,7 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 3. `docs/dashboard.md` for every new control; README "Glance, steer, sleep"; CHANGELOG `[Unreleased]`.
 4. Swap in web's new screenshots; `launch/` drafts mention steering and idle-for-free.
 5. Audit majors, then minors. Write DONE only after web and core are DONE, so the docs match what shipped.
+6. Pace in `docs/steering.md` and `docs/dashboard.md` (IDEA.md B7, C9).
 
 ## Decisions
 

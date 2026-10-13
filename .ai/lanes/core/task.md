@@ -24,6 +24,7 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 5. `lintBrief` understands round briefs (A9). Fix A5 (count rounds from the brief or headings, not from `done-vN.md` names) where the parser lives.
 6. `loop next-round --draft [--out] [--print-prompt]` (B4) through the existing `runPrompt`; the prompt builder is a pure, tested function.
 7. Audit majors, then minors.
+8. Pace (IDEA.md B7): browser-safe `parsePolicy` + `paceFor(lane)`, `loop pace show|set`, and `loop init --lanes` writes `.ai/policy.json` (ask kit for the template text; until kit wakes, use `{"version":1,"pace":"balanced","lanes":{}}`).
 
 ## Decisions
 - `applyBackoff` leaves the entry unchanged when the newest run had units (no invented wake-up) and never touches a paused entry. `wakeReasons` takes pre-parsed messages `{at,to[]}` so outbox and control-room notes share it.

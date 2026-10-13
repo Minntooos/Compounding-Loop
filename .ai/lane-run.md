@@ -9,6 +9,7 @@ Every lane routine's prompt names its lane `<lane>` and says "follow `.ai/lane-r
    - in `.ai/schedule.json`, your lane's entry has `paused: true`, `sleeping: true`, or a `notBefore` later than now → "Not due". A missing file or a missing entry means due.
 2. Run `npm install`, then `npx playwright install chromium`. If the download is blocked or Chrome won't launch, see "Commands" in CLAUDE.md.
 3. Read `.ai/control-room.md` and every other lane's `.ai/lanes/*/outbox.md` for messages to `<lane>` or all. Read `.ai/lanes/<lane>/steer.md` (if it exists): the entries with no `→` line under them are this run's steering. `next-run` entries are done before anything else in step 4. `standing` entries apply to everything you do until the owner removes them. Run the resume protocol (.ai/method.md section 9.2) on your task file and add 1 to its run counter. If the counter has reached its limit, follow "Run budget" in CLAUDE.md.
+   **Pace:** read `.ai/policy.json` (your lane's `pace` overrides the global one; missing file = `balanced`) and apply that preset from IDEA.md Round 5 B7 to the tests in steps 4-5, the reviewer in step 5 and the run length in step 6. Never push with a failing check you ran, whatever the pace.
 4. Run `npm test` on the fresh pull. If it fails, fixing it is your first unit ("main stays green" in CLAUDE.md). Otherwise take the next unit in this order:
    1. an unacknowledged `next-run` steer entry;
    2. a message addressed to you that another lane is waiting on;
@@ -17,7 +18,7 @@ Every lane routine's prompt names its lane `<lane>` and says "follow `.ai/lane-r
    A steer entry that conflicts with IDEA.md's hard rules or "Never" list is not done: acknowledge it with the reason. Edit only the paths your lane owns, plus the smallest needed edits to shared files. Then run `npm test`.
 5. Green: commit, have a reviewer subagent check the diff against IDEA.md, your lane contract and any steer entry it answers. Fix any blockers, run `npm test` again, pull, then push to `main`. Run the reviewer in the foreground if you can. If it runs in the background you are resumed when it reports; then finish this step and continue with step 6. Ending your turn ends the run unless a subagent is still running, so never end it to wait for anything else. Red: write the attempt and the reason under Tried in your task file, then discard the unit's uncommitted changes.
 6. A pushed unit does not end the run. Go straight back to step 4 with the next unit. Keep going until one of these is true:
-   - 40 minutes have passed since the start time (check `date -u` after each push);
+   - the pace's run length (40 or 50 minutes) has passed since the start time (check `date -u` after each push);
    - your context is about 60% full;
    - your lane has no units left;
    - every remaining unit is blocked.

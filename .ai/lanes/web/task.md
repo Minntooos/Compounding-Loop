@@ -26,6 +26,7 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 5. C3 lane × hour heat map (from `classifyRunSlots`) and the Runs tab link.
 6. C6 next round with ingredients, Draft with Claude (SSE) and Copy prompt; Go stays a separate click. C7 Releases.
 7. After-screenshots for docs (optimised PNGs under 400 kB, replace the 5.4 MB phone shots), then audit majors.
+8. C9 Pace control (DESIGN.md entry first, then the design review), from server's pace data.
 
 ## Decisions
 - 2026-10-13 run 1: did the P0 fixes A1/A4/A8 before the DESIGN.md unit, because they add no new component (DESIGN.md is for new components). Easy to reverse.

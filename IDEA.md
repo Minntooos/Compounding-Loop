@@ -48,6 +48,13 @@ Add a "Round 5" section at the top of `.ai/audit/<lane>.md`: this round's goal j
    - npm state for the Releases view
    All writes go through the core commands. Static demo: pure URL builders for "edit `steer.md` on GitHub with this entry prefilled" and "edit `schedule.json`". The demo snapshot gets run-log, schedule and steer fixtures, so every new screen has real-looking data (the web lane was blocked on this in round 4).
 
+7. **Pace** (core + server + kit): `.ai/policy.json` `{"version":1,"pace":"balanced","lanes":{"<lane>":{"pace":...}}}` sets how much checking a run does. Presets:
+   - `careful`: full `npm test` after each unit and before push; reviewer subagent on every unit; 40 min per run.
+   - `balanced` (default): related tests after each unit, full `npm test` before push; reviewer once per run on the combined diff; 40 min.
+   - `fast`: like balanced, reviewer only for units touching shared files or another lane's contract; 50 min.
+   - `sprint`: typecheck + lint after each unit, unit tests before push, e2e once at the end of the run; no reviewer (the control room reviews the day's diff); 50 min or 70% context.
+   Floor for every preset: never push with a failing check you ran; CI runs on every push. Auto-downshift: if CI on `main` is red twice in 24 h, the control room sets the global pace to `balanced` and says why. Core: browser-safe `parsePolicy` + `paceFor(lane)` and `loop pace show|set <preset> [--lane <lane>]` (commits with `Lane: control`, `--no-commit`). Server: `GET/POST …/pace` and a prefilled GitHub URL builder for `policy.json`. Kit: the `policy.json` template; `loop init --lanes` writes it.
+
 ### C. The cockpit (web, on Opus, with the server's data)
 1. **Status strip** at the top of every page: loop state (running / likely running / idle / sleeping / paused / done / release waiting), round and done-when progress, CI, usage-limit stops in the last 5 h, next due lane. One line on desktop, two on phone.
 2. **Needs you**: every attention item is a row with its action inline. Release waiting → Review & release. BLOCKED question → Answer (local) or Edit on GitHub (demo). Stalled or limit stops → What this means + Wake. Round done → Start next round. The banner count and the Inbox come from the same list.
@@ -62,8 +69,11 @@ Add a "Round 5" section at the top of `.ai/audit/<lane>.md`: this round's goal j
 7. **Releases**: each version with its CHANGELOG entry, tag, npm state (published / latest / not published) and date. Ready-to-ship only when not shipped.
 8. **Design bar:** extend `web/DESIGN.md` for every new component first. After each web unit, an **independent design reviewer subagent** (fresh context; it wrote none of the code) looks at the 1440 and 375 px screenshots of the changed screens in both themes. It must answer the owner's five 5-second questions from the home screen alone (anything need me? running or stalled? limit stops? CI? ready to ship?) and list anything that's noise. Fix what it flags before the next unit and record its verdict in `.ai/audit/web.md`.
 
+9. **Pace control** on the loop page and each lane: the four presets with one plain line each on what it skips, the current value (global or lane override) and the auto-downshift notice. Local saves through the API; the demo opens the prefilled GitHub editor.
+
 ### D. Docs
 - `docs/steering.md`: steer at each level, the schedule and backoff, what "not due", "sleeping" and "likely running" mean, and how thin prompts work (with the exact routine prompt text to copy).
+- `docs/steering.md` also covers Pace: each preset, the floor and the auto-downshift.
 - `docs/dashboard.md`: update for every new control and what it writes.
 - README: a "Glance, steer, sleep" section.
 - CHANGELOG `[Unreleased]` for 0.5.0.
@@ -73,13 +83,14 @@ Add a "Round 5" section at the top of `.ai/audit/<lane>.md`: this round's goal j
 ### Round 5 done when
 - `npm test` passes on a clean clone and on CI's three jobs.
 - Every lane's audit has a Round 5 section with no open blocker; every A bug has a regression test.
-- Unit tests cover `loop schedule` (each action, backoff and wake rules, `--json`), `loop steer`, the steer and schedule parsers, run-outcome classification (every outcome), `next-round --draft --print-prompt` (no Claude call in tests), and the kit templates (they contain the skip, steer, run-log and stale-clone steps).
+- Unit tests cover `loop schedule` (each action, backoff and wake rules, `--json`), `loop steer`, the steer and schedule parsers, run-outcome classification (every outcome), `next-round --draft --print-prompt` (no Claude call in tests), `parsePolicy`/`paceFor` and `loop pace`, and the kit templates (they contain the skip, steer, run-log and stale-clone steps).
 - e2e with GitHub and npm mocked through Playwright routing proves:
   - the status strip states for the demo data;
   - Needs-you rows with their actions;
   - heat-map outcomes and the legend;
   - steer composer preview, plus the exact prefilled GitHub URL on the demo;
   - schedule controls;
+  - the Pace control (each preset, lane override, demo URL);
   - the Draft-with-Claude stream on a mocked SSE endpoint;
   - Releases showing 0.4.0 as published;
   - phone tab bars not clipped;
