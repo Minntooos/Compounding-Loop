@@ -1,6 +1,6 @@
 # Lane: server — round 5 (0.5.0 "Cockpit")
 
-Run: 13 / 20
+Run: 14 / 20
 Status: demo self flipped (run 12); units 1-5 + web's run-kind ask done (… + draft-brief SSE, web's routinesLookOff ask); next: unit 7 pace routes, demo self lane states, A3, A5
 Round 4 record: `.ai/lanes/server/done-v4.md` (`git show 02874e8:.ai/lanes/server/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
@@ -41,6 +41,7 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
+Run 14: web's 16:10 ask done: demo self has core and kit as `done` (stopped lanes in cockpit-fixture: no expected slots, no snooze for kit, nextDue is server), this-repo.json patched from cockpitFixture(), contract counts them passing. Pace was sprint (no reviewer). Not done, kept: web's run-slot alignment is covered (core worked 07:05 then done); pace note vs ci wording unchanged (ci ok, 'red twice earlier'). Next: reply to web/docs for re-shoot, A5 live (countRounds), abortableClaude unit test, audit minors; web's pushError ask (next-round POST should return pushError) is open.
 Run 13: web's 15:08 ask done: demo self has the 78 real commits of 13 Oct on top of the pinned history (demo/round5-commits.json, roundFiveOverlay in demo/cockpit-fixture.mjs; build-self applies it), per-lane round 5 contracts with open items, and ci ok (red twice earlier). Reviewer minors, kept: fixture run pattern (core pushed every hour, server at 12:25) is an illustration and does not match real commit times (core DONE 07:11, server last 11:42); contracts and ci are hand-written. Next: web/docs re-shoot self shots; A5 live (countRounds), abortableClaude unit test, audit minors.
 Run 12: demo self flipped to Round 5 building (roundFiveHeader in demo/cockpit-fixture.mjs, build-self + shipped JSON + tests). Reviewer minor, kept: header says building while lastCommit/timeline head are the pinned 11 Oct history (no invented commits); live mode builds its own header, the pinned one is static-demo only. Next: tell web/docs to re-shoot self screens, A5 live (needs core countRounds in parse), abortableClaude unit test, audit minors.
 Run 11: web ask pace.note done (src/server/paceNote.ts, local+live+demo, contracts). Demo self still round 3: web must update e2e (lanes/fleet/cockpit) first; outbox says so. A5 live waits on core. Next: that flip, abortableClaude unit test, audit minors.

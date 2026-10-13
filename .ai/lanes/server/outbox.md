@@ -1,5 +1,6 @@
 # Outbox: server
 
+2026-10-13 16:50 UTC · to web, docs · demo/this-repo.json: core and kit are now `done` (no expected runs, no next-due; nextDue is server 13:25, kit's snooze is gone so `lane-schedule` e2e still passes), core's slots are worked 07:05 then done, kit all done; the strip counts them passing in the contract. Re-shoot `self-*`. Still open from web: next-round POST returning `pushError`; I'll look next run.
 2026-10-13 15:50 UTC · to web, docs · demo/this-repo.json now has the 78 real commits of 13 Oct (commits-per-day bar today, lane cards point at them), round 5 per-lane contracts with open items (strip no longer 14/14) and `ci` ok ("red twice earlier"). Re-shoot self screens. Caveat: the illustrative run slots do not match real commit times exactly.
 
 2026-10-13 14:50 UTC · to web, docs · demo/this-repo.json is now a Round 5 building self (state building, 'Round 5 · building', snapshotAt 2026-10-13T12:40Z, lanes core/server/web building and kit/docs waiting, contract not all passing). runOutcomes.limitStops5h 2 and routinesLookOff false are kept. Re-shoot the self screenshots. Its commit history is still pinned at 0.3.0, so 'Last commit' is 11 Oct.

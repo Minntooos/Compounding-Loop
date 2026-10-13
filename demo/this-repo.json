@@ -23,7 +23,7 @@
     "lanes": [
       {
         "name": "core",
-        "state": "building",
+        "state": "done",
         "run": 14,
         "limit": 70,
         "lastCommit": {
@@ -36,7 +36,7 @@
       },
       {
         "name": "kit",
-        "state": "waiting",
+        "state": "done",
         "run": 9,
         "limit": 70,
         "lastCommit": {
@@ -1986,11 +1986,11 @@
     "contract": [
       {
         "text": "core lane: every done-when passes",
-        "pass": false
+        "pass": true
       },
       {
         "text": "kit lane: every done-when passes",
-        "pass": false
+        "pass": true
       },
       {
         "text": "server lane: every done-when passes",
@@ -2128,25 +2128,17 @@
         "lane": "kit",
         "at": "2026-10-13T12:15:00.000Z",
         "outcome": "no-run-recorded",
-        "kind": "not-due",
+        "kind": "done",
         "units": [],
         "commits": []
       },
       {
         "lane": "core",
         "at": "2026-10-13T12:05:00.000Z",
-        "outcome": "pushed",
-        "kind": "worked",
-        "endedAt": "2026-10-13T12:17:00.000Z",
-        "units": [
-          "unit 48"
-        ],
-        "tests": {
-          "passed": 227,
-          "failed": 0
-        },
-        "commits": [],
-        "note": "unit shipped"
+        "outcome": "no-run-recorded",
+        "kind": "done",
+        "units": [],
+        "commits": []
       },
       {
         "lane": "docs",
@@ -2192,25 +2184,17 @@
         "lane": "kit",
         "at": "2026-10-13T11:15:00.000Z",
         "outcome": "no-run-recorded",
-        "kind": "not-due",
+        "kind": "done",
         "units": [],
         "commits": []
       },
       {
         "lane": "core",
         "at": "2026-10-13T11:05:00.000Z",
-        "outcome": "pushed",
-        "kind": "worked",
-        "endedAt": "2026-10-13T11:17:00.000Z",
-        "units": [
-          "unit 47"
-        ],
-        "tests": {
-          "passed": 226,
-          "failed": 0
-        },
-        "commits": [],
-        "note": "unit shipped"
+        "outcome": "no-run-recorded",
+        "kind": "done",
+        "units": [],
+        "commits": []
       },
       {
         "lane": "docs",
@@ -2248,25 +2232,17 @@
         "lane": "kit",
         "at": "2026-10-13T10:15:00.000Z",
         "outcome": "no-run-recorded",
-        "kind": "not-due",
+        "kind": "done",
         "units": [],
         "commits": []
       },
       {
         "lane": "core",
         "at": "2026-10-13T10:05:00.000Z",
-        "outcome": "pushed",
-        "kind": "worked",
-        "endedAt": "2026-10-13T10:17:00.000Z",
-        "units": [
-          "unit 46"
-        ],
-        "tests": {
-          "passed": 225,
-          "failed": 0
-        },
-        "commits": [],
-        "note": "unit shipped"
+        "outcome": "no-run-recorded",
+        "kind": "done",
+        "units": [],
+        "commits": []
       },
       {
         "lane": "docs",
@@ -2305,28 +2281,18 @@
       {
         "lane": "kit",
         "at": "2026-10-13T09:15:00.000Z",
-        "outcome": "nothing-pushed",
-        "kind": "idle",
-        "endedAt": "2026-10-13T09:27:00.000Z",
+        "outcome": "no-run-recorded",
+        "kind": "done",
         "units": [],
-        "commits": [],
-        "note": "nothing to do"
+        "commits": []
       },
       {
         "lane": "core",
         "at": "2026-10-13T09:05:00.000Z",
-        "outcome": "pushed",
-        "kind": "worked",
-        "endedAt": "2026-10-13T09:17:00.000Z",
-        "units": [
-          "unit 45"
-        ],
-        "tests": {
-          "passed": 224,
-          "failed": 0
-        },
-        "commits": [],
-        "note": "unit shipped"
+        "outcome": "no-run-recorded",
+        "kind": "done",
+        "units": [],
+        "commits": []
       },
       {
         "lane": "docs",
@@ -2367,28 +2333,18 @@
       {
         "lane": "kit",
         "at": "2026-10-13T08:15:00.000Z",
-        "outcome": "nothing-pushed",
-        "kind": "idle",
-        "endedAt": "2026-10-13T08:27:00.000Z",
+        "outcome": "no-run-recorded",
+        "kind": "done",
         "units": [],
-        "commits": [],
-        "note": "nothing to do"
+        "commits": []
       },
       {
         "lane": "core",
         "at": "2026-10-13T08:05:00.000Z",
-        "outcome": "pushed",
-        "kind": "worked",
-        "endedAt": "2026-10-13T08:17:00.000Z",
-        "units": [
-          "unit 44"
-        ],
-        "tests": {
-          "passed": 223,
-          "failed": 0
-        },
-        "commits": [],
-        "note": "unit shipped"
+        "outcome": "no-run-recorded",
+        "kind": "done",
+        "units": [],
+        "commits": []
       },
       {
         "lane": "docs",
@@ -2435,18 +2391,10 @@
       {
         "lane": "kit",
         "at": "2026-10-13T07:15:00.000Z",
-        "outcome": "pushed",
-        "kind": "worked",
-        "endedAt": "2026-10-13T07:27:00.000Z",
-        "units": [
-          "unit 43"
-        ],
-        "tests": {
-          "passed": 222,
-          "failed": 0
-        },
-        "commits": [],
-        "note": "unit shipped"
+        "outcome": "no-run-recorded",
+        "kind": "done",
+        "units": [],
+        "commits": []
       },
       {
         "lane": "core",
@@ -2967,19 +2915,18 @@
         "web"
       ],
       "sleeping": [
-        "kit",
         "docs"
       ],
       "paused": [],
       "routinesLookOff": false,
       "nextDue": {
-        "lane": "core",
-        "at": "2026-10-13T13:05:00.000Z"
+        "lane": "server",
+        "at": "2026-10-13T13:25:00.000Z"
       }
     },
     "idleRuns": {
       "core": 0,
-      "kit": 2,
+      "kit": 0,
       "server": 0,
       "web": 0,
       "docs": 3
@@ -2987,12 +2934,6 @@
     "schedule": {
       "version": 1,
       "lanes": {
-        "kit": {
-          "notBefore": "2026-10-13T15:15:00Z",
-          "sleeping": false,
-          "paused": false,
-          "reason": "idle twice in a row"
-        },
         "docs": {
           "notBefore": null,
           "sleeping": true,

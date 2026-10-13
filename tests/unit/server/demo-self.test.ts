@@ -37,7 +37,7 @@ describe('shipped demo/this-repo.json (the sixth demo loop)', () => {
   it('is the sixth loop: a round 5 in progress, five lanes with the run counters from the lane files', async () => {
     const { loop } = await readShipped();
     expect(loop.name).toBe('compounding-loop (this repo)');
-    expect(loop.lanes?.map((l) => [l.name, l.state])).toEqual([['core', 'building'], ['kit', 'waiting'], ['server', 'building'], ['web', 'building'], ['docs', 'waiting']]);
+    expect(loop.lanes?.map((l) => [l.name, l.state])).toEqual([['core', 'done'], ['kit', 'done'], ['server', 'building'], ['web', 'building'], ['docs', 'waiting']]);
     // Totals over three rounds: 30 + 20 + 20 runs of budget per lane.
     expect(loop.lanes?.every((l) => l.limit === 70 && l.run > 0)).toBe(true);
     expect([loop.round, loop.roundsTotal, loop.state]).toEqual([5, 5, 'building']);
@@ -89,11 +89,10 @@ describe('shipped demo/this-repo.json (the sixth demo loop)', () => {
   it('carries run-log, schedule and steer fixtures that exercise every outcome web shows', async () => {
     const { loop } = await readShipped();
     expect(new Set(loop.runs?.map((r) => r.outcome))).toEqual(new Set(['pushed', 'nothing-pushed', 'no-run-recorded']));
-    expect(loop.runOutcomes).toMatchObject({ limitStops5h: 2, running: ['web'], sleeping: ['kit', 'docs'], routinesLookOff: false });
-    expect(loop.runOutcomes?.nextDue).toEqual({ lane: 'core', at: '2026-10-13T13:05:00.000Z' });
+    expect(loop.runOutcomes).toMatchObject({ limitStops5h: 2, running: ['web'], sleeping: ['docs'], routinesLookOff: false });
+    expect(loop.runOutcomes?.nextDue).toEqual({ lane: 'server', at: '2026-10-13T13:25:00.000Z' });
     expect(loop.schedule?.lanes.docs?.sleeping).toBe(true);
-    expect(loop.schedule?.lanes.kit?.notBefore).toBe('2026-10-13T15:15:00Z');
-    expect(loop.idleRuns).toEqual({ core: 0, kit: 2, server: 0, web: 0, docs: 3 });
+    expect(loop.idleRuns).toEqual({ core: 0, kit: 0, server: 0, web: 0, docs: 3 });
     const steer = Object.fromEntries((loop.steer ?? []).map((s) => [s.lane, s.entries]));
     // Acknowledged (done and not-done), open next-run and open standing entries are all present.
     const all = Object.values(steer).flat();

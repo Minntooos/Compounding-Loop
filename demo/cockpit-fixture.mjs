@@ -12,8 +12,9 @@ export const FIXTURE_NOW = new Date('2026-10-13T12:40:00Z');
 
 const LANES = [
   // pattern per hourly slot 07..12: w = worked, i = idle, x = due but no run recorded (limit stop), r = still running, . = held back by the schedule
-  { name: 'core', cron: '5 * * * *', pattern: 'wwwwww' },
-  { name: 'kit', cron: '15 * * * *', pattern: 'wii...' },
+  // core and kit have a DONE.md (core after its 07:05 run, kit the evening before): `stopped` lanes get no more runs expected.
+  { name: 'core', cron: '5 * * * *', pattern: 'w.....', stopped: true },
+  { name: 'kit', cron: '15 * * * *', pattern: '......', stopped: true },
   { name: 'server', cron: '25 * * * *', pattern: 'wwxxww' },
   { name: 'web', cron: '35 * * * *', pattern: 'wiwwwr' },
   { name: 'docs', cron: '45 * * * *', pattern: 'iii...' },
@@ -22,7 +23,6 @@ const LANES = [
 const SCHEDULE = {
   version: 1,
   lanes: {
-    kit: { notBefore: '2026-10-13T15:15:00Z', sleeping: false, paused: false, reason: 'idle twice in a row' },
     docs: { notBefore: null, sleeping: true, paused: false, reason: 'docs waits for the first features' },
   },
 };
@@ -98,7 +98,7 @@ function logOf({ name, cron, pattern }) {
 /** The cockpit fields for the loop detail: runs, runOutcomes (with nextDue; `nextRuns` stays out until web's strip reads nextDue), idleRuns, schedule, steer, lastRun. */
 export function cockpitFixture() {
   const data = buildRuns({
-    lanes: LANES.map(({ name, cron }) => ({ name, cron })),
+    lanes: LANES.map(({ name, cron, stopped }) => ({ name, cron, ...(stopped && { stopped }) })),
     logs: Object.fromEntries(LANES.map((l) => [l.name, logOf(l)])),
     steerTexts: STEER,
     commits: [],
@@ -122,8 +122,8 @@ export function cockpitFixture() {
   };
 }
 
-/** Lane states matching the run pattern above: web is running now, kit and docs are held back, core and server are mid-round. */
-const LANE_STATES = { core: 'building', kit: 'waiting', server: 'building', web: 'building', docs: 'waiting' };
+/** Lane states matching the run pattern above: web is running now, docs is held back, server is mid-round, core and kit are done. */
+const LANE_STATES = { core: 'done', kit: 'done', server: 'building', web: 'building', docs: 'waiting' };
 
 /** The header fields that make the demo's self loop a round 5 in progress, so it agrees with its own run data. */
 export function roundFiveHeader(lanes) {
