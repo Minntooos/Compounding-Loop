@@ -11,16 +11,19 @@ export const PACE_WORD: Record<Pace, string> = { careful: 'Careful', balanced: '
 /** The floor every preset keeps (IDEA.md Round 5 B7), said once under the four choices. */
 export const PACE_FLOOR = 'Every pace: never push with a failing check; CI runs on every push.';
 
+/** The auto-downshift rule (IDEA.md Round 5 B7), until core or server report an actual downshift. */
+export const PACE_DOWNSHIFT = 'If CI on main is red twice in 24 h, the control room sets the pace back to Balanced and says why.';
+
 /** The pace a lane runs at, and whether that is its own override (core's `paceFor`, on the server's shape). */
 export function lanePace(pace: LoopPace, lane: string): { pace: Pace; own: boolean } {
   const own = pace.overrides[lane];
   return own ? { pace: own, own: true } : { pace: pace.pace, own: false };
 }
 
-/** The lane row's pace words, only when the lane does not simply follow the loop: "Pace: careful (own)". */
+/** The lane row's pace words, only when the lane does not simply follow the loop: "Pace: Careful (own)". */
 export function lanePaceText(pace: LoopPace, lane: string): string | undefined {
   const p = lanePace(pace, lane);
-  return p.own && p.pace !== pace.pace ? `Pace: ${p.pace} (own)` : undefined;
+  return p.own && p.pace !== pace.pace ? `Pace: ${PACE_WORD[p.pace]} (own)` : undefined;
 }
 
 /** `LoopDetail.pace` back as the `policy.json` shape, for the demo's file text. */

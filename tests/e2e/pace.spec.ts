@@ -28,7 +28,7 @@ test('the Lanes tab states the loop pace and a lane override; the chooser shows 
   const block = page.getByTestId('pace-block');
   await expect(block.getByRole('heading', { name: 'Pace: Balanced' })).toBeVisible();
   await expect(block).toContainText('one reviewer per run');
-  await expect(row(page, 'web').getByTestId('lane-pace')).toHaveText('Pace: careful (own)');
+  await expect(row(page, 'web').getByTestId('lane-pace')).toHaveText('Pace: Careful (own)');
   await expect(row(page, 'core').getByTestId('lane-pace')).toHaveCount(0);
   await block.getByRole('button', { name: 'Change pace' }).click();
   const group = block.getByRole('group', { name: 'Pace for every lane' });
@@ -38,6 +38,7 @@ test('the Lanes tab states the loop pace and a lane override; the chooser shows 
   for (const word of ['Careful', 'Fast', 'Sprint']) await expect(group.getByRole('radio', { name: new RegExp(word) })).toBeVisible();
   await expect(group).toContainText('no reviewer');
   await expect(block).toContainText('never push with a failing check');
+  await expect(block).toContainText('red twice in 24 h');
   expect(errors).toEqual([]);
 });
 
@@ -56,7 +57,9 @@ test('demo: a lane pace opens policy.json on GitHub and shows the whole new file
   await chooser.getByTestId('pace-edit').click();
   await expect.poll(() => opened).toEqual(['https://github.com/o/r/edit/main/.ai/policy.json']);
   await expect(chooser.getByRole('status')).toContainText('paste');
-  await chooser.getByRole('button', { name: 'Cancel' }).click();
+  await expect(chooser.getByRole('status')).toContainText('other lanes');
+  await chooser.getByRole('radio', { name: /Sprint/ }).press('Escape');
+  await expect(chooser).toHaveCount(0);
   await expect(row(page, 'core').getByRole('button', { name: 'Pace of core' })).toBeFocused();
 });
 

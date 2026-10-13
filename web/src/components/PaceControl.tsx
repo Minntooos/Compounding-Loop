@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Gauge } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { hasServer, postPace } from '../api/client';
-import { lanePace, PACE_FLOOR, PACE_SUMMARY, PACE_WORD, PACES, paceEditUrl, paceFileText, paceToast, type LoopPace } from '../lib/pace';
+import { lanePace, PACE_DOWNSHIFT, PACE_FLOOR, PACE_SUMMARY, PACE_WORD, PACES, paceEditUrl, paceFileText, paceToast, type LoopPace } from '../lib/pace';
 import { toast } from './Toasts';
 import { copyText } from './WelcomeStrip';
 
@@ -46,11 +46,11 @@ export function PaceChooser({ loopId, pace, lane, slug, onClose }: { loopId: str
     // Open first, inside the click: a popup opened after an await can be blocked.
     window.open(paceEditUrl(slug), '_blank', 'noopener,noreferrer');
     const ok = await copyText(paceFileText(pace, picked, lane), document.getElementById(`${name}-file`));
-    setNote(ok ? 'Policy copied. On GitHub, select all, paste, then commit.' : 'Copy the policy below, then on GitHub select all, paste and commit.');
+    setNote(ok ? 'Policy copied. On GitHub, check the other lanes’ entries still match (this page can be older), select all, paste, then commit.' : 'Copy the policy below; on GitHub check the other lanes’ entries still match, select all, paste and commit.');
   }
 
   return (
-    <div data-testid="pace-chooser" className="mt-2 basis-full rounded border p-3" style={{ borderColor: 'var(--border)' }}>
+    <div data-testid="pace-chooser" onKeyDown={(e) => { if (e.key === 'Escape' && !busy) { e.stopPropagation(); onClose(); } }} className="mt-2 basis-full rounded border p-3" style={{ borderColor: 'var(--border)' }}>
       <fieldset>
         <legend className="text-[14px] font-semibold">{lane ? `Pace for ${lane}` : 'Pace for every lane'}</legend>
         <div className="mt-2 space-y-1">
@@ -67,7 +67,7 @@ export function PaceChooser({ loopId, pace, lane, slug, onClose }: { loopId: str
           ))}
         </div>
       </fieldset>
-      <p className="mt-2 text-[13px]" style={{ color: 'var(--muted)' }}>{PACE_FLOOR}</p>
+      <p className="mt-2 text-[13px]" style={{ color: 'var(--muted)' }}>{PACE_FLOOR} {PACE_DOWNSHIFT}</p>
       <div className="mt-2 flex flex-wrap items-center gap-2">
         {local
           ? <button type="button" data-testid="pace-save" disabled={busy || picked === current} onClick={() => void save()} className={button} style={{ borderColor: 'var(--accent)' }}>Save pace</button>
@@ -92,7 +92,7 @@ export function PaceBlock({ loopId, pace, slug }: { loopId: string; pace: LoopPa
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <h3 id="pace-h" className="inline-flex items-center gap-1.5 text-[14px] font-semibold"><Gauge aria-hidden size={15} />Pace: {PACE_WORD[pace.pace]}</h3>
         <span className="text-[13px]" style={{ color: 'var(--muted)' }}>every lane, unless it has its own</span>
-        {!open && <button ref={opener} type="button" aria-expanded={false} onClick={() => setOpen(true)} className={`${button} ml-auto`} style={{ borderColor: 'var(--border)' }}>Change pace</button>}
+        {!open && <button ref={opener} type="button" onClick={() => setOpen(true)} className={`${button} ml-auto`} style={{ borderColor: 'var(--border)' }}>Change pace</button>}
       </div>
       <p className="mt-1 text-[13px]" style={{ color: 'var(--muted)' }}>{PACE_SUMMARY[pace.pace]}</p>
       {open && <PaceChooser loopId={loopId} pace={pace} {...(slug && { slug })} onClose={close} />}

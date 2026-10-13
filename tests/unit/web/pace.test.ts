@@ -13,7 +13,7 @@ describe('lanePace', () => {
 
 describe('lanePaceText', () => {
   it('speaks only when the lane runs at a pace of its own that differs from the loop', () => {
-    expect(lanePaceText(PACE, 'web')).toBe('Pace: careful (own)');
+    expect(lanePaceText(PACE, 'web')).toBe('Pace: Careful (own)');
     expect(lanePaceText(PACE, 'core')).toBeUndefined();
     expect(lanePaceText(PACE, 'docs')).toBeUndefined();
   });
