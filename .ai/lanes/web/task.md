@@ -1,7 +1,7 @@
 # Lane: web — round 5 (0.5.0 "Cockpit")
 
-Run: 17 / 20
-Status: units 1-8 done; run 17 ran the final five-questions review and fixed its two blockers (home shot without self card, Last activity older than last run); next: decide Lane finished (see Handoff)
+Run: 18 / 20
+Status: DONE (run 18): every done-when passes; see .ai/lanes/web/DONE.md
 Round 4 record: `.ai/lanes/web/done-v4.md` (`git show 02874e8:.ai/lanes/web/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
@@ -79,6 +79,8 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - 2026-10-13 run 17: docs screenshots shoot the Pages demo from `staticApiFiles(loadDemoSnapshot())` (dist), with live.json 404'd, so every shot is the frozen snapshot a visitor sees (self card included), never today's GitHub state.
 - 2026-10-13 run 17: card "Last activity" = newer of lastRun.at and lastCommit.at (`lastActivity` moved from strip.ts to card.ts, shared). Easy to reverse.
 
+- 2026-10-13 run 18: "ready to ship" answered *partly* counts as passing the five-questions done-when: while the self loop builds, the strip omits the release segment by design (DESIGN §12 C1) rather than claim one. Lane finished.
+
 ## Confirmed
 - CONFIRMED (run 17): the bundled web snapshot (`mockSnapshot`) has no self loop; only `api/loops.json` from demo/export-static.mjs (and the demo server) includes it.
 - CONFIRMED (run 11): the e2e/dashboard server serves the self loop from dist/server/this-repo.json (copied by `npm run build`), not demo/ directly.
@@ -96,6 +98,8 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
+Run 18 (2026-10-13 20:43-20:55 UTC; stale clone, branch `lane-run`): no steer, no waiting messages; npm test green (936 unit, 263 e2e, bundle 158 kB gzip). Wrote DONE.md (lane finished). No further runs needed this round.
+
 Run 17 (2026-10-13 19:44-20:02 UTC; stale clone, branch `lane-run`, pushed `HEAD:main`): full npm test green at start and before the second push (263 e2e). Pushed ef5c182 (screenshot spec serves the Pages static api; 36 shots re-shot) and 4b03f87 (Last activity = newer of run and commit). Independent five-questions review, second pass: needs me yes, running yes (after 4b03f87), limit stops yes, CI yes, ship partly-but-truthful (segment omitted while building, DESIGN §12 C1). Recorded in .ai/audit/web.md Run 17.
 Open minors: phone strip drops "in 5 h"/"next:" (Decision run 13); amber limit stops beside "Nothing needs you" could say they resume by themselves; "Last activity" label wraps on the building card at 375 px; docs lane chip (moon) has no legend; one-letter heat-map lane labels on phone; no auto-downshift notice (waits core/server).
 Next run: every done-when passes except that "ready to ship" is "partly" by design while the self loop is building. Unless a steer or message says otherwise, record that judgement under Decisions and follow "Lane finished" in CLAUDE.md (DONE.md with the minors above as next improvements). Run budget: 17/20.
