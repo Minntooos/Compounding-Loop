@@ -19,3 +19,4 @@
 {"at":"2026-10-13T12:41:44Z","lane":"server","units":["live-pace"],"tests":{"passed":880,"failed":0},"pushed":true,"note":"run 10: live mode fetches policy.json and shows pace; A5 live still waits on core"}
 {"at":"2026-10-13T13:40:47Z","lane":"server","units":["pace-note"],"tests":{"passed":245,"failed":0},"pushed":true,"note":"run 11: LoopDetail.pace.note from policy.json reason; demo self flip still waits on web e2e"}
 {"at":"2026-10-13T14:41:48Z","lane":"server","units":["demo-self-round5"],"tests":{"passed":885,"failed":0},"pushed":true,"note":"run 12: demo self snapshot flipped to Round 5 building; web/docs can re-shoot"}
+{"at":"2026-10-13T15:39:09Z","lane":"server","units":["demo-self-round5-data"],"tests":{"passed":247,"failed":0},"pushed":true,"note":"run 13: demo self gets real round 5 commits, per-lane contracts with open items, ci"}
