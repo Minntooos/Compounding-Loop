@@ -1,6 +1,6 @@
 # Lane: server — round 5 (0.5.0 "Cockpit")
 
-Run: 10 / 20
+Run: 11 / 20
 Status: units 1-5 + web's run-kind ask done (… + draft-brief SSE, web's routinesLookOff ask); next: unit 7 pace routes, demo self lane states, A3, A5
 Round 4 record: `.ai/lanes/server/done-v4.md` (`git show 02874e8:.ai/lanes/server/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
@@ -41,6 +41,7 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
+Run 11: web ask pace.note done (src/server/paceNote.ts, local+live+demo, contracts). Demo self still round 3: web must update e2e (lanes/fleet/cockpit) first; outbox says so. A5 live waits on core. Next: that flip, abortableClaude unit test, audit minors.
 Run 10: live pace done: BASE_FILES fetches .ai/policy.json, buildLiveLoop sets detail.pace when the file exists (test in cockpit.test.ts). A5 live still blocked on core (countRounds not yet in src/core/parse). Next: live draftInputs, abortableClaude unit test, demo self building flip once web updates e2e, audit minors.
 Run 9: A3 done: `HealthCheck.state`/`howToCheck` (checkLabels.ts withLabel sets state; 3 unmeasured checks are `unchecked`), contracts + outbox to web. A5 live blocked on core (outbox ask: move countRounds to src/core/parse; then fetch IDEA.md in live/urls.ts BASE_FILES and use it). web's `kind` ask was already done in run 7. Next: live pace + live draftInputs, abortableClaude unit test, demo self building flip once web updates its e2e (see run 8), audit minors.
 Run 8: web's two asks done: `LoopDetail.draftInputs` (local: src/server/draftInputs.ts mirrors core's gatherDraftPrompt; demo self: cockpit-fixture DRAFT_INPUTS) and draft-brief aborts `claude` when the SSE client stops (src/server/claude.ts abortableClaude; projectsSource takes an AbortableClaude). Tried: flipping the demo self loop to Round 5 building (lane states, snapshotAt 13 Oct) broke 7 web e2e tests (fleet/lanes/screens/cockpit expect done), reverted; web must update those first, then add `cockpitLoop(lanes)` (state building, round 5, lanes building, snapshotAt FIXTURE_NOW). Next: that, A3 HealthCheck.state, A5 countRounds in urls.ts, live pace + live draftInputs, abortableClaude unit test.
