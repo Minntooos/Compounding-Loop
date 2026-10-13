@@ -159,6 +159,8 @@ export function checkCommitFiles(config: LanesConfig, lane: string, files: reado
   }
   const violations: LaneViolation[] = [];
   for (const file of files) {
+    // Step 8 of a lane run applies the idle backoff to the lane's own entry in the shared schedule.
+    if (normalizePath(file) === '.ai/schedule.json') continue;
     const owner = laneForPath(config, file);
     // A path listed in "shared" is open to every lane even when an "owns" glob also covers it (e.g. src/core/types.ts).
     if (owner === self.name || owner === 'shared' || matchesAny(config.shared, file)) continue;

@@ -80,6 +80,9 @@ describe('parseLaneTrailer', () => {
 });
 
 describe('checkCommitFiles', () => {
+  it('lets any lane touch .ai/schedule.json (its own backoff entry)', () => {
+    expect(checkCommitFiles(config, 'core', ['.ai/schedule.json'])).toEqual([]);
+  });
   it('passes owned, shared and own-folder files', () => {
     expect(checkCommitFiles(config, 'core', ['src/core/a.ts', 'package.json', '.ai/lanes/core/task.md'])).toEqual([]);
   });
