@@ -6,3 +6,4 @@
 {"at":"2026-10-12T02:40:00.000Z","lane":"server","units":["verify"],"tests":{"passed":140,"failed":0},"pushed":true,"note":"no code change; handoff only"}
 {"at":"2026-10-12T03:34:02.364Z","lane":"server","units":[],"tests":{"passed":144,"failed":0},"pushed":false,"note":"run 7: nothing to do, main green"}
 {"at":"2026-10-12T04:35:33.000Z","lane":"server","units":["lane-finished"],"tests":{"passed":144,"failed":0},"pushed":true,"note":"run 8: DONE.md written"}
+{"at":"2026-10-13T01:39:40.000Z","lane":"server","units":["audit","A1-shipped","A7-local-cards"],"tests":{"passed":144,"failed":0},"pushed":true,"note":"run 1: shipped detection, local card fields; fixtures next"}

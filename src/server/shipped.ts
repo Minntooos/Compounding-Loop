@@ -5,7 +5,7 @@ import type { LoopRelease, NpmState } from '../core/types.js';
 /** What the registry says about one package. */
 export interface NpmFacts {
   /** The `latest` dist-tag. */
-  latest?: string;
+  latest: string;
   /** Every published version. */
   versions: string[];
 }
@@ -16,7 +16,8 @@ export function parseNpmPackage(json: unknown): NpmFacts | undefined {
   const { 'dist-tags': tags, versions } = json as { 'dist-tags'?: unknown; versions?: unknown };
   if (typeof versions !== 'object' || versions === null) return undefined;
   const latest = typeof tags === 'object' && tags !== null ? (tags as { latest?: unknown }).latest : undefined;
-  return { ...(typeof latest === 'string' && { latest }), versions: Object.keys(versions) };
+  // No `latest` tag (e.g. every version unpublished) is as good as unreadable: the tag alone decides.
+  return typeof latest === 'string' ? { latest, versions: Object.keys(versions) } : undefined;
 }
 
 /** The npm state of one version. */
@@ -35,7 +36,7 @@ export interface ShippedFacts {
 
 /** True once the tag exists and npm, if it was readable, serves this version as `latest`. */
 export function isShipped({ version, tagExists, npm }: ShippedFacts): boolean {
-  return tagExists && (npm?.latest === undefined || npm.latest === version);
+  return tagExists && (npm === undefined || npm.latest === version);
 }
 
 /** CHANGELOG releases with their tag and npm state filled in (`Unreleased` has neither). */

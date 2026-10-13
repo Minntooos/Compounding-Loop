@@ -133,7 +133,7 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
   const version = packageVersion(input.files['package.json']);
   const tags = tagNames(input.tags);
   const npm = parseNpmPackage(input.npm);
-  const shippedNow = version !== undefined && isShipped({ version, tagExists: tags.includes(`v${version}`), npm });
+  const shippedNow = hasDone && version !== undefined && isShipped({ version, tagExists: tags.includes(`v${version}`), npm });
   const { roundLabel, releaseWaiting } = roundState({ round, hasDone, laned: lanes !== undefined, shipped: shippedNow, ...(version && { version }) });
   const repoUrl = `https://github.com/${input.slug}`;
   const pausedText = input.files['.ai/PAUSED'];

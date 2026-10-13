@@ -112,7 +112,7 @@ export async function readLoop(dir: string, now: Date = new Date()): Promise<Loo
   const version = packageVersion(packageText);
   const shipGit = version ? await readShipGit(dir, `v${version}`) : undefined;
   // npm is not asked locally (no network in a dashboard that works offline): the tag alone decides.
-  const shippedNow = version !== undefined && shipGit !== undefined && isShipped({ version, tagExists: shipGit.tagExists });
+  const shippedNow = facts.hasDone && version !== undefined && shipGit !== undefined && isShipped({ version, tagExists: shipGit.tagExists });
   const { roundLabel, releaseWaiting } = roundState({ round, hasDone: facts.hasDone, laned: lanes !== undefined, shipped: shippedNow, ...(version && { version }) });
   const releaseDate = version ? parseChangelog(changelogText ?? '').find((r) => r.version === version)?.date : undefined;
   const doneText = lanes && version ? await readOptional(path.join(dir, 'DONE.md')) : undefined;

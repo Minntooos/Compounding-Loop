@@ -292,6 +292,10 @@ describe('local cards carry CI, tests and the site', () => {
     expect(Date.parse(summary?.tests?.at ?? '')).not.toBeNaN();
     expect(dir).toContain('card');
   });
+  it('ignores a homepage that only points at the repo', async () => {
+    const detail = await readLoop(makeLoop('card-gh', { '.ai/task.md': TASK, 'package.json': '{"homepage":"https://github.com/o/r#readme"}' }), new Date());
+    expect(detail.demoUrl).toBeUndefined();
+  });
   it('ignores a homepage that is not https', async () => {
     const detail = await readLoop(makeLoop('card-http', { '.ai/task.md': TASK, 'package.json': '{"homepage":"javascript:alert(1)"}' }), new Date());
     expect([detail.url, detail.demoUrl, detail.tests]).toEqual([undefined, undefined, undefined]);

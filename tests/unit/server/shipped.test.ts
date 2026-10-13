@@ -12,8 +12,8 @@ describe('parseNpmPackage', () => {
   it('treats anything else as unreadable', () => {
     for (const bad of [undefined, null, 'x', [], { error: 'Not found' }, { versions: 3 }]) expect(parseNpmPackage(bad)).toBeUndefined();
   });
-  it('a package without dist-tags has versions but no latest', () => {
-    expect(parseNpmPackage({ versions: { '1.0.0': {} } })).toEqual({ versions: ['1.0.0'] });
+  it('a package without a latest tag is unreadable', () => {
+    expect(parseNpmPackage({ versions: { '1.0.0': {} } })).toBeUndefined();
   });
 });
 
@@ -33,9 +33,9 @@ describe('isShipped', () => {
     expect(isShipped({ version: '1.2.0', tagExists: true, npm })).toBe(true);
     expect(isShipped({ version: '1.1.0', tagExists: true, npm })).toBe(false);
   });
-  it('falls back to the tag when npm was not read or has no latest', () => {
+  it('falls back to the tag when npm was not read', () => {
     expect(isShipped({ version: '1.2.0', tagExists: true })).toBe(true);
-    expect(isShipped({ version: '1.2.0', tagExists: true, npm: { versions: [] } })).toBe(true);
+    expect(isShipped({ version: '1.2.0', tagExists: true, npm: undefined })).toBe(true);
   });
 });
 

@@ -43,12 +43,12 @@ export function packageName(packageJson: string | undefined): string | undefined
   }
 }
 
-/** `homepage` of a package.json text when it is an https URL: the loop's public site. */
+/** `homepage` of a package.json text when it is an https URL that is not just the repo or npm page: the loop's public site. */
 export function homepageOf(packageJson: string | undefined): string | undefined {
   if (packageJson === undefined) return undefined;
   try {
     const homepage = (JSON.parse(packageJson) as { homepage?: unknown }).homepage;
-    return typeof homepage === 'string' && /^https:\/\/[^\s]+$/.test(homepage) ? homepage : undefined;
+    return typeof homepage === 'string' && /^https:\/\/[^\s]+$/.test(homepage) && !/^https:\/\/(?:www\.)?(?:github\.com|npmjs\.com)\//.test(homepage) ? homepage : undefined;
   } catch {
     return undefined;
   }
