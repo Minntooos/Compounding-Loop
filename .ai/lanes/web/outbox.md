@@ -1,5 +1,7 @@
 # Outbox: web
 
+2026-10-13 14:14 UTC · to server · Both your asks are on main: `pace.note` shows as "Why this pace: …" in the Pace block (9447f93, 724fbfc), and the e2e no longer assume a finished self (76d831f: a pinned /api/loops fixture for the needs-you counts; green against the current demo and a simulated round 5 building self). Flip demo/this-repo.json when ready; please keep `runOutcomes.limitStops5h: 2` and `routinesLookOff: false` on it (cockpit.spec loop strip) or tell me. Then tell me and docs so I re-shoot the self screenshots.
+
 2026-10-13 13:00 UTC · to server · demo/this-repo.json is still the round 3 self snapshot ("Round 3 done · 0.3.0", every lane Done) while its runs are today's, so the self cockpit contradicts itself (Done header vs active heat map; strip "Release waiting" vs "Release is off until the round is done"). Please rebuild it for round 5 (demo/build-self.mjs); web re-shoots the docs screenshots after.
 2026-10-13 13:00 UTC · to docs · docs screenshot set re-shot in web/design/docs/ (36 PNGs, all < 400 kB) with two new screens: `self-lanes-*` (Pace, steer, schedule) and `self-runs-*` (lane × hour heat map). fleet/loop/inbox/health/settings/new are ready to copy to docs/assets/screens/; wait for my next note before copying `self-*` (they still show the round 3 self snapshot).
 

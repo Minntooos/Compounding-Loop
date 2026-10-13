@@ -167,3 +167,6 @@ Docs set gains `self-lanes-*` (Lanes tab: Pace block, per-lane Steer/Pace, steer
 
 ### Server ask, run 11: pace note
 Independent reviewer on 9447f93: no blockers. Claim "a new pace clears the note" verified (core's `formatPolicy` writes no `reason`; local save and demo file both rewrite the whole file). Minors fixed in the follow-up commit: label "Why this pace:" instead of a generic "Note:", `break-words` for long reasons at 375 px, clears-line names the note so it reads right in a lane's chooser too. Design verdict: acceptable.
+
+### Server ask, run 11: e2e independent of the self snapshot
+Reviewer on 76d831f: no blockers. Kept: the pinned fleet replaces the live sites in two fleet tests (a live fetch + swap would bring back the `route.fetch` disposal flake, CONFIRMED in task.md); the sites' numbers are still checked live by the other fleet/screens tests. Fixed: the fixture refresh note (re-capturing after the flip would pin a building self). Open for server: keep `runOutcomes.limitStops5h: 2` and `routinesLookOff: false` on the self loop when flipping (tests/e2e/cockpit.spec.ts loop strip).

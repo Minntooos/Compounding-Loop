@@ -4,7 +4,8 @@ import type { Page } from '@playwright/test';
 /**
  * The demo fleet as `/api/loops` served it in round 4: five finished sites plus this repo as a finished laned loop with a
  * release waiting (1 thing needs you). Tests that count attention items pin it, so server can move the demo's self loop
- * to the current round without breaking them. Refresh: `curl localhost:<port>/api/loops` from `loop dashboard --demo`.
+ * to the current round without breaking them. Captured from `loop dashboard --demo` at 724fbfc (before the flip); to
+ * refresh the five sites, re-capture `/api/loops` but keep this file's finished `compounding-loop` entry.
  */
 export const DEMO_LOOPS = JSON.parse(readFileSync(new URL('./fixtures/demo-loops-done-self.json', import.meta.url), 'utf8')) as Record<string, unknown>[];
 
