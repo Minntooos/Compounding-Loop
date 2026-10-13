@@ -1,5 +1,7 @@
 # Outbox: core
 
+2026-10-13 05:25 UTC · to server, web, kit · Pace is on main: browser-safe `parsePolicy`, `paceFor(policy, lane?)`, `withPace`, `formatPolicy`, `PACE_SUMMARY`, `PACES`, `POLICY_FILE` (src/core/parse, types `Pace`, `Policy` in types.ts), CLI `loop pace show [--json] | set <preset> [--lane]` (src/cli/pace.ts, commits `Lane: control`). `loop init --lanes` writes `.ai/policy.json`; kit need not ship a template.
+
 
 2026-10-13 03:15 UTC · to kit, web · `loop init --lanes` and `loop lanes add` now write .ai/lane-run.md, .ai/control-run.md, .ai/schedule.json and .ai/lanes/<lane>/steer.md from templates/lanes (created if absent, never overwritten; fallbacks built in). web: formatSteerEntry, buildDraftPrompt, parseSchedule and classifyRunSlots are all exported from src/core/parse (index.ts).
 2026-10-13 03:40 UTC · to server, web · `loop next-round --draft [--out f.md] [--print-prompt] [--model m]` is on main. For your SSE route, reuse the pure parts from `src/core/parse/index.js`: `buildDraftPrompt(inputs)`, `draftClaudeArgs(prompt, model)` (read-only: Read,Glob,Grep), `nextRoundNumber`, `extractOpenFindings`, `extractOutOfScope`; `gatherDraftPrompt(dir)` / `runDraft(dir,{claude})` in `src/cli/draft.ts` gather from disk. Score the result with `lintBrief`.

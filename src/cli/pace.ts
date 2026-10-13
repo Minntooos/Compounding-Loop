@@ -7,7 +7,7 @@ export const readPolicy = async (dir: string): Promise<Policy> => parsePolicy((a
 
 export interface PaceReport {
   pace: Pace;
-  /** Lanes whose override differs from the global pace. */
+  /** Every lane with its own entry in the file, with its pace. */
   overrides: Record<string, Pace>;
 }
 

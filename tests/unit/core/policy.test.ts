@@ -16,6 +16,10 @@ describe('policy', () => {
     expect(parsePolicy('{"pace":"sprint","lanes":[]}').pace).toBe('sprint');
   });
 
+  it('ignores a __proto__ lane', () => {
+    expect(Object.keys(parsePolicy('{"lanes":{"__proto__":{"pace":"fast"}}}').lanes)).toEqual([]);
+  });
+
   it('round-trips through formatPolicy', () => {
     for (const p of [emptyPolicy(), withPace(withPace(emptyPolicy(), 'sprint'), 'careful', 'web')]) expect(parsePolicy(formatPolicy(p))).toEqual(p);
     expect(formatPolicy(emptyPolicy())).toBe('{\n  "version": 1,\n  "pace": "balanced",\n  "lanes": {}\n}\n');

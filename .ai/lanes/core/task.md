@@ -1,7 +1,7 @@
 # Lane: core — round 5 (0.5.0 "Cockpit")
 
-Run: 2 / 20
-Status: in progress (units 1-6 done; run 2 added kit's init/steer templates)
+Run: 3 / 20
+Status: in progress (units 1-6 and 8 done; unit 7 minors left)
 Round 4 record: `.ai/lanes/core/done-v4.md` (`git show 02874e8:.ai/lanes/core/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
@@ -43,3 +43,5 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 Run 1 shipped units 1-6: audit; schedule/steer parsers + CLI (`src/cli/schedule.ts`); `classifyRunSlots` (`src/core/parse/outcomes.ts`); `lintBrief` round briefs + `countRounds`; `loop next-round --draft [--out] [--print-prompt]` (`src/core/draftBrief.ts`, `src/cli/draft.ts`; `--out` confined to new .md files inside the repo). Next: unit 7. Known open minors: (a) `lintBrief` is generous with junk lettered sections (a `### A. stuff` with three short items scores 80; consider stricter vague check); (b) DONE (check-lanes allows `.ai/schedule.json` for any lane); (c) `loop schedule` push failure message names the pull; (d) tests/unit/kit/chrome-extension.test.ts is flaky under full-suite load (32 s). Then DONE per CLAUDE.md "Lane finished" if the contract holds (done-when: all tests listed in contract exist).
 Notes: `schedule update --lane X` is what lanes run at step 8. Sandbox: origin main may not fast-forward; use branch `lane-run`, push `origin HEAD:main`.
 Run 2: `loop init --lanes` / `loop lanes add` now write lane-run.md, control-run.md, schedule.json and per-lane steer.md (loop state, never overwritten; kit's 02:00 ask). Web's formatSteerEntry/prompt-builder/parseSchedule/classifyRunSlots asks were already exported from src/core/parse. Remaining: unit 7 minors, then DONE.
+
+Run 3: unit 8 (Pace) shipped: `src/core/parse/policy.ts` (parsePolicy, paceFor, withPace, formatPolicy, PACE_SUMMARY), `src/cli/pace.ts` (`loop pace show|set [--lane]`), `loop init --lanes` writes `.ai/policy.json` from a built-in default (no kit template exists). Reviewer nits left: corrupt policy.json silently reads as balanced; kit template could drift from FALLBACK_LANE_TEMPLATES.policy. Remaining: unit 7 minors, then DONE.

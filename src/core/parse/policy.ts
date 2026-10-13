@@ -28,7 +28,7 @@ export function parsePolicy(text: string): Policy {
     if (lanes && typeof lanes === 'object' && !Array.isArray(lanes)) {
       for (const [lane, value] of Object.entries(lanes)) {
         const lanePace = value && typeof value === 'object' ? (value as Record<string, unknown>).pace : undefined;
-        if (isPace(lanePace)) overrides[lane] = { pace: lanePace };
+        if (lane !== '__proto__' && isPace(lanePace)) overrides[lane] = { pace: lanePace };
       }
     }
     return { version: 1, pace: isPace(pace) ? pace : DEFAULT_PACE, lanes: overrides };
