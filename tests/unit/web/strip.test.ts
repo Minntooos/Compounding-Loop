@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { LaneStatus, LoopDetail, LoopSummary } from '../../../src/core/types.js';
-import { allLanesSleeping, checksOk, doneWhenProgress, dueTime, limitStopsOf, loopStripState, stripSegments } from '../../../web/src/lib/strip.js';
+import { allLanesSleeping, checksOk, doneWhenProgress, dueTime, limitStopsOf, limitsUnchecked, loopStripState, stripSegments } from '../../../web/src/lib/strip.js';
 
 const NOW = new Date('2026-10-13T03:00:00Z');
 const lane = (name: string, state: LaneStatus['state']): LaneStatus => ({ name, state, run: 1, limit: 20, locked: false, unanswered: [] });
@@ -113,9 +113,15 @@ describe('run outcomes (server runOutcomes)', () => {
   });
   it('limit stops add up over loops that report them, else stay "not checked"', () => {
     expect(limitStopsOf([loop(), loop()])).toBeUndefined();
-    // Loops without lanes have no runs; every laned loop must report.
+    // Loops without lanes have no runs and are not "not checked" either.
     expect(limitStopsOf([loop({ lanes, runOutcomes: ro({ limitStops5h: 2 }) }), loop(), loop({ lanes, runOutcomes: ro() })])).toBe(2);
-    expect(limitStopsOf([loop({ lanes, runOutcomes: ro() }), loop({ lanes })])).toBeUndefined();
+    expect(limitsUnchecked([loop({ lanes, runOutcomes: ro({ limitStops5h: 2 }) }), loop(), loop({ lanes, runOutcomes: ro() })])).toBe(0);
+    // One silent or unreported loop no longer hides the others' known count; the fleet strip names it.
+    const fleet = [loop({ lanes, runOutcomes: ro({ limitStops5h: 2 }) }), loop({ lanes }), loop({ lanes, runOutcomes: ro({ routinesLookOff: true }) })];
+    expect(limitStopsOf(fleet)).toBe(2);
+    expect(limitsUnchecked(fleet)).toBe(2);
+    expect(text(stripSegments({ loops: fleet, scoped: false, attention: 0, now: NOW }), 'limits')).toBe('2 limit stops in 5 h · 2 not checked');
+    expect(text(stripSegments({ loops: [loop({ lanes, runOutcomes: ro() }), loop({ lanes })], scoped: false, attention: 0, now: NOW }), 'limits')).toBe('No limit stops · 1 not checked');
     // Gone silent: the server zeroes the count, which would read as "No limit stops".
     expect(limitStopsOf([loop({ lanes, runOutcomes: ro({ routinesLookOff: true }) })])).toBeUndefined();
     expect(text(stripSegments({ loops: [loop({ lanes, runOutcomes: ro({ limitStops5h: 2 }) })], scoped: true, attention: 0, now: NOW }), 'limits')).toBe('2 limit stops in 5 h');

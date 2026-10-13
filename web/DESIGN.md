@@ -163,7 +163,7 @@ Same tokens and rules as sections 3-11; no new dependency (heat map and strip ar
 2. *Needs you*: "2 need you" (blocked colour, links to the Inbox) or "Nothing needs you" (done colour).
 3. *Round*: "Round 5 · 3 of 7 done-whens" (or the server's `roundLabel`).
 4. *CI*: "CI passing" (tick) / "CI failing" (cross) / "CI not checked" (grey dash).
-5. *Limit stops*: "2 limit stops in 5 h" (warn colour, links to the Runs tab) or "No limit stops" (muted); "Limit stops not checked" while run data is missing, so none and unknown never look alike.
+5. *Limit stops*: "2 limit stops in 5 h" (warn colour, links to the Runs tab) or "No limit stops" (muted); "Limit stops not checked" while run data is missing, so none and unknown never look alike. On the fleet, loops whose count is unknown (no run outcomes, or routines look off) are left out of the total and named: "2 limit stops in 5 h · 1 not checked" (phone: "No stops · 1 unchecked" when the total is zero).
 6. *Ship*: "Ready to ship" (tick) / "Not ready · <first failing check>" / "Released 0.4.0" / omitted while the round is still building (nothing to ship yet is not a question).
 7. *Next due*: "next: web 02:15 UTC" or "all lanes sleeping".
 On the fleet it summarises every loop; on a loop page, that loop. Precedence for segment 1 is by what needs action: Stalled > Release waiting > Running > Likely running > Paused > Sleeping > Idle > Released/Done, and a stalled lane is also an attention item, so Paused can never hide it. Text 13 px; height 32 px desktop, 2 × 28 px phone.

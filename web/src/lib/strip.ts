@@ -58,14 +58,23 @@ export function allLanesSleeping(loop: Pick<LoopSummary, 'lanes' | 'runOutcomes'
   return open.length > 0 && open.every((l) => sleeping.has(l.name));
 }
 
+type LimitLoop = Pick<LoopSummary, 'lanes' | 'runOutcomes'>;
+
+/** A laned loop whose limit stops are known: it reports run outcomes and has not gone silent ("Routines look off" zeroes its count). */
+const limitsKnown = (l: LimitLoop) => l.lanes !== undefined && l.runOutcomes !== undefined && !l.runOutcomes.routinesLookOff;
+
 /**
- * Usage-limit stops in the last 5 h over the laned loops (only they have runs). Undefined ("not checked") unless every laned
- * loop reports run outcomes and none has gone silent ("Routines look off" zeroes the count), so none and unknown never look alike.
+ * Usage-limit stops in the last 5 h over the laned loops whose count is known (only laned loops have runs). Undefined
+ * ("not checked") when none is known, so none and unknown never look alike; `limitsUnchecked` counts the rest.
  */
-export function limitStopsOf(loops: Pick<LoopSummary, 'lanes' | 'runOutcomes'>[]): number | undefined {
-  const laned = loops.filter((l) => l.lanes !== undefined);
-  if (laned.length === 0 || laned.some((l) => !l.runOutcomes || l.runOutcomes.routinesLookOff)) return undefined;
-  return laned.reduce((n, l) => n + (l.runOutcomes?.limitStops5h ?? 0), 0);
+export function limitStopsOf(loops: LimitLoop[]): number | undefined {
+  const known = loops.filter(limitsKnown);
+  return known.length === 0 ? undefined : known.reduce((n, l) => n + (l.runOutcomes?.limitStops5h ?? 0), 0);
+}
+
+/** Laned loops whose limit stops are not known, so a fleet total can say it leaves them out. */
+export function limitsUnchecked(loops: LimitLoop[]): number {
+  return loops.filter((l) => l.lanes !== undefined && !limitsKnown(l)).length;
 }
 
 const STATE_TONE: Record<StripState, Tone> = {
@@ -130,11 +139,12 @@ function ciSegment(loops: Summary[], scoped: boolean): Segment {
   return { id: 'ci', text: `CI passing${partial}`, ...(partial && { short: `CI passing ${known.length}/${loops.length}` }), tone: 'done', icon: 'check' };
 }
 
-function limitSegment(limitStops: number | undefined, href: string | undefined): Segment {
-  // "None" and "unknown" must never look alike.
+function limitSegment(limitStops: number | undefined, unchecked: number, href: string | undefined): Segment {
+  // "None" and "unknown" must never look alike; a fleet total names the loops it leaves out, like the CI segment.
   if (limitStops === undefined) return { id: 'limits', text: 'Limit stops not checked', short: 'Limits not checked', tone: 'muted', icon: 'dash' };
-  if (limitStops === 0) return { id: 'limits', text: 'No limit stops', tone: 'muted', icon: 'check' };
-  return { id: 'limits', text: `${limitStops} limit stop${limitStops === 1 ? '' : 's'} in 5 h`, short: `${limitStops} limit stop${limitStops === 1 ? '' : 's'}`, tone: 'blocked', icon: 'warn', ...(href ? { href } : {}) };
+  const partial = unchecked > 0 ? ` · ${unchecked} not checked` : '';
+  if (limitStops === 0) return { id: 'limits', text: `No limit stops${partial}`, ...(partial && { short: `No stops · ${unchecked} unchecked` }), tone: 'muted', icon: 'check' };
+  return { id: 'limits', text: `${limitStops} limit stop${limitStops === 1 ? '' : 's'} in 5 h${partial}`, short: `${limitStops} limit stop${limitStops === 1 ? '' : 's'}`, tone: 'blocked', icon: 'warn', ...(href ? { href } : {}) };
 }
 
 function shipSegment(loops: Summary[], details: ReadonlyMap<string, Detail>): Segment | undefined {
@@ -198,7 +208,7 @@ export function stripSegments(input: StripInput): Segment[] {
     needsSegment(input.attention),
     roundSegment(loops, only ? details.get(only.id) : undefined, scoped),
     ciSegment(loops, scoped),
-    limitSegment(input.limitStops ?? limitStopsOf(loops), only ? `${loopHref(only.id)}` : undefined),
+    limitSegment(input.limitStops ?? limitStopsOf(loops), input.limitStops === undefined && !scoped ? limitsUnchecked(loops) : 0, only ? `${loopHref(only.id)}` : undefined),
     shipSegment(loops, details),
     nextSegment(loops, details, now),
   ];
