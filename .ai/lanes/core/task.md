@@ -1,6 +1,6 @@
 # Lane: core — round 5 (0.5.0 "Cockpit")
 
-Run: 3 / 20
+Run: 4 / 20
 Status: in progress (units 1-6 and 8 done; unit 7 minors left)
 Round 4 record: `.ai/lanes/core/done-v4.md` (`git show 02874e8:.ai/lanes/core/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
@@ -45,3 +45,5 @@ Notes: `schedule update --lane X` is what lanes run at step 8. Sandbox: origin m
 Run 2: `loop init --lanes` / `loop lanes add` now write lane-run.md, control-run.md, schedule.json and per-lane steer.md (loop state, never overwritten; kit's 02:00 ask). Web's formatSteerEntry/prompt-builder/parseSchedule/classifyRunSlots asks were already exported from src/core/parse. Remaining: unit 7 minors, then DONE.
 
 Run 3: unit 8 (Pace) shipped: `src/core/parse/policy.ts` (parsePolicy, paceFor, withPace, formatPolicy, PACE_SUMMARY), `src/cli/pace.ts` (`loop pace show|set [--lane]`), `loop init --lanes` writes `.ai/policy.json` from a built-in default (no kit template exists). Reviewer nits left: corrupt policy.json silently reads as balanced; kit template could drift from FALLBACK_LANE_TEMPLATES.policy. Remaining: unit 7 minors, then DONE.
+
+Run 4: `policyProblem` (src/core/parse/policy.ts) + `loop pace show` warns when policy.json is corrupt or has no valid pace (reviewer nit from run 3 closed). Left: kit template drift vs FALLBACK_LANE_TEMPLATES.policy (kit is DONE; no action), minor (a) lintBrief junk sections. All contract done-when items hold; next run: DONE per CLAUDE.md "Lane finished" after reading outboxes.

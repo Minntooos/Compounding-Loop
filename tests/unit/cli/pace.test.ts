@@ -30,6 +30,13 @@ describe('loop pace', () => {
     expect(formatPaceReport(report)).toContain('api');
   });
 
+  it('show warns when the file is present but unusable', async () => {
+    await writeFile(path.join(dir, '.ai', 'policy.json'), '{oops');
+    const report = await runPaceShow(dir);
+    expect(report.pace).toBe('balanced');
+    expect(formatPaceReport(report)).toContain('warning: .ai/policy.json is not valid JSON');
+  });
+
   it('set writes the file and commits with Lane: control', async () => {
     const r = await runPaceSet(dir, 'careful', { push: false });
     expect(r).toMatchObject({ changed: ['all'], committed: true });

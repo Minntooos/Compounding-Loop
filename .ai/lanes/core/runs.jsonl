@@ -2,3 +2,4 @@
 {"at":"2026-10-13T02:12:10.008Z","lane":"core","units":["audit","schedule-steer-parsers","schedule-steer-cli","classify-run-slots","lint-brief-rounds","next-round-draft","check-lanes-schedule"],"pushed":true,"note":"run 1"}
 {"at":"2026-10-13T03:20:00Z","lane":"core","units":["init-lanes-run-templates"],"tests":{"passed":747,"failed":0},"pushed":false,"note":"run 2"}
 {"at":"2026-10-13T05:17:19Z","lane":"core","units":["pace-policy"],"tests":{"passed":756,"failed":0},"pushed":true,"note":"run 3"}
+{"at":"2026-10-13T06:11:19Z","lane":"core","units":["pace-show-corrupt-warning"],"tests":{"passed":760,"failed":0},"pushed":true,"note":"run 4"}

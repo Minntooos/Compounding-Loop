@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PACES, PACE_SUMMARY, emptyPolicy, formatPolicy, isPace, paceFor, parsePolicy, withPace } from '../../../src/core/parse/policy.js';
+import { PACES, PACE_SUMMARY, emptyPolicy, formatPolicy, isPace, paceFor, parsePolicy, policyProblem, withPace } from '../../../src/core/parse/policy.js';
 
 describe('policy', () => {
   it('reads the global pace and lane overrides', () => {
@@ -37,5 +37,14 @@ describe('policy', () => {
     expect(isPace('fast')).toBe(true);
     expect(isPace('warp')).toBe(false);
     expect(isPace(3)).toBe(false);
+  });
+});
+
+describe('policyProblem', () => {
+  it('is silent for a usable file and names the problem otherwise', () => {
+    expect(policyProblem('{"version":1,"pace":"fast","lanes":{}}')).toBeUndefined();
+    expect(policyProblem('{oops')).toMatch(/not valid JSON/);
+    expect(policyProblem('{"pace":"warp"}')).toMatch(/no valid "pace"/);
+    expect(policyProblem('[]')).toMatch(/no valid "pace"/);
   });
 });

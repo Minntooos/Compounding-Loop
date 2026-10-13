@@ -1,4 +1,4 @@
-import { PACES, PACE_SUMMARY, POLICY_FILE, formatPolicy, isPace, paceFor, parsePolicy, withPace } from '../core/parse/policy.js';
+import { PACES, PACE_SUMMARY, POLICY_FILE, formatPolicy, isPace, paceFor, parsePolicy, policyProblem, withPace } from '../core/parse/policy.js';
 import type { Pace, Policy } from '../core/types.js';
 import { syncFirst } from './pause.js';
 import { checkLane, commitFiles, read, writeRel, type ScheduleOptions, type ScheduleResult } from './schedule.js';
@@ -9,16 +9,25 @@ export interface PaceReport {
   pace: Pace;
   /** Every lane with its own entry in the file, with its pace. */
   overrides: Record<string, Pace>;
+  /** Set when the file exists but is unusable as written. */
+  warning?: string;
 }
 
 export async function runPaceShow(dir: string): Promise<PaceReport> {
-  const policy = await readPolicy(dir);
-  return { pace: policy.pace, overrides: Object.fromEntries(Object.keys(policy.lanes).map((lane) => [lane, paceFor(policy, lane)])) };
+  const text = await read(dir, POLICY_FILE);
+  const policy = parsePolicy(text ?? '');
+  const warning = text === undefined ? undefined : policyProblem(text);
+  return {
+    pace: policy.pace,
+    overrides: Object.fromEntries(Object.keys(policy.lanes).map((lane) => [lane, paceFor(policy, lane)])),
+    ...(warning ? { warning } : {}),
+  };
 }
 
 export function formatPaceReport(report: PaceReport): string {
   const lines = [`pace ${report.pace}: ${PACE_SUMMARY[report.pace]}`];
   for (const [lane, pace] of Object.entries(report.overrides)) lines.push(`${lane.padEnd(10)} ${pace}: ${PACE_SUMMARY[pace]}`);
+  if (report.warning) lines.push(`warning: ${report.warning}`);
   return lines.join('\n');
 }
 

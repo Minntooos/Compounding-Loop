@@ -37,6 +37,18 @@ export function parsePolicy(text: string): Policy {
   }
 }
 
+/** Why a present policy file is not used as written (so `loop pace show` can say it reads as balanced), or undefined when it is fine. */
+export function policyProblem(text: string): string | undefined {
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text);
+  } catch {
+    return `${POLICY_FILE} is not valid JSON, so every lane runs at ${DEFAULT_PACE}.`;
+  }
+  const pace = raw && typeof raw === 'object' && !Array.isArray(raw) ? (raw as Record<string, unknown>).pace : undefined;
+  return isPace(pace) ? undefined : `${POLICY_FILE} has no valid "pace" (${PACES.join(', ')}), so it reads as ${DEFAULT_PACE}.`;
+}
+
 export function formatPolicy(policy: Policy): string {
   const lanes = Object.entries(policy.lanes).map(([lane, e]) => `    ${JSON.stringify(lane)}: ${JSON.stringify(e)}`);
   return `{\n  "version": 1,\n  "pace": ${JSON.stringify(policy.pace)},\n  "lanes": {${lanes.length ? `\n${lanes.join(',\n')}\n  ` : ''}}\n}\n`;
