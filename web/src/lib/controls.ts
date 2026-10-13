@@ -47,3 +47,13 @@ export function notPushedText(loopId: string, pushError: string | undefined, don
   const why = pushError?.trim().replace(/\.$/, '');
   return `${done} in the ${loopId} folder but not pushed${why ? `: ${why}` : ''}. Run git push there so the lanes see it.`;
 }
+
+/**
+ * After a Start round request whose reply never came (network drop, timeout), did the server start the round anyway?
+ * Starting archives the round's DONE files and adds the new round, so the loop is no longer done or its round moved on.
+ * The dialog asks this before offering Retry: a second POST would start yet another round.
+ */
+export function roundStarted(before: Pick<LoopDetail, 'round' | 'state'>, after: Pick<LoopDetail, 'round' | 'state'> | null | undefined): boolean {
+  if (!after) return false;
+  return after.round > before.round || (before.state === 'done' && after.state !== 'done');
+}

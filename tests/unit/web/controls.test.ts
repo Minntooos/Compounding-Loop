@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { githubUrl, notPushedText, releaseBlocker, slugOf } from '../../../web/src/lib/controls.js';
+import { githubUrl, notPushedText, releaseBlocker, roundStarted, slugOf } from '../../../web/src/lib/controls.js';
 
 const NOW = new Date('2026-10-11T14:05:00Z');
 describe('dashboard controls', () => {
@@ -32,5 +32,14 @@ describe('dashboard controls', () => {
     expect(notPushedText('my-loop', 'no upstream.')).toBe('Committed in the my-loop folder but not pushed: no upstream. Run git push there so the lanes see it.');
     expect(notPushedText('my-loop', undefined, 'Saved and committed')).toBe('Saved and committed in the my-loop folder but not pushed. Run git push there so the lanes see it.');
     expect(notPushedText('my-loop', '  ')).toBe('Committed in the my-loop folder but not pushed. Run git push there so the lanes see it.');
+  });
+  it('tells a round that started from one whose request was lost', () => {
+    const before = { round: 5, state: 'done' as const };
+    expect(roundStarted(before, { round: 6, state: 'building' })).toBe(true);
+    expect(roundStarted(before, { round: 5, state: 'building' })).toBe(true);
+    expect(roundStarted(before, { round: 6, state: 'done' })).toBe(true);
+    expect(roundStarted(before, { round: 5, state: 'done' })).toBe(false);
+    expect(roundStarted(before, null)).toBe(false);
+    expect(roundStarted(before, undefined)).toBe(false);
   });
 });

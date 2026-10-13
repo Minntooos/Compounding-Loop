@@ -3,8 +3,8 @@ import { AlertTriangle, Check } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { MIN_BRIEF_SCORE } from '@core/brief';
 import type { LoopDetail } from '@core/types';
-import { postControl, streamDraftBrief } from '../api/client';
-import { CHANGE_TEXT, githubUrl, notPushedText, slugOf } from '../lib/controls';
+import { api, postControl, streamDraftBrief } from '../api/client';
+import { CHANGE_TEXT, githubUrl, notPushedText, roundStarted, slugOf } from '../lib/controls';
 import { briefVerdict, draftInputsFor, draftPrompt, ingredientGroups } from '../lib/draft';
 import { copyText } from './WelcomeStrip';
 import { toast } from './Toasts';
@@ -42,6 +42,8 @@ export function NextRoundDialog({ loop, local, onClose }: { loop: LoopDetail; lo
   }, []);
 
   const { inputs, complete } = useMemo(() => draftInputsFor(loop), [loop]);
+  // The round this dialog starts, frozen at open: a refetch after Start already reports the next one.
+  const [round] = useState(inputs.round);
   const groups = useMemo(() => ingredientGroups(inputs), [inputs]);
   const prompt = useMemo(() => draftPrompt(inputs), [inputs]);
   const verdict = briefVerdict(brief);
@@ -92,15 +94,24 @@ export function NextRoundDialog({ loop, local, onClose }: { loop: LoopDetail; lo
       await qc.invalidateQueries();
       // Lanes read main on GitHub: a commit that was not pushed has not started anything for them.
       if (reply.pushError || reply.pushed === false) { setCommitted(true); setError(notPushedText(loop.id, reply.pushError)); setBusy(false); return; }
-      toast(`Round ${inputs.round} started`);
+      toast(`Round ${round} started`);
       onClose();
-    } catch (e) { setError(e instanceof Error ? e.message : String(e)); setBusy(false); }
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      // The reply can be lost after the server committed: look before offering Retry, which would start another round.
+      const fresh = await qc.fetchQuery({ queryKey: ['loop', loop.id], queryFn: () => api.loop(loop.id), staleTime: 0 }).catch(() => undefined);
+      if (roundStarted(loop, fresh)) {
+        setCommitted(true);
+        setError(`Round ${round} may have started: the loop changed, but the request failed (${message.trim().replace(/\.$/, '')}). Run git status and git log in the ${loop.id} folder before trying again.`);
+      } else setError(message);
+      setBusy(false);
+    }
   }
 
   const muted = { color: 'var(--muted)' };
   return (
     <dialog ref={ref} onClose={onClose} onCancel={(e) => { if (busy) e.preventDefault(); }} aria-labelledby="next-round-title" data-testid="control-dialog" className="w-[min(44rem,calc(100vw-2rem))] rounded-lg border p-4" style={{ background: 'var(--surface)', color: 'var(--text)', borderColor: 'var(--border)' }}>
-      <h2 id="next-round-title" className="text-[15px] font-semibold">Start round {inputs.round}?</h2>
+      <h2 id="next-round-title" className="text-[15px] font-semibold">Start round {round}?</h2>
       <p className="mt-2">{CHANGE_TEXT['next-round']}</p>
 
       <details open className="mt-3 rounded border p-2" style={{ borderColor: 'var(--border)' }} data-testid="draft-ingredients">
@@ -118,7 +129,7 @@ export function NextRoundDialog({ loop, local, onClose }: { loop: LoopDetail; lo
         </div>
       </details>
 
-      <label className="mt-3 block text-[13px]" htmlFor="next-brief">Brief for round {inputs.round}</label>
+      <label className="mt-3 block text-[13px]" htmlFor="next-brief">Brief for round {round}</label>
       <textarea id="next-brief" value={brief} onChange={(e) => setBrief(e.target.value)} rows={16} readOnly={streaming} aria-describedby="brief-score" className="mt-1 block w-full rounded border p-2 font-mono text-[13px] max-md:h-56" style={field} />
       <p id="brief-score" data-testid="brief-score" className="mt-1 flex items-start gap-1.5 text-[13px]" style={{ color: verdict.ok ? 'var(--text)' : 'var(--muted)' }}>
         {verdict.ok ? <Check aria-hidden size={14} className="mt-0.5 shrink-0" style={{ color: 'var(--done)' }} /> : <AlertTriangle aria-hidden size={14} className="mt-0.5 shrink-0" style={{ color: 'var(--blocked)' }} />}
@@ -155,7 +166,7 @@ export function NextRoundDialog({ loop, local, onClose }: { loop: LoopDetail; lo
       {error && <p role="alert" className="mt-2 text-[13px]" style={{ color: 'var(--failing)' }}>{error}</p>}
       <div className="mt-4 flex flex-wrap justify-end gap-2">
         <button ref={close} type="button" disabled={busy} onClick={onClose} className="min-h-11 rounded border px-4 disabled:opacity-60" style={{ borderColor: 'var(--border)' }}>{committed ? 'Close' : 'Cancel'}</button>
-        {!committed && <button type="button" disabled={busy || streaming || blocked !== undefined} aria-describedby={blocked ? 'next-round-blocked' : undefined} onClick={() => void go()} className="min-h-11 rounded px-4 font-semibold disabled:opacity-60" style={{ background: 'var(--accent)', color: 'var(--bg)' }}>{busy ? 'Starting…' : error ? 'Retry' : `Start round ${inputs.round}`}</button>}
+        {!committed && <button type="button" disabled={busy || streaming || blocked !== undefined} aria-describedby={blocked ? 'next-round-blocked' : undefined} onClick={() => void go()} className="min-h-11 rounded px-4 font-semibold disabled:opacity-60" style={{ background: 'var(--accent)', color: 'var(--bg)' }}>{busy ? 'Starting…' : error ? 'Retry' : `Start round ${round}`}</button>}
       </div>
     </dialog>
   );

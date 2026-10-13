@@ -132,3 +132,39 @@ test('local: committed but not pushed offers Close, not a Retry that would start
   await expect(dialog.getByRole('button', { name: 'Close' })).toBeFocused();
   expect(posted).toEqual(['next-round', 'pause']);
 });
+
+test('local: a lost reply after the round started keeps its round number and offers Close, not a Retry that would start another round', async ({ page }) => {
+  await writableServer(page);
+  await serve(page, { demo: false });
+  const posted: string[] = [];
+  let started = false;
+  await page.route('**/api/loops/self', (r) => r.fulfill({ json: started ? { ...LOOP, state: 'building', round: 6, roundsTotal: 6, draftInputs: { ...DRAFT_INPUTS, round: 7 } } : LOOP }));
+  // The server commits the round, then the connection drops before the reply arrives.
+  await page.route('**/api/loops/self/next-round', (r) => { posted.push('next-round'); started = true; return r.abort('connectionreset'); });
+  await page.goto('/#/loop/self');
+  await page.getByRole('button', { name: 'Start next round' }).click();
+  const dialog = page.getByTestId('control-dialog');
+  await dialog.getByLabel('Brief for round 6').fill(GOOD_BRIEF);
+  await dialog.getByRole('button', { name: 'Start round 6' }).click();
+  await expect(dialog.getByRole('alert')).toHaveText(/^Round 6 may have started: the loop changed, but the request failed \(.+\)\. Run git status and git log in the self folder before trying again\.$/);
+  await expect(dialog.getByRole('heading', { level: 2 })).toHaveText('Start round 6?');
+  await expect(dialog.getByRole('button', { name: /Retry|Start round/ })).toHaveCount(0);
+  await expect(dialog.getByRole('button', { name: 'Close' })).toBeFocused();
+  expect(posted).toEqual(['next-round']);
+});
+
+test('local: a lost reply when nothing changed keeps Retry', async ({ page }) => {
+  await writableServer(page);
+  await serve(page, { demo: false });
+  const posted: string[] = [];
+  await page.route('**/api/loops/self/next-round', (r) => { posted.push('next-round'); return posted.length === 1 ? r.abort('connectionreset') : r.fulfill({ json: { ok: true, changed: true, committed: true, pushed: true } }); });
+  await page.goto('/#/loop/self');
+  await page.getByRole('button', { name: 'Start next round' }).click();
+  const dialog = page.getByTestId('control-dialog');
+  await dialog.getByLabel('Brief for round 6').fill(GOOD_BRIEF);
+  await dialog.getByRole('button', { name: 'Start round 6' }).click();
+  await expect(dialog.getByRole('alert')).toBeVisible();
+  await dialog.getByRole('button', { name: 'Retry' }).click();
+  await expect(page.getByTestId('toast')).toContainText('Round 6 started');
+  expect(posted).toEqual(['next-round', 'next-round']);
+});
