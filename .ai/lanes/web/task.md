@@ -1,7 +1,7 @@
 # Lane: web — round 5 (0.5.0 "Cockpit")
 
 Run: 17 / 20
-Status: units 1-8 done; run 16 cleared QUIET_KINDS copy, steer-history gap, health repeat/orphan minors; next: remaining minors (list in Handoff)
+Status: units 1-8 done; run 17 ran the final five-questions review and fixed its two blockers (home shot without self card, Last activity older than last run); next: decide Lane finished (see Handoff)
 Round 4 record: `.ai/lanes/web/done-v4.md` (`git show 02874e8:.ai/lanes/web/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
@@ -76,7 +76,11 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - 2026-10-13 run 15: when Start round's POST throws, the dialog refetches the loop and, if the round moved on or the loop left `done`, says the round "may have started" with Close only: core's runLaneRound has no repeat guard, so a blind Retry would start a second round. A failed refetch still offers Retry (we cannot know). The dialog's round number is frozen at open.
 - 2026-10-13 run 15: the Timeline and Runs lane-filter chips are one `LaneFilter` component with the A6 edge fade (five lanes overflow 343 px).
 
+- 2026-10-13 run 17: docs screenshots shoot the Pages demo from `staticApiFiles(loadDemoSnapshot())` (dist), with live.json 404'd, so every shot is the frozen snapshot a visitor sees (self card included), never today's GitHub state.
+- 2026-10-13 run 17: card "Last activity" = newer of lastRun.at and lastCommit.at (`lastActivity` moved from strip.ts to card.ts, shared). Easy to reverse.
+
 ## Confirmed
+- CONFIRMED (run 17): the bundled web snapshot (`mockSnapshot`) has no self loop; only `api/loops.json` from demo/export-static.mjs (and the demo server) includes it.
 - CONFIRMED (run 11): the e2e/dashboard server serves the self loop from dist/server/this-repo.json (copied by `npm run build`), not demo/ directly.
 - CONFIRMED: Playwright route handlers that `route.fetch()` can fail a test with "Response has been disposed" when the test ends mid-fetch; cockpit.spec.ts serves static fixtures instead (3/3 green after, 1/4 flaky before).
 - CONFIRMED: the demo's self loop is a done laned loop with a waiting release, so the demo Inbox shows a release row since run 1 (tests/e2e/screens.spec.ts routes `/api/loops` to [] for the empty state).
@@ -92,8 +96,8 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
-Run 16 (2026-10-13 18:44-18:55 UTC; stale clone, branch `lane-run`, pushed `HEAD:main`): QUIET_KINDS imported from src/server/live (5deeb02); steer-history gap under lane cards (a8fab24); health rows hide a pure-repeat reason and tie the proof's last two words (d0b20d6 + this commit, screens re-shot). Full npm test green at start (904 unit, 263 e2e); later units ran typecheck, health unit, lane/health e2e. Design reviewer: pass with minors.
-Open minors: phone strip words ("Limits not checked" vs laptop "Limit stops"; needs a DESIGN pass + re-shoot); no auto-downshift notice (waiting core/server); heat-map laptop empty band before the first slot (truthful: no slot expected; a note would need a DESIGN pass); near-repeat health reasons are server wording (ask server: leak reason "no leaked strings…", lane-stalled "no lane is stalled"); one-letter heat-map lane labels on phone.
-Waiting on: nothing. Lane is close to done: if the next run finds only these minors, consider "Lane finished" (all done-whens pass per audit).
-Gotchas: the e2e/dashboard server serves dist/: after web or demo edits run `npm run build` before a single `npx playwright test x`. Never `pkill -f` a pattern; keep the PID. A layout regression test must sweep lengths (see health.spec.ts long proof).
-Design reviewer recipe: fixture routes as in tests/e2e/lane-schedule.spec.ts in a node script importing `node_modules/playwright/index.mjs` with executablePath `/opt/pw-browsers/chromium` against `npx vite preview --port 4182` (after build). Web lib files import core/server with relative `../../../src/...js`. `SCREENS=1 npx playwright test screenshots` re-shoots web/design/docs.
+Run 17 (2026-10-13 19:44-20:02 UTC; stale clone, branch `lane-run`, pushed `HEAD:main`): full npm test green at start and before the second push (263 e2e). Pushed ef5c182 (screenshot spec serves the Pages static api; 36 shots re-shot) and 4b03f87 (Last activity = newer of run and commit). Independent five-questions review, second pass: needs me yes, running yes (after 4b03f87), limit stops yes, CI yes, ship partly-but-truthful (segment omitted while building, DESIGN §12 C1). Recorded in .ai/audit/web.md Run 17.
+Open minors: phone strip drops "in 5 h"/"next:" (Decision run 13); amber limit stops beside "Nothing needs you" could say they resume by themselves; "Last activity" label wraps on the building card at 375 px; docs lane chip (moon) has no legend; one-letter heat-map lane labels on phone; no auto-downshift notice (waits core/server).
+Next run: every done-when passes except that "ready to ship" is "partly" by design while the self loop is building. Unless a steer or message says otherwise, record that judgement under Decisions and follow "Lane finished" in CLAUDE.md (DONE.md with the minors above as next improvements). Run budget: 17/20.
+Gotchas: the e2e/dashboard server serves dist/: after web or demo edits run `npm run build` before a single `npx playwright test x`; the screenshot spec also imports dist/server. Re-shoots drift "Nh ago" bytes in self-lanes-*: `git checkout --` unchanged shots before committing. Never `pkill -f` a pattern.
+Design reviewer recipe: `SCREENS=1 npx playwright test screenshots --project=laptop`, then have a reviewer read the PNGs in web/design/docs and answer the five questions from IDEA.md Round 5.
