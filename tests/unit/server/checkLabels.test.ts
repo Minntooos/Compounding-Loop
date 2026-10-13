@@ -73,3 +73,16 @@ describe('three-state checks (Round 5 A3: never-measured checks are "not checked
     expect(failingTestsCheck({ passed: 3, failed: 0 } as never).state).toBeUndefined();
   });
 });
+
+describe('local card CI (review: an unmeasured test run must not read "CI passing")', () => {
+  it('omits ci when no test result was recorded', async () => {
+    const { mkdtemp, writeFile } = await import('node:fs/promises');
+    const { tmpdir } = await import('node:os');
+    const path = await import('node:path');
+    const { readLoop } = await import('../../../src/server/loops.js');
+    const dir = await mkdtemp(path.join(tmpdir(), 'ci-unchecked-'));
+    await writeFile(path.join(dir, 'package.json'), '{"name":"x","version":"0.0.1"}');
+    const loop = await readLoop(dir, new Date());
+    expect(loop.ci).toBeUndefined();
+  });
+});

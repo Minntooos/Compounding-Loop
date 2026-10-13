@@ -157,7 +157,7 @@ export async function readLoop(dir: string, now: Date = new Date()): Promise<Loo
     id: path.basename(dir),
     name: path.basename(dir),
     ...(site && { url: site, demoUrl: site }),
-    ...(ciCheck && { ci: { ok: ciCheck.ok, reason: ciCheck.reason } }),
+    ...(ciCheck && ciCheck.state !== 'unchecked' && { ci: { ok: ciCheck.ok, reason: ciCheck.reason } }),
     ...(cardTests && { tests: cardTests }),
     state: status.state,
     reason: releaseWaiting && status.state === 'done' ? `${roundLabel} · release waiting on you` : status.reason,
