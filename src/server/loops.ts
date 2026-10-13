@@ -4,10 +4,13 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 import { runAnswer } from '../cli/loops.js';
 import { runDoctor } from '../cli/doctor.js';
+import { gatherDraftPrompt, realClaude, type ClaudeRunner } from '../cli/draft.js';
 import { runLaneRound } from '../cli/laneRound.js';
 import { runPause, runResume } from '../cli/pause.js';
 import { runScheduleAction, runSteer } from '../cli/schedule.js';
 import { readLaneStatuses } from '../cli/laneStatus.js';
+import { lintBrief } from '../core/brief.js';
+import { draftClaudeArgs } from '../core/draftBrief.js';
 import { parseLanesConfig } from '../core/lanes.js';
 import { parseBlocked } from '../core/blocked.js';
 import { readLoopFacts, readRunCounter } from '../core/repo.js';
@@ -218,11 +221,12 @@ const pushQuietly = (dir: string) =>
   execFileAsync('git', ['push'], { cwd: dir, timeout: 30_000, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }).then(() => true, () => false);
 
 /** A DataSource over a folder of loop clones, re-read on every call so the dashboard is never stale. */
-export function projectsSource(projectsDir: string, now: () => Date = () => new Date()): DataSource {
+export function projectsSource(projectsDir: string, now: () => Date = () => new Date(), claude: ClaudeRunner = realClaude): DataSource {
   const all = async () => Promise.all((await findLoopDirs(projectsDir)).map((dir) => readLoop(dir, now())));
   // Match the id against folder names; never build a path from it.
   // One git-changing action per clone at a time: a double click must not race on index.lock.
   const busy = new Set<string>();
+  const drafting = new Set<string>();
   const exclusive = async <T>(dir: string, run: () => Promise<T>): Promise<T> => {
     if (busy.has(dir)) throw new Error('Another action on this loop is still running; try again in a moment.');
     busy.add(dir);
@@ -283,6 +287,25 @@ export function projectsSource(projectsDir: string, now: () => Date = () => new 
         if (dir === undefined) return undefined;
         const { changed, pushed, pushError } = await exclusive(dir, () => runSteer(dir, lane, text, { ...options, now: now() }));
         return { changed: changed.length > 0, lanes: changed, ...(pushed !== undefined && { pushed }), ...(pushError !== undefined && { pushError }) };
+      },
+      draftBrief: async (id, options, onProgress) => {
+        const dir = await loopDir(id);
+        if (dir === undefined) return undefined;
+        // Read-only, so it does not take `exclusive`; one draft per clone at a time still, because each costs a Claude run.
+        if (drafting.has(dir)) throw new Error('A draft for this loop is already being written.');
+        drafting.add(dir);
+        try {
+          onProgress('Reading DONE files, audit findings and steering');
+          const prompt = await gatherDraftPrompt(dir);
+          onProgress('Asking Claude Code to draft the brief (this takes a few minutes)');
+          const draft = (await claude(draftClaudeArgs(prompt, options.model), dir)).trim();
+          if (!draft) throw new Error('Claude returned an empty draft. Try again.');
+          onProgress('Scoring the draft');
+          const { score, gaps } = lintBrief(draft);
+          return { draft, score, gaps };
+        } finally {
+          drafting.delete(dir);
+        }
       },
       schedule: async (id, action) => {
         const dir = await loopDir(id);

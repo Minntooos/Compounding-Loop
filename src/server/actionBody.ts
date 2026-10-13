@@ -40,3 +40,11 @@ export function parseScheduleBody(body: unknown): Parsed<LaneScheduleAction> {
       return { ok: false, error: 'action must be pause, resume, snooze or wake' };
   }
 }
+
+/** An optional `model` for `claude -p --model`; it is an argument, never a shell string, but keep it to model-id characters anyway. */
+export function parseDraftBody(body: unknown): Parsed<{ model?: string }> {
+  const { model } = asRecord(body);
+  if (model === undefined) return { ok: true, value: {} };
+  if (typeof model !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9._:[\]-]{0,63}$/.test(model)) return { ok: false, error: 'model must be a model id such as claude-opus-5-5' };
+  return { ok: true, value: { model } };
+}

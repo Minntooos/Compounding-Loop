@@ -105,13 +105,15 @@ describe('sessions and live wiring', () => {
     expect(sessionKey('https://claude.ai/code/session_01ABCDEFGH/')).toBe('ABCDEFGH');
   });
 
-  it('buildLiveLoop returns runs, the next slots, the fleet line and the silent-lanes item', () => {
+  it('buildLiveLoop returns runs, the next slots, the fleet line and no usage-limit item once the routines look off', () => {
     const lanesJson = JSON.stringify({ lanes: [{ name: 'core', owns: ['src/**'], cron: '0 * * * *' }], shared: [] });
     const { detail, inbox } = buildLiveLoop({ slug: 'o/n', commits: [{ sha: 'abcdef012', commit: { message: 'core: x', committer: { date: '2026-10-09T00:00:00Z' } } }], runs: {}, now: NOW, files: { '.ai/lanes.json': lanesJson } });
     expect(detail.runs?.[0]?.outcome).toBe('no-run-recorded');
     expect(detail.nextRuns).toEqual([{ lane: 'core', at: '2026-10-11T13:00:00.000Z' }]);
     expect(detail.lastRun?.outcome).toBe('no-run-recorded');
-    expect(inbox.map((i) => i.kind)).toEqual(['lanes-not-running']);
+    // two days of silence is "routines look off" (web's Needs-you row), which replaces the usage-limit item
+    expect(detail.runOutcomes?.routinesLookOff).toBe(true);
+    expect(inbox.map((i) => i.kind)).toEqual([]);
   });
 });
 

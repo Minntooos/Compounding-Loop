@@ -5,7 +5,7 @@ import { serve } from '@hono/node-server';
 import { Hono, type Context } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import { DEFAULT_WATCH, EventBus, watchProjects, type WatchOptions } from './events.js';
-import { parseScheduleBody, parseSteerBody, type Parsed } from './actionBody.js';
+import { parseDraftBody, parseScheduleBody, parseSteerBody, type Parsed } from './actionBody.js';
 import { projectsSource } from './loops.js';
 import { SECURITY_HEADERS, staticHandler } from './static.js';
 import { loadDemoSnapshot, snapshotSource, type DataSource, type LoopControls } from './data.js';
@@ -135,6 +135,22 @@ export async function createApp(options: AppOptions): Promise<Hono> {
     const action = await validated(c, parseScheduleBody);
     if (action instanceof Response) return action;
     return control(c, (controls) => controls.schedule(c.req.param('id'), action));
+  });
+  // Draft the next brief: SSE `progress` steps, then `draft` ({draft, score, gaps}) or `error`. Nothing is written to the clone.
+  app.post('/api/loops/:id/draft-brief', async (c) => {
+    const controls = source.control;
+    if (!controls) return c.json({ error: 'demo is read-only' }, 409);
+    const body = await validated(c, parseDraftBody);
+    if (body instanceof Response) return body;
+    return streamSSE(c, async (stream) => {
+      const send = (event: string, data: unknown) => stream.writeSSE({ event, data: JSON.stringify(data) });
+      try {
+        const result = await controls.draftBrief(c.req.param('id'), body, (step) => void send('progress', { step }).catch(() => undefined));
+        await (result ? send('draft', result) : send('error', { error: 'no such loop', status: 404 }));
+      } catch (error) {
+        await send('error', { error: error instanceof Error ? error.message : String(error), status: 422 });
+      }
+    });
   });
   app.get('/api/doctor', async (c) =>
     c.json(source.doctor ? await source.doctor() : { report: 'Run `npx compounding-loop doctor` on your own machine to check git, gh, Claude Code and Chromium.', passed: true }),

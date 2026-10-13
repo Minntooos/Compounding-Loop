@@ -31,6 +31,17 @@ export interface LoopControls {
   steer(id: string, lane: string, text: string, options?: { standing?: boolean; author?: string }): Promise<(ControlResult & { lanes: string[] }) | undefined>;
   /** Pause, resume, snooze or wake one lane (`all` for wake) in `.ai/schedule.json`. */
   schedule(id: string, action: LaneScheduleAction): Promise<(ControlResult & { lanes: string[] }) | undefined>;
+  /** Drafts the next round's brief with `claude -p` (read-only tools), reporting steps as it goes. Writes nothing: the owner reviews the draft, then sends it to `nextRound`. */
+  draftBrief(id: string, options: { model?: string }, onProgress: (step: string) => void): Promise<BriefDraft | undefined>;
+}
+
+import type { BriefGap } from '../core/brief.js';
+
+export interface BriefDraft {
+  draft: string;
+  /** `lintBrief` score, 0-100. */
+  score: number;
+  gaps: BriefGap[];
 }
 
 /** The owner actions on `.ai/schedule.json`; `until` is an ISO time, a date or a span such as `3h`. */
