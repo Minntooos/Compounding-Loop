@@ -12,6 +12,7 @@ import { Inbox } from './components/Inbox';
 import { LoopDetail } from './components/LoopDetail';
 import { NewLoop } from './components/NewLoop';
 import { Settings } from './components/Settings';
+import { StatusStrip } from './components/StatusStrip';
 import { onToast, Toasts, type Toast } from './components/Toasts';
 import { WelcomeStrip } from './components/WelcomeStrip';
 import { getLive, liveStore } from './api/live';
@@ -135,6 +136,7 @@ function Shell() {
             {theme === 'dark' ? <Sun aria-hidden size={18} /> : <Moon aria-hidden size={18} />}
           </button>
         </div>
+        <StatusStrip {...(route.name === 'loop' && { loopId: route.id })} />
       </header>
       <main className="mx-auto max-w-6xl px-4 py-6">
         {server.data === false && route.name === 'fleet' && <WelcomeStrip />}

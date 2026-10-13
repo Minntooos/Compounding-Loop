@@ -1,34 +1,30 @@
 import { useQuery } from '@tanstack/react-query';
 import { Fragment, useState } from 'react';
-import { CheckCircle2, Inbox as InboxIcon } from 'lucide-react';
+import { Inbox as InboxIcon } from 'lucide-react';
 import type { InboxItem, LoopState, LoopSummary } from '@core/types';
-import { api } from '../api/client';
+import { api, hasServer } from '../api/client';
 import { cardFacts, laneProgress, statusLine, roundProgress, runBudget, SELF_BUILD_ID, selfFirst } from '../lib/card';
 import { STATE_LABEL } from '../lib/format';
-import { lanesNeedingYou, needsYouCount, releaseWaiting } from '../lib/lanes';
+import { attentionItems } from '../lib/lanes';
+import { needsYouRows } from '../lib/needsYou';
+import { NeedsYouList } from './NeedsYouList';
 import { LaneStrip } from './LaneStrip';
 import { ProgressBar } from './ProgressBar';
 import { StatusBadge } from './StatusBadge';
 import { LoadError, Loading } from './QueryState';
 
-function NeedsYou({ loops, inbox }: { loops: LoopSummary[]; inbox: InboxItem[] }) {
-  const count = needsYouCount(loops, inbox);
-  const waiting = loops.filter(releaseWaiting);
-  // Inbox items open the inbox; otherwise the problem is a lane or a failing loop, so open that loop.
-  const trouble = loops.find((l) => lanesNeedingYou(l.lanes).length > 0 || l.state === 'failing' || releaseWaiting(l));
-  const href = inbox.length === 0 && trouble ? `#/loop/${encodeURIComponent(trouble.id)}` : '#/inbox';
-  if (count === 0) {
-    return (
-      <p role="status" className="flex items-center gap-2 rounded-lg border px-4 py-3 font-medium" style={{ borderColor: 'var(--done)', color: 'var(--done)' }}>
-        <CheckCircle2 aria-hidden size={18} />Nothing needs you
-      </p>
-    );
-  }
+function NeedsYou({ loops, inbox, demo }: { loops: LoopSummary[]; inbox: InboxItem[]; demo: boolean }) {
+  const items = attentionItems(loops, inbox);
+  // Nothing to do: the status strip already says "Nothing needs you", so the fleet adds no second banner.
+  if (items.length === 0) return null;
+  const count = items.length;
   return (
-    <a href={href} className="flex items-center gap-2 rounded-lg border px-4 py-3 font-medium" style={{ borderColor: 'var(--blocked)', color: 'var(--blocked)' }}>
-      <InboxIcon aria-hidden size={18} />{count} {count === 1 ? 'thing needs' : 'things need'} you
-      {waiting.length > 0 && <span className="font-normal"> · {waiting.map((l) => `${l.name}: release waiting on you`).join(', ')}</span>}
-    </a>
+    <section aria-labelledby="needs-you-h" className="space-y-2">
+      <h2 id="needs-you-h" className="text-[15px] font-semibold">
+        <a href="#/inbox" className="inline-flex items-center gap-2" style={{ color: 'var(--blocked)' }}><InboxIcon aria-hidden size={18} />{count} {count === 1 ? 'thing needs' : 'things need'} you</a>
+      </h2>
+      <NeedsYouList rows={needsYouRows(items, loops, demo)} label="Needs you" />
+    </section>
   );
 }
 
@@ -87,6 +83,7 @@ export function Fleet() {
   const [filter, setFilter] = useState<Filter>('all');
   const loops = useQuery({ queryKey: ['loops'], queryFn: api.loops });
   const inbox = useQuery({ queryKey: ['inbox'], queryFn: api.inbox });
+  const server = useQuery({ queryKey: ['server'], queryFn: hasServer });
   if (loops.isPending || inbox.isPending) return <Loading what="Loading the fleet…" />;
   if (loops.isError || inbox.isError) return <LoadError what="the fleet" onRetry={() => { void loops.refetch(); void inbox.refetch(); }} busy={loops.isFetching || inbox.isFetching} />;
   if (loops.data.length === 0) {
@@ -100,7 +97,7 @@ export function Fleet() {
   }
   return (
     <div className="space-y-5">
-      <NeedsYou loops={loops.data} inbox={inbox.data} />
+      <NeedsYou loops={loops.data} inbox={inbox.data} demo={server.data === false} />
       <FilterBar loops={loops.data} value={filter} onChange={setFilter} />
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loops">
         {selfFirst(loops.data.filter((l) => filter === 'all' || l.state === filter)).map((l) => <LoopCard key={l.id} loop={l} />)}

@@ -34,7 +34,7 @@ test('live mode: the header says Live and the fleet shows the mocked GitHub stat
   await mockLive(page, 'ok');
   await page.goto('/#/');
   await expect(page.getByRole('status').filter({ hasText: /^Live · updated \d\d:\d\d UTC$/ })).toBeVisible();
-  const card = page.getByRole('link', { name: /compounding-loop/ }).first();
+  const card = page.getByTestId('loop-card').filter({ hasText: 'compounding-loop' }).first();
   await expect(card).toContainText('7 of 20 runs');
   await card.click();
   await expect(page.getByText('live mocked commit').first()).toBeVisible();

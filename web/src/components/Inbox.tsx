@@ -4,7 +4,9 @@ import type { InboxItem } from '@core/types';
 import { api, hasServer, postAnswer } from '../api/client';
 import { editFileUrl } from '../../../src/server/controls.js';
 import { slugOf } from '../lib/controls';
-import { attentionItems, describeAttention } from '../lib/lanes';
+import { attentionItems } from '../lib/lanes';
+import { needsYouRows } from '../lib/needsYou';
+import { NeedsYouList } from './NeedsYouList';
 import { relativeTime } from '../lib/format';
 import { LoadError, Loading } from './QueryState';
 
@@ -63,16 +65,7 @@ export function Inbox() {
   return (
     <>
     {notice && <p role="status" style={{ color: 'var(--done)' }}>{notice}</p>}
-    {others.length > 0 && (
-      <ul className="mb-3 space-y-2" aria-label="Loops that need you">
-        {others.map((a, i) => (
-          <li key={`${a.loopId}/${a.kind}/${i}`} data-testid="attention-row" className="flex flex-wrap justify-between gap-2 rounded-lg border p-3" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
-            <span>{describeAttention(a, loops.data?.find((l) => l.id === a.loopId))}</span>
-            <a href={`#/loop/${encodeURIComponent(a.loopId)}`} className="font-semibold underline">Open {a.loopId}</a>
-          </li>
-        ))}
-      </ul>
-    )}
+    {others.length > 0 && <div className="mb-3"><NeedsYouList rows={needsYouRows(others, loops.data ?? [], server.data === false)} label="Loops that need you" /></div>}
     {items.length > 0 && <ul className="space-y-3" aria-label="Questions">
       {items.map((it, i) => {
         const key = `${it.loopId}/${it.file}`;
