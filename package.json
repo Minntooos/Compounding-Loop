@@ -1,6 +1,6 @@
 {
   "name": "compounding-loop",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Write the brief, check back tomorrow: unattended, verified Claude Code build loops with a local dashboard.",
   "type": "module",
   "license": "MIT",

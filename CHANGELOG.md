@@ -4,13 +4,21 @@ All notable changes are listed here. Format follows [Keep a Changelog](https://k
 
 ## [Unreleased]
 
-### Added ("Cockpit", 0.5.0)
+## [0.5.0] - 2026-10-14
+
+### Added ("Cockpit")
 - Steering: `loop steer <lane> "<text>" [--standing]` writes `.ai/lanes/<lane>/steer.md`, wakes the lane and commits; lanes acknowledge each entry with a `→` line.
 - Schedule: `loop schedule show|pause|resume|snooze|wake|update` over `.ai/schedule.json`; a lane that is not due replies "Not due" before installing anything, and idle lanes back off (3 h, 6 h, then sleep) and wake on steering, messages or a new round.
 - Pace: `.ai/policy.json` and `loop pace show|set` (careful, balanced, fast, sprint) set how much checking a run does; never a push with a failing check.
 - Thin routine prompts: lane and control-room routines point at `.ai/lane-run.md` / `.ai/control-run.md`; `loop init --lanes` writes them, with `schedule.json`, `steer.md` and `policy.json`.
 - `loop next-round --draft [--print-prompt]` drafts the next brief from the DONE lists, open findings and steering.
 - Dashboard: status strip, Needs-you rows with inline actions, lane × hour heat map of run outcomes, steer composer, schedule and pace controls, Draft with Claude. Docs: [Steer, schedule and pace a loop](docs/steering.md).
+
+### Fixed
+- The dashboard's round label no longer reads one round ahead ("Round 6" during round 5).
+- A lane that is not due, sleeping, paused or done is never shown as stalled.
+- Health shows unmeasured checks as "Not checked" with how to check, never OK.
+- Stopping a next-round draft says it was stopped, also on Windows when `claude` is not on PATH.
 
 ## [0.4.0] - 2026-10-12
 
