@@ -46,3 +46,26 @@ test('the Inbox lists what the badge counts: a stalled lane gets a row, not "Inb
   await expect(page.getByTestId('attention-row')).toContainText('Lane web is stalled');
   await expect(page.getByText(/Inbox empty/)).toHaveCount(0);
 });
+
+test('"Routines look off" gets one Needs-you row, a Stalled strip and the badge count, not one row per stalled lane', async ({ page }) => {
+  const lane = (name: string) => ({ name, state: 'stalled', run: 3, limit: 20, locked: false, unanswered: [] });
+  // Static fixtures, never route.fetch (see cockpit.spec.ts).
+  const off = {
+    id: 'off', name: 'off-loop', state: 'building', reason: 'Building', round: 5, roundsTotal: 5, run: 0, runLimit: 0, repoUrl: 'https://github.com/o/r',
+    lanes: [lane('web'), lane('core')], runOutcomes: { limitStops5h: 0, running: [], sleeping: [], routinesLookOff: true },
+  };
+  await page.route('**/api/loops', (route) => route.fulfill({ json: [off] }));
+  // The server also reports the silence as lanes not running (blaming the usage limit); "Routines look off" replaces it.
+  const silent = { loopId: 'off', kind: 'lanes-not-running', file: '.ai/lanes.json', question: 'Lanes are not running: web (6 missed). Check your plan\'s usage limit.', bestGuess: '', since: '2026-10-13T00:00:00Z' };
+  await page.route('**/api/inbox', (route) => route.fulfill({ json: [silent] }));
+  await page.goto('/');
+  await expect(page.getByTestId('nav-attention')).toHaveText('1');
+  await expect(page.getByTestId('status-strip').locator('[data-segment="state"]')).toHaveText('Stalled', { useInnerText: true });
+  const row = page.getByTestId('attention-row');
+  await expect(row).toHaveCount(1);
+  await expect(row).toContainText('Routines look off');
+  await expect(row).toHaveAttribute('data-group', 'stalled');
+  await page.goto('/#/inbox');
+  await expect(page.getByTestId('attention-row')).toContainText('Routines look off');
+  await expect(page.getByText(/Lanes are not running/)).toHaveCount(0);
+});

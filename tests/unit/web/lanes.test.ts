@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { LaneStatus, LoopSummary } from '../../../src/core/types.js';
-import { attentionItems, describeAttention, releaseWaiting, claimText, describeUnanswered, lanesNeedingYou, needsYouCount, waitingOnFinished } from '../../../web/src/lib/lanes.js';
+import { attentionItems, describeAttention, liveInbox, releaseWaiting, claimText, describeUnanswered, lanesNeedingYou, needsYouCount, waitingOnFinished } from '../../../web/src/lib/lanes.js';
 
 const lane = (name: string, state: LaneStatus['state'], waitingOn?: string[]): LaneStatus => ({ name, state, run: 1, limit: 30, locked: false, unanswered: [], ...(waitingOn ? { waitingOn } : {}) });
 const loop = (state: LoopSummary['state'], lanes?: LaneStatus[]): LoopSummary => ({ id: 'x', name: 'x', state, ...(lanes ? { lanes } : {}) }) as LoopSummary;
@@ -70,6 +70,17 @@ describe('attentionItems (round 5 A1, A4)', () => {
     const blocked = { ...loop('blocked', [lane('a', 'blocked'), lane('b', 'stalled')]), id: 'B' };
     const question = { ...release, loopId: 'B', kind: 'question' as const };
     expect(attentionItems([blocked, { ...loop('failing'), id: 'F' }], [question]).map((i) => `${i.kind}:${i.loopId}`)).toEqual(['inbox:B', 'lane:B', 'failing:F']);
+  });
+
+  it('lists "Routines look off" once per loop, instead of its stalled lanes and of the inbox\'s lanes-not-running item', () => {
+    const off = { ...loop('building', [lane('a', 'stalled'), lane('b', 'blocked')]), id: 'O', runOutcomes: { limitStops5h: 0, running: [], sleeping: [], routinesLookOff: true } } as LoopSummary;
+    expect(attentionItems([off], []).map((i) => i.kind === 'lane' ? `lane:${i.lane.name}` : i.kind)).toEqual(['routines-off', 'lane:b']);
+    // The server's "lanes not running" item blames the usage limit; after 6 h the routines are off, so it is replaced.
+    const silent = { ...release, loopId: 'O', kind: 'lanes-not-running' as const };
+    expect(attentionItems([off], [silent]).map((i) => i.kind === 'lane' ? `lane:${i.lane.name}` : i.kind)).toEqual(['routines-off', 'lane:b']);
+    expect(liveInbox([off], [silent, { ...silent, loopId: 'other' }]).map((i) => i.loopId)).toEqual(['other']);
+    expect(describeAttention({ kind: 'routines-off', loopId: 'O' }, undefined)).toMatch(/^Routines look off/);
+    expect(needsYouCount([{ ...off, runOutcomes: { ...off.runOutcomes!, routinesLookOff: false } }], [])).toBe(2);
   });
 });
 

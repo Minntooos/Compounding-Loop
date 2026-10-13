@@ -2,7 +2,7 @@ import type { InboxItem, LoopSummary } from '../../../src/core/types.js';
 import { SCHEDULE_FILE } from '../../../src/core/parse/schedule.js';
 import { editFileUrl } from '../../../src/server/controls.js';
 import { slugOf } from './controls.js';
-import type { AttentionItem } from './lanes.js';
+import { ROUTINES_OFF_TEXT, type AttentionItem } from './lanes.js';
 
 /** Row groups in the order DESIGN.md §12 C2 lists them: what blocks work first. */
 export type RowGroup = 'question' | 'failing' | 'stalled' | 'release';
@@ -31,6 +31,11 @@ const STALLED_EXPLAIN =
   'A lane was due but left no run line. Usually the plan’s five-hour usage limit stopped the routine, or the routine is switched off. ' +
   'Nothing is lost: the lane continues from its task file on its next run. Waking it clears a sleep or snooze in .ai/schedule.json.';
 
+const ROUTINES_OFF_EXPLAIN =
+  'No lane has logged a run for 6 hours although runs were due. A plan’s usage limit resets within 5 hours, so the scheduled ' +
+  'routines themselves are probably switched off, deleted or failing to start. Check them where you created them (claude.ai or ' +
+  'your runner), then wake any lane .ai/schedule.json holds back. The lanes continue from their task files.';
+
 const loopHref = (id: string) => `#/loop/${encodeURIComponent(id)}`;
 
 /** "Edit on GitHub" is the one label for every demo action that opens GitHub's editor. */
@@ -57,6 +62,7 @@ function rowFor(a: AttentionItem, loop: Pick<LoopSummary, 'name' | 'reason' | 'u
       return { group: 'stalled', text: `Lane ${a.lane.name} waits on a finished lane`, action: open };
     case 'failing': return { group: 'failing', text: `Failing${loop?.reason ? ` · ${loop.reason}` : ''}`, action: { label: 'Open checks', href: '#/health' } };
     case 'release': return { group: 'release', text: 'Round done · release waiting on you', action: { label: 'Review & release', href: loopHref(a.loopId) } };
+    case 'routines-off': return { group: 'stalled', text: ROUTINES_OFF_TEXT, action: wake, explain: ROUTINES_OFF_EXPLAIN };
   }
 }
 

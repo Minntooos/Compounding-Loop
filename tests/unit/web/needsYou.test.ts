@@ -40,4 +40,15 @@ describe('needsYouRows', () => {
     const l = [loop('st', { lanes: [lane('web', 'stalled')], repoUrl: undefined, url: 'https://example.com' })];
     expect(needsYouRows(attentionItems(l, []), l, true)[0]?.action).toEqual({ label: 'Open loop', href: '#/loop/st' });
   });
+
+  it('"Routines look off" is a stalled row that explains itself and wakes through schedule.json in the demo', () => {
+    const off = [loop('o', { lanes: [lane('web', 'stalled')], runOutcomes: { limitStops5h: 0, running: [], sleeping: [], routinesLookOff: true } })];
+    const [row, ...rest] = needsYouRows(attentionItems(off, []), off, true);
+    expect(rest).toEqual([]);
+    expect(row?.group).toBe('stalled');
+    expect(row?.text).toMatch(/^Routines look off/);
+    expect(row?.explain).toMatch(/switched off/);
+    expect(row?.action).toMatchObject({ label: 'Edit on GitHub', external: true });
+    expect(row?.action.href).toContain('.ai/schedule.json');
+  });
 });

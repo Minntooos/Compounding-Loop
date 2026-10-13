@@ -14,6 +14,11 @@ describe('loopStripState', () => {
     expect(loopStripState(loop({ state: 'done', lanes, paused: { by: 'x' } }), NOW)).toBe('stalled');
     expect(loopStripState(loop({ state: 'done', lanes: [lane('core', 'done')], paused: { by: 'x' } }), NOW)).toBe('release-waiting');
   });
+  it('"Routines look off" makes the loop Stalled, even when it is otherwise Running', () => {
+    const runOutcomes = { limitStops5h: 0, running: ['web'], sleeping: [], routinesLookOff: true };
+    expect(loopStripState(loop({ runOutcomes }), NOW)).toBe('stalled');
+    expect(loopStripState(loop({ runOutcomes: { ...runOutcomes, routinesLookOff: false } }), NOW)).toBe('running');
+  });
   it('a paused loop is Paused even right after its pause commit', () => {
     expect(loopStripState(loop({ paused: { by: 'x' }, lastCommit: { sha: 's', at: '2026-10-13T02:55:00Z', subject: 'pause' } as unknown as LoopSummary['lastCommit'] }), NOW)).toBe('paused');
   });

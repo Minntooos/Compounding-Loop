@@ -37,11 +37,11 @@ function lastActivity(loop: Pick<LoopSummary, 'lastRun' | 'lastCommit'>): number
 }
 
 /**
- * One loop's state word. A stalled lane wins over everything (it is also an attention item), then a waiting release.
+ * One loop's state word. A stalled lane or "Routines look off" wins over everything (both are attention items), then a waiting release.
  * Paused comes before Likely running: the pause commit itself is recent activity, and a paused loop runs nothing.
  */
 export function loopStripState(loop: Summary, now: Date): StripState {
-  if (loop.lanes?.some((l) => l.state === 'stalled')) return 'stalled';
+  if (loop.lanes?.some((l) => l.state === 'stalled') || loop.runOutcomes?.routinesLookOff) return 'stalled';
   if (releaseWaiting(loop)) return 'release-waiting';
   if (loop.paused) return 'paused';
   if (loop.state === 'done') return loop.shipped ? 'released' : 'done';

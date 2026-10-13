@@ -4,7 +4,7 @@ import type { InboxItem } from '@core/types';
 import { api, hasServer, postAnswer } from '../api/client';
 import { editFileUrl } from '../../../src/server/controls.js';
 import { slugOf } from '../lib/controls';
-import { attentionItems } from '../lib/lanes';
+import { attentionItems, liveInbox } from '../lib/lanes';
 import { needsYouRows } from '../lib/needsYou';
 import { NeedsYouList } from './NeedsYouList';
 import { relativeTime } from '../lib/format';
@@ -43,7 +43,8 @@ export function Inbox() {
   const loops = useQuery({ queryKey: ['loops'], queryFn: api.loops });
   const server = useQuery({ queryKey: ['server'], queryFn: hasServer });
   const [notice, setNotice] = useState('');
-  const items = q.data ?? [];
+  // Without the "lanes not running" items that "Routines look off" replaces, so the Inbox lists what the badge counts.
+  const items = liveInbox(loops.data ?? [], q.data ?? []);
   const cur = Math.min(sel, items.length - 1);
   useEffect(() => {
     const on = (e: KeyboardEvent) => {

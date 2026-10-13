@@ -30,18 +30,32 @@ export type AttentionItem<I extends InboxLike = InboxItem> =
   | { kind: 'inbox'; loopId: string; item: I }
   | { kind: 'lane'; loopId: string; lane: LaneStatus }
   | { kind: 'failing'; loopId: string }
-  | { kind: 'release'; loopId: string };
+  | { kind: 'release'; loopId: string }
+  | { kind: 'routines-off'; loopId: string };
+
+/**
+ * The server inbox without the "lanes not running" items of loops whose routines look off. That item blames the usage limit
+ * (any lane silent for 3 slots), but after 6 h of silence the limit has long reset: "Routines look off" replaces it.
+ */
+export function liveInbox<I extends InboxLike>(loops: Pick<LoopSummary, 'id' | 'runOutcomes'>[], inbox: I[]): I[] {
+  const off = new Set(loops.filter((l) => l.runOutcomes?.routinesLookOff).map((l) => l.id));
+  return inbox.filter((i) => !(i.kind === 'lanes-not-running' && off.has(i.loopId)));
+}
 
 /**
  * The one attention list: the banner count, the nav badge and the Needs-you rows all read it, so they cannot disagree.
- * Per loop: its lane problems, else 1 for a failing loop or a waiting release. A blocked lane or a waiting release that the
- * inbox already lists for that loop is not listed twice.
+ * Per loop: "Routines look off" (the server saw 6 h of silence with runs due), its lane problems, else 1 for a failing loop
+ * or a waiting release. One cause is never listed twice: a blocked lane or a waiting release the inbox already lists, and
+ * while all routines look off, the stalled lanes and the inbox's "lanes not running" item (`liveInbox`).
  */
 export function attentionItems<I extends InboxLike>(loops: LoopSummary[], inbox: I[]): AttentionItem<I>[] {
-  const items: AttentionItem<I>[] = inbox.map((item) => ({ kind: 'inbox', loopId: item.loopId, item }));
+  const live = liveInbox(loops, inbox);
+  const items: AttentionItem<I>[] = live.map((item) => ({ kind: 'inbox', loopId: item.loopId, item }));
   for (const l of loops) {
-    const mine = inbox.filter((i) => i.loopId === l.id);
-    const lanes = lanesNeedingYou(l.lanes).filter((x) => !(mine.length > 0 && x.state === 'blocked'));
+    const mine = live.filter((i) => i.loopId === l.id);
+    const off = l.runOutcomes?.routinesLookOff === true;
+    if (off) items.push({ kind: 'routines-off', loopId: l.id });
+    const lanes = lanesNeedingYou(l.lanes).filter((x) => !(mine.length > 0 && x.state === 'blocked') && !(off && x.state === 'stalled'));
     if (lanes.length > 0) items.push(...lanes.map((lane): AttentionItem<I> => ({ kind: 'lane', loopId: l.id, lane })));
     else if (l.state === 'failing') items.push({ kind: 'failing', loopId: l.id });
     else if (releaseWaiting(l) && !mine.some((i) => i.kind === 'release')) items.push({ kind: 'release', loopId: l.id });
@@ -64,11 +78,14 @@ export function claimText(claim: { name: string; expiresAt: string } | undefined
   return claim ? `${claim.name} · expires ${claim.expiresAt.slice(11, 16)} UTC` : 'Unclaimed';
 }
 
+export const ROUTINES_OFF_TEXT = 'Routines look off · nothing logged for 6 h although runs were due';
+
 /** One sentence for an attention item the server's inbox does not hold (the Inbox page lists these under the questions). */
 export function describeAttention(item: Exclude<AttentionItem, { kind: 'inbox' }>, loop: Pick<LoopSummary, 'reason'> | undefined): string {
   switch (item.kind) {
     case 'lane': return item.lane.state === 'stalled' ? `Lane ${item.lane.name} is stalled` : item.lane.state === 'blocked' ? `Lane ${item.lane.name} is blocked` : `Lane ${item.lane.name} waits on a finished lane`;
     case 'failing': return `Failing${loop?.reason ? ` · ${loop.reason}` : ''}`;
     case 'release': return 'Round done · release waiting on you';
+    case 'routines-off': return ROUTINES_OFF_TEXT;
   }
 }

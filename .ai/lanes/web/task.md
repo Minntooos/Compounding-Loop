@@ -1,6 +1,6 @@
 # Lane: web — round 5 (0.5.0 "Cockpit")
 
-Run: 4 / 20
+Run: 5 / 20
 Status: units 1-3 done; 4: C4 composer + steer history done, C5 state sentence done (buttons wait for server's POST …/schedule); strip reads runOutcomes; 7: docs screenshot set done; C7 chips done; next: Routines-look-off attention row, C3 heat map
 Round 4 record: `.ai/lanes/web/done-v4.md` (`git show 02874e8:.ai/lanes/web/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
