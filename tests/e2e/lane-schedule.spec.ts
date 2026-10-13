@@ -68,6 +68,10 @@ test('fleet card lane chips show the whole loop paused', async ({ page }) => {
   await serve(page, { ...LOOP, paused: { by: 'sam', at: '2026-10-13T12:00:00Z' } });
   await page.goto('/#/');
   await expect(page.getByTestId('lane-chip')).toHaveText(['Pausedcore', 'Pausedkit', 'Pausedserver', 'Pauseddocs']);
+  // A paused loop runs nothing: its card and header say Paused, like the strip, not Building.
+  await expect(page.getByTestId('loop-card').getByTestId('status-badge')).toHaveText('Paused');
+  await page.goto('/#/loop/self');
+  await expect(page.getByTestId('status-badge')).toHaveText('Paused');
 });
 
 test('the whole loop paused holds every lane', async ({ page }) => {

@@ -89,6 +89,12 @@ describe('cardBadge', () => {
     expect(cardBadge({ state: 'blocked', runOutcomes: off })).toBe('blocked');
     expect(cardBadge({ state: 'done', runOutcomes: off })).toBe('done');
   });
+  it('a paused building or waiting loop reads Paused, below Stalled like the strip', () => {
+    expect(cardBadge({ state: 'building', paused: { by: 'owner' } })).toBe('paused');
+    expect(cardBadge({ state: 'waiting', paused: { by: 'owner' }, lanes: [lane('building')] })).toBe('paused');
+    expect(cardBadge({ state: 'building', paused: { by: 'owner' }, runOutcomes: off })).toBe('stalled');
+    expect(cardBadge({ state: 'failing', paused: { by: 'owner' } })).toBe('failing');
+  });
 });
 
 describe('stateReason and chipHold', () => {
