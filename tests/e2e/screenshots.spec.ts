@@ -1,5 +1,6 @@
 import { mkdirSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { expect, test, type Page } from '@playwright/test';
 
 // Not part of `npm test`. Run with the laptop project only:
@@ -27,6 +28,16 @@ test.skip(!process.env['SCREENS'], 'screenshots are generated on demand');
 // Playwright requires a destructuring pattern for the fixtures argument, hence `{}`.
 test.beforeEach(({}, info) => test.skip(info.project.name !== 'laptop', 'shot once, from the laptop project'));
 
+// The files demo/export-static.mjs puts on GitHub Pages (five sites plus the self-build loop), from the built server
+// (`npm run build` comes first). Without them the app falls back to its bundled snapshot, which has no self card, so the
+// home shot would not be the page a visitor sees.
+async function pagesApi(): Promise<Map<string, unknown>> {
+  const load = (file: string) => import(pathToFileURL(resolve('dist', 'server', file)).href);
+  const { loadDemoSnapshot } = await load('data.js');
+  const { staticApiFiles } = await load('static-export.js');
+  return staticApiFiles(await loadDemoSnapshot(), '0.0.0') as Map<string, unknown>;
+}
+
 async function shoot(page: Page, shot: Shot, path: string): Promise<void> {
   if (!shot.maxHeight) {
     await page.screenshot({ path, fullPage: true });
@@ -51,9 +62,15 @@ for (const shot of shots) {
           colorScheme: theme,
         });
         const page = await context.newPage();
-        // Shoot demo mode as a visitor sees it (welcome strip, snapshot chip): no dashboard server.
-        // The self-build loop only exists on a running server (the bundled snapshot is the five sites).
-        if (!name.startsWith('self')) await page.route('**/api/health', (route) => route.fulfill({ status: 404, contentType: 'application/json', body: '{}' }));
+        // Shoot the GitHub Pages demo as a visitor sees it (welcome strip, snapshot chip): no dashboard server, the static
+        // api/*.json files instead. live.json is left out so the shot is the snapshot, never today's GitHub state.
+        const files = await pagesApi();
+        await page.route('**/api/health', (route) => route.fulfill({ status: 404, contentType: 'application/json', body: '{}' }));
+        await page.route('**/live.json', (route) => route.fulfill({ status: 404, contentType: 'application/json', body: '{}' }));
+        await page.route(/\/api\/.+\.json$/, (route) => {
+          const body = files.get(new URL(route.request().url()).pathname.replace(/^\//, ''));
+          return body === undefined ? route.fulfill({ status: 404, contentType: 'application/json', body: '{}' }) : route.fulfill({ json: body });
+        });
         await page.goto(`/#${route}`);
         await page.waitForLoadState('networkidle');
         const tab = tabs[name];
