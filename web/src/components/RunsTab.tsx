@@ -2,7 +2,7 @@ import { AlertTriangle, CheckCircle2, Circle, CircleDashed, XCircle } from 'luci
 import { useState } from 'react';
 import type { LoopRun } from '@core/types';
 import { dayHeading, laneColor, timeUtc } from '../lib/timeline';
-import { filterRuns, groupRunsByDay, OUTCOME_HINT, OUTCOME_LABEL, silentLanes, testsText, type RunOutcome } from '../lib/runs';
+import { filterRuns, groupRunsByDay, listedRuns, OUTCOME_HINT, OUTCOME_LABEL, silentLanes, testsText, type RunOutcome } from '../lib/runs';
 
 const ICON = { pushed: CheckCircle2, 'nothing-pushed': Circle, 'tests-failed': XCircle, 'no-run-recorded': CircleDashed } as const;
 const COLOR: Record<RunOutcome, string> = {
@@ -31,8 +31,9 @@ function RunRow({ run }: { run: LoopRun }) {
 }
 
 /** `quiet` lanes (done or blocked) and a paused loop never raise the notice: their missed slots are expected (same guards as the server's attention item). */
-export function RunsTab({ runs, nextRuns, quiet = [], paused = false }: { runs: LoopRun[]; nextRuns?: { lane: string; at: string }[]; quiet?: string[]; paused?: boolean }) {
+export function RunsTab({ runs: slots, nextRuns, quiet = [], paused = false }: { runs: LoopRun[]; nextRuns?: { lane: string; at: string }[]; quiet?: string[]; paused?: boolean }) {
   const [active, setActive] = useState<ReadonlySet<string>>(new Set());
+  const runs = listedRuns(slots);
   const lanes = [...new Set(runs.map((r) => r.lane))];
   const shown = filterRuns(runs, active);
   const silent = paused ? [] : silentLanes(runs).filter((l) => !quiet.includes(l));

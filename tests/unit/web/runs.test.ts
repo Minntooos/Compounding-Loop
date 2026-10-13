@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { LoopRun } from '../../../src/core/types.js';
-import { filterRuns, groupRunsByDay, lastFailure, silentLanes, testSeries, testsText, testStamp } from '../../../web/src/lib/runs.js';
+import { filterRuns, groupRunsByDay, lastFailure, listedRuns, silentLanes, testSeries, testsText, testStamp } from '../../../web/src/lib/runs.js';
 
 const run = (lane: string, at: string, outcome: LoopRun['outcome'] = 'pushed'): LoopRun => ({ lane, at, outcome, units: [], commits: [] });
 
@@ -15,6 +15,13 @@ describe('runs helpers', () => {
   it('groups by UTC day, newest first', () => {
     expect(groupRunsByDay(runs).map((g) => [g.day, g.runs.length])).toEqual([['2026-10-11', 2], ['2026-10-10', 1]]);
     expect(groupRunsByDay([])).toEqual([]);
+  });
+  it('lists runs and missed slots but not the quiet slots the server keeps for the heat map', () => {
+    const slot = (h: number, kind: LoopRun['kind']): LoopRun => ({ ...run('web', `2026-10-11T${String(h).padStart(2, '0')}:00:00Z`, 'no-run-recorded'), kind });
+    const slots = [slot(5, 'not-due'), slot(4, 'paused'), slot(3, 'done'), slot(2, 'missed'), { ...run('web', '2026-10-11T01:00:00Z'), kind: 'worked' as const }];
+    expect(listedRuns(slots).map((r) => r.kind)).toEqual(['missed', 'worked']);
+    // Three quiet slots in a row are not three missed runs.
+    expect(silentLanes(listedRuns(slots))).toEqual([]);
   });
   it('flags a lane only after three missed slots in a row', () => {
     const missed = (lane: string, h: number) => run(lane, `2026-10-11T${String(h).padStart(2, '0')}:00:00Z`, 'no-run-recorded');

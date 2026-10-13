@@ -18,6 +18,14 @@ export const OUTCOME_HINT: Partial<Record<RunOutcome, string>> = {
 /** Missing scheduled slots in a row (newest first) at which the tab warns; matches the server's attention item. */
 export const SILENT_THRESHOLD = 3;
 
+/** Slot kinds that are expected silence, not a run: server keeps them for the heat map (C3) with outcome `no-run-recorded`. */
+const QUIET_KINDS: ReadonlySet<LoopRun['kind']> = new Set(['not-due', 'paused', 'done']);
+
+/** Runs and missed slots only: drops the not-due, paused and done slots, which are not missing runs. */
+export function listedRuns(runs: LoopRun[]): LoopRun[] {
+  return runs.filter((r) => !QUIET_KINDS.has(r.kind));
+}
+
 /** Runs of the selected lanes (all when none is selected), order kept. */
 export function filterRuns(runs: LoopRun[], selected: ReadonlySet<string>): LoopRun[] {
   return selected.size === 0 ? runs : runs.filter((r) => selected.has(r.lane));
