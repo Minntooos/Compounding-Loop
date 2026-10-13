@@ -1,7 +1,7 @@
 # Lane: core — round 5 (0.5.0 "Cockpit")
 
 Run: 1 / 20
-Status: in progress (units 1-3 done)
+Status: in progress (units 1-4 done)
 Round 4 record: `.ai/lanes/core/done-v4.md` (`git show 02874e8:.ai/lanes/core/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
@@ -39,5 +39,5 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
-Run 1 shipped units 1-3: audit; parsers (`src/core/parse/schedule.ts`, `steer.ts`); CLI `loop schedule show|pause|resume|snooze|wake|update [--lane X] [--new-round]` and `loop steer` (`src/cli/schedule.ts`, tests in `tests/unit/cli/schedule.test.ts`). Next: unit 4 `classifyRunSlots` (B3) in `src/core/parse/runs.ts` or a new file, replacing phantom slots in `src/cli/runs.ts`; inputs: lanes, runs, schedule, paused, doneFiles, now. Then unit 5 (lintBrief A9, rounds A5), unit 6 `next-round --draft`.
-Notes: `update --lane X` is what lanes should run at step 8 (commits `Lane: X`; check-lanes may need `.ai/schedule.json` allowed for lanes: unit 7). A manual `wake` stays until the lane logs a run. Sandbox: origin main was not fast-forwardable at start; branch `lane-run`, push `origin HEAD:main`.
+Run 1 shipped units 1-4: audit; parsers (`src/core/parse/schedule.ts`, `steer.ts`); CLI `loop schedule ...` and `loop steer` (`src/cli/schedule.ts`); `classifyRunSlots`/`missedRun` (`src/core/parse/outcomes.ts`, used by `loop runs`; slots carry `kind`). Next: unit 5 `lintBrief` (src/core/brief.ts, A9: score IDEA.md Round 5 >= 85) and A5 rounds (src/core/rounds.ts), then unit 6 `next-round --draft [--out] [--print-prompt]` via `runPrompt`, then unit 7 (check-lanes: allow `.ai/schedule.json` for `Lane: <lane>` commits touching only its entry?).
+Notes: `schedule update --lane X` is what lanes run at step 8 (commits `Lane: X`). A manual `wake` stays until the lane logs a run. server's `src/server/runs.ts` still has its own slot logic; outbox tells server to adopt classifyRunSlots. Sandbox: origin main may not fast-forward; use branch `lane-run`, push `origin HEAD:main`.

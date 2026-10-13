@@ -1,2 +1,2 @@
 {"at":"2026-10-11T20:32:07Z","lane":"core","session":"https://claude.ai/code/session_01PUrHbHGweWP7tDAK2ohpXG","units":["audit","pause","run-log","next-round","ship-check","commit-author","check-lanes"],"tests":{"passed":513,"failed":0},"pushed":true,"note":"all round 4 units done"}
-{"at":"2026-10-13T02:12:10.008Z","lane":"core","units":["audit","schedule-steer-parsers","schedule-steer-cli"],"pushed":true,"note":"run 1"}
+{"at":"2026-10-13T02:12:10.008Z","lane":"core","units":["audit","schedule-steer-parsers","schedule-steer-cli","classify-run-slots"],"pushed":true,"note":"run 1"}

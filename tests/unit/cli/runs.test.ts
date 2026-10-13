@@ -93,12 +93,28 @@ describe('loop runs', () => {
     await logRun(dir, 'api', { pushed: true, units: ['x'], now: d('2026-10-11T10:50:00Z') });
     const report = await readRuns(dir, { now, hours: 4 });
     const api = report.lanes.find((l) => l.lane === 'api');
-    expect(api?.slots.map((s) => s.outcome)).toEqual(['pushed', 'no-run-recorded', 'no-run-recorded', 'no-run-recorded']);
-    expect(api?.missedInARow).toBe(3);
+    expect(api?.slots.map((s) => s.kind)).toEqual(['worked', 'missed', 'missed', 'running']);
+    expect(api?.missedInARow).toBe(2);
     expect(report.lanes.find((l) => l.lane === 'ui')).toMatchObject({ slots: [], entries: [], missedInARow: 0 });
     const text = formatRuns(report);
-    expect(text).toContain('no run recorded (usage limit, idle or failed)');
-    expect(text).toContain("check your plan's usage limit");
+    expect(text).toContain('no run recorded (usage limit or failed start)');
+    expect(text).toContain('likely running');
+  });
+
+  it('A2: no phantom slots while paused, after root DONE, or for a lane that is not due', async () => {
+    await writeFile(path.join(dir, '.ai', 'schedule.json'), JSON.stringify({ version: 1, lanes: { api: { notBefore: null, sleeping: true, paused: false, reason: null } } }));
+    const sleeping = await readRuns(dir, { now, hours: 4 });
+    expect(sleeping.lanes.find((l) => l.lane === 'api')?.slots.map((s) => s.kind)).not.toContain('missed');
+    await rm(path.join(dir, '.ai', 'schedule.json'));
+    await writeFile(path.join(dir, '.ai', 'PAUSED'), 'Tess · paused 2026-10-11T10:00:00.000Z\n');
+    const paused = await readRuns(dir, { now, hours: 4 });
+    expect(paused.paused).toBe(true);
+    expect(paused.lanes.every((l) => l.missedInARow === 0)).toBe(true);
+    await rm(path.join(dir, '.ai', 'PAUSED'));
+    await writeFile(path.join(dir, 'DONE.md'), 'done\n');
+    const done = await readRuns(dir, { now, hours: 4 });
+    expect(done.lanes.flatMap((l) => l.slots.map((s) => s.kind))).not.toContain('missed');
+    expect(done.routinesLookOff).toBe(false);
   });
 
   it('a Lane: trailer commit stands in for a missing log line', async () => {

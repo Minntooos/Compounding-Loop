@@ -1,9 +1,11 @@
 import { execFile } from 'node:child_process';
-import { appendFile, mkdir, readFile } from 'node:fs/promises';
+import { access, appendFile, mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { parseLanesConfig } from '../core/lanes.js';
-import { expectedSlots, formatRunEntry, matchSlots, missedInARow, parseRunLog, runLogPath, type RunEntry, type SlotResult } from '../core/parse/runs.js';
+import { classifyRunSlots, missedRun, type ClassifiedSlot, type RunOutcome } from '../core/parse/outcomes.js';
+import { formatRunEntry, parseRunLog, runLogPath, type RunEntry } from '../core/parse/runs.js';
+import { parseSchedule, SCHEDULE_FILE } from '../core/parse/schedule.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -50,8 +52,8 @@ export interface LaneRuns {
   lane: string;
   cron?: string;
   entries: RunEntry[];
-  slots: SlotResult[];
-  /** Scheduled runs in a row, newest first, with no log line and no commit. */
+  slots: ClassifiedSlot[];
+  /** Due scheduled runs in a row, newest first, with no log line and no commit (not-due and paused slots do not count). */
   missedInARow: number;
 }
 
@@ -59,6 +61,9 @@ export interface RunsReport {
   from: string;
   to: string;
   lanes: LaneRuns[];
+  /** Nothing has run for 6 h although runs were due: one warning instead of a list of misses. */
+  routinesLookOff: boolean;
+  paused: boolean;
 }
 
 /** Commit times carrying `Lane: <lane>` since `since`; empty when git cannot say (no repo, no commits). */
@@ -74,32 +79,64 @@ async function laneCommitTimes(dir: string, lane: string, since: Date): Promise<
   }
 }
 
-/** `loop runs`: each lane's logged runs plus the scheduled slots in the window that left no trace. */
+const exists = (dir: string, rel: string) => access(path.join(dir, ...rel.split('/'))).then(() => true, () => false);
+
+/** `loop runs`: each lane's logged runs plus what happened at each scheduled slot in the window (see classifyRunSlots). */
 export async function readRuns(dir: string, options: { hours?: number; now?: Date } = {}): Promise<RunsReport> {
   const now = options.now ?? new Date();
   const from = new Date(now.getTime() - (options.hours ?? 24) * 3_600_000);
   const { names, crons } = await laneNames(dir);
-  const lanes: LaneRuns[] = [];
+  const runs = new Map<string, RunEntry[]>();
+  const commits = new Map<string, Date[]>();
+  const laneDone = new Set<string>();
   for (const lane of names) {
-    const entries = parseRunLog(await readFile(path.join(dir, ...runLogPath(lane).split('/')), 'utf8').catch(() => ''));
-    const cron = crons.get(lane);
-    const slots = cron ? matchSlots(expectedSlots(cron, from, now), entries, await laneCommitTimes(dir, lane, from)) : [];
-    lanes.push({ lane, ...(cron && { cron }), entries: entries.filter((e) => new Date(e.at) > from), slots, missedInARow: missedInARow(slots) });
+    runs.set(lane, parseRunLog(await readFile(path.join(dir, ...runLogPath(lane).split('/')), 'utf8').catch(() => '')));
+    commits.set(lane, await laneCommitTimes(dir, lane, from));
+    if ((await exists(dir, `.ai/lanes/${lane}/DONE.md`)) || (await exists(dir, `.ai/lanes/${lane}/BLOCKED.md`))) laneDone.add(lane);
   }
-  return { from: from.toISOString(), to: now.toISOString(), lanes };
+  const paused = await exists(dir, '.ai/PAUSED');
+  const classified = classifyRunSlots({
+    lanes: names.map((name) => ({ name, ...(crons.get(name) && { cron: crons.get(name) as string }) })),
+    runs,
+    schedule: parseSchedule(await readFile(path.join(dir, ...SCHEDULE_FILE.split('/')), 'utf8').catch(() => '')),
+    paused,
+    rootDone: (await exists(dir, 'DONE.md')) || (await exists(dir, 'BLOCKED.md')),
+    laneDone,
+    now,
+    from,
+    commits,
+  });
+  const lanes: LaneRuns[] = classified.lanes.map(({ lane, slots }) => ({
+    lane,
+    ...(crons.get(lane) && { cron: crons.get(lane) as string }),
+    entries: (runs.get(lane) ?? []).filter((e) => new Date(e.at) > from),
+    slots,
+    missedInARow: missedRun(slots),
+  }));
+  return { from: from.toISOString(), to: now.toISOString(), lanes, routinesLookOff: classified.routinesLookOff, paused };
 }
 
-const LABEL = { pushed: 'pushed', 'nothing-pushed': 'ran, pushed nothing', 'tests-failed': 'tests failed', 'no-run-recorded': 'no run recorded (usage limit, idle or failed)' } as const;
+const LABEL: Record<RunOutcome, string> = {
+  worked: 'worked',
+  idle: 'ran, nothing to do',
+  'tests-failed': 'tests failed',
+  'not-due': 'not due (schedule.json)',
+  running: 'likely running',
+  missed: 'no run recorded (usage limit or failed start)',
+  paused: 'paused',
+  done: 'nothing expected (done)',
+};
 const stamp = (iso: string) => iso.slice(0, 16).replace('T', ' ');
 
 export function formatRuns(report: RunsReport): string {
   const out: string[] = [`Runs ${stamp(report.from)} to ${stamp(report.to)} UTC`];
+  if (report.routinesLookOff) out.push('', '! Routines look off: nothing has run for 6 hours although runs were due. Check the routines and your plan\'s usage limit.');
   for (const l of report.lanes) {
     out.push('', `${l.lane}${l.cron ? ` (cron ${l.cron})` : ''}${l.missedInARow >= 3 ? `  ! ${l.missedInARow} scheduled runs in a row left no trace: check your plan's usage limit` : ''}`);
     if (l.slots.length === 0 && l.entries.length === 0) out.push('  nothing logged');
     for (const s of l.slots) {
       const e = s.entry;
-      out.push(`  ${stamp(s.slot)}  ${LABEL[s.outcome]}${e ? `  ${e.units.length} unit${e.units.length === 1 ? '' : 's'}${e.tests ? `, tests ${e.tests.passed} passed ${e.tests.failed} failed` : ''}${e.note ? `  ${e.note}` : ''}` : ''}`);
+      out.push(`  ${stamp(s.slot)}  ${LABEL[s.kind]}${e ? `  ${e.units.length} unit${e.units.length === 1 ? '' : 's'}${e.tests ? `, tests ${e.tests.passed} passed ${e.tests.failed} failed` : ''}${e.note ? `  ${e.note}` : ''}` : ''}`);
     }
   }
   return out.join('\n');

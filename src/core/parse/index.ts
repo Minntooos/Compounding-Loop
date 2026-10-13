@@ -21,3 +21,5 @@ export { commitLane, latestControlNotes } from './controlRoom.js';
 export { SCHEDULE_FILE, applyBackoff, dueEntry, emptySchedule, formatSchedule, isBackedOff, isDue, notDueReason, parseSchedule, parseUntil, trailingIdleRuns, wakeEntry, wakeReasons } from './schedule.js';
 export type { NotDueReason, WakeInput, WakeReason } from './schedule.js';
 export { addSteerEntry, formatSteerEntry, parseSteer, standingEntries, steerHeading, steerOrder, steerPath, unacknowledged } from './steer.js';
+export { RUN_WINDOW_MS, SILENCE_MS, classifyRunSlots, missedRun } from './outcomes.js';
+export type { ClassifiedRuns, ClassifiedSlot, ClassifyInput, RunOutcome } from './outcomes.js';
