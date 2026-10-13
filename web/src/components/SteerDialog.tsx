@@ -23,7 +23,9 @@ export function SteerDialog({ loop, lane: initialLane, local, onClose }: { loop:
   const [unit, setUnit] = useState('');
   const [scope, setScope] = useState<SteerScope>('next-run');
   const [text, setText] = useState('');
-  const [author, setAuthor] = useState(local ? '' : 'owner');
+  // Until the owner types a name the default follows `local`, which can resolve after the dialog opened (empty = git user.name).
+  const [typedAuthor, setAuthor] = useState<string>();
+  const author = typedAuthor ?? (local ? '' : 'owner');
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
