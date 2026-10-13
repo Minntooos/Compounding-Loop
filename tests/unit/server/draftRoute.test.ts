@@ -3,10 +3,11 @@ import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import type { ClaudeRunner } from '../../../src/cli/draft.js';
+import type { AbortableClaude } from '../../../src/server/claude.js';
+import { gatherDraftInputs } from '../../../src/server/draftInputs.js';
 import { parseDraftBody } from '../../../src/server/actionBody.js';
 import { createApp } from '../../../src/server/index.js';
-import { projectsSource } from '../../../src/server/loops.js';
+import { projectsSource, readLoop } from '../../../src/server/loops.js';
 
 const BRIEF = `# Round 6
 
@@ -42,7 +43,7 @@ afterAll(() => rmSync(root, { recursive: true, force: true, maxRetries: 5 }));
 const frames = (text: string) =>
   text.split('\n\n').filter((f) => f.includes('event:')).map((f) => ({ event: /event: (.*)/.exec(f)?.[1], data: JSON.parse(/data: (.*)/.exec(f)?.[1] ?? 'null') as Record<string, unknown> }));
 
-const post = async (claude: ClaudeRunner, id = 'laned', body: unknown = {}) => {
+const post = async (claude: AbortableClaude, id = 'laned', body: unknown = {}) => {
   const app = await createApp({ demo: false, source: projectsSource(root, undefined, claude) });
   return app.request(`http://127.0.0.1:4321/api/loops/${id}/draft-brief`, { method: 'POST', body: JSON.stringify(body), headers: { 'content-type': 'application/json' } });
 };
@@ -83,7 +84,7 @@ describe('POST /api/loops/:id/draft-brief', () => {
 
   it('refuses a second draft for the same loop while one runs', async () => {
     let release: (draft: string) => void = () => undefined;
-    const slow: ClaudeRunner = () => new Promise((resolve) => (release = resolve));
+    const slow: AbortableClaude = () => new Promise((resolve) => (release = resolve));
     const app = await createApp({ demo: false, source: projectsSource(root, undefined, slow) });
     const request = () => app.request('http://127.0.0.1:4321/api/loops/laned/draft-brief', { method: 'POST', body: '{}', headers: { 'content-type': 'application/json' } });
     const first = Promise.resolve(request()).then((r) => r.text());
@@ -94,9 +95,50 @@ describe('POST /api/loops/:id/draft-brief', () => {
     expect(frames(await first).at(-1)?.event).toBe('draft');
   });
 
+  it('kills claude when the client stops, so the next draft is not refused', async () => {
+    let signal: AbortSignal | undefined;
+    let calls = 0;
+    const hanging: AbortableClaude = (_args, _cwd, s) =>
+      ++calls > 1 ? Promise.resolve(BRIEF) : new Promise((_, reject) => ((signal = s), s?.addEventListener('abort', () => reject(new Error('The draft was stopped.')))));
+    const app = await createApp({ demo: false, source: projectsSource(root, undefined, hanging) });
+    const url = 'http://127.0.0.1:4321/api/loops/laned/draft-brief';
+    const first = await app.request(url, { method: 'POST', body: '{}', headers: { 'content-type': 'application/json' } });
+    await new Promise((r) => setTimeout(r, 300));
+    expect(signal?.aborted).toBe(false);
+    await first.body?.cancel(); // what the browser does when the dialog's Stop closes the EventSource/fetch
+    await new Promise((r) => setTimeout(r, 100));
+    expect(signal?.aborted).toBe(true);
+    const again = await app.request(url, { method: 'POST', body: '{}', headers: { 'content-type': 'application/json' } });
+    expect(frames(await again.text()).at(-1)?.event).toBe('draft');
+  });
+
   it('rejects a bad model with 400 and is read-only in the demo', async () => {
     expect((await post(async () => BRIEF, 'laned', { model: '--help' })).status).toBe(400);
     const demo = await createApp({ demo: true });
     expect((await demo.request('http://127.0.0.1:4321/api/loops/x/draft-brief', { method: 'POST', body: '{}', headers: { 'content-type': 'application/json' } })).status).toBe(409);
+  });
+});
+
+describe('draft inputs', () => {
+  it('gathers the next-10 lists, open audit rows, unacknowledged steer and the old out-of-scope', async () => {
+    const dir = path.join(root, 'ingredients');
+    mkdirSync(path.join(dir, '.ai', 'audit'), { recursive: true });
+    mkdirSync(path.join(dir, '.ai', 'lanes', 'core'), { recursive: true });
+    writeFileSync(path.join(dir, 'IDEA.md'), '# Brief\n\n## Round 5 (current)\n\nText.\n\n## Out of scope\n- Billing\n');
+    writeFileSync(path.join(dir, '.ai', 'lanes.json'), JSON.stringify({ lanes: [{ name: 'core', owns: ['src/**'] }] }));
+    writeFileSync(path.join(dir, '.ai', 'audit', 'core.md'), '| id | finding | status |\n|---|---|---|\n| A1 | Slow parse | open |\n| A2 | Typo | fixed |\n');
+    writeFileSync(path.join(dir, '.ai', 'lanes', 'core', 'steer.md'), '# Steering\n\n## 2026-10-13 10:00 UTC · owner · next-run\nMake it faster.\n');
+    const inputs = await gatherDraftInputs(dir);
+    expect(inputs).toMatchObject({ name: 'ingredients', round: 6, outOfScope: ['Billing'] });
+    expect(inputs.findings.map((f) => f.text)).toEqual([expect.stringContaining('Slow parse')]);
+    expect(inputs.steer).toEqual([{ lane: 'core', entries: [expect.objectContaining({ text: expect.stringContaining('faster') })] }]);
+  });
+
+  it('rides on the local loop detail for the next-round dialog', async () => {
+    expect((await readLoop(path.join(root, 'ingredients'))).draftInputs).toMatchObject({ round: 6, outOfScope: ['Billing'] });
+  });
+
+  it('is empty, not an error, for a repo with none of those files', async () => {
+    expect(await gatherDraftInputs(path.join(root, 'laned'))).toMatchObject({ next: [], findings: [], steer: [], outOfScope: [] });
   });
 });

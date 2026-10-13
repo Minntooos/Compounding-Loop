@@ -149,11 +149,14 @@ export async function createApp(options: AppOptions): Promise<Hono> {
     if (body instanceof Response) return body;
     return streamSSE(c, async (stream) => {
       const send = (event: string, data: unknown) => stream.writeSSE({ event, data: JSON.stringify(data) });
+      // Stop in the dialog closes the stream: kill `claude` so the next draft is not refused as "already being written".
+      const aborter = new AbortController();
+      stream.onAbort(() => aborter.abort());
       try {
-        const result = await controls.draftBrief(c.req.param('id'), body, (step) => void send('progress', { step }).catch(() => undefined));
+        const result = await controls.draftBrief(c.req.param('id'), body, (step) => void send('progress', { step }).catch(() => undefined), aborter.signal);
         await (result ? send('draft', result) : send('error', { error: 'no such loop', status: 404 }));
       } catch (error) {
-        await send('error', { error: error instanceof Error ? error.message : String(error), status: 422 });
+        await send('error', { error: error instanceof Error ? error.message : String(error), status: 422 }).catch(() => undefined); // the client may have stopped
       }
     });
   });

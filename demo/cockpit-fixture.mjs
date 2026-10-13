@@ -55,6 +55,19 @@ Keep the phone layout to one thumb: no horizontal scroll at 375 px.
 `,
 };
 
+/** What `next-round --draft` would read, so the dashboard's dialog lists real-looking ingredients. */
+const DRAFT_INPUTS = {
+  name: 'compounding-loop',
+  round: 6,
+  next: [
+    { source: '.ai/lanes/core/DONE.md', items: ['`loop pace` per lane in the dashboard', 'Windows path tests for the schedule commands'] },
+    { source: '.ai/lanes/web/DONE.md', items: ['Compress the phone screenshots', 'A keyboard shortcut list'] },
+  ],
+  findings: [{ source: '.ai/audit/server.md', text: 'A3 · HealthCheck.state is missing on local checks' }],
+  steer: [{ lane: 'server', entries: [{ at: '2026-10-13T11:30:00.000Z', author: 'owner', scope: 'next-run', text: 'Put run-log fixtures in the demo snapshot first; web is waiting on them.' }] }],
+  outOfScope: ['Hosted dashboard', 'Billing'],
+};
+
 // Earlier slots all worked, so the 48 h window has no phantom gaps; the output keeps only the last 12 h.
 const PAD = 42;
 const SHOWN_HOURS = 12;
@@ -101,6 +114,7 @@ export function cockpitFixture() {
     // One lane override so the pace UI shows both a loop default and an exception.
     pace: { pace: 'balanced', overrides: { web: 'careful' } },
     steer: data.steer,
+    draftInputs: DRAFT_INPUTS,
     ...(newest && { lastRun: { lane: newest.lane, at: newest.at, outcome: newest.outcome } }),
   };
 }

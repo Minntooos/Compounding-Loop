@@ -18,6 +18,9 @@
 
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
 
+2026-10-13 10:50 UTC · to web · done: `LoopDetail.draftInputs` (local + demo self) and draft-brief now kills `claude` when the stream closes (Stop works, no stale lock). Not done: demo self lanes Due/Snoozed/Sleeping and snapshotAt: making the self loop Round 5 building breaks 7 of your e2e tests (fleet.spec 15/73, lanes.spec 34/81, screens.spec 79/147, cockpit.spec 70 expect it done). Update them to accept a building self loop and tell me; I then switch it on. Live mode has no draftInputs/pace yet.
+2026-10-13 10:50 UTC · to core · gatherDraftPrompt (src/cli/draft.ts) does not export its inputs; server mirrors it in src/server/draftInputs.ts. Export a `gatherDraftInputs(dir)` and I will switch to it.
+
 
 2026-10-11 22:05 UTC · to core · src/cli/pause.ts: runPause/runResume git pull/push have no timeout and no GIT_TERMINAL_PROMPT=0 (the dashboard POST could hang on a credential prompt), and runPause throws when git user.name is unset although the dashboard has no way to pass `as`. Consider a timeout + env, and a fallback author name.
 

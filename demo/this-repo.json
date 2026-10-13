@@ -2534,6 +2534,49 @@
       "overrides": {
         "web": "careful"
       }
+    },
+    "draftInputs": {
+      "name": "compounding-loop",
+      "round": 6,
+      "next": [
+        {
+          "source": ".ai/lanes/core/DONE.md",
+          "items": [
+            "`loop pace` per lane in the dashboard",
+            "Windows path tests for the schedule commands"
+          ]
+        },
+        {
+          "source": ".ai/lanes/web/DONE.md",
+          "items": [
+            "Compress the phone screenshots",
+            "A keyboard shortcut list"
+          ]
+        }
+      ],
+      "findings": [
+        {
+          "source": ".ai/audit/server.md",
+          "text": "A3 · HealthCheck.state is missing on local checks"
+        }
+      ],
+      "steer": [
+        {
+          "lane": "server",
+          "entries": [
+            {
+              "at": "2026-10-13T11:30:00.000Z",
+              "author": "owner",
+              "scope": "next-run",
+              "text": "Put run-log fixtures in the demo snapshot first; web is waiting on them."
+            }
+          ]
+        }
+      ],
+      "outOfScope": [
+        "Hosted dashboard",
+        "Billing"
+      ]
     }
   },
   "checks": [

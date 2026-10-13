@@ -14,3 +14,4 @@
 {"at":"2026-10-13T08:41:31.000Z","lane":"server","units":["routines-look-off-inbox","draft-brief-sse"],"tests":{"passed":832,"failed":0},"pushed":true,"note":"run 6: draft-brief SSE + web ask; pace routes next"}
 {"at":"2026-10-13T09:43:50.000Z","lane":"server","units":["run-kind-paused-outcomes"],"tests":{"passed":212,"failed":0},"pushed":true,"note":"run 7: LoopRun.kind, quiet slots kept, RunOutcomes.paused; pace routes next"}
 {"at":"2026-10-13T09:47:48.000Z","lane":"server","units":["pace-routes-demo-url"],"tests":{"passed":212,"failed":0},"pushed":true,"note":"run 7: LoopDetail.pace, POST pace, policy URL builders, demo pace fixture"}
+{"at":"2026-10-13T10:45:59.000Z","lane":"server","units":["draft-inputs","draft-brief-abort"],"tests":{"passed":860,"failed":0},"pushed":true,"note":"run 8: draftInputs local+demo, claude abort on stream close; demo self building flip reverted (breaks web e2e)"}

@@ -4,7 +4,7 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 import { runAnswer } from '../cli/loops.js';
 import { runDoctor } from '../cli/doctor.js';
-import { gatherDraftPrompt, realClaude, type ClaudeRunner } from '../cli/draft.js';
+import { gatherDraftPrompt } from '../cli/draft.js';
 import { runLaneRound } from '../cli/laneRound.js';
 import { runPause, runResume } from '../cli/pause.js';
 import { readPolicy, runPaceSet } from '../cli/pace.js';
@@ -18,6 +18,8 @@ import { parseBlocked } from '../core/blocked.js';
 import { readLoopFacts, readRunCounter } from '../core/repo.js';
 import { deriveStatus } from '../core/status.js';
 import type { ContractItem, InboxItem, LaneStatus, LoopCommit, LoopDetail, LoopSummary, LoopTestResult } from '../core/types.js';
+import { abortableClaude, type AbortableClaude } from './claude.js';
+import { gatherDraftInputs } from './draftInputs.js';
 import { annotateReleases, isShipped } from './shipped.js';
 import { homepageOf, packageVersion, releaseInboxItem, roundState } from './roundState.js';
 import { commitLane, latestControlNotes, parseChangelog, parsePaused, parseSchedule } from '../core/parse/index.js';
@@ -166,6 +168,7 @@ export async function readLoop(dir: string, now: Date = new Date()): Promise<Loo
     ...(runsData && lastRunOf(runsData.runs) && { lastRun: lastRunOf(runsData.runs) }),
     ...(runsData && { runs: runsData.runs, nextRuns: runsData.nextRuns, runOutcomes: runsData.outcomes, idleRuns: runsData.idleRuns, ...(runsData.schedule && { schedule: runsData.schedule }), ...(runsData.steer.length > 0 && { steer: runsData.steer }) }),
     ...(runsData && { pace: await paceState(dir) }),
+    draftInputs: await gatherDraftInputs(dir),
     ...(ship && { ship }),
     ...(releaseWaiting && { releaseWaiting }),
     ...(shippedNow && version && { shipped: { version, ...(releaseDate && { date: releaseDate }), npm: 'unknown' as const } }),
@@ -229,7 +232,7 @@ const pushQuietly = (dir: string) =>
   execFileAsync('git', ['push'], { cwd: dir, timeout: 30_000, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }).then(() => true, () => false);
 
 /** A DataSource over a folder of loop clones, re-read on every call so the dashboard is never stale. */
-export function projectsSource(projectsDir: string, now: () => Date = () => new Date(), claude: ClaudeRunner = realClaude): DataSource {
+export function projectsSource(projectsDir: string, now: () => Date = () => new Date(), claude: AbortableClaude = abortableClaude): DataSource {
   const all = async () => Promise.all((await findLoopDirs(projectsDir)).map((dir) => readLoop(dir, now())));
   // Match the id against folder names; never build a path from it.
   // One git-changing action per clone at a time: a double click must not race on index.lock.
@@ -296,7 +299,7 @@ export function projectsSource(projectsDir: string, now: () => Date = () => new 
         const { changed, pushed, pushError } = await exclusive(dir, () => runSteer(dir, lane, text, { ...options, now: now() }));
         return { changed: changed.length > 0, lanes: changed, ...(pushed !== undefined && { pushed }), ...(pushError !== undefined && { pushError }) };
       },
-      draftBrief: async (id, options, onProgress) => {
+      draftBrief: async (id, options, onProgress, signal) => {
         const dir = await loopDir(id);
         if (dir === undefined) return undefined;
         // Read-only, so it does not take `exclusive`; one draft per clone at a time still, because each costs a Claude run.
@@ -306,7 +309,7 @@ export function projectsSource(projectsDir: string, now: () => Date = () => new 
           onProgress('Reading DONE files, audit findings and steering');
           const prompt = await gatherDraftPrompt(dir);
           onProgress('Asking Claude Code to draft the brief (this takes a few minutes)');
-          const draft = (await claude(draftClaudeArgs(prompt, options.model), dir)).trim();
+          const draft = (await claude(draftClaudeArgs(prompt, options.model), dir, signal)).trim();
           if (!draft) throw new Error('Claude returned an empty draft. Try again.');
           onProgress('Scoring the draft');
           const { score, gaps } = lintBrief(draft);

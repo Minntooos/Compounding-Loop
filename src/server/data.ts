@@ -33,8 +33,8 @@ export interface LoopControls {
   schedule(id: string, action: LaneScheduleAction): Promise<(ControlResult & { lanes: string[] }) | undefined>;
   /** Sets the loop's pace, or one lane's, in `.ai/policy.json`. */
   pace(id: string, pace: string, lane?: string): Promise<(ControlResult & { lanes: string[] }) | undefined>;
-  /** Drafts the next round's brief with `claude -p` (read-only tools), reporting steps as it goes. Writes nothing: the owner reviews the draft, then sends it to `nextRound`. */
-  draftBrief(id: string, options: { model?: string }, onProgress: (step: string) => void): Promise<BriefDraft | undefined>;
+  /** Drafts the next round's brief with `claude -p` (read-only tools), reporting steps as it goes. Aborting `signal` stops the `claude` process. Writes nothing: the owner reviews the draft, then sends it to `nextRound`. */
+  draftBrief(id: string, options: { model?: string }, onProgress: (step: string) => void, signal?: AbortSignal): Promise<BriefDraft | undefined>;
 }
 
 import type { BriefGap } from '../core/brief.js';
