@@ -39,7 +39,22 @@ describe('isShipped', () => {
   });
 });
 
+describe('isShipped with dates (a tag older than DONE.md is last round\'s)', () => {
+  const [old, recent] = [new Date('2026-10-10T00:00:00Z'), new Date('2026-10-13T00:00:00Z')];
+  it('is not shipped when DONE.md is newer than the tag', () => {
+    expect(isShipped({ version: '1.2.0', tagExists: true, tagAt: old, doneAt: recent })).toBe(false);
+  });
+  it('is shipped when the tag is newer, or a date is unknown', () => {
+    expect(isShipped({ version: '1.2.0', tagExists: true, tagAt: recent, doneAt: old })).toBe(true);
+    expect(isShipped({ version: '1.2.0', tagExists: true, doneAt: recent })).toBe(true);
+  });
+});
+
 describe('annotateReleases', () => {
+  it('leaves tag absent when tags were not checked and npm absent when npm was not', () => {
+    const out = annotateReleases([{ version: '1.2.0', sections: [], items: [] }], undefined, undefined);
+    expect('tag' in out[0]! || 'npm' in out[0]!).toBe(false);
+  });
   it('adds tag and npm state, leaving Unreleased alone', () => {
     const releases = [{ version: 'Unreleased', sections: [], items: [] }, { version: '1.2.0', sections: [], items: [] }, { version: '1.0.0', sections: [], items: [] }];
     expect(annotateReleases(releases, ['v1.2.0'], parseNpmPackage(doc)).map((r) => [r.version, r.tag, r.npm])).toEqual([['Unreleased', undefined, undefined], ['1.2.0', true, 'latest'], ['1.0.0', false, 'not-published']]);

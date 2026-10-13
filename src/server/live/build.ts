@@ -169,7 +169,7 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
     roundLabel,
     ...(pausedText !== undefined && { paused: pausedInfo(pausedText) }),
     ...(notes.length > 0 && { controlNotes: notes }),
-    ...(changelogText !== undefined && { releases: annotateReleases(parseChangelog(changelogText), tags, npm) }),
+    ...(changelogText !== undefined && { releases: annotateReleases(parseChangelog(changelogText), input.tags === undefined ? undefined : tags, npm) }),
     ...(ship && { ship }),
     ...(lastRun && { lastRun }),
     ...(runsData && { runs: runsData.runs.slice(0, MAX_RUNS), nextRuns: runsData.nextRuns }),

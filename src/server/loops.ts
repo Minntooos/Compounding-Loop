@@ -73,11 +73,15 @@ async function readRuns(dir: string, lanes: readonly LaneStatus[], lanesJson: st
 }
 
 /** Local git facts for the ship-check; a failing git call reads as the safe answer (tag free, tree dirty). */
-async function readShipGit(dir: string, tag: string): Promise<{ tagExists: boolean; treeClean: boolean; tags: string[] }> {
+async function readShipGit(dir: string, tag: string): Promise<{ tagExists: boolean; treeClean: boolean; tags: string[]; tagAt?: Date; doneAt?: Date }> {
   const git = (args: string[]) => execFileAsync('git', args, { cwd: dir, timeout: 15_000 }).then((r) => r.stdout, () => undefined);
   const [tagList, status] = await Promise.all([git(['tag', '--list', 'v*']), git(['status', '--porcelain'])]);
   const tags = (tagList ?? '').split('\n').map((t) => t.trim()).filter((t) => t !== '');
-  return { tagExists: tags.includes(tag), treeClean: status !== undefined && status.trim() === '', tags };
+  const tagExists = tags.includes(tag);
+  const [tagOut, doneOut] = tagExists ? await Promise.all([git(['log', '-1', '--format=%cI', tag]), git(['log', '-1', '--format=%cI', '--', 'DONE.md'])]) : [undefined, undefined];
+  const date = (out: string | undefined) => (out && !Number.isNaN(Date.parse(out.trim())) ? new Date(out.trim()) : undefined);
+  const [tagAt, doneAt] = [date(tagOut), date(doneOut)];
+  return { tagExists, treeClean: status !== undefined && status.trim() === '', tags, ...(tagAt && { tagAt }), ...(doneAt && { doneAt }) };
 }
 
 /** `.ai/last-test.json` as a card result, dated by the file's mtime; undefined when absent or malformed. */
@@ -112,7 +116,7 @@ export async function readLoop(dir: string, now: Date = new Date()): Promise<Loo
   const version = packageVersion(packageText);
   const shipGit = version ? await readShipGit(dir, `v${version}`) : undefined;
   // npm is not asked locally (no network in a dashboard that works offline): the tag alone decides.
-  const shippedNow = facts.hasDone && version !== undefined && shipGit !== undefined && isShipped({ version, tagExists: shipGit.tagExists });
+  const shippedNow = facts.hasDone && version !== undefined && shipGit !== undefined && isShipped({ version, tagExists: shipGit.tagExists, tagAt: shipGit.tagAt, doneAt: shipGit.doneAt });
   const { roundLabel, releaseWaiting } = roundState({ round, hasDone: facts.hasDone, laned: lanes !== undefined, shipped: shippedNow, ...(version && { version }) });
   const releaseDate = version ? parseChangelog(changelogText ?? '').find((r) => r.version === version)?.date : undefined;
   const doneText = lanes && version ? await readOptional(path.join(dir, 'DONE.md')) : undefined;
@@ -142,7 +146,7 @@ export async function readLoop(dir: string, now: Date = new Date()): Promise<Loo
     roundLabel,
     ...(pausedText !== undefined && { paused: pausedInfo(pausedText) }),
     ...(notes.length > 0 && { controlNotes: notes }),
-    ...(changelogText !== undefined && { releases: annotateReleases(parseChangelog(changelogText), shipGit?.tags ?? [], undefined) }),
+    ...(changelogText !== undefined && { releases: annotateReleases(parseChangelog(changelogText), shipGit?.tags, undefined) }),
     ...(runsData && lastRunOf(runsData.runs) && { lastRun: lastRunOf(runsData.runs) }),
     ...(runsData && { runs: runsData.runs, nextRuns: runsData.nextRuns }),
     ...(ship && { ship }),
@@ -181,7 +185,8 @@ async function readReleaseItem(dir: string): Promise<InboxItem | undefined> {
   const [info, laned] = await Promise.all([stat(file).catch(() => undefined), stat(path.join(dir, '.ai', 'lanes.json')).catch(() => undefined)]);
   if (!info || !laned) return undefined;
   const version = packageVersion(await readOptional(path.join(dir, 'package.json')));
-  if (version && isShipped({ version, tagExists: (await readShipGit(dir, `v${version}`)).tagExists })) return undefined;
+  const git = version ? await readShipGit(dir, `v${version}`) : undefined;
+  if (version && git && isShipped({ version, tagExists: git.tagExists, tagAt: git.tagAt, doneAt: git.doneAt })) return undefined;
   return releaseInboxItem(path.basename(dir), version, info.mtime.toISOString());
 }
 

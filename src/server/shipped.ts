@@ -32,14 +32,22 @@ export interface ShippedFacts {
   tagExists: boolean;
   /** Undefined when npm was not checked or could not be read. */
   npm?: NpmFacts | undefined;
+  /** When the tag's commit and the newest DONE.md commit were made, if known. A tag older than DONE.md belongs to the previous round. */
+  tagAt?: Date | undefined;
+  doneAt?: Date | undefined;
 }
 
-/** True once the tag exists and npm, if it was readable, serves this version as `latest`. */
-export function isShipped({ version, tagExists, npm }: ShippedFacts): boolean {
-  return tagExists && (npm === undefined || npm.latest === version);
+/** True once the tag exists (not older than DONE.md, when both dates are known) and npm, if readable, serves this version as `latest`. */
+export function isShipped({ version, tagExists, npm, tagAt, doneAt }: ShippedFacts): boolean {
+  if (!tagExists) return false;
+  if (tagAt && doneAt && tagAt < doneAt) return false;
+  return npm === undefined || npm.latest === version;
 }
 
-/** CHANGELOG releases with their tag and npm state filled in (`Unreleased` has neither). */
-export function annotateReleases(releases: readonly LoopRelease[], tags: readonly string[], npm: NpmFacts | undefined): LoopRelease[] {
-  return releases.map((r) => (/^unreleased$/i.test(r.version) ? r : { ...r, tag: tags.includes(`v${r.version}`), npm: npmStateOf(r.version, npm) }));
+/**
+ * CHANGELOG releases with their tag and npm state filled in (`Unreleased` has neither). `tags` or `npm` undefined means
+ * that source was not checked: the field stays absent so the UI shows no chip instead of a wrong one.
+ */
+export function annotateReleases(releases: readonly LoopRelease[], tags: readonly string[] | undefined, npm: NpmFacts | undefined): LoopRelease[] {
+  return releases.map((r) => (/^unreleased$/i.test(r.version) ? r : { ...r, ...(tags && { tag: tags.includes(`v${r.version}`) }), ...(npm && { npm: npmStateOf(r.version, npm) }) }));
 }
