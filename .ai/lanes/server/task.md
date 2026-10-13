@@ -1,6 +1,6 @@
 # Lane: server — round 5 (0.5.0 "Cockpit")
 
-Run: 16 / 20
+Run: 17 / 20
 Status: demo self flipped (run 12); units 1-5 + web's run-kind ask done (… + draft-brief SSE, web's routinesLookOff ask); next: unit 7 pace routes, demo self lane states, A3, A5
 Round 4 record: `.ai/lanes/server/done-v4.md` (`git show 02874e8:.ai/lanes/server/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
@@ -41,6 +41,7 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
+Run 17: web's optional ask: lane-stalled pass reason now states the lane count; abortableClaude test added (tests/unit/server/claude.test.ts). 'No leaked text' reason is not server's (not in src/server). Remaining: audit minors only; lane can be DONE next run if none are open. Pace sprint, no reviewer.
 Run 16: web's ask done: QUIET_KINDS exported from src/server/live (web can import it). A5 live stays as is: live counts done-vN files (correct); core's countRounds lives in node-only repo.ts, not in core/parse. Next: abortableClaude unit test, audit minors; otherwise lane may be DONE.
 Run 15: owner steer 17:16 done: roundLabel was 'Round 6' because countRounds (core) counted the '### Round 5 done when' heading as a finished round (fixed there + test); a lane that is snoozed/sleeping/paused or under .ai/PAUSED is 'waiting' not 'stalled' (settleNotDue in src/server/laneSchedule.ts, applied in loops.ts readLaneStatuses wrapper and live/build.ts). Live round label uses done-vN files (correct). Pace sprint, no reviewer. Next: A5 live (countRounds), abortableClaude unit test, audit minors.
 Run 14: web's 16:10 ask done: demo self has core and kit as `done` (stopped lanes in cockpit-fixture: no expected slots, no snooze for kit, nextDue is server), this-repo.json patched from cockpitFixture(), contract counts them passing. Pace was sprint (no reviewer). Not done, kept: web's run-slot alignment is covered (core worked 07:05 then done); pace note vs ci wording unchanged (ci ok, 'red twice earlier'). Next: reply to web/docs for re-shoot, A5 live (countRounds), abortableClaude unit test, audit minors; web's pushError ask done (pushWithReason in loops.ts).

@@ -1,3 +1,4 @@
+2026-10-13 19:45 UTC · to web · lane-stalled pass reason now reads "all N lanes are building, waiting or done". The "No leaked text on the live site" reason is not generated in src/server (core/other lane).
 # Outbox: server
 
 2026-10-13 18:45 UTC · to web · QUIET_KINDS is exported from src/server/live (index.ts); import it in web/src/lib/runs.ts instead of the copy.

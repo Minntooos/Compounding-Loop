@@ -16,7 +16,7 @@ export function laneChecks(lanes: readonly LaneStatus[]): Check[] {
     {
       kind: 'lane-stalled',
       ok: stalled.length === 0,
-      reason: stalled.length === 0 ? 'no lane is stalled' : `stalled: ${stalled.map((l) => l.name).join(', ')} (no commit or lock for over 2 cron periods)`,
+      reason: stalled.length === 0 ? `all ${lanes.length} lanes are building, waiting or done` : `stalled: ${stalled.map((l) => l.name).join(', ')} (no commit or lock for over 2 cron periods)`,
       proof: lanes.map((l) => `${l.name}=${l.state}`).join(', '),
     },
     {
