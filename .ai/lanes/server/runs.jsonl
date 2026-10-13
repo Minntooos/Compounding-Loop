@@ -16,3 +16,4 @@
 {"at":"2026-10-13T09:47:48.000Z","lane":"server","units":["pace-routes-demo-url"],"tests":{"passed":212,"failed":0},"pushed":true,"note":"run 7: LoopDetail.pace, POST pace, policy URL builders, demo pace fixture"}
 {"at":"2026-10-13T10:45:59.000Z","lane":"server","units":["draft-inputs","draft-brief-abort"],"tests":{"passed":860,"failed":0},"pushed":true,"note":"run 8: draftInputs local+demo, claude abort on stream close; demo self building flip reverted (breaks web e2e)"}
 {"at":"2026-10-13T11:39:13.000Z","lane":"server","units":["health-state-a3"],"tests":{"passed":229,"failed":0},"pushed":true,"note":"run 9: HealthCheck.state/howToCheck; A5 live waits on core moving countRounds"}
+{"at":"2026-10-13T12:41:44Z","lane":"server","units":["live-pace"],"tests":{"passed":880,"failed":0},"pushed":true,"note":"run 10: live mode fetches policy.json and shows pace; A5 live still waits on core"}
