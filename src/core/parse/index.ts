@@ -25,3 +25,4 @@ export { RUN_WINDOW_MS, SILENCE_MS, classifyRunSlots, missedRun } from './outcom
 export type { ClassifiedRuns, ClassifiedSlot, ClassifyInput, RunOutcome } from './outcomes.js';
 export { buildDraftPrompt, draftClaudeArgs, extractOpenFindings, extractOutOfScope, nextRoundNumber } from '../draftBrief.js';
 export type { DraftInputs } from '../draftBrief.js';
+export { DEFAULT_PACE, PACES, PACE_SUMMARY, POLICY_FILE, emptyPolicy, formatPolicy, isPace, paceFor, parsePolicy, withPace } from './policy.js';

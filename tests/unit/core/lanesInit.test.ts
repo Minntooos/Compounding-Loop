@@ -48,7 +48,7 @@ describe('planLanes', () => {
 
   it('creates config, per-lane files, the control room and the CLAUDE.md section', () => {
     const dests = plan(new Map()).map((a) => a.dest);
-    expect(dests).toEqual(['.ai/lanes.json', '.ai/lanes/api/task.md', '.ai/lanes/api/outbox.md', '.ai/lanes/api/steer.md', '.ai/lanes/ui/task.md', '.ai/lanes/ui/outbox.md', '.ai/lanes/ui/steer.md', '.ai/control-room.md', '.ai/lane-run.md', '.ai/control-run.md', '.ai/schedule.json', 'CLAUDE.md']);
+    expect(dests).toEqual(['.ai/lanes.json', '.ai/lanes/api/task.md', '.ai/lanes/api/outbox.md', '.ai/lanes/api/steer.md', '.ai/lanes/ui/task.md', '.ai/lanes/ui/outbox.md', '.ai/lanes/ui/steer.md', '.ai/control-room.md', '.ai/lane-run.md', '.ai/control-run.md', '.ai/schedule.json', '.ai/policy.json', 'CLAUDE.md']);
     const task = plan(new Map()).find((a) => a.dest === '.ai/lanes/api/task.md')!.content!;
     expect(task).toContain('# Lane: api');
     expect(task).toContain('src/api/**');
@@ -70,7 +70,8 @@ describe('planLanes', () => {
     const actions = plan(new Map());
     expect(actions.find((a) => a.dest === '.ai/lanes/ui/steer.md')?.content).toContain('Steering for the ui lane');
     expect(JSON.parse(actions.find((a) => a.dest === '.ai/schedule.json')!.content!)).toEqual({ version: 1, lanes: {} });
-    const existing = new Map([['.ai/schedule.json', '{"version":1,"lanes":{"api":{"paused":true}}}'], ['.ai/lane-run.md', 'mine'], ['.ai/lanes/api/steer.md', 'note']]);
+    expect(JSON.parse(actions.find((a) => a.dest === '.ai/policy.json')!.content!)).toEqual({ version: 1, pace: 'balanced', lanes: {} });
+    const existing = new Map([['.ai/policy.json', '{"pace":"sprint"}'], ['.ai/schedule.json', '{"version":1,"lanes":{"api":{"paused":true}}}'], ['.ai/lane-run.md', 'mine'], ['.ai/lanes/api/steer.md', 'note']]);
     const again = plan(existing, true);
     for (const dest of existing.keys()) expect(again.find((a) => a.dest === dest)).toMatchObject({ kind: 'skip' });
   });

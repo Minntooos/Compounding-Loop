@@ -22,6 +22,8 @@ export async function loadLaneTemplates(root: string = packageRoot): Promise<{ t
     laneRun: await read('lane-run.md', FALLBACK_LANE_TEMPLATES.laneRun),
     controlRun: await read('control-run.md', FALLBACK_LANE_TEMPLATES.controlRun),
     schedule: await read('schedule.json', FALLBACK_LANE_TEMPLATES.schedule),
+    // Kit has no policy template (control room: core writes the default), so this one is built in.
+    policy: FALLBACK_LANE_TEMPLATES.policy,
     steer: await read('steer.md', FALLBACK_LANE_TEMPLATES.steer),
     claudeSection: await read('claude-section.md', FALLBACK_LANE_TEMPLATES.claudeSection),
   };
@@ -51,7 +53,7 @@ export async function runAddLanes(
   const config = addLanes(existing, fresh.map((l, i) => ({ ...l, cron: l.cron ?? staggeredCron((existing?.lanes.length ?? 0) + i) })));
   const { templates, missing } = await loadLaneTemplates(root);
   const current = new Map<string, string>();
-  const dests = ['.ai/lanes.json', '.ai/control-room.md', '.ai/lane-run.md', '.ai/control-run.md', '.ai/schedule.json', 'CLAUDE.md', 'AGENTS.md', ...additions.flatMap((l) => [`.ai/lanes/${l.name}/task.md`, `.ai/lanes/${l.name}/outbox.md`, `.ai/lanes/${l.name}/steer.md`])];
+  const dests = ['.ai/lanes.json', '.ai/control-room.md', '.ai/lane-run.md', '.ai/control-run.md', '.ai/schedule.json', '.ai/policy.json', 'CLAUDE.md', 'AGENTS.md', ...additions.flatMap((l) => [`.ai/lanes/${l.name}/task.md`, `.ai/lanes/${l.name}/outbox.md`, `.ai/lanes/${l.name}/steer.md`])];
   for (const dest of dests) {
     const text = await readIfExists(path.join(target, ...dest.split('/')));
     if (text !== undefined) current.set(dest, text);

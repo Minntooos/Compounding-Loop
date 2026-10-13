@@ -18,6 +18,8 @@ export interface LaneTemplates {
   controlRun: string;
   /** `.ai/schedule.json` (a lane missing from it is due) and the per-lane `steer.md`. */
   schedule: string;
+  /** `.ai/policy.json`: the pace presets (loop state, never overwritten). */
+  policy: string;
   steer: string;
   /** The lane section merged into CLAUDE.md between markers. */
   claudeSection: string;
@@ -66,6 +68,7 @@ Stop at once, without committing, when \`.ai/PAUSED\` exists, root or lane \`DON
 Stop when \`.ai/PAUSED\` or root \`DONE.md\` exists. Otherwise read every lane's task file, outbox and run log, write what you find to \`.ai/control-room.md\`, and commit with a \`Lane: control\` trailer.
 `,
   schedule: '{\n  "version": 1,\n  "lanes": {}\n}\n',
+  policy: '{\n  "version": 1,\n  "pace": "balanced",\n  "lanes": {}\n}\n',
   steer: `# Steering for the {{lane}} lane
 
 Notes from the owner or a teammate, newest first. Entry format: \`## YYYY-MM-DD HH:MM UTC · <author> · next-run|standing\`, then the text. The lane adds one line under each entry it has read: \`→ done in run N\` or \`→ not done: <why>\`.
@@ -166,6 +169,7 @@ export function planLanes({ config, newLanes, templates, existing, force }: Lane
   state('.ai/lane-run.md', templates.laneRun);
   state('.ai/control-run.md', templates.controlRun);
   state('.ai/schedule.json', templates.schedule);
+  state('.ai/policy.json', templates.policy);
 
   const section = fillPlaceholders(templates.claudeSection, { lanes: config.lanes.map((l) => l.name).join(', ') });
   // AGENTS.md is merged only when the repo already has one; CLAUDE.md is always installed.

@@ -256,6 +256,16 @@ export interface Schedule {
   lanes: Record<string, ScheduleEntry>;
 }
 
+/** How much checking a run does, from slowest and safest to fastest (IDEA.md Round 5 B7). */
+export type Pace = 'careful' | 'balanced' | 'fast' | 'sprint';
+
+/** `.ai/policy.json`: a global pace and optional per-lane overrides. */
+export interface Policy {
+  version: 1;
+  pace: Pace;
+  lanes: Record<string, { pace: Pace }>;
+}
+
 /** Who wrote a steer entry for when: the lane's next run only, or every run until removed. */
 export type SteerScope = 'next-run' | 'standing';
 

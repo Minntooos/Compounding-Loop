@@ -40,7 +40,7 @@ export interface ScheduleResult {
   woken?: Record<string, WakeReason[]>;
 }
 
-const read = (dir: string, rel: string) => readFile(path.join(dir, ...rel.split('/')), 'utf8').catch(() => undefined);
+export const read = (dir: string, rel: string) => readFile(path.join(dir, ...rel.split('/')), 'utf8').catch(() => undefined);
 
 export async function readSchedule(dir: string): Promise<Schedule> {
   return parseSchedule((await read(dir, SCHEDULE_FILE)) ?? '');
@@ -53,20 +53,20 @@ async function knownLanes(dir: string): Promise<string[] | undefined> {
   return parsed?.lanes.map((l) => l.name);
 }
 
-async function checkLane(dir: string, lane: string): Promise<void> {
+export async function checkLane(dir: string, lane: string): Promise<void> {
   if (!/^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(lane)) throw new Error(`"${lane}" is not a lane name.`);
   const names = await knownLanes(dir);
   if (names && !names.includes(lane)) throw new Error(`No lane "${lane}". Lanes here: ${names.join(', ')}.`);
 }
 
-async function writeRel(dir: string, rel: string, text: string): Promise<void> {
+export async function writeRel(dir: string, rel: string, text: string): Promise<void> {
   const file = path.join(dir, ...rel.split('/'));
   await mkdir(path.dirname(file), { recursive: true });
   await writeFile(file, text);
 }
 
 /** Writes nothing when `commit` is false; otherwise commits the files with `Lane: control` and (by default) pushes. */
-async function commitFiles(dir: string, files: string[], message: string, options: ScheduleOptions, result: ScheduleResult, trailer: string = CONTROL_LANE): Promise<void> {
+export async function commitFiles(dir: string, files: string[], message: string, options: ScheduleOptions, result: ScheduleResult, trailer: string = CONTROL_LANE): Promise<void> {
   if (options.commit === false || result.changed.length === 0) return;
   await git(dir, 'add', '--', ...files);
   await git(dir, 'commit', '-qm', `${message}\n\nLane: ${trailer}`, '--', ...files);

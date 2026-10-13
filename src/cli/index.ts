@@ -19,6 +19,7 @@ import { formatRuns, logRun, readRuns } from './runs.js';
 import { runPause, runResume, type PauseResult } from './pause.js';
 import { runRound } from './run.js';
 import { runDraft } from './draft.js';
+import { formatPaceReport, runPaceSet, runPaceShow } from './pace.js';
 import { formatScheduleReport, runScheduleAction, runScheduleShow, runScheduleUpdate, runSteer, type ScheduleAction, type ScheduleResult } from './schedule.js';
 
 const pkg = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')) as { version: string };
@@ -374,6 +375,33 @@ scheduleOpts(scheduleCmd.command('update').description('Idle backoff from the ru
     try {
       const r = await runScheduleUpdate(path.resolve(options.dir), { commit: options.commit, push: options.push, ...(options.newRound && { newRound: true }), ...(options.lane && { lane: options.lane }) });
       console.log(r.changed.length ? `update: ${r.changed.join(', ')}${scheduleNote(r)}` : 'update: nothing to change.');
+      if (r.pushed === false) process.exitCode = 1;
+    } catch (error) {
+      fail(error);
+    }
+  });
+
+const paceCmd = program.command('pace').description('How much checking a run does (.ai/policy.json): show, set');
+paceCmd
+  .command('show')
+  .description('The global pace and any lane overrides, with what each skips')
+  .option('--json', 'print the report as JSON (shape: PaceReport in src/cli/pace.ts)')
+  .option('--dir <dir>', 'repo folder', '.')
+  .action(async (options: { json?: boolean; dir: string }) => {
+    try {
+      const report = await runPaceShow(path.resolve(options.dir));
+      console.log(options.json ? JSON.stringify(report, null, 2) : formatPaceReport(report));
+    } catch (error) {
+      fail(error);
+    }
+  });
+scheduleOpts(paceCmd.command('set').description('Set the pace: careful, balanced, fast or sprint (commits with Lane: control)'))
+  .argument('<preset>', 'careful | balanced | fast | sprint')
+  .option('--lane <name>', 'override only this lane')
+  .action(async (preset: string, options: ScheduleFlags & { lane?: string }) => {
+    try {
+      const r = await runPaceSet(path.resolve(options.dir), preset, { commit: options.commit, push: options.push, ...(options.lane && { lane: options.lane }) });
+      console.log(r.changed.length ? `pace: ${preset}${options.lane ? ` for ${options.lane}` : ''}${scheduleNote(r)}` : 'pace: nothing to change.');
       if (r.pushed === false) process.exitCode = 1;
     } catch (error) {
       fail(error);
