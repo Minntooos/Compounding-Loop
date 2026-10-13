@@ -5,6 +5,7 @@ import { dayHeading, laneColor, timeUtc } from '../lib/timeline';
 import { HEAT_HINT, HEAT_LABEL, heatCellLabel, heatOutcome, type HeatOutcome } from '../lib/heatmap';
 import type { RunFocus } from '../lib/route';
 import { HeatGlyph, HeatMap } from './HeatMap';
+import { LaneFilter } from './LaneFilter';
 import { filterRuns, groupRunsByDay, listedRuns, silentLanes, testsText } from '../lib/runs';
 
 // Same words and glyphs as the heat map (DESIGN §12 C3); the text colour repeats the glyph, never replaces it.
@@ -72,14 +73,7 @@ export function RunsTab({ runs: slots, nextRuns, quiet = [], paused = false, hea
         <p className="text-[13px]" style={{ color: 'var(--muted)' }}>Next scheduled: {nextRuns.map((n) => `${n.lane} ${timeUtc(n.at)}`).join(' · ')}</p>
       )}
       {lanes.length > 1 && (
-        <div role="group" aria-label="Filter runs by lane" className="flex gap-1.5 overflow-x-auto pb-1">
-          <button type="button" aria-pressed={active.size === 0} onClick={() => setActive(new Set())} className="shrink-0 rounded-full border px-3 py-1 text-[13px] min-h-11 sm:min-h-8 aria-pressed:font-semibold aria-pressed:underline" style={{ borderColor: 'var(--border)' }}>All</button>
-          {lanes.map((l) => (
-            <button key={l} type="button" aria-pressed={active.has(l)} onClick={() => toggle(l)} className="inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-[13px] min-h-11 sm:min-h-8 aria-pressed:font-semibold aria-pressed:underline" style={{ borderColor: 'var(--border)' }}>
-              <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: laneColor(l) }} />{l}
-            </button>
-          ))}
-        </div>
+        <LaneFilter label="Filter runs by lane" lanes={lanes} active={active} onAll={() => setActive(new Set())} onToggle={toggle} />
       )}
       <div className="space-y-5" data-testid="runs">
         {groupRunsByDay(shown).map((g) => (

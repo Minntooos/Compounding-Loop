@@ -43,3 +43,20 @@ test('the loop tab bar scrolls the chosen tab into view and fades where labels a
   await expect.poll(() => cutWithoutFade(tabs)).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
+
+test('the lane filter chips fade where a chip is cut, on the timeline and the runs tab', async ({ page }) => {
+  await page.goto('/#/loop/compounding-loop');
+  for (const [tab, name] of [['Timeline', 'Filter by lane'], ['Runs', 'Filter runs by lane']] as const) {
+    if (tab === 'Runs') await page.getByRole('tablist', { name: 'Loop sections' }).getByRole('tab', { name: 'Runs' }).click();
+    const chips = page.getByRole('group', { name });
+    await expect(chips.getByRole('button', { name: 'All' })).toBeVisible();
+    // Five lanes do not fit 343 px: the row must scroll, or this test proves nothing.
+    expect(await chips.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
+    await expect.poll(() => cutWithoutFade(chips)).toEqual([]);
+    const last = chips.getByRole('button').last();
+    await last.focus();
+    await expect.poll(() => fullyInside(last, chips)).toBe(true);
+    await expect.poll(() => cutWithoutFade(chips)).toEqual([]);
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
