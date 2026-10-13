@@ -2,7 +2,7 @@
 
 **Title:** Show HN: Compounding Loop – parallel unattended Claude Code lanes, one repo
 
-Note for the owner: publish `compounding-loop` 0.2.0 to npm before posting, or the `npx` command will fail.
+Note for the owner: publish `compounding-loop` 0.5.0 to npm before posting, or the `npx` command will fail.
 
 **First comment:**
 
@@ -13,6 +13,8 @@ I let scheduled Claude Code runs build five calculator sites with nobody watchin
 The part that mattered was what stops the loop, not the loop. "Done" is a command, not the model's opinion. A reviewer subagent that did not write the code checks each diff before it is pushed. A session lock stops overlapping runs, a run budget caps them, and a stuck run writes `BLOCKED.md` instead of guessing.
 
 0.2.0 adds lanes: several scheduled runs on one repo, each owning a set of paths in `.ai/lanes.json`, with `loop check-lanes` failing any commit that touches someone else's files. This repo was built that way, with five lanes (core, kit, server, web, docs) pushing to one `main`.
+
+0.5.0 is about steering and idling: `loop steer docs "..."` saves a one-sentence note as a file in the repo that the lane reads on its next run and acknowledges, and lanes with nothing to do back off (3 h, 6 h, then asleep until there is steering or a new round), so a skipped run costs seconds. Routine prompts are two lines that point at `.ai/lane-run.md`, so changing how every lane runs is one commit.
 
 It is a CLI, templates, runners (routine, GitHub Actions, cron), a Claude Code plugin and a local dashboard. No telemetry, loopback-only server, MIT.
 
