@@ -8,6 +8,7 @@ import { deriveStatus } from '../../core/status.js';
 import type { HealthCheck, InboxItem, LaneStatus, LoopCommit, LoopDetail } from '../../core/types.js';
 import { formatUtc, withLabel } from '../checkLabels.js';
 import { laneChecks } from '../laneChecks.js';
+import { settleNotDue } from '../laneSchedule.js';
 import { bulletsUnder, contractFromTask, laneNotesFromTask } from '../taskBullets.js';
 import { latestFinishedRun, mapCommits, mapRuns, type LiveCommit } from './github.js';
 import { packageVersion, releaseInboxItem, roundState } from '../roundState.js';
@@ -97,7 +98,9 @@ function lanesOf(input: LiveInput, commits: readonly LiveCommit[]): LaneStatus[]
   });
   const commitTimes = new Map(partial.flatMap((l) => (l.lastCommit ? [[l.name, `${l.lastCommit.at.slice(0, 16)}:00.000Z`] as const] : [])));
   const { unanswered, waitingOn } = summarizeOutboxes(outboxes, commitTimes);
-  return partial.map((lane) => ({ ...lane, ...(waitingOn.has(lane.name) && { waitingOn: waitingOn.get(lane.name) as string[] }), unanswered: unanswered.get(lane.name) ?? [] }));
+  const withMail = partial.map((lane) => ({ ...lane, ...(waitingOn.has(lane.name) && { waitingOn: waitingOn.get(lane.name) as string[] }), unanswered: unanswered.get(lane.name) ?? [] }));
+  const scheduleText = input.files['.ai/schedule.json'];
+  return settleNotDue(withMail, scheduleText === undefined ? undefined : parseSchedule(scheduleText), input.files['.ai/PAUSED'] !== undefined, input.now);
 }
 
 /** Builds one loop's detail, inbox and health checks from what the browser fetched. */

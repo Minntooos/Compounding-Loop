@@ -21,3 +21,4 @@
 {"at":"2026-10-13T14:41:48Z","lane":"server","units":["demo-self-round5"],"tests":{"passed":885,"failed":0},"pushed":true,"note":"run 12: demo self snapshot flipped to Round 5 building; web/docs can re-shoot"}
 {"at":"2026-10-13T15:39:09Z","lane":"server","units":["demo-self-round5-data"],"tests":{"passed":247,"failed":0},"pushed":true,"note":"run 13: demo self gets real round 5 commits, per-lane contracts with open items, ci"}
 {"at":"2026-10-13T16:40:45Z","lane":"server","units":["demo-self-done-lanes"],"tests":{"passed":253,"failed":0},"pushed":true,"note":"run 14: core and kit marked done in the demo self snapshot (web ask)"}
+{"at":"2026-10-13T17:34:13Z","lane":"server","units":["steer-round-stalled"],"tests":{"passed":902,"failed":0},"pushed":true,"note":"run 15: owner steer: round label off-by-one (countRounds) and not-due lanes no longer stalled"}

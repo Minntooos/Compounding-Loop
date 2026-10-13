@@ -80,6 +80,10 @@ describe('countRounds (A5)', () => {
     const idea = '## Round 3 (current): x\n\n## Round 2 (finished)\n\n# Round 1 brief (finished)\n';
     expect(countRounds(idea, ['done-v1.md', 'done-v2.md', 'done-v5.md'])).toBe(2);
   });
+  it('a "Round N done when" checklist heading is not a finished round', () => {
+    const idea = '## Round 5 (current): x\n\n### Round 5 done when\n\n## Round 4 (finished)\n\n### Round 4 done when\n';
+    expect(countRounds(idea, [])).toBe(1);
+  });
   it('falls back to the done files without round headings', () => {
     expect(countRounds('# IDEA\nBuild it.', ['done-v1.md', 'done-v2.md'])).toBe(2);
     expect(countRounds(undefined, [])).toBe(0);

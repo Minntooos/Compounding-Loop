@@ -11,7 +11,8 @@ import { readPolicy, runPaceSet } from '../cli/pace.js';
 import { runScheduleAction, runSteer } from '../cli/schedule.js';
 import { paceFor, POLICY_FILE } from '../core/parse/policy.js';
 import { policyNote } from './paceNote.js';
-import { readLaneStatuses } from '../cli/laneStatus.js';
+import { readLaneStatuses as readRawLaneStatuses } from '../cli/laneStatus.js';
+import { settleNotDue } from './laneSchedule.js';
 import { lintBrief } from '../core/brief.js';
 import { draftClaudeArgs } from '../core/draftBrief.js';
 import { parseLanesConfig } from '../core/lanes.js';
@@ -110,6 +111,14 @@ async function readTestFile(dir: string): Promise<LoopTestResult | undefined> {
   const [text, info] = await Promise.all([readOptional(file), stat(file).catch(() => undefined)]);
   const record = text === undefined ? undefined : parseTestRecord(text);
   return record && info ? { ...record, at: info.mtime.toISOString() } : undefined;
+}
+
+/** Lane statuses where a lane the schedule or PAUSED keeps from running is waiting, never stalled. */
+async function readLaneStatuses(dir: string, now: Date): Promise<LaneStatus[] | undefined> {
+  const lanes = await readRawLaneStatuses(dir, now);
+  if (!lanes) return undefined;
+  const [scheduleText, pausedText] = await Promise.all([readOptional(path.join(dir, '.ai', 'schedule.json')), readOptional(path.join(dir, '.ai', 'PAUSED'))]);
+  return settleNotDue(lanes, scheduleText === undefined ? undefined : parseSchedule(scheduleText), pausedText !== undefined, now);
 }
 
 /** Reads one clone into the API's LoopDetail. `now` is a parameter so tests are deterministic. */

@@ -35,7 +35,8 @@ export function countRounds(briefText: string | undefined, doneFileNames: readon
   const rounds = new Set<number>();
   for (const line of (briefText ?? '').split(/\r?\n/)) {
     const m = /^#{1,3}\s+Round\s+(\d+)\b(.*)$/i.exec(line);
-    if (m && !/\bcurrent\b/i.test(m[2] ?? '')) rounds.add(Number(m[1]));
+    // "### Round 5 done when" is a checklist inside a round, not a finished round.
+    if (m && !/\bcurrent\b/i.test(m[2] ?? '') && !/^\s*done when\b/i.test(m[2] ?? '')) rounds.add(Number(m[1]));
   }
   return rounds.size > 0 ? rounds.size : countDoneRounds(doneFileNames);
 }
