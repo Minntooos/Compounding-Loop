@@ -15,7 +15,7 @@ import { ControlBar } from './ControlBar';
 import { StatusBadge } from './StatusBadge';
 import { LoadError, Loading } from './QueryState';
 import { ProgressBar } from './ProgressBar';
-import { headerRound, statusLine } from '../lib/card';
+import { headerRound, releasedText, statusLine } from '../lib/card';
 import { useScrollFade } from './useScrollFade';
 import { runLimitText, siteOf } from '../lib/settings';
 
@@ -107,7 +107,7 @@ export function LoopDetail({ id }: { id: string }) {
         </p>
       )}
       {loop.lanes && <ControlBar loop={loop} />}
-      {loop.ship && <ShipPanel ship={loop.ship} />}
+      {loop.shipped ? <p data-testid="shipped-line" className="font-medium" style={{ color: 'var(--done)' }}>{releasedText(loop.shipped)}</p> : loop.ship && <ShipPanel ship={loop.ship} />}
       {loop.controlNotes && loop.controlNotes.length > 0 && (
         <section aria-labelledby="control-notes-h" className="space-y-1 rounded-lg border p-3" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
           <h2 id="control-notes-h" className="text-[13px] font-semibold">Control room notes</h2>

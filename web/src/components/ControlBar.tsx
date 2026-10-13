@@ -78,7 +78,8 @@ export function ControlBar({ loop }: { loop: LoopDetail }) {
   const [action, setAction] = useState<ControlAction>();
   const [local, setLocal] = useState(false);
   useEffect(() => { void hasServer().then(setLocal); }, []);
-  const blocker = releaseBlocker(loop);
+  // Once the version has shipped there is nothing to release: no disabled button with a stale reason.
+  const blocker = loop.shipped ? undefined : releaseBlocker(loop);
   const btn = 'min-h-11 rounded border px-3 text-[13px] font-medium disabled:opacity-60';
   return (
     <div className="space-y-1" data-testid="control-bar">
@@ -87,7 +88,7 @@ export function ControlBar({ loop }: { loop: LoopDetail }) {
           ? <button type="button" className={btn} style={{ borderColor: 'var(--accent)' }} onClick={() => setAction('resume')}>Resume</button>
           : <button type="button" className={btn} style={{ borderColor: 'var(--border)' }} onClick={() => setAction('pause')}>Pause all</button>}
         <button type="button" className={btn} style={{ borderColor: 'var(--border)' }} onClick={() => setAction('next-round')}>Start next round</button>
-        <button type="button" className={btn} style={{ borderColor: 'var(--border)' }} disabled={blocker !== undefined} onClick={() => setAction('release')}>Release</button>
+        {!loop.shipped && <button type="button" className={btn} style={{ borderColor: 'var(--border)' }} disabled={blocker !== undefined} onClick={() => setAction('release')}>Release</button>}
       </div>
       {blocker && <p className="text-[12px]" style={{ color: 'var(--muted)' }}>{blocker}</p>}
       {action && <ConfirmDialog loop={loop} action={action} local={local} onClose={() => setAction(undefined)} />}

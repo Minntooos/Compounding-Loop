@@ -166,7 +166,7 @@ test('loop page shows the pause notice, the Ready to ship checklist and the Rele
         paused: { by: 'Mina', at: '2026-10-11T14:05:00Z', reason: 'budget' },
         ship: { ready: false, openFindings: ['server: pause hangs on a prompt'], items: [{ id: 'tests', label: 'Tests pass', ok: true, detail: '176 passed' }, { id: 'tag', label: 'Tag is free', ok: false, detail: 'v0.4.0 exists' }] },
         controlNotes: [{ lane: 'kit', at: '2026-10-12T00:35:00Z', text: 'Ask core in the outbox instead.' }],
-        releases: [{ version: '0.4.0', date: '2026-10-12', sections: [{ title: 'Added', items: ['Runs tab'] }], items: ['Runs tab'] }, { version: 'Unreleased', sections: [], items: [] }],
+        releases: [{ version: '0.4.0', date: '2026-10-12', tag: true, npm: 'latest', sections: [{ title: 'Added', items: ['Runs tab'] }], items: ['Runs tab'] }, { version: 'Unreleased', sections: [], items: [] }],
       },
     });
   });
@@ -179,6 +179,8 @@ test('loop page shows the pause notice, the Ready to ship checklist and the Rele
   await expect(page.getByRole('region', { name: 'Control room notes' })).toContainText('Ask core in the outbox instead.');
   await page.getByRole('tab', { name: 'Releases' }).click();
   await expect(page.getByTestId('release-row')).toHaveCount(2);
+  await expect(page.getByTestId('release-row').first().getByTestId('release-chip')).toHaveText(['Tagged', 'npm latest']);
+  await expect(page.getByTestId('release-row').nth(1).getByTestId('release-chip')).toHaveCount(0);
   await page.getByText('0.4.0', { exact: true }).click();
   await expect(page.getByTestId('release-row').first().getByRole('listitem')).toHaveText('Runs tab');
   const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
@@ -249,4 +251,24 @@ test('a site loop shows its page count and a live-site link', async ({ page }) =
   const line = page.getByTestId('site-line');
   await expect(line).toContainText('55 pages');
   await expect(line.getByRole('link', { name: /Visit live site/ })).toHaveAttribute('href', 'https://example.com/site');
+});
+
+test('a shipped release replaces Ready to ship with "0.4.0 released <date>" (round 5 A1, C7)', async ({ page }) => {
+  await page.route('**/api/loops/laned', async (route) => {
+    const res = await route.fetch({ url: route.request().url().replace('/laned', '/proj2') });
+    const loop = (await res.json()) as Record<string, unknown>;
+    await route.fulfill({
+      response: res,
+      json: {
+        ...loop, id: 'laned', name: 'laned-loop', state: 'done', lanes: LANES,
+        shipped: { version: '0.4.0', date: '2026-10-13T00:40:00Z', npm: 'latest' },
+        ship: { ready: false, openFindings: [], items: [{ id: 'tag', label: 'Tag is free', ok: false, detail: 'v0.4.0 exists' }] },
+      },
+    });
+  });
+  await page.goto('/#/loop/laned');
+  await expect(page.getByTestId('shipped-line')).toHaveText('0.4.0 released 13 Oct');
+  await expect(page.getByTestId('ship-panel')).toHaveCount(0);
+  await expect(page.getByTestId('control-bar').getByRole('button', { name: 'Release' })).toHaveCount(0);
+  await expect(page.getByText(/Release is off/)).toHaveCount(0);
 });
