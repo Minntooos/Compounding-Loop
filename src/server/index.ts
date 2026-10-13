@@ -5,6 +5,7 @@ import { serve } from '@hono/node-server';
 import { Hono, type Context } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import { DEFAULT_WATCH, EventBus, watchProjects, type WatchOptions } from './events.js';
+import { parseScheduleBody, parseSteerBody, type Parsed } from './actionBody.js';
 import { projectsSource } from './loops.js';
 import { SECURITY_HEADERS, staticHandler } from './static.js';
 import { loadDemoSnapshot, snapshotSource, type DataSource, type LoopControls } from './data.js';
@@ -118,6 +119,22 @@ export async function createApp(options: AppOptions): Promise<Hono> {
     const brief = (body as { brief?: unknown } | undefined)?.brief;
     if (typeof brief !== 'string' || brief.trim() === '') return c.json({ error: 'brief must be a non-empty string' }, 400);
     return control(c, (controls) => controls.nextRound(c.req.param('id'), brief));
+  });
+  // Steer and schedule edits: core's commands do the writing and check the lane against lanes.json.
+  const validated = async <T>(c: Context, parse: (body: unknown) => Parsed<T>) => {
+    if (Number(c.req.header('content-length') ?? 0) > MAX_ACTION_BODY) return c.json({ error: 'body too large' }, 413);
+    const parsed = parse(await c.req.raw.clone().json().catch(() => undefined));
+    return parsed.ok ? parsed.value : c.json({ error: parsed.error }, 400);
+  };
+  app.post('/api/loops/:id/steer', async (c) => {
+    const body = await validated(c, parseSteerBody);
+    if (body instanceof Response) return body;
+    return control(c, (controls) => controls.steer(c.req.param('id'), body.lane, body.text, { ...(body.standing && { standing: true }), ...(body.author !== undefined && { author: body.author }) }));
+  });
+  app.post('/api/loops/:id/schedule', async (c) => {
+    const action = await validated(c, parseScheduleBody);
+    if (action instanceof Response) return action;
+    return control(c, (controls) => controls.schedule(c.req.param('id'), action));
   });
   app.get('/api/doctor', async (c) =>
     c.json(source.doctor ? await source.doctor() : { report: 'Run `npx compounding-loop doctor` on your own machine to check git, gh, Claude Code and Chromium.', passed: true }),

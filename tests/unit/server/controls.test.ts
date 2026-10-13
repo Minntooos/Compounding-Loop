@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { briefFitsUrl, buildLiveLoop, deleteFileUrl, editFileUrl, latestReleaseRunApiUrl, newFileUrl, nextRoundUrl, pauseUrl, releaseWorkflowUrl, resumeUrl, tagLookupApiUrl, tagsApiUrl } from '../../../src/server/live/index.js';
+import { briefFitsUrl, buildLiveLoop, deleteFileUrl, editFileUrl, latestReleaseRunApiUrl, newFileUrl, nextRoundUrl, pauseUrl, releaseWorkflowUrl, resumeUrl, scheduleEditText, scheduleEditUrl, steerEditUrl, steerNewFileUrl, tagLookupApiUrl, tagsApiUrl } from '../../../src/server/live/index.js';
 
 const SLUG = 'Minntooos/Compounding-Loop';
 const NOW = new Date('2026-10-11T12:00:00Z');
@@ -22,6 +22,26 @@ describe('GitHub URL builders', () => {
     expect(latestReleaseRunApiUrl(SLUG)).toBe(`https://api.github.com/repos/${SLUG}/actions/workflows/release.yml/runs?per_page=1`);
     expect(tagsApiUrl(SLUG)).toBe(`https://api.github.com/repos/${SLUG}/tags?per_page=100`);
     expect(tagLookupApiUrl(SLUG, '0.4.0')).toBe(`https://api.github.com/repos/${SLUG}/git/matching-refs/tags/v0.4.0`);
+  });
+
+  it('Steer opens the lane\'s steer.md: a prefilled new file when missing, the editor otherwise', () => {
+    const entry = { at: NOW, author: 'Ada', scope: 'standing' as const, text: 'Keep it calm.\n## not a heading' };
+    const url = new URL(steerNewFileUrl(SLUG, 'web', entry));
+    expect(url.pathname).toBe(`/${SLUG}/new/main`);
+    expect(url.searchParams.get('filename')).toBe('.ai/lanes/web/steer.md');
+    expect(url.searchParams.get('value')).toBe('# Steering for the web lane\n\n## 2026-10-11 12:00 UTC · Ada · standing\nKeep it calm.\n### not a heading\n');
+    expect(steerEditUrl(SLUG, 'web')).toBe(`https://github.com/${SLUG}/edit/main/.ai/lanes/web/steer.md`);
+    for (const bad of ['../x', 'a/b', '', '-x']) {
+      expect(() => steerEditUrl(SLUG, bad)).toThrow(/not a lane name/);
+      expect(() => steerNewFileUrl(SLUG, bad, entry)).toThrow(/not a lane name/);
+    }
+  });
+
+  it('a schedule edit opens the editor for .ai/schedule.json and carries the text core would write', () => {
+    expect(scheduleEditUrl(SLUG)).toBe(`https://github.com/${SLUG}/edit/main/.ai/schedule.json`);
+    const text = scheduleEditText({ version: 1, lanes: { web: { notBefore: '2026-10-11T15:00:00.000Z', sleeping: false, paused: false, reason: 'snoozed by owner' } } });
+    expect(JSON.parse(text).lanes.web.reason).toBe('snoozed by owner');
+    expect(text.endsWith('\n')).toBe(true);
   });
 
   it('the Inbox links to the web editor for BLOCKED.md and a lane file', () => {

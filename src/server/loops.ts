@@ -6,6 +6,7 @@ import { runAnswer } from '../cli/loops.js';
 import { runDoctor } from '../cli/doctor.js';
 import { runLaneRound } from '../cli/laneRound.js';
 import { runPause, runResume } from '../cli/pause.js';
+import { runScheduleAction, runSteer } from '../cli/schedule.js';
 import { readLaneStatuses } from '../cli/laneStatus.js';
 import { parseLanesConfig } from '../core/lanes.js';
 import { parseBlocked } from '../core/blocked.js';
@@ -275,6 +276,18 @@ export function projectsSource(projectsDir: string, now: () => Date = () => new 
         const { committed } = await exclusive(dir, () => runLaneRound(dir, { briefFile, dryRun: false, commit: true, now: now() })).finally(() => rm(briefFile, { force: true }));
         const pushed = committed ? await pushQuietly(dir) : undefined;
         return { changed: true, committed, ...(pushed !== undefined && { pushed }) };
+      },
+      steer: async (id, lane, text, options = {}) => {
+        const dir = await loopDir(id);
+        if (dir === undefined) return undefined;
+        const { changed, pushed, pushError } = await exclusive(dir, () => runSteer(dir, lane, text, { ...options, now: now() }));
+        return { changed: changed.length > 0, lanes: changed, ...(pushed !== undefined && { pushed }), ...(pushError !== undefined && { pushError }) };
+      },
+      schedule: async (id, action) => {
+        const dir = await loopDir(id);
+        if (dir === undefined) return undefined;
+        const { changed, pushed, pushError } = await exclusive(dir, () => runScheduleAction(dir, action, { now: now() }));
+        return { changed: changed.length > 0, lanes: changed, ...(pushed !== undefined && { pushed }), ...(pushError !== undefined && { pushError }) };
       },
     },
     doctor: () => runDoctor(),

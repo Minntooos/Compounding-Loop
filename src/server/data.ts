@@ -27,7 +27,18 @@ export interface LoopControls {
   pause(id: string, reason?: string): Promise<(ControlResult & { by?: string }) | undefined>;
   resume(id: string): Promise<ControlResult | undefined>;
   nextRound(id: string, brief: string): Promise<(ControlResult & { committed: boolean }) | undefined>;
+  /** Adds a steer entry for a lane (and wakes it); `lanes` lists the lanes whose files changed. */
+  steer(id: string, lane: string, text: string, options?: { standing?: boolean; author?: string }): Promise<(ControlResult & { lanes: string[] }) | undefined>;
+  /** Pause, resume, snooze or wake one lane (`all` for wake) in `.ai/schedule.json`. */
+  schedule(id: string, action: LaneScheduleAction): Promise<(ControlResult & { lanes: string[] }) | undefined>;
 }
+
+/** The owner actions on `.ai/schedule.json`; `until` is an ISO time, a date or a span such as `3h`. */
+export type LaneScheduleAction =
+  | { action: 'pause'; lane: string; reason?: string }
+  | { action: 'resume'; lane: string }
+  | { action: 'snooze'; lane: string; until: string; reason?: string }
+  | { action: 'wake'; lane: string };
 
 /** Fleet order from the contract: what needs the owner first. */
 const ATTENTION_ORDER: readonly LoopState[] = ['failing', 'blocked', 'building', 'waiting', 'done'];

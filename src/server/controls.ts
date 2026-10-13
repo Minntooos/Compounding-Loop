@@ -1,6 +1,7 @@
 // Pure (no Node imports): the GitHub pages the static dashboard opens instead of holding a token. Every URL is a
 // function of the repo slug, so a user with write access to the repo is the only one who can finish the action.
-import { formatPaused, PAUSED_FILE } from '../core/parse/index.js';
+import { formatPaused, formatSchedule, formatSteerEntry, PAUSED_FILE, SCHEDULE_FILE, steerPath } from '../core/parse/index.js';
+import type { Schedule, SteerScope } from '../core/types.js';
 import { isRepoSlug } from './live/urls.js';
 
 export const RELEASE_WORKFLOW = 'release.yml';
@@ -19,6 +20,12 @@ function checkedSlug(slug: string): string {
 function checkedPath(file: string): string {
   if (file === '' || file.startsWith('/') || file.includes('\\') || file.split('/').some((part) => part === '..' || part === '')) throw new Error(`not a repo file path: ${file}`);
   return file;
+}
+
+/** A lane name is a single path segment of simple characters (the same rule core applies). */
+function checkedLane(lane: string): string {
+  if (!/^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(lane)) throw new Error(`not a lane name: ${lane}`);
+  return lane;
 }
 
 /** GitHub answers 414 above roughly 8 KB; stay well under it. */
@@ -60,6 +67,20 @@ export const resumeUrl = (slug: string, branch = 'main'): string => deleteFileUr
 export function nextRoundUrl(slug: string, brief: string, branch = 'main'): string {
   return newFileUrl(slug, NEXT_ROUND_FILE, brief.endsWith('\n') ? brief : `${brief}\n`, branch);
 }
+
+/** Steer, file missing: the new-file page for the lane's `steer.md` holding the intro line and the first entry. */
+export function steerNewFileUrl(slug: string, lane: string, entry: { at: Date; author: string; scope: SteerScope; text: string }, branch = 'main'): string {
+  return newFileUrl(slug, steerPath(checkedLane(lane)), `# Steering for the ${lane} lane\n\n${formatSteerEntry(entry)}`, branch);
+}
+
+/** Steer, file exists: GitHub cannot prefill an edit, so the UI copies `formatSteerEntry` and opens this editor page. */
+export const steerEditUrl = (slug: string, lane: string, branch = 'main'): string => editFileUrl(slug, steerPath(checkedLane(lane)), branch);
+
+/** Schedule edit: the editor page for `.ai/schedule.json`; the UI copies `scheduleEditText` to paste over the file. */
+export const scheduleEditUrl = (slug: string, branch = 'main'): string => editFileUrl(slug, SCHEDULE_FILE, branch);
+
+/** The whole `schedule.json` text after the edit, in the exact format `loop schedule` writes. */
+export const scheduleEditText = (schedule: Schedule): string => formatSchedule(schedule);
 
 /** The Actions page where the owner presses "Run workflow" for the release workflow. */
 export const releaseWorkflowUrl = (slug: string): string => `${GITHUB}/${checkedSlug(slug)}/actions/workflows/${RELEASE_WORKFLOW}`;
