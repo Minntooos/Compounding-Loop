@@ -1,6 +1,6 @@
 # Lane: web — round 5 (0.5.0 "Cockpit")
 
-Run: 16 / 20
+Run: 17 / 20
 Status: units 1-8 done; run 16 cleared QUIET_KINDS copy, steer-history gap, health repeat/orphan minors; next: remaining minors (list in Handoff)
 Round 4 record: `.ai/lanes/web/done-v4.md` (`git show 02874e8:.ai/lanes/web/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
