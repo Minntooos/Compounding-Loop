@@ -170,3 +170,8 @@ Independent reviewer on 9447f93: no blockers. Claim "a new pace clears the note"
 
 ### Server ask, run 11: e2e independent of the self snapshot
 Reviewer on 76d831f: no blockers. Kept: the pinned fleet replaces the live sites in two fleet tests (a live fetch + swap would bring back the `route.fetch` disposal flake, CONFIRMED in task.md); the sites' numbers are still checked live by the other fleet/screens tests. Fixed: the fixture refresh note (re-capturing after the flip would pin a building self). Open for server: keep `runOutcomes.limitStops5h: 2` and `routinesLookOff: false` on the self loop when flipping (tests/e2e/cockpit.spec.ts loop strip).
+
+### Run 12 (2026-10-13)
+- Self screenshots re-shot (5e53822). Design reviewer: header/strip/controls agree now; blockers left are server data (commits stop 11 Oct, round 3 lane contracts make "14 of 14", CI vs pace note); sent to server. Phone scroll rows have no scroll hint (minor, open).
+- canWrite for `loop dashboard --demo` (d09541f). Reviewer: no blockers; every POST caller covered, static demo and real local server unchanged.
+- Paused card/header badge (5fe28b8, 98b92b4). Reviewer major fixed: a paused loop's lanes stall by core's 2 h clock, so pause now wins over lane stall in badge, strip and attention list. Minors open: header stateReason next to Paused can read "Committed in the last hour"; fleet filter counts by `state`.
