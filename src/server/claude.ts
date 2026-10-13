@@ -5,6 +5,7 @@ import { resolveInvocation } from '../cli/run.js';
 export type AbortableClaude = (args: string[], cwd: string, signal?: AbortSignal) => Promise<string>;
 
 export const abortableClaude: AbortableClaude = async (rawArgs, cwd, signal) => {
+  if (signal?.aborted) throw new Error('The draft was stopped.');
   const { command, args } = await resolveInvocation('claude', rawArgs);
   return new Promise((resolve, reject) => {
     execFile(command, args, { cwd, maxBuffer: 16 * 1024 * 1024, timeout: 15 * 60_000, ...(signal && { signal }) }, (error, stdout) => {
