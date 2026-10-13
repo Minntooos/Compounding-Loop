@@ -118,7 +118,7 @@ export function LoopDetail({ id }: { id: string }) {
           </ul>
         </section>
       )}
-      <div ref={tabFade.ref} onScroll={tabFade.onScroll} role="tablist" aria-label="Loop sections" className="flex gap-1 overflow-x-auto whitespace-nowrap border-b" style={{ borderColor: 'var(--border)', ...tabFade.style }}>
+      <div ref={tabFade.ref} onScroll={tabFade.onScroll} onFocus={tabFade.onFocus} role="tablist" aria-label="Loop sections" className="flex gap-1 overflow-x-auto whitespace-nowrap border-b" style={{ borderColor: 'var(--border)', ...tabFade.style }}>
         {tabs.map((t) => (
           <button key={t} type="button" role="tab" tabIndex={tab === t ? 0 : -1} onKeyDown={(e) => onTabKey(e, tabs, tab, setTab)} id={`tab-${t}`} aria-controls="loop-panel" aria-selected={tab === t} onClick={() => setTab(t)} className="rounded-t px-3 py-2 aria-selected:border-b-2 aria-selected:font-semibold" style={{ borderColor: 'var(--accent)' }}>{t}</button>
         ))}

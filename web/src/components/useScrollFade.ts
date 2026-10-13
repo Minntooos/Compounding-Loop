@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { fadeEdges, fadeMask } from '../lib/scrollFade';
 
 const EDGE = 24;
@@ -8,16 +8,16 @@ const EDGE = 24;
  * `[aria-selected="true"]`) in view. `key` changes when the active tab does. Tabs can grow after data arrives (the Inbox
  * badge), so a ResizeObserver repeats both.
  */
-export function useScrollFade<T extends HTMLElement>(key: unknown): { ref: React.RefObject<T | null>; style: CSSProperties; onScroll: () => void } {
+export function useScrollFade<T extends HTMLElement>(key: unknown): { ref: React.RefObject<T | null>; style: CSSProperties; onScroll: () => void; onFocus: (e: React.FocusEvent) => void } {
   const ref = useRef<T | null>(null);
   const [mask, setMask] = useState<string | undefined>();
   const measure = useCallback(() => {
     const el = ref.current;
     if (el) setMask(fadeMask(fadeEdges(el.scrollLeft, el.clientWidth, el.scrollWidth)));
   }, []);
-  const reveal = useCallback(() => {
+  const reveal = useCallback((target?: Element | null) => {
     const el = ref.current;
-    const active = el?.querySelector<HTMLElement>('[aria-current="page"], [aria-selected="true"]');
+    const active = target instanceof HTMLElement && el?.contains(target) ? target : el?.querySelector<HTMLElement>('[aria-current="page"], [aria-selected="true"]');
     // Scroll only the row, never the page: scrollIntoView would also move the window vertically.
     if (el && active && el.scrollWidth > el.clientWidth) {
       const row = el.getBoundingClientRect();
@@ -28,14 +28,17 @@ export function useScrollFade<T extends HTMLElement>(key: unknown): { ref: React
     }
     measure();
   }, [measure]);
-  useEffect(reveal, [key, reveal]);
+  // Layout effect: the first paint already has the fade and the active tab in place.
+  useLayoutEffect(() => reveal(), [key, reveal]);
   useEffect(() => {
     const el = ref.current;
     if (!el || typeof ResizeObserver === 'undefined') return;
-    const ro = new ResizeObserver(reveal);
+    const ro = new ResizeObserver(() => reveal());
     ro.observe(el);
     for (const child of el.children) ro.observe(child);
     return () => ro.disconnect();
   }, [key, reveal]);
-  return { ref, style: mask ? { maskImage: mask, WebkitMaskImage: mask } : {}, onScroll: measure };
+  // Tabbing through links moves focus without changing the active tab: keep the focused one clear of the fade too.
+  const onFocus = useCallback((e: React.FocusEvent) => reveal(e.target), [reveal]);
+  return { ref, style: mask ? { maskImage: mask, WebkitMaskImage: mask } : {}, onScroll: measure, onFocus };
 }
