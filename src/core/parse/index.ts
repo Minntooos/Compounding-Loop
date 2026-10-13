@@ -18,3 +18,6 @@ export type { RunEntry, SlotOutcome, SlotResult } from './runs.js';
 export { parseChangelog, releaseFor } from './changelog.js';
 export type { ChangelogSection, Release } from './changelog.js';
 export { commitLane, latestControlNotes } from './controlRoom.js';
+export { SCHEDULE_FILE, applyBackoff, dueEntry, emptySchedule, formatSchedule, isBackedOff, isDue, notDueReason, parseSchedule, trailingIdleRuns, wakeEntry, wakeReasons } from './schedule.js';
+export type { NotDueReason, WakeInput, WakeReason } from './schedule.js';
+export { addSteerEntry, formatSteerEntry, parseSteer, standingEntries, steerHeading, steerOrder, steerPath, unacknowledged } from './steer.js';

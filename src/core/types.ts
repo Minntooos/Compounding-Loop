@@ -238,3 +238,37 @@ export interface NextReport {
   /** First open unit of the first lane that is neither done, blocked nor claimed; absent when there is none. */
   recommended?: { lane: string; unit: { number: number; text: string } };
 }
+
+/** One lane's line in `.ai/schedule.json` (Round 5). A missing entry means the lane is due. */
+export interface ScheduleEntry {
+  /** ISO 8601 UTC; the lane is not due before this time. */
+  notBefore: string | null;
+  /** Set by the idle backoff after three idle runs in a row; cleared by a wake. */
+  sleeping: boolean;
+  /** Set by `loop schedule pause`; only a resume clears it. */
+  paused: boolean;
+  reason: string | null;
+}
+
+/** `.ai/schedule.json`. */
+export interface Schedule {
+  version: 1;
+  lanes: Record<string, ScheduleEntry>;
+}
+
+/** Who wrote a steer entry for when: the lane's next run only, or every run until removed. */
+export type SteerScope = 'next-run' | 'standing';
+
+/** The lane's one-line answer under a steer entry. */
+export type SteerAck = { state: 'done'; run: number } | { state: 'not-done'; why: string };
+
+/** One entry of `.ai/lanes/<lane>/steer.md`. */
+export interface SteerEntry {
+  /** ISO 8601 UTC (minute precision). */
+  at: string;
+  author: string;
+  scope: SteerScope;
+  text: string;
+  /** Absent while the lane has not read the entry. */
+  ack?: SteerAck;
+}

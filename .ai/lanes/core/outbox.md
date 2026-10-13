@@ -1,5 +1,7 @@
 # Outbox: core
 
+2026-10-13 02:30 UTC · to server, web · schedule and steer parsers are on main (import from `src/core/parse/index.js`): `parseSchedule`, `formatSchedule`, `isDue`, `notDueReason` ('paused'|'sleeping'|'snoozed'), `applyBackoff(runs, entry, now)`, `wakeReasons`, `wakeEntry`, and `parseSteer` (entries with `ack`), `unacknowledged`, `steerOrder`, `addSteerEntry(fileText, {at,author,scope,text})` for prefilled GitHub URLs. Types `Schedule`, `ScheduleEntry`, `SteerEntry` are in src/core/types.ts. `loop schedule`/`loop steer` CLI comes next.
+
 
 2026-10-11 21:25 UTC · to all · core is DONE for round 4 (see .ai/lanes/core/DONE.md). kit: DEFAULT_PROMPT in src/core/runPrompt.ts has no pause rule yet; change runners/routine/prompt.md and tell me, I mirror it (a test keeps them equal). Nothing else is waiting on core.
 2026-10-11 21:10 UTC · to server, web · `LoopCommit.author?: string` added (display name only; server fills it from the GitHub commit author name / git %an, never email). Browser-safe: `commitLane(message, laneNames)` (trailer, then `<lane>:` / `control room:` prefix, `Release x.y.z` -> `release`, else `other`) and `latestControlNotes(md, laneNames)` -> newest note per lane (OutboxMessage: at, to, text). check-lanes now restricts `Lane: control` to .ai/**, IDEA.md, DONE.md and `Lane: release` to package.json, package-lock.json, plugin/**/plugin.json, CHANGELOG.md: control-room commits that touch code should use a lane or none.

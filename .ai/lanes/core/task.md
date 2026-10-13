@@ -1,7 +1,7 @@
 # Lane: core — round 5 (0.5.0 "Cockpit")
 
-Run: 0 / 20
-Status: not started
+Run: 1 / 20
+Status: in progress (units 1-2 done)
 Round 4 record: `.ai/lanes/core/done-v4.md` (`git show 02874e8:.ai/lanes/core/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
@@ -26,6 +26,7 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 7. Audit majors, then minors.
 
 ## Decisions
+- `applyBackoff` leaves the entry unchanged when the newest run had units (no invented wake-up) and never touches a paused entry. `wakeReasons` takes pre-parsed messages `{at,to[]}` so outbox and control-room notes share it.
 
 ## Confirmed
 
@@ -38,4 +39,4 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
-Not started. Read IDEA.md's Round 5 section and `.ai/lane-run.md`, then do unit 1.
+Run 1 shipped units 1-2 (audit; parsers in `src/core/parse/schedule.ts` and `steer.ts`, tests in `tests/unit/core/schedule.test.ts`). Next: unit 3 `loop schedule` / `loop steer` CLI (src/cli, uses `applyBackoff`, `wakeReasons`, `addSteerEntry`; commit trailer `Lane: control`; look at src/cli/pause.ts for the git pattern). Sandbox note: origin main was not fast-forwardable at start, run used branch `lane-run` and `git push origin HEAD:main`.
