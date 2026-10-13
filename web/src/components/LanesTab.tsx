@@ -1,9 +1,12 @@
+import { useRef, useState } from 'react';
 import type { LaneStatus, Schedule, SteerEntry } from '@core/types';
-import { AlarmClock, Check, Circle, CircleSlash, Clock, Lock, LockOpen, Moon, Pause, ShipWheel, TriangleAlert } from 'lucide-react';
+import { AlarmClock, Check, Gauge, Circle, CircleSlash, Clock, Lock, LockOpen, Moon, Pause, ShipWheel, TriangleAlert } from 'lucide-react';
 import { relativeTime } from '../lib/format';
 import { claimText, describeUnanswered } from '../lib/lanes';
 import { LaneBadge } from './LaneBadge';
 import { ScheduleControls } from './ScheduleControls';
+import { PaceBlock, PaceChooser } from './PaceControl';
+import { lanePaceText, type LoopPace } from '../lib/pace';
 import { ProgressBar } from './ProgressBar';
 import { openSteer } from '../lib/steerEvents';
 import { laneHold, laneScheduleState, steerAckChip, type LaneScheduleKind } from '../lib/schedule';
@@ -22,6 +25,8 @@ export interface LanesCockpit {
   /** For the C5 buttons: the loop they act on and its GitHub repo (the demo's link). */
   loopId?: string;
   slug?: string;
+  /** C9: the loop's pace and each lane's override (`LoopDetail.pace`). */
+  pace?: LoopPace;
 }
 
 function laneSchedule(status: LaneStatus, cockpit: LanesCockpit) {
@@ -70,6 +75,9 @@ function SteerHistory({ lane, entries, laneState }: { lane: string; entries: Ste
 function LaneRow({ lane, cockpit }: { lane: LaneStatus; cockpit: LanesCockpit }) {
   const schedule = cockpit.schedule || cockpit.idleRuns || cockpit.loopPaused ? laneSchedule(lane, cockpit) : undefined;
   const hold = laneHold(lane.state, schedule?.kind);
+  const [pacing, setPacing] = useState(false);
+  const paceButton = useRef<HTMLButtonElement>(null);
+  const paceText = cockpit.pace && lanePaceText(cockpit.pace, lane.name);
   return (
     <li data-testid="lane-row" className="rounded-lg border p-3" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -81,11 +89,14 @@ function LaneRow({ lane, cockpit }: { lane: LaneStatus; cockpit: LanesCockpit })
           {lane.locked ? <Lock aria-hidden size={13} /> : <LockOpen aria-hidden size={13} />}{lane.locked ? 'Locked' : 'No lock'}
         </span>
         {schedule && <ScheduleLine state={schedule} held={hold !== undefined} />}
+        {paceText && <span data-testid="lane-pace" className="inline-flex items-center gap-1 text-[13px]" style={{ color: 'var(--muted)' }}><Gauge aria-hidden size={13} />{paceText}</span>}
       </div>
       {/* One action row: Steer and the schedule buttons never split across lines of their own (design review, run 5). */}
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <button type="button" onClick={() => openSteer(lane.name)} aria-label={`Steer ${lane.name}`} className="min-h-11 rounded border px-3 text-[13px] font-medium" style={{ borderColor: 'var(--border)' }}><span className="inline-flex items-center gap-1.5"><ShipWheel aria-hidden size={14} />Steer</span></button>
+        {cockpit.pace && cockpit.loopId && !pacing && <button ref={paceButton} type="button" aria-expanded={false} onClick={() => setPacing(true)} aria-label={`Pace of ${lane.name}`} className="min-h-11 rounded border px-3 text-[13px] font-medium" style={{ borderColor: 'var(--border)' }}><span className="inline-flex items-center gap-1.5"><Gauge aria-hidden size={14} />Pace</span></button>}
         {schedule && cockpit.loopId && <ScheduleControls loopId={cockpit.loopId} lane={lane.name} kind={schedule.kind} {...(cockpit.slug && { slug: cockpit.slug })} now={cockpit.now ?? new Date()} />}
+        {pacing && cockpit.pace && cockpit.loopId && <PaceChooser loopId={cockpit.loopId} pace={cockpit.pace} lane={lane.name} {...(cockpit.slug && { slug: cockpit.slug })} onClose={() => { setPacing(false); window.setTimeout(() => paceButton.current?.focus(), 0); }} />}
       </div>
       {lane.limit > 0 && <div className="mt-2"><ProgressBar label={`${lane.name} run budget`} value={Math.min(lane.run, lane.limit)} max={lane.limit} text={`${lane.run} of ${lane.limit} runs`} color="var(--accent)" /></div>}
       <p className="mt-1 [overflow-wrap:anywhere]" style={{ color: 'var(--muted)' }}>
@@ -106,5 +117,10 @@ function LaneRow({ lane, cockpit }: { lane: LaneStatus; cockpit: LanesCockpit })
 }
 
 export function LanesTab({ lanes, cockpit = {} }: { lanes: LaneStatus[]; cockpit?: LanesCockpit }) {
-  return <ul className="space-y-2" aria-label="Lanes">{lanes.map((l) => <LaneRow key={l.name} lane={l} cockpit={cockpit} />)}</ul>;
+  return (
+    <>
+      {cockpit.pace && cockpit.loopId && <PaceBlock loopId={cockpit.loopId} pace={cockpit.pace} {...(cockpit.slug && { slug: cockpit.slug })} />}
+      <ul className="space-y-2" aria-label="Lanes">{lanes.map((l) => <LaneRow key={l.name} lane={l} cockpit={cockpit} />)}</ul>
+    </>
+  );
 }

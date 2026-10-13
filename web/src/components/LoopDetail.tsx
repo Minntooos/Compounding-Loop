@@ -41,7 +41,7 @@ function TabBody({ tab, loop, focus, toRuns }: { tab: Tab; loop: Detail; focus?:
     case 'Timeline':
       if (!loop.runs?.length) return <Timeline commits={loop.timeline} />;
       return <div className="space-y-6"><HeatMap runs={loop.runs} {...heatFor(loop)} onPick={toRuns} /><Timeline commits={loop.timeline} /></div>;
-    case 'Lanes': return <LanesTab lanes={loop.lanes ?? []} cockpit={{ ...(loop.schedule && { schedule: loop.schedule }), ...(loop.idleRuns && { idleRuns: loop.idleRuns }), ...(loop.steer && { steer: loop.steer }), ...(loop.paused && { loopPaused: true }), loopId: loop.id, ...(slugOf(loop.repoUrl ?? loop.url) && { slug: slugOf(loop.repoUrl ?? loop.url) as string }), now: scheduleClock(loop, new Date()) }} />;
+    case 'Lanes': return <LanesTab lanes={loop.lanes ?? []} cockpit={{ ...(loop.schedule && { schedule: loop.schedule }), ...(loop.idleRuns && { idleRuns: loop.idleRuns }), ...(loop.steer && { steer: loop.steer }), ...(loop.paused && { loopPaused: true }), ...(loop.pace && { pace: loop.pace }), loopId: loop.id, ...(slugOf(loop.repoUrl ?? loop.url) && { slug: slugOf(loop.repoUrl ?? loop.url) as string }), now: scheduleClock(loop, new Date()) }} />;
     case 'Runs': return <RunsTab runs={loop.runs ?? []} paused={loop.paused !== undefined} quiet={(loop.lanes ?? []).filter((l) => l.state === 'done' || l.state === 'blocked').map((l) => l.name)} {...(loop.nextRuns && { nextRuns: loop.nextRuns })} heat={heatFor(loop)} {...(focus && { focus })} />;
     case 'Tests': return <TestsTab runs={loop.runs ?? []} />;
     case 'Releases': return <ReleasesTab releases={loop.releases ?? []} />;

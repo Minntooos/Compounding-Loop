@@ -1,4 +1,4 @@
-import type { DashboardSettings, HealthCheck, InboxItem, LoopDetail, LoopSummary } from '@core/types';
+import type { DashboardSettings, HealthCheck, InboxItem, LoopDetail, LoopSummary, Pace } from '@core/types';
 import { probeOrder } from '../lib/probe';
 import { newestActivity, shortDateUtc } from '../lib/format';
 import { takeSseEvents } from '../lib/draft';
@@ -130,6 +130,16 @@ export async function postSchedule(loopId: string, body: { action: 'pause' | 're
   });
   const reply = (await res.json().catch(() => ({}))) as SteerReply & { error?: string };
   if (!res.ok) throw new Error(reply.error ?? `Schedule change failed (${res.status})`);
+  return reply;
+}
+
+/** POST a pace to the local server: core's `runPaceSet` writes `.ai/policy.json` (the loop's pace, or one lane's) and commits. */
+export async function postPace(loopId: string, body: { pace: Pace; lane?: string }): Promise<SteerReply> {
+  const res = await fetch(`/api/loops/${encodeURIComponent(loopId)}/pace`, {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+  });
+  const reply = (await res.json().catch(() => ({}))) as SteerReply & { error?: string };
+  if (!res.ok) throw new Error(reply.error ?? `Pace change failed (${res.status})`);
   return reply;
 }
 
