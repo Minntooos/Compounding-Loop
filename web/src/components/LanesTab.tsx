@@ -30,11 +30,12 @@ function laneSchedule(status: LaneStatus, cockpit: LanesCockpit) {
   return laneScheduleState({ ...(entry && { entry }), ...(idle !== undefined && { idleRuns: idle }), ...(cockpit.loopPaused && { loopPaused: true }), laneState: status.state, now: cockpit.now ?? new Date() });
 }
 
-function ScheduleLine({ state }: { state: ReturnType<typeof laneScheduleState> }) {
+// When the lane badge already shows the hold, the sentence drops its own icon: one glyph per row (design review, run 6).
+function ScheduleLine({ state, held = false }: { state: ReturnType<typeof laneScheduleState>; held?: boolean }) {
   const Icon = SCHEDULE_ICON[state.kind];
   return (
     <span data-testid="lane-schedule" data-kind={state.kind} className="inline-flex items-start gap-1.5 text-[13px] [overflow-wrap:anywhere]" style={{ color: state.kind === 'due' ? 'var(--text)' : 'var(--muted)' }}>
-      <Icon aria-hidden size={14} className="mt-[3px] shrink-0" /><span>{state.text}</span>
+      {!held && <Icon aria-hidden size={14} className="mt-[3px] shrink-0" />}<span>{state.text}</span>
     </span>
   );
 }
@@ -68,17 +69,18 @@ function SteerHistory({ lane, entries, laneState }: { lane: string; entries: Ste
 // Lane names, commit subjects and message text come from repo files: rendered as text nodes only.
 function LaneRow({ lane, cockpit }: { lane: LaneStatus; cockpit: LanesCockpit }) {
   const schedule = cockpit.schedule || cockpit.idleRuns || cockpit.loopPaused ? laneSchedule(lane, cockpit) : undefined;
+  const hold = laneHold(lane.state, schedule?.kind);
   return (
     <li data-testid="lane-row" className="rounded-lg border p-3" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
         <h3 className="break-all font-mono text-[14px] font-semibold">{lane.name}</h3>
-        <LaneBadge state={lane.state} hold={laneHold(lane.state, schedule?.kind)} />
+        <LaneBadge state={lane.state} hold={hold} />
         <span className="font-mono text-[12px]">Run {lane.run}/{lane.limit}</span>
         <span data-testid="lane-claim" className="font-mono text-[12px]" style={{ color: lane.claim ? 'var(--text)' : 'var(--muted)' }}>{claimText(lane.claim)}</span>
         <span className="inline-flex items-center gap-1 text-[12px]" style={{ color: 'var(--muted)' }}>
           {lane.locked ? <Lock aria-hidden size={13} /> : <LockOpen aria-hidden size={13} />}{lane.locked ? 'Locked' : 'No lock'}
         </span>
-        {schedule && <ScheduleLine state={schedule} />}
+        {schedule && <ScheduleLine state={schedule} held={hold !== undefined} />}
       </div>
       {/* One action row: Steer and the schedule buttons never split across lines of their own (design review, run 5). */}
       <div className="mt-2 flex flex-wrap items-center gap-2">

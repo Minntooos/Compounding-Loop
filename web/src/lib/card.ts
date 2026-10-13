@@ -1,4 +1,5 @@
-import type { LoopSummary } from '../../../src/core/types.js';
+import type { LaneStatus, LoopSummary } from '../../../src/core/types.js';
+import { laneHold, type LaneHold } from './schedule.js';
 
 /** The loop that is this repo building itself; the fleet shows it first. */
 export const SELF_BUILD_ID = 'compounding-loop';
@@ -68,13 +69,14 @@ const RUN_WORD: Record<NonNullable<LoopSummary['lastRun']>['outcome'], string> =
 };
 
 /** The card's one status line: a pause wins, else the reason followed by the newest run ("last run 21:44 UTC: pushed"). */
-export function statusLine(loop: Pick<LoopSummary, 'reason' | 'paused' | 'lastRun'>): string {
+export function statusLine(loop: Pick<LoopSummary, 'reason' | 'paused' | 'lastRun'> & Partial<Pick<LoopSummary, 'state' | 'runOutcomes'>>): string {
   const { paused, lastRun } = loop;
   if (paused) {
     const since = paused.at ? ` since ${paused.at.slice(11, 16)} UTC` : '';
     return `Paused by ${paused.by}${since}${paused.reason ? ` · ${paused.reason}` : ''}`;
   }
-  return lastRun ? `${loop.reason} · last run ${lastRun.at.slice(11, 16)} UTC: ${RUN_WORD[lastRun.outcome]}` : loop.reason;
+  const reason = stateReason(loop);
+  return lastRun ? `${reason} · last run ${lastRun.at.slice(11, 16)} UTC: ${RUN_WORD[lastRun.outcome]}` : reason;
 }
 
 /** The loop header's round text: server's `roundLabel`, else "Round 2/3"; undefined when the status reason already names that round (A8: said once). */
@@ -94,4 +96,18 @@ export type CardBadge = LoopSummary['state'] | 'stalled';
 export function cardBadge(loop: Pick<LoopSummary, 'state' | 'lanes' | 'runOutcomes'>): CardBadge {
   if (loop.state !== 'building' && loop.state !== 'waiting') return loop.state;
   return loop.runOutcomes?.routinesLookOff || loop.lanes?.some((l) => l.state === 'stalled') ? 'stalled' : loop.state;
+}
+
+/** The reason under a Stalled badge: "Building" there would contradict it, so routines that look off say so (design review, run 6). */
+export function stateReason(loop: Pick<LoopSummary, 'reason'> & Partial<Pick<LoopSummary, 'state' | 'runOutcomes'>>): string {
+  return loop.runOutcomes?.routinesLookOff && (loop.state === 'building' || loop.state === 'waiting') ? 'Routines look off' : loop.reason;
+}
+
+/**
+ * A fleet card lane chip's hold. Cards carry no schedule.json, only `runOutcomes.sleeping` (sleeping or snoozed lanes) and
+ * the loop pause, so a lane paused on its own still reads its lane state here (the Lanes tab says Paused).
+ */
+export function chipHold(loop: Pick<LoopSummary, 'paused' | 'runOutcomes'>, lane: Pick<LaneStatus, 'name' | 'state'>): LaneHold | undefined {
+  const kind = loop.paused ? 'loop-paused' : loop.runOutcomes?.sleeping.includes(lane.name) ? 'sleeping' : undefined;
+  return laneHold(lane.state, kind);
 }

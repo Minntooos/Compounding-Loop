@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activityStamp, cardBadge, headerRound, releasedText, cardFacts, statusLine, laneProgress, roundProgress, runBudget, selfFirst } from '../../../web/src/lib/card.js';
+import { activityStamp, cardBadge, chipHold, stateReason, headerRound, releasedText, cardFacts, statusLine, laneProgress, roundProgress, runBudget, selfFirst } from '../../../web/src/lib/card.js';
 
 describe('fleet card model', () => {
   it('puts the self-build loop first and keeps the rest in order', () => {
@@ -88,5 +88,20 @@ describe('cardBadge', () => {
     expect(cardBadge({ state: 'failing', runOutcomes: off })).toBe('failing');
     expect(cardBadge({ state: 'blocked', runOutcomes: off })).toBe('blocked');
     expect(cardBadge({ state: 'done', runOutcomes: off })).toBe('done');
+  });
+});
+
+describe('stateReason and chipHold', () => {
+  const off = { limitStops5h: 0, running: [], sleeping: ['docs'], routinesLookOff: true };
+  it('a building loop whose routines look off says so instead of its reason, also in the status line', () => {
+    expect(stateReason({ reason: 'Building', state: 'building', runOutcomes: off })).toBe('Routines look off');
+    expect(stateReason({ reason: 'Tests failing', state: 'failing', runOutcomes: off })).toBe('Tests failing');
+    expect(statusLine({ reason: 'Building', state: 'building', runOutcomes: off, lastRun: { lane: 'web', at: '2026-10-11T21:44:00Z', outcome: 'pushed' } })).toBe('Routines look off · last run 21:44 UTC: pushed');
+  });
+  it('a card chip shows a sleeping lane or the whole loop paused, never for a done lane', () => {
+    expect(chipHold({ runOutcomes: off }, { name: 'docs', state: 'waiting' })).toBe('sleeping');
+    expect(chipHold({ runOutcomes: off }, { name: 'web', state: 'building' })).toBeUndefined();
+    expect(chipHold({ paused: { by: 'sam' } }, { name: 'web', state: 'building' })).toBe('loop-paused');
+    expect(chipHold({ paused: { by: 'sam' } }, { name: 'kit', state: 'done' })).toBeUndefined();
   });
 });

@@ -57,7 +57,7 @@ function LoopCard({ loop }: { loop: LoopSummary }) {
             {facts.map((f) => <Fragment key={f.label}><dt style={{ color: 'var(--muted)' }}>{f.label}</dt><dd>{f.value}</dd></Fragment>)}
           </dl>
         )}
-        {loop.lanes && <LaneStrip lanes={loop.lanes} />}
+        {loop.lanes && <LaneStrip loop={{ ...loop, lanes: loop.lanes }} />}
       </a>
     </li>
   );

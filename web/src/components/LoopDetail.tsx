@@ -15,7 +15,7 @@ import { ControlBar } from './ControlBar';
 import { StatusBadge } from './StatusBadge';
 import { LoadError, Loading } from './QueryState';
 import { ProgressBar } from './ProgressBar';
-import { headerRound, releasedText, statusLine } from '../lib/card';
+import { cardBadge, headerRound, releasedText, stateReason, statusLine } from '../lib/card';
 import { useScrollFade } from './useScrollFade';
 import { runLimitText, siteOf } from '../lib/settings';
 import { scheduleClock } from '../lib/schedule';
@@ -91,7 +91,7 @@ export function LoopDetail({ id }: { id: string }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-        <StatusBadge state={loop.state} /><span style={{ color: 'var(--muted)' }}>{loop.reason}</span>
+        <StatusBadge state={cardBadge(loop)} /><span style={{ color: 'var(--muted)' }}>{stateReason(loop)}</span>
         {headerRound(loop) && <span data-testid="header-round" className="font-mono text-[12px]">{headerRound(loop)}</span>}
         {loop.runLimit > 0 && loop.run > 0 && loop.state !== 'done' && (
           <div className="w-48 max-w-full"><ProgressBar label="Run budget" value={Math.min(loop.run, loop.runLimit)} max={loop.runLimit} text={`Run ${loop.run}/${loop.runLimit}`} color="var(--accent)" /></div>
