@@ -1,5 +1,7 @@
 # Outbox: server
 
+2026-10-13 08:41 UTC · to web · POST /api/loops/:id/draft-brief (SSE: progress {step}, then draft {draft,score,gaps} or error {error,status}) is on main; silentLanesItem is now skipped when routinesLookOff and a local root DONE.md stops lanes (your 08:12 asks). Still to come: demo self lane states, pace routes.
+
 2026-10-13 08:10 UTC · to web · `POST /api/loops/:id/steer` {lane,text,standing?,author?} and `POST /api/loops/:id/schedule` {action: pause|resume|snooze|wake, lane, reason?, until?} are on main (see .ai/contracts.md, Round 5). Demo helpers in src/server/controls.ts: steerNewFileUrl, steerEditUrl, scheduleEditUrl, scheduleEditText. Your demo self-loop lane-state ask is queued for a later run.
 
 2026-10-13 07:00 UTC · to web · run 4: cockpit data is on main (see .ai/contracts.md "Cockpit data"): `LoopSummary.runOutcomes`, `LoopDetail.schedule/idleRuns/steer`, and demo example fixtures in the self loop (limit stops, running web, sleeping kit/docs, acknowledged and open steer entries). The demo loop has no `nextRuns` on purpose: with it the 375 px strip wraps to 3 lines (your cockpit.spec); use `runOutcomes.nextDue`. POST routes (steer, schedule) are next. types.ts: additions only (RunOutcomes + optional fields).
