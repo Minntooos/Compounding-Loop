@@ -4,6 +4,8 @@ import { lintBrief, MIN_BRIEF_SCORE } from '@core/brief';
 import type { LoopDetail } from '@core/types';
 import { hasServer, postControl } from '../api/client';
 import { toast } from './Toasts';
+import { SteerDialog } from './SteerDialog';
+import { onSteer } from '../lib/steerEvents';
 import { CHANGE_TEXT, githubUrl, releaseBlocker, slugOf, VERB, type ControlAction } from '../lib/controls';
 
 const PENDING: Record<ControlAction, string> = { pause: 'Pausing…', resume: 'Resuming…', 'next-round': 'Starting…', release: 'Opening…' };
@@ -77,7 +79,9 @@ function ConfirmDialog({ loop, action, local, onClose }: { loop: LoopDetail; act
 export function ControlBar({ loop }: { loop: LoopDetail }) {
   const [action, setAction] = useState<ControlAction>();
   const [local, setLocal] = useState(false);
+  const [steer, setSteer] = useState<{ lane?: string }>();
   useEffect(() => { void hasServer().then(setLocal); }, []);
+  useEffect(() => onSteer((lane) => setSteer(lane ? { lane } : {})), []);
   // Once the version has shipped there is nothing to release: no disabled button with a stale reason.
   const blocker = loop.shipped ? undefined : releaseBlocker(loop);
   const btn = 'min-h-11 rounded border px-3 text-[13px] font-medium disabled:opacity-60';
@@ -88,9 +92,11 @@ export function ControlBar({ loop }: { loop: LoopDetail }) {
           ? <button type="button" className={btn} style={{ borderColor: 'var(--accent)' }} onClick={() => setAction('resume')}>Resume</button>
           : <button type="button" className={btn} style={{ borderColor: 'var(--border)' }} onClick={() => setAction('pause')}>Pause all</button>}
         <button type="button" className={btn} style={{ borderColor: 'var(--border)' }} onClick={() => setAction('next-round')}>Start next round</button>
+        <button type="button" className={btn} style={{ borderColor: 'var(--border)' }} onClick={() => setSteer({})} aria-keyshortcuts="s">Steer</button>
         {!loop.shipped && <button type="button" className={btn} style={{ borderColor: 'var(--border)' }} disabled={blocker !== undefined} onClick={() => setAction('release')}>Release</button>}
       </div>
       {blocker && <p className="text-[12px]" style={{ color: 'var(--muted)' }}>{blocker}</p>}
+      {steer && <SteerDialog loop={loop} {...(steer.lane && { lane: steer.lane })} local={local} onClose={() => setSteer(undefined)} />}
       {action && <ConfirmDialog loop={loop} action={action} local={local} onClose={() => setAction(undefined)} />}
     </div>
   );

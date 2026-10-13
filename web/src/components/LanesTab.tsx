@@ -4,6 +4,7 @@ import { relativeTime } from '../lib/format';
 import { claimText, describeUnanswered } from '../lib/lanes';
 import { LaneBadge } from './LaneBadge';
 import { ProgressBar } from './ProgressBar';
+import { openSteer } from '../lib/steerEvents';
 
 // Lane names, commit subjects and message text come from repo files: rendered as text nodes only.
 function LaneRow({ lane }: { lane: LaneStatus }) {
@@ -17,6 +18,7 @@ function LaneRow({ lane }: { lane: LaneStatus }) {
         <span className="inline-flex items-center gap-1 text-[12px]" style={{ color: 'var(--muted)' }}>
           {lane.locked ? <Lock aria-hidden size={13} /> : <LockOpen aria-hidden size={13} />}{lane.locked ? 'Locked' : 'No lock'}
         </span>
+        <button type="button" onClick={() => openSteer(lane.name)} aria-label={`Steer ${lane.name}`} className="ml-auto min-h-11 rounded border px-3 text-[13px] font-medium" style={{ borderColor: 'var(--border)' }}>Steer</button>
       </div>
       {lane.limit > 0 && <div className="mt-2"><ProgressBar label={`${lane.name} run budget`} value={Math.min(lane.run, lane.limit)} max={lane.limit} text={`${lane.run} of ${lane.limit} runs`} color="var(--accent)" /></div>}
       <p className="mt-1 [overflow-wrap:anywhere]" style={{ color: 'var(--muted)' }}>

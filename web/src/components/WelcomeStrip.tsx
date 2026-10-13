@@ -10,7 +10,7 @@ function wasDismissed(): boolean {
 }
 
 /** Copies with the Clipboard API; without it (insecure context, old browser) selects the text so Ctrl+C works. */
-async function copyText(text: string, fallbackEl: HTMLElement | null): Promise<boolean> {
+export async function copyText(text: string, fallbackEl: HTMLElement | null): Promise<boolean> {
   try { await navigator.clipboard.writeText(text); return true; } catch { /* fall through */ }
   if (fallbackEl) {
     const range = document.createRange();

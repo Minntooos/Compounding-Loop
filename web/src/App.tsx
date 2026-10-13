@@ -20,6 +20,7 @@ import { mockSnapshot } from './api/mock';
 import { indicatorText, LIVE_TTL_MS } from './lib/liveCache';
 import { newestActivity, shortDateUtc } from './lib/format';
 import { href, useRoute, type Route } from './lib/route';
+import { openSteer } from './lib/steerEvents';
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 5_000, retry: false } } });
 const NAV: { label: string; route: Route }[] = [
@@ -114,6 +115,7 @@ function Shell() {
   const go = (r: Route) => () => { window.location.hash = href(r); };
   const palette = [
     ...NAV.map((n) => ({ label: `Go to ${n.label}`, run: go(n.route) })),
+    ...(route.name === 'loop' ? [{ label: 'Steer a lane', run: () => openSteer() }] : []),
     { label: theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme', run: () => setTheme(theme === 'dark' ? 'light' : 'dark') },
   ];
   const current = route.name === 'loop' ? 'fleet' : route.name;
