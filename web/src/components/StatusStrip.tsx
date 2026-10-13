@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { AlertTriangle, Check, CheckCircle2, Circle, CircleDot, Clock, Inbox, Minus, Pause, RefreshCw, Tag, X, type LucideIcon } from 'lucide-react';
+import { Activity, AlertTriangle, Check, CheckCircle2, Circle, CircleDot, Clock, Inbox, Minus, Moon, Pause, RefreshCw, Tag, X, type LucideIcon } from 'lucide-react';
 import type { LoopDetail, LoopSummary } from '@core/types';
 import { api } from '../api/client';
 import { attentionItems, releaseWaiting } from '../lib/lanes';
 import { stripSegments, type Segment, type Tone } from '../lib/strip';
 
 const ICON: Record<string, LucideIcon> = {
-  stalled: AlertTriangle, 'release-waiting': Tag, 'likely-running': CircleDot, paused: Pause, idle: Circle, released: Tag, done: CheckCircle2,
+  stalled: AlertTriangle, 'release-waiting': Tag, running: Activity, 'likely-running': CircleDot, sleeping: Moon, paused: Pause, idle: Circle, released: Tag, done: CheckCircle2,
   inbox: Inbox, check: Check, cross: X, dash: Minus, warn: AlertTriangle, tag: Tag, clock: Clock, round: RefreshCw,
 };
 const COLOR: Record<Tone, string> = {

@@ -72,7 +72,8 @@ test('a loop page strip describes only that loop', async ({ page }, info) => {
   const strip = page.getByTestId('status-strip');
   await expect(strip).toHaveAccessibleName('Loop status');
   await expect(strip.locator('[data-segment="state"]')).not.toContainText('·');
-  await expect(strip.locator('[data-segment="limits"]')).toHaveText(info.project.name === 'phone' ? 'Limits not checked' : 'Limit stops not checked', { useInnerText: true });
+  // The demo self loop carries server's example run outcomes (two limit stops in the last 5 h).
+  await expect(strip.locator('[data-segment="limits"]')).toHaveText(info.project.name === 'phone' ? '2 limit stops' : '2 limit stops in 5 h', { useInnerText: true });
 });
 
 test('at 375 px the strip puts state and needs-you on the first line and never scrolls the page', async ({ page }) => {

@@ -4,11 +4,11 @@ import { activityStamp, releasedText } from './card.js';
 import { releaseWaiting } from './lanes.js';
 
 /** Segment 1 of the status strip (DESIGN.md §12), in precedence order: the first one any loop has wins on the fleet. */
-export const STRIP_STATES = ['stalled', 'release-waiting', 'likely-running', 'paused', 'idle', 'released', 'done'] as const;
+export const STRIP_STATES = ['stalled', 'release-waiting', 'paused', 'running', 'likely-running', 'sleeping', 'idle', 'released', 'done'] as const;
 export type StripState = (typeof STRIP_STATES)[number];
 
 export const STRIP_STATE_LABEL: Record<StripState, string> = {
-  stalled: 'Stalled', 'release-waiting': 'Release waiting', 'likely-running': 'Likely running', paused: 'Paused', idle: 'Idle', released: 'Released', done: 'Done',
+  stalled: 'Stalled', 'release-waiting': 'Release waiting', running: 'Running', 'likely-running': 'Likely running', sleeping: 'Sleeping', paused: 'Paused', idle: 'Idle', released: 'Released', done: 'Done',
 };
 
 export type Tone = 'done' | 'blocked' | 'failing' | 'building' | 'muted' | 'text';
@@ -25,7 +25,7 @@ export interface Segment {
   href?: string;
 }
 
-type Summary = Pick<LoopSummary, 'id' | 'name' | 'state' | 'lanes' | 'shipped' | 'paused' | 'lastRun' | 'lastCommit' | 'roundLabel' | 'round' | 'roundsTotal' | 'ci' | 'tests' | 'nextRunAt'>;
+type Summary = Pick<LoopSummary, 'id' | 'name' | 'state' | 'lanes' | 'shipped' | 'paused' | 'lastRun' | 'lastCommit' | 'roundLabel' | 'round' | 'roundsTotal' | 'ci' | 'tests' | 'nextRunAt' | 'runOutcomes'>;
 type Detail = Partial<Pick<LoopDetail, 'ship' | 'nextRuns' | 'contract' | 'laneNotes'>>;
 
 const loopHref = (id: string) => `#/loop/${encodeURIComponent(id)}`;
@@ -44,12 +44,29 @@ export function loopStripState(loop: Summary, now: Date): StripState {
   if (loop.lanes?.some((l) => l.state === 'stalled')) return 'stalled';
   if (releaseWaiting(loop)) return 'release-waiting';
   if (loop.paused) return 'paused';
+  // "Routines look off" (6 h of silence with runs due) is a stall of the whole loop.
+  if (loop.runOutcomes?.routinesLookOff) return 'stalled';
   if (loop.state === 'done') return loop.shipped ? 'released' : 'done';
-  return now.getTime() - lastActivity(loop) < RUN_WINDOW_MS ? 'likely-running' : 'idle';
+  if (loop.runOutcomes?.running.length) return 'running';
+  if (now.getTime() - lastActivity(loop) < RUN_WINDOW_MS) return 'likely-running';
+  return allLanesSleeping(loop) ? 'sleeping' : 'idle';
+}
+
+/** Every lane that still has work is held back by the schedule (sleeping or snoozed). */
+export function allLanesSleeping(loop: Pick<LoopSummary, 'lanes' | 'runOutcomes'>): boolean {
+  const open = (loop.lanes ?? []).filter((l) => l.state !== 'done');
+  const sleeping = new Set(loop.runOutcomes?.sleeping ?? []);
+  return open.length > 0 && open.every((l) => sleeping.has(l.name));
+}
+
+/** Usage-limit stops in the last 5 h over the loops that report run outcomes; undefined when none does ("not checked"). */
+export function limitStopsOf(loops: Pick<LoopSummary, 'runOutcomes'>[]): number | undefined {
+  const known = loops.map((l) => l.runOutcomes).filter((o) => o !== undefined);
+  return known.length ? known.reduce((n, o) => n + o.limitStops5h, 0) : undefined;
 }
 
 const STATE_TONE: Record<StripState, Tone> = {
-  stalled: 'blocked', 'release-waiting': 'blocked', 'likely-running': 'building', paused: 'muted', idle: 'muted', released: 'done', done: 'done',
+  stalled: 'blocked', 'release-waiting': 'blocked', running: 'building', 'likely-running': 'building', sleeping: 'muted', paused: 'muted', idle: 'muted', released: 'done', done: 'done',
 };
 
 function stateSegment(loops: Summary[], now: Date, scoped: boolean): Segment {
@@ -59,7 +76,8 @@ function stateSegment(loops: Summary[], now: Date, scoped: boolean): Segment {
   const first = which[0];
   // On the fleet, say which loop (or how many) the word is about.
   const who = scoped || loops.length < 2 ? '' : which.length === 1 && first ? ` · ${first.name}` : ` · ${which.length} of ${loops.length} loops`;
-  return { id: 'state', text: `${STRIP_STATE_LABEL[top]}${who}`, short: STRIP_STATE_LABEL[top], tone: STATE_TONE[top], icon: top, ...(!scoped && which.length === 1 && first && loops.length > 1 ? { href: loopHref(first.id) } : {}) };
+  const lanes = scoped && top === 'running' && first?.runOutcomes ? ` · ${first.runOutcomes.running.join(', ')}` : '';
+  return { id: 'state', text: `${STRIP_STATE_LABEL[top]}${who}${lanes}`, short: STRIP_STATE_LABEL[top], tone: STATE_TONE[top], icon: top, ...(!scoped && which.length === 1 && first && loops.length > 1 ? { href: loopHref(first.id) } : {}) };
 }
 
 function needsSegment(count: number): Segment {
@@ -143,6 +161,11 @@ function nextSegment(loops: Summary[], details: ReadonlyMap<string, Detail>, now
   const lanes = loops.flatMap((l) => details.get(l.id)?.nextRuns ?? []).filter((r) => !Number.isNaN(new Date(r.at).getTime()));
   const lane = [...lanes].sort((a, b) => a.at.localeCompare(b.at))[0];
   if (lane) return { id: 'next', text: `next: ${lane.lane} ${dueTime(lane.at, now)}`, tone: 'text', icon: 'clock' };
+  const due = loops.map((l) => l.runOutcomes?.nextDue).filter((d): d is { lane: string; at: string } => !!d && !Number.isNaN(new Date(d.at).getTime()));
+  const soonest = [...due].sort((a, b) => a.at.localeCompare(b.at))[0];
+  // Phone: left out (short ''), so line 2 stays one line; the state segment already says Running or Sleeping.
+  if (soonest) return { id: 'next', text: `next: ${soonest.lane} ${dueTime(soonest.at, now)}`, short: '', tone: 'text', icon: 'clock' };
+  if (loops.some((l) => l.state !== 'done' && allLanesSleeping(l))) return { id: 'next', text: 'all lanes sleeping', short: '', tone: 'muted', icon: 'sleeping' };
   const at = loops.map((l) => l.nextRunAt).filter((t): t is string => !!t && !Number.isNaN(new Date(t).getTime())).sort()[0];
   if (at) return { id: 'next', text: `next run ${dueTime(at, now)}`, tone: 'text', icon: 'clock' };
   return undefined;
@@ -172,7 +195,7 @@ export function stripSegments(input: StripInput): Segment[] {
     needsSegment(input.attention),
     roundSegment(loops, only ? details.get(only.id) : undefined, scoped),
     ciSegment(loops, scoped),
-    limitSegment(input.limitStops, only ? `${loopHref(only.id)}` : undefined),
+    limitSegment(input.limitStops ?? limitStopsOf(loops), only ? `${loopHref(only.id)}` : undefined),
     shipSegment(loops, details),
     nextSegment(loops, details, now),
   ];

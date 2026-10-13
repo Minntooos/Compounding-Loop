@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { LaneStatus, LoopDetail, LoopSummary } from '../../../src/core/types.js';
-import { checksOk, doneWhenProgress, dueTime, loopStripState, stripSegments } from '../../../web/src/lib/strip.js';
+import { allLanesSleeping, checksOk, doneWhenProgress, dueTime, limitStopsOf, loopStripState, stripSegments } from '../../../web/src/lib/strip.js';
 
 const NOW = new Date('2026-10-13T03:00:00Z');
 const lane = (name: string, state: LaneStatus['state']): LaneStatus => ({ name, state, run: 1, limit: 20, locked: false, unanswered: [] });
@@ -88,5 +88,30 @@ describe('helpers', () => {
   it('dueTime adds the date only for another day', () => {
     expect(dueTime('2026-10-13T04:15:00Z', NOW)).toBe('04:15 UTC');
     expect(dueTime('2026-10-14T04:15:00Z', NOW)).toBe('14 Oct 04:15 UTC');
+  });
+});
+
+describe('run outcomes (server runOutcomes)', () => {
+  const ro = (over: Partial<NonNullable<LoopSummary['runOutcomes']>> = {}) => ({ limitStops5h: 0, running: [], sleeping: [], routinesLookOff: false, ...over });
+  const lanes = [lane('core', 'building'), lane('kit', 'building'), lane('docs', 'done')];
+  it('Running names the lanes on a loop page; Routines look off is Stalled', () => {
+    expect(loopStripState(loop({ lanes, runOutcomes: ro({ running: ['web'] }) }), NOW)).toBe('running');
+    expect(text(stripSegments({ loops: [loop({ lanes, runOutcomes: ro({ running: ['web', 'core'] }) })], scoped: true, attention: 0, now: NOW }), 'state')).toBe('Running · web, core');
+    expect(loopStripState(loop({ lanes, runOutcomes: ro({ routinesLookOff: true }) }), NOW)).toBe('stalled');
+  });
+  it('Sleeping only when every lane with work is held back', () => {
+    expect(allLanesSleeping(loop({ lanes, runOutcomes: ro({ sleeping: ['core', 'kit'] }) }))).toBe(true);
+    expect(allLanesSleeping(loop({ lanes, runOutcomes: ro({ sleeping: ['kit'] }) }))).toBe(false);
+    expect(loopStripState(loop({ lanes, runOutcomes: ro({ sleeping: ['core', 'kit'] }) }), NOW)).toBe('sleeping');
+    expect(text(stripSegments({ loops: [loop({ lanes, runOutcomes: ro({ sleeping: ['core', 'kit'] }) })], scoped: true, attention: 0, now: NOW }), 'next')).toBe('all lanes sleeping');
+  });
+  it('limit stops add up over loops that report them, else stay "not checked"', () => {
+    expect(limitStopsOf([loop(), loop()])).toBeUndefined();
+    expect(limitStopsOf([loop({ runOutcomes: ro({ limitStops5h: 2 }) }), loop(), loop({ runOutcomes: ro() })])).toBe(2);
+    expect(text(stripSegments({ loops: [loop({ runOutcomes: ro({ limitStops5h: 2 }) })], scoped: true, attention: 0, now: NOW }), 'limits')).toBe('2 limit stops in 5 h');
+    expect(text(stripSegments({ loops: [loop({ runOutcomes: ro() })], scoped: true, attention: 0, now: NOW }), 'limits')).toBe('No limit stops');
+  });
+  it('next due comes from runOutcomes.nextDue', () => {
+    expect(text(stripSegments({ loops: [loop({ runOutcomes: ro({ nextDue: { lane: 'core', at: '2026-10-13T03:05:00Z' } }) })], scoped: true, attention: 0, now: NOW }), 'next')).toBe('next: core 03:05 UTC');
   });
 });
