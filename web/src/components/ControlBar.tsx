@@ -89,7 +89,7 @@ export function ControlBar({ loop }: { loop: LoopDetail }) {
         <button type="button" className={btn} style={{ borderColor: 'var(--border)' }} onClick={() => setAction('next-round')}>Start next round</button>
         <button type="button" className={btn} style={{ borderColor: 'var(--border)' }} disabled={blocker !== undefined} onClick={() => setAction('release')}>Release</button>
       </div>
-      {blocker && <p className="text-[12px]" style={{ color: 'var(--muted)' }}>Release is off until {blocker}.</p>}
+      {blocker && <p className="text-[12px]" style={{ color: 'var(--muted)' }}>{blocker}</p>}
       {action && <ConfirmDialog loop={loop} action={action} local={local} onClose={() => setAction(undefined)} />}
     </div>
   );

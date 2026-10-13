@@ -32,3 +32,17 @@ test('a shipped release says "released" and leaves the attention list', async ({
   await expect(page.getByTestId('nav-attention')).toHaveCount(0);
   await expect(page.getByTestId('loop-card')).toContainText('0.4.0 released 13 Oct');
 });
+
+test('the Inbox lists what the badge counts: a stalled lane gets a row, not "Inbox empty"', async ({ page }) => {
+  await page.route('**/api/loops', async (route) => {
+    const res = await route.fetch();
+    const loops = (await res.json()) as Record<string, unknown>[];
+    await route.fulfill({ response: res, json: [{ ...loops[0], id: 'laned', name: 'laned-loop', state: 'building', lanes: [{ name: 'web', state: 'stalled', run: 3, limit: 20, locked: false, unanswered: [] }] }] });
+  });
+  await page.route('**/api/inbox', (route) => route.fulfill({ json: [] }));
+  await page.goto('/#/inbox');
+  await expect(page.getByTestId('nav-attention')).toHaveText('1');
+  await expect(page.getByTestId('attention-row')).toHaveCount(1);
+  await expect(page.getByTestId('attention-row')).toContainText('Lane web is stalled');
+  await expect(page.getByText(/Inbox empty/)).toHaveCount(0);
+});

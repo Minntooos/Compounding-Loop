@@ -195,7 +195,7 @@ test('control buttons confirm what changes and open the exact prefilled GitHub p
   });
   await page.goto('/#/loop/laned');
   await expect(page.getByRole('button', { name: 'Release' })).toBeDisabled();
-  await expect(page.getByText('Release is off until tag is free (v1 exists).')).toBeVisible();
+  await expect(page.getByText('Release is off · Tag is free · v1 exists')).toBeVisible();
   await page.getByRole('button', { name: 'Pause all' }).click();
   const dialog = page.getByTestId('control-dialog');
   await expect(dialog).toContainText('Adds .ai/PAUSED on main');

@@ -22,13 +22,10 @@ describe('dashboard controls', () => {
   it('names the first failing ship-check item as the release blocker', () => {
     expect(releaseBlocker({})).toContain('DONE.md');
     expect(releaseBlocker({ ship: { ready: true, items: [], openFindings: [] } })).toBeUndefined();
-    expect(releaseBlocker({ ship: { ready: false, openFindings: [], items: [{ id: 'a', label: 'Tests pass', ok: true, detail: 'ok' }, { id: 'b', label: 'Tag is free', ok: false, detail: 'v1 exists' }] } })).toBe('tag is free (v1 exists)');
-    expect(releaseBlocker({ ship: { ready: false, openFindings: [], items: [{ id: 'c', label: 'CHANGELOG has 0.5.0', ok: false, detail: 'missing' }] } })).toBe('CHANGELOG has 0.5.0 (missing)');
+    expect(releaseBlocker({ ship: { ready: false, openFindings: [], items: [{ id: 'a', label: 'Tests pass', ok: true, detail: 'ok' }, { id: 'b', label: 'Tag is free', ok: false, detail: 'v1 exists.' }] } })).toBe('Release is off · Tag is free · v1 exists');
   });
 
-  it('never yields a second colon after "Release is off until" (round 5 A8)', () => {
-    const b = releaseBlocker({ ship: { ready: false, openFindings: [], items: [{ id: 't', label: 'Tests pass', ok: false, detail: 'no result' }] } });
-    expect(`Release is off until ${b}.`).toBe('Release is off until tests pass (no result).');
-    expect(b).not.toContain(':');
+  it('adds no colon of its own (round 5 A8: "Release is off: Tests pass: no result")', () => {
+    expect(releaseBlocker({ ship: { ready: false, openFindings: [], items: [{ id: 't', label: 'Tests pass', ok: false, detail: 'no result' }] } })).not.toContain(':');
   });
 });

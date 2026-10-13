@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { LaneStatus, LoopSummary } from '../../../src/core/types.js';
-import { attentionItems, releaseWaiting, claimText, describeUnanswered, lanesNeedingYou, needsYouCount, waitingOnFinished } from '../../../web/src/lib/lanes.js';
+import { attentionItems, describeAttention, releaseWaiting, claimText, describeUnanswered, lanesNeedingYou, needsYouCount, waitingOnFinished } from '../../../web/src/lib/lanes.js';
 
 const lane = (name: string, state: LaneStatus['state'], waitingOn?: string[]): LaneStatus => ({ name, state, run: 1, limit: 30, locked: false, unanswered: [], ...(waitingOn ? { waitingOn } : {}) });
 const loop = (state: LoopSummary['state'], lanes?: LaneStatus[]): LoopSummary => ({ id: 'x', name: 'x', state, ...(lanes ? { lanes } : {}) }) as LoopSummary;
@@ -70,5 +70,14 @@ describe('attentionItems (round 5 A1, A4)', () => {
     const blocked = { ...loop('blocked', [lane('a', 'blocked'), lane('b', 'stalled')]), id: 'B' };
     const question = { ...release, loopId: 'B', kind: 'question' as const };
     expect(attentionItems([blocked, { ...loop('failing'), id: 'F' }], [question]).map((i) => `${i.kind}:${i.loopId}`)).toEqual(['inbox:B', 'lane:B', 'failing:F']);
+  });
+});
+
+describe('describeAttention', () => {
+  it('names the lane problem, the failure or the waiting release', () => {
+    expect(describeAttention({ kind: 'lane', loopId: 'x', lane: lane('web', 'stalled') }, undefined)).toBe('Lane web is stalled');
+    expect(describeAttention({ kind: 'lane', loopId: 'x', lane: lane('kit', 'waiting', ['core']) }, undefined)).toBe('Lane kit waits on a finished lane');
+    expect(describeAttention({ kind: 'failing', loopId: 'x' }, { reason: 'tests failing' })).toBe('Failing · tests failing');
+    expect(describeAttention({ kind: 'release', loopId: 'x' }, undefined)).toBe('Round done · release waiting on you');
   });
 });

@@ -4,6 +4,7 @@ import type { InboxItem } from '@core/types';
 import { api, hasServer, postAnswer } from '../api/client';
 import { editFileUrl } from '../../../src/server/controls.js';
 import { slugOf } from '../lib/controls';
+import { attentionItems, describeAttention } from '../lib/lanes';
 import { relativeTime } from '../lib/format';
 import { LoadError, Loading } from './QueryState';
 
@@ -56,16 +57,28 @@ export function Inbox() {
   }, [items.length]);
   if (q.isPending) return <Loading />;
   if (q.isError) return <LoadError what="the inbox" onRetry={() => void q.refetch()} busy={q.isFetching} />;
-  if (items.length === 0) return <p role="status" style={{ color: 'var(--done)' }}>{notice} Inbox empty: no loop is waiting on you.</p>;
+  // The same list the fleet banner and the nav badge count (A4); items the server inbox does not hold get a plain row.
+  const others = attentionItems(loops.data ?? [], items).flatMap((a) => (a.kind === 'inbox' ? [] : [a]));
+  if (items.length === 0 && others.length === 0) return <p role="status" style={{ color: 'var(--done)' }}>{notice} Inbox empty: no loop is waiting on you.</p>;
   return (
     <>
     {notice && <p role="status" style={{ color: 'var(--done)' }}>{notice}</p>}
-    <ul className="space-y-3" aria-label="Questions">
+    {others.length > 0 && (
+      <ul className="mb-3 space-y-2" aria-label="Loops that need you">
+        {others.map((a, i) => (
+          <li key={`${a.loopId}/${a.kind}/${i}`} data-testid="attention-row" className="flex flex-wrap justify-between gap-2 rounded-lg border p-3" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
+            <span>{describeAttention(a, loops.data?.find((l) => l.id === a.loopId))}</span>
+            <a href={`#/loop/${encodeURIComponent(a.loopId)}`} className="font-semibold underline">Open {a.loopId}</a>
+          </li>
+        ))}
+      </ul>
+    )}
+    {items.length > 0 && <ul className="space-y-3" aria-label="Questions">
       {items.map((it, i) => {
         const key = `${it.loopId}/${it.file}`;
         return <Item key={key} item={it} selected={i === cur} answer={drafts[key] ?? it.bestGuess} onAnswer={(v) => setDrafts((d) => ({ ...d, [key]: v }))} onDone={setNotice} readOnly={server.data === false} slug={slugOf(loops.data?.find((l) => l.id === it.loopId)?.repoUrl ?? loops.data?.find((l) => l.id === it.loopId)?.url)} />;
       })}
-    </ul>
+    </ul>}
     </>
   );
 }

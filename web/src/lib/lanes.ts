@@ -63,3 +63,12 @@ export function describeUnanswered(u: { from: string; to: string; text: string }
 export function claimText(claim: { name: string; expiresAt: string } | undefined): string {
   return claim ? `${claim.name} · expires ${claim.expiresAt.slice(11, 16)} UTC` : 'Unclaimed';
 }
+
+/** One sentence for an attention item the server's inbox does not hold (the Inbox page lists these under the questions). */
+export function describeAttention(item: Exclude<AttentionItem, { kind: 'inbox' }>, loop: Pick<LoopSummary, 'reason'> | undefined): string {
+  switch (item.kind) {
+    case 'lane': return item.lane.state === 'stalled' ? `Lane ${item.lane.name} is stalled` : item.lane.state === 'blocked' ? `Lane ${item.lane.name} is blocked` : `Lane ${item.lane.name} waits on a finished lane`;
+    case 'failing': return `Failing${loop?.reason ? ` · ${loop.reason}` : ''}`;
+    case 'release': return 'Round done · release waiting on you';
+  }
+}

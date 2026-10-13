@@ -56,6 +56,8 @@ test('settings shows the server settings; the demo reveals no local folder or ac
 });
 
 test('inbox: empty state in demo; a question can be accepted with j/k/a and the demo refuses writes', async ({ page, isMobile }) => {
+  // The demo's done laned loop is a waiting release (an Inbox row since round 5 A4), so the empty state needs no such loop.
+  await page.route('**/api/loops', (r) => r.fulfill({ json: [] }));
   await page.goto('/#/inbox');
   await expect(page.getByText('Inbox empty')).toBeVisible();
 

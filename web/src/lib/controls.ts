@@ -30,15 +30,10 @@ export function githubUrl(action: ControlAction, slug: string, opts: { brief?: s
   }
 }
 
-/** What Release waits for (the first failing ship-check item), for "Release is off until …"; undefined when it can be pressed. */
+/** Why Release is off ("Release is off · <first failing ship check> · <its detail>"); undefined when it can be pressed. Adds no colon of its own (A8). */
 export function releaseBlocker(loop: Pick<LoopDetail, 'ship'>): string | undefined {
-  if (!loop.ship) return 'the round is done (root DONE.md)';
+  if (!loop.ship) return 'Release is off until the round is done (root DONE.md).';
   if (loop.ship.ready) return undefined;
   const first = loop.ship.items.find((i) => !i.ok);
-  return first ? `${lowerFirst(first.label)} (${first.detail})` : 'every ship check passes';
-}
-
-/** "Tests pass" → "tests pass" mid-sentence; acronyms such as "CHANGELOG" or "CI" stay as they are. */
-function lowerFirst(text: string): string {
-  return /^[A-Z][a-z]/.test(text) ? text[0]!.toLowerCase() + text.slice(1) : text;
+  return first ? `Release is off · ${first.label} · ${first.detail.replace(/\.$/, '')}` : 'Release is off until every ship check passes.';
 }
