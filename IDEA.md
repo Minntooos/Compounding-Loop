@@ -1,6 +1,104 @@
 # IDEA: Compounding Loop
 
-## Round 4 (current): 0.4.0 "Control" — the dashboard tells the truth and replaces the chat — started 2026-10-11 20:30 UTC
+## Round 5 (current): 0.5.0 "Cockpit" — see everything, steer anything, idle for free — started 2026-10-13 01:30 UTC
+
+Round 4 finished (root report `.ai/done-v4.md`) and **0.4.0 is published on npm** (tag `v0.4.0`). The owner audited the 0.4.0 dashboard at 1440 and 375 px and wrote the end-state vision (https://claude.ai/artifact/KZwwmdiDfSAXXAtRfC3krJ, private to the owner; everything a lane needs is restated here). This round is the first step of that vision.
+
+**What we are building:** Compounding Loop, a CLI, a local dashboard and templates that run unattended, verified Claude Code build loops. **Audience:** solo developers and small teams who run Claude Code loops from scheduled cloud routines, `loop run`, or the runners in `runners/`. They want to leave it running, glance at it, and steer it without opening a chat.
+
+**The new headline:** *Glance, steer, sleep.* In 5 seconds the home screen answers: does anything need me, is anything running or stalled, did runs hit the usage limit, is CI green, is it ready to ship. Any lane or unit can be steered with one typed sentence, which is saved as a file in the repo. Lanes with nothing to do cost almost nothing, so a loop can stay on around the clock.
+
+**Principles (unchanged):** the repo is the source of truth. The static demo acts only by opening prefilled GitHub pages; the local `loop dashboard` acts on disk. No tokens in the browser, no backend, no telemetry. Everything new must work for any user's laned loop (the kit templates and `loop init --lanes`), not only for this repo's routines.
+
+### How runs work from this round (already set up by the owner's Claude Code)
+- **Thin routine prompts.** Each routine prompt now only names the lane and says "follow `.ai/lane-run.md`" (the control room: `.ai/control-run.md`). The procedure lives in the repo, so changing it is a commit. Only `Lane: control` commits may edit these two files.
+- **`.ai/schedule.json`** decides whether a lane is due: `{"version":1,"lanes":{"<lane>":{"notBefore":ISO|null,"sleeping":bool,"paused":bool,"reason":string|null}}}`. A run that isn't due replies "Not due" and stops before `npm install`, so a skip costs seconds. The control room, `loop schedule …` and the owner/dashboard write it with `Lane: control`; a lane may change only its own entry, and only to apply the idle backoff at the end of its run (`lane-run.md` step 8). The file starts with every lane due.
+- **`.ai/lanes/<lane>/steer.md`**: steering notes, newest first. Each entry is a heading `## YYYY-MM-DD HH:MM UTC · <author> · next-run|standing` followed by the text. At the start of a run, the lane reads the entries it hasn't acknowledged. `next-run` entries come before its own unit order, and `standing` entries apply until they're removed. The lane acknowledges each entry by adding one line under it: `→ done in run N` or `→ not done: <why>`. That is the only edit a lane makes to the file.
+
+### Step 1 for every lane: a short re-audit (first unit)
+Add a "Round 5" section at the top of `.ai/audit/<lane>.md`: this round's goal judged as a demanding senior specialist would judge it, findings ranked blocker/major/minor with evidence and a one-line fix. Findings in another lane's area go to that lane's outbox. Fix blockers first.
+
+### A. P0 bugs on the 0.4.0 dashboard (each needs a test that fails before the fix)
+1. **The release stays "waiting on you" after it shipped.** Shipped = the tag `v<version>` exists, plus npm `latest` equals that version when it can be checked (`registry.npmjs.org` sends `Access-Control-Allow-Origin: *`, so the static demo can read it; add it to the static CSP `connect-src`). Shipped shows "0.4.0 released <date>" and leaves the attention list.
+2. **Phantom "no run recorded" slots** (167 of them) and next-run times while nothing is scheduled. Don't expect runs after root `DONE.md`, while `.ai/PAUSED` exists, for a lane with DONE/BLOCKED, for a lane that isn't due in `schedule.json`, or after 6 h with no run from any lane (show "Routines look off" once instead).
+3. **Health shows OK for checks that were never measured.** Use three states: pass, fail, "not checked" (grey, with how to check).
+4. **Tests says "UTC UTC"**; the banner count disagrees with the Inbox (2 vs 1). Both come from one shared function.
+5. **The demo's proj2 shows round 6/6**: a `done-v5.md` that is a handoff note was counted as a round. Count rounds from the brief or round headings, not from file names alone.
+6. **Phone:** the nav and the loop tab bar are clipped ("Settin", "Contrac") at 375 px. The tab bar scrolls sideways with a fade, and the active tab is always in view.
+7. **Local fleet cards lack CI, tests and the live domain**, which the demo cards have. Same card, same fields, in both modes.
+8. **Small:** the loop header repeats the round; the Release blocker sentence has a double colon; only about 25 of roughly 65 round 4 runs are in runs.jsonl (runs that end early must still log, see `lane-run.md` step 8).
+9. **The brief score misreads round briefs.** `loop next-round --brief` scored this very brief 25/100, because `lintBrief` (src/core/brief.ts) only matches whole headings such as `## Done when`. It also has to accept `### Round N done when`, `**Out of scope:**` and bold lead-ins such as `**What we are building:**` / `**Audience:**`, and A–E lists as must-haves. This brief must score at least 85. The Next-round dialog shows this score, so it has to be right.
+
+### B. Schedule, steering and run outcomes (core + kit + server)
+1. **`loop schedule`** (core): `show [--json]`, `pause <lane> [--reason]`, `resume <lane>`, `snooze <lane> <until>`, `wake <lane|all>`, and `update`. `update` is pure backoff from runs.jsonl:
+   - a run with no units counts as idle;
+   - 1 idle run → `notBefore` = last run + 3 h; 2 in a row → + 6 h; 3 in a row → `sleeping: true`;
+   - any run with units resets the count;
+   - a sleeping lane wakes (`sleeping: false`, `notBefore: null`) when it has an unacknowledged steer entry, an outbox or control-room message addressed to it newer than its last run, or a new round starts.
+   Commands commit with `Lane: control` (`--no-commit` to skip). The parser and the due/backoff logic are browser-safe pure functions, unit-tested with fixtures.
+2. **`loop steer <lane> "<text>" [--standing] [--author <name>]`** (core) writes a steer entry (author defaults to `git config user.name`), wakes the lane in `schedule.json` and commits. Browser-safe steer parser: entries, author, scope, acknowledgement state.
+3. **Run outcomes** (core, browser-safe): classify each expected slot as worked (units, pushed), idle (no units), not due (`schedule.json` said skip), likely running (inside its 50-minute window with no line yet), limit stop or failed (due, the window passed, no line), paused or done. Feeds the heat map and the Runs tab. No extra commit per run start.
+4. **Draft the next brief** (core + server): `loop next-round --draft [--out .ai/next-round.draft.md]` builds a prompt from root/lane DONE files (their "next 10" lists), open audit findings, unacknowledged steer entries and IDEA.md's out-of-scope. It runs `claude -p` through the existing `runPrompt` (no new auth), writes the draft and prints its brief score. `--print-prompt` prints only the prompt, for people who want to paste it into Claude Code themselves.
+5. **Kit:** templates for `.ai/lane-run.md`, `.ai/control-run.md`, `.ai/schedule.json` and `steer.md`. `loop init --lanes` writes them. The runner prompts and the CLAUDE.md template say "follow `.ai/lane-run.md`". Method §16 gains "thin prompts, schedule, steering". Tests assert every runner and template has the not-due skip, the steer step, the run-log step and the stale-clone step.
+6. **Server API** (record it in `.ai/contracts.md`):
+   - `GET /api/loops/:id/schedule`
+   - `POST …/steer {lane, text, standing}`
+   - `POST …/schedule {action, lane, until?, reason?}`
+   - `POST …/draft-brief`, which streams `claude -p` progress over SSE and ends with the draft and its score
+   - npm state for the Releases view
+   All writes go through the core commands. Static demo: pure URL builders for "edit `steer.md` on GitHub with this entry prefilled" and "edit `schedule.json`". The demo snapshot gets run-log, schedule and steer fixtures, so every new screen has real-looking data (the web lane was blocked on this in round 4).
+
+### C. The cockpit (web, on Opus, with the server's data)
+1. **Status strip** at the top of every page: loop state (running / likely running / idle / sleeping / paused / done / release waiting), round and done-when progress, CI, usage-limit stops in the last 5 h, next due lane. One line on desktop, two on phone.
+2. **Needs you**: every attention item is a row with its action inline. Release waiting → Review & release. BLOCKED question → Answer (local) or Edit on GitHub (demo). Stalled or limit stops → What this means + Wake. Round done → Start next round. The banner count and the Inbox come from the same list.
+3. **Lane × hour heat map**, last 24 h, one cell per expected slot, coloured by the B3 outcome, with a legend. A tooltip and a click take you to that run in the Runs tab. Folds to 12 h at 375 px.
+4. **Steer composer** (button on every lane, unit and the loop page, key `S`, and in the command palette):
+   - pick the scope (loop → which lane, or lane → which unit) and the timing (next run / standing);
+   - type plain language;
+   - see the exact `steer.md` entry before saving.
+   Locally it saves through the API ("Save" / "Save and wake"). On the demo it opens GitHub's editor prefilled. The steer history shows on the lane with each entry's acknowledgement.
+5. **Schedule controls** on each lane: Pause lane / Resume, Snooze until…, Wake now, with the state shown ("sleeping since 14:00 · 3 idle runs"). Pause all stays.
+6. **Next round with "Draft with Claude"**: the dialog shows the ingredients (next-10 lists, open findings, steers). Draft with Claude streams the local draft into the brief box. On the demo, a "Copy prompt for Claude Code" button. The live score shows as you edit. **Go** is a separate, explicit click.
+7. **Releases**: each version with its CHANGELOG entry, tag, npm state (published / latest / not published) and date. Ready-to-ship only when not shipped.
+8. **Design bar:** extend `web/DESIGN.md` for every new component first. After each web unit, an **independent design reviewer subagent** (fresh context; it wrote none of the code) looks at the 1440 and 375 px screenshots of the changed screens in both themes. It must answer the owner's five 5-second questions from the home screen alone (anything need me? running or stalled? limit stops? CI? ready to ship?) and list anything that's noise. Fix what it flags before the next unit and record its verdict in `.ai/audit/web.md`.
+
+### D. Docs
+- `docs/steering.md`: steer at each level, the schedule and backoff, what "not due", "sleeping" and "likely running" mean, and how thin prompts work (with the exact routine prompt text to copy).
+- `docs/dashboard.md`: update for every new control and what it writes.
+- README: a "Glance, steer, sleep" section.
+- CHANGELOG `[Unreleased]` for 0.5.0.
+- New after-screenshots (from web), optimised PNGs under 400 kB each.
+- `launch/` drafts mention steering and idle-for-free.
+
+### Round 5 done when
+- `npm test` passes on a clean clone and on CI's three jobs.
+- Every lane's audit has a Round 5 section with no open blocker; every A bug has a regression test.
+- Unit tests cover `loop schedule` (each action, backoff and wake rules, `--json`), `loop steer`, the steer and schedule parsers, run-outcome classification (every outcome), `next-round --draft --print-prompt` (no Claude call in tests), and the kit templates (they contain the skip, steer, run-log and stale-clone steps).
+- e2e with GitHub and npm mocked through Playwright routing proves:
+  - the status strip states for the demo data;
+  - Needs-you rows with their actions;
+  - heat-map outcomes and the legend;
+  - steer composer preview, plus the exact prefilled GitHub URL on the demo;
+  - schedule controls;
+  - the Draft-with-Claude stream on a mocked SSE endpoint;
+  - Releases showing 0.4.0 as published;
+  - phone tab bars not clipped;
+  - zero console errors.
+- axe: zero serious or critical violations on every screen, both themes, at 1440 and 375 px. No horizontal page scroll at 375 px.
+- Independent design review verdicts recorded for every web unit, with the five questions answered "yes" from the final home screenshot.
+- JS bundle under 300 kB gzip. Fresh-install test (README quick start, `loop init --lanes` writes the new templates, `docs/steering.md` steps) from a packed tarball in an empty temp dir.
+- **Do not change `version`, publish, dispatch `release.yml` or create tags.** The owner's local Claude Code releases 0.5.0 after root `DONE.md`.
+
+**Deadline:** 2026-10-16 18:00 UTC. After that, start no new unit: finish what's open and write DONE.
+
+**Out of scope (later rounds):**
+- Round 6: a request queue with a PR-triggered operator routine, live steering of a running session, the autonomy dial, the usage governor (status-line capture), self-starting rounds.
+- Round 7: team roles and presence, multi-repo fleets, run replay, a phone app.
+- Never in scope: a hosted backend, accounts, tokens in the browser, analytics, npm publish, posting the launch, repo settings changes, enabling or disabling routines.
+
+---
+
+## Round 4 (finished 2026-10-12; published as 0.4.0 on 2026-10-13): 0.4.0 "Control" — the dashboard tells the truth and replaces the chat — started 2026-10-11 20:30 UTC
 
 Round 3 finished (root report `.ai/done-v3.md`; release commit b3b51a5 bumped to 0.3.0 but it was **not published**; 0.4.0 will be the next npm release). The owner reviewed the live demo at 1440 and 375 px against git, the task files, CI and the live sites; that review is this brief. The launch posts wait for this round.
 

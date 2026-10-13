@@ -1,66 +1,43 @@
-# Lane: web — round 4 (0.4.0 "Control")
+# Lane: web — round 5 (0.5.0 "Cockpit")
 
-Run: 15 / 20
-Status: units 1 (partial), 2, 3 (most), 4 shipped (Runs tab, card status line), 6 partly (Ready to ship panel read-only, Releases tab, paused notice); ControlBar (Pause/Resume, Next round, Release with confirm dialog) shipped; Tests tab (done run 3), launch drafts + Copy, Inbox edit links, Release as filled primary, post-action toast, 7-8 open
-Round 3 record: `.ai/lanes/web/done-v3.md` (`git show b3b51a5:.ai/lanes/web/task.md` for its Decisions).
+Run: 0 / 20
+Status: not started
+Round 4 record: `.ai/lanes/web/done-v4.md` (`git show 02874e8:.ai/lanes/web/task.md` for its Decisions).
+How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
 ## Contract
-**Goal:** the dashboard tells the truth and replaces the chat (IDEA.md Round 4 A, C, D).
-**Done when:** every web line of "Round 4 done when" in IDEA.md passes: mocked-GitHub e2e for full history, release-waiting attention, Runs outcomes, the exact prefilled GitHub URLs of every action button and Ready to ship; axe at 1440 and 375 px in both themes on every screen; zero console errors; no horizontal scroll or wrapped header controls at 375 px; bundle under 300 kB gzip; independent design review recorded in `.ai/audit/web.md`; new after-screenshots.
-**Constraints:** round 1-3 rules (no runtime CDN, no `innerHTML` with repo text, tokens from IDEA.md and `web/DESIGN.md`, no new UI library; a chart or other dependency needs a Decisions line and must be under 15 kB gzip). Action buttons never hold or ask for a token.
-**Out of scope:** mapping GitHub responses and URL builders (server's `src/server/live/**`), parsers and commands (core).
+**Goal:** the cockpit: in 5 seconds the owner knows what needs them and what is running, and can steer any lane or unit in one sentence (IDEA.md Round 5 A2-A4, A6, A8, C1-C8).
+**Owns (globs from `.ai/lanes.json`):** web/**, tests/e2e/**, tests/unit/web/**
+**Done when:**
+- `npm test` passes.
+- Round 5 audit section with no open blocker; A3, A4, A6 and A8 have regression tests.
+- The e2e list in IDEA.md "Round 5 done when", with GitHub and npm mocked through Playwright routing, passes.
+- axe: zero serious or critical violations on every screen, both themes, at 1440 and 375 px; no horizontal page scroll at 375 px; zero console errors.
+- An independent design reviewer verdict for every unit is recorded in `.ai/audit/web.md`, and the final home screenshot answers the five 5-second questions with "yes".
+- JS bundle under 300 kB gzip.
+**Constraints:** edit only the paths you own, plus the smallest edit to shared files (CLAUDE.md "Lanes"). Read anything. Unacknowledged `next-run` entries in `steer.md` come before this list.
+**Out of scope:** Data shaping and routes (server), parsers and commands (core). Ask in your outbox; use demo fixtures while you wait, never invent data shapes.
 
 ## Units, in order
-1. Round 4 re-audit (`.ai/audit/web.md`): reproduce every bug in IDEA.md A with a failing e2e first.
-2. Extend `web/DESIGN.md`: Runs, Tests, Releases, Ready to ship, action buttons (primary/secondary, confirm step, what opens), paused state, snapshot-date labels, the 5-second fleet card rule.
-3. Bugs A1-A9 UI side (history merge, attention item, settings, Contract/Decisions per lane with empty states, health labels and times, "snapshot 6 Oct", "Round 3 done · next", console 404, phone theme button, site pages + live link).
-4. Runs tab and the fleet card's newest-run line; "no run recorded" attention item.
-5. Action buttons: Pause/Resume, Start next round (brief box + live score), Release, each opening the server's prefilled GitHub URL on the static demo and calling the local server's action locally; a confirm step that says what will change.
-6. Ready to ship panel; Releases tab; Tests tab (count over time, last failure); control-room note on the self card; commit author on the timeline; Inbox "Edit on GitHub" links on the static demo; doctor output on Health.
-7. States for every new screen (empty, loading, error, rate-limited, paused), both themes, reduced motion.
-8. After screenshots to `docs/assets/screens/` (tell docs), independent design review against DESIGN.md, fix what fails, record the result.
+1. Round 5 re-audit (`.ai/audit/web.md`), starting from your afa659e design review and the owner's P0 list (IDEA.md A).
+2. DESIGN.md first: the status strip, needs-you row, heat-map cell + legend, steer composer, schedule controls, Releases list. Then A3, A4, A6, A8 (P0 polish) with tests.
+3. C1 status strip + C2 Needs you (one shared attention list feeds the banner, the strip and the Inbox).
+4. C4 steer composer (+ history with acknowledgements) and C5 schedule controls; demo opens prefilled GitHub URLs, local saves through the API.
+5. C3 lane × hour heat map (from `classifyRunSlots`) and the Runs tab link.
+6. C6 next round with ingredients, Draft with Claude (SSE) and Copy prompt; Go stays a separate click. C7 Releases.
+7. After-screenshots for docs (optimised PNGs under 400 kB, replace the 5.4 MB phone shots), then audit majors.
 
 ## Decisions
 
 ## Confirmed
-- e2e runs against `dist/web`: run `npm run build` before `npx playwright test` or you test stale code.
-- Live shas are shortened to 7 chars by `mapCommits`; test fixtures need distinct first 7 chars.
-- Files imported by tests/unit must use relative `.js` imports (root tsconfig has no `@core` alias): put pure helpers in `web/src/lib/`, not in components.
-- `demo/this-repo.json` loop is `done` + has lanes, so the demo fleet now says "1 thing needs you · release waiting on you" (e2e updated).
-
-## Next run starts here
-1. Unit 5 left (toast after local action shipped run 6): live score/URL fallback (Copy + blank new-file page) when a brief is too long.
-2. Unit 6 rest: (Tests tab shipped in run 3: `TestsTab.tsx`, `testSeries`/`lastFailure` in lib/runs.ts) launch drafts + Release button on ShipPanel, commit author is done, Inbox edit links (shipped run 7: static demo only, needs `repoUrl`/GitHub `url`; the snapshot's self loop has none until live data merges) (doctor on Health shipped run 7: `Doctor` in Health.tsx, server-only).
-3. Remaining A (per-lane Contract/Decisions/Knowledge via `laneNotes` shipped run 4: `LaneNotesView.tsx`): (site pages + live link shipped run 4) phone theme button check, then units 7-8.
-4. Runs tab silent notice is client-derived (`web/src/lib/runs.ts silentLanes`, guarded for paused/done/blocked); ask server to expose its own list if they disagree.
 
 ## Guesses
-- Tests tab vs DESIGN.md (reviewer, run 3; chart now fills its box, run 8): still bars not a line, table is sr-only not a disclosure, no commit link in Last failure, no loading/error/rate-limited states, tiny chart at 375 px (set preserveAspectRatio/height). Fix in unit 7.
 
 ## Tried
-- Run 4: pushed two small units (lane notes, site line) without the reviewer subagent; next run should review both diffs (ed9b219, edd9464).
-- Run 5: stale clone (main diverged), worked on lane-run; npm test green on fresh pull (138 passed). Only told docs the control labels (outbox); no code unit this run.
-
-- Run 6: toast after local Pause/Resume/Next round (toast() event in Toasts.tsx); reviewer: no blockers; Resume/Next round toast paths untested, GitHub-link paths have no toast.
-
-- Run 7: control room notes section on the loop page (LoopDetail.tsx); doctor report on Health (hidden on static hosting). Failure of /api/doctor hides the section, untested.
-
-- Run 8: stale clone, worked on lane-run; Tests chart preserveAspectRatio=none (+ e2e). Small diff pushed without reviewer subagent. Units 7-8 (states, screenshots, design review) still open.
-
-- Run 9: stale clone, worked on lane-run; npm test green on fresh pull. Tests tab data table is now a visible "Show as table" disclosure (+ e2e). Small diff, no reviewer subagent. Still open in unit 7: Tests commit link, rate-limited state; unit 8 screenshots + design review.
-
-- Run 10: stale clone, lane-run; npm test green (144 passed). Re-shot docs/assets/screens (laptop, demo mode). Tried Runs/Tests tab shots: the self loop has no run log in the snapshot, so the tabs don't exist there; dropped. Needs run-log fixture data (server) before those can be shot. Still open: Tests commit link (needs sha per run), unit 8 independent design review.
-
-- Run 11: stale clone, lane-run; npm test green (144 passed). Independent design review recorded in `.ai/audit/web.md` (unit 8); phone screenshots were stale, re-shot. Next: fix minor review items (fleet h1 repeats brand, Health row labels/duplicate text, snapshot chip spacing), Tests commit link; Paused/ready-to-ship shots need fixture data (ask server).
-
-- Run 12: stale clone, lane-run; npm test green (144 passed). Fleet h1 now "Your loops" (brand was repeated). Tiny diff, no reviewer subagent. Remaining minor review items: Health row labels, snapshot chip spacing; Tests commit link; fixture data needed from server for Runs/Paused/Ship shots.
-
-- Run 13: stale clone, lane-run; npm test green (144 passed). No code unit: what remains is minor (Health row labels are snapshot data "proj1..5", reason/label overlap) or blocked on server fixture data (Runs/Paused/Ship shots, Tests commit link needs a sha per run). Nothing is waiting on web in other outboxes.
-
-- Run 14: stale clone, lane-run; npm test green (144 passed). No code unit; same state as run 13 (docs already has control labels in docs/dashboard.md).
 
 ## Don't
-- Edit paths another lane owns, except for the "main stays green" fix.
-- Change `version`, publish, dispatch `release.yml`, create tags, or change repo/npm settings.
+- Edit paths another lane owns (a fix to a red `main` is the one exception; say so in your outbox).
+- Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
-- Run 15: stale clone, lane-run; npm test green (144 passed). Control room said done-when met; wrote DONE.md (Lane finished).
+## Handoff
+Not started. Read IDEA.md's Round 5 section and `.ai/lane-run.md`, then do unit 1.

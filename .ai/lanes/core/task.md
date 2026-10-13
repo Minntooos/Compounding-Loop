@@ -1,27 +1,31 @@
-# Lane: core — round 4 (0.4.0 "Control")
+# Lane: core — round 5 (0.5.0 "Cockpit")
 
-Run: 1 / 20
-Status: all units done (run 1)
-Round 3 record: `.ai/lanes/core/done-v3.md` (`git show b3b51a5:.ai/lanes/core/task.md` for its Decisions).
+Run: 0 / 20
+Status: not started
+Round 4 record: `.ai/lanes/core/done-v4.md` (`git show 02874e8:.ai/lanes/core/task.md` for its Decisions).
+How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
 ## Contract
-**Goal:** the repo state the dashboard reads and the commands behind its buttons (IDEA.md Round 4 B1-B7).
-**Done when:** `npm test` passes; Round 4 audit section with no open blocker; every command and parser below has unit tests, including `--json` shapes and `--dry-run`.
-**Out of scope:** UI (web), runner prompt files outside `src/core/runPrompt.ts` (kit), GitHub response mapping (server).
+**Goal:** the browser-safe logic and CLI commands behind steering, scheduling and run outcomes (IDEA.md Round 5 A2, A5, A9, B1-B4).
+**Owns (globs from `.ai/lanes.json`):** src/core/**, src/cli/**, bin/**, tests/unit/core/**, tests/unit/cli/**
+**Done when:**
+- `npm test` passes.
+- Round 5 audit section with no open blocker.
+- A2, A5 and A9 each have a regression test that fails before the fix; `lintBrief` scores the Round 5 brief at least 85.
+- Unit tests cover `loop schedule` (every action, backoff and wake rules, `--json`, `--no-commit`), `loop steer`, the schedule and steer parsers, `classifyRunSlots` (every outcome) and `next-round --draft --print-prompt` (no Claude call in tests).
+**Constraints:** edit only the paths you own, plus the smallest edit to shared files (CLAUDE.md "Lanes"). Read anything. Unacknowledged `next-run` entries in `steer.md` come before this list.
+**Out of scope:** UI (web), templates and runner prompts (kit), HTTP routes and GitHub/npm fetching (server).
 
 ## Units, in order
-1. Round 4 re-audit (`.ai/audit/core.md`).
-2. `.ai/PAUSED`: `loop pause [--reason]` / `loop resume` (commit with `Lane: control`, push; `--no-push` for tests), `loop status` shows it, `runPrompt.ts` stops on it like root DONE.md. Browser-safe `isPaused`/`parsePaused` in `src/core/parse/**`. Tell kit and server in your outbox early.
-3. Run log: `loop runs log --lane <l> [--units ..] [--passed N --failed N] [--pushed|--no-pushed] [--note ..]` appends to `.ai/lanes/<lane>/runs.jsonl`; `loop runs [--json]` lists them with expected-but-missing cron slots from `.ai/lanes.json`. Browser-safe parser + a pure `expectedSlots(cron, from, to)` (no new dependency unless recorded). Decide `.ai/last-test.json` (writer or replace) with server; record it.
-4. Lanes-aware `loop next-round --brief <file> [--dry-run] [--json]` (IDEA.md B3), brief score shown first.
-5. `loop ship-check [--json]` with a browser-safe pure checklist function (IDEA.md B4); browser-safe CHANGELOG parser (B5).
-6. `LoopCommit.author` (display name, never email) and a browser-safe `latestControlNotes(controlRoomMd)` per lane (B6), added to `src/core/types.ts` additively; tell server.
-7. `check-lanes`: `Lane: release` and `Lane: control` rules (B7), tested. Then audit majors, then minors in `.ai/done-v3.md` (stale lock after SIGKILL) by value.
+1. Round 5 re-audit (`.ai/audit/core.md`).
+2. Browser-safe schedule (`parseSchedule`, `isDue(entry, now)`, `applyBackoff(runs, entry, now)`, `wakeReasons(...)`) and steer (`parseSteer`, `formatSteerEntry`, acknowledgement state) parsers in `src/core/parse/**`, plus types in `src/core/types.ts` (additive). Tell server and web in your outbox as soon as they are on main: they build on them.
+3. `loop schedule show|pause|resume|snooze|wake|update` and `loop steer` (IDEA.md B1-B2), committing with `Lane: control` (`--no-commit`). After this, lanes stop applying the backoff by hand; say so in your outbox.
+4. `classifyRunSlots(lanes, runs, schedule, paused, doneFiles, now)` (B3) replaces the phantom-slot logic (A2): no expected slots after root DONE, while PAUSED, for done/blocked or not-due lanes, and one "routines look off" state after 6 h of silence. Use it in `loop runs`.
+5. `lintBrief` understands round briefs (A9). Fix A5 (count rounds from the brief or headings, not from `done-vN.md` names) where the parser lives.
+6. `loop next-round --draft [--out] [--print-prompt]` (B4) through the existing `runPrompt`; the prompt builder is a pure, tested function.
+7. Audit majors, then minors.
 
 ## Decisions
-- 2026-10-11 `.ai/last-test.json` stays (kit's templates write it; the server already reads it). `runs.jsonl` carries the history (`tests` per run). Both exist; the dashboard prefers the run log when present. Reversible.
-- PAUSED format: `who · paused <ISO>[ · reason]`; the file's existence alone pauses (malformed files still count). `loop pause/resume` pull --rebase --autostash first (the dashboard writes the file on GitHub).
-- DEFAULT_PROMPT stays equal to kit's runners/routine/prompt.md; the pause rule is added by `laneIntro` instead and kit adds it to its files.
 
 ## Confirmed
 
@@ -30,8 +34,8 @@ Round 3 record: `.ai/lanes/core/done-v3.md` (`git show b3b51a5:.ai/lanes/core/ta
 ## Tried
 
 ## Don't
-- Edit paths another lane owns, except for the "main stays green" fix.
-- Change `version`, publish, dispatch `release.yml`, create tags, or change repo/npm settings.
+- Edit paths another lane owns (a fix to a red `main` is the one exception; say so in your outbox).
+- Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
-Units 1-7 done in run 1 (audit, pause/resume, run log + `loop runs`, `next-round --brief`, `ship-check` + CHANGELOG parser, commit author/`commitLane`/`latestControlNotes`, check-lanes release/control rules). Audit R4-1..R4-5 all FIXED. Remaining: only the open minors below. Read src/cli/index.ts first for the command list.
+Not started. Read IDEA.md's Round 5 section and `.ai/lane-run.md`, then do unit 1.
