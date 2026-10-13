@@ -31,3 +31,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-sans);
 a, button, input, [role='option'] { outline-offset: 2px; }
 :focus-visible { outline: 2px solid var(--accent); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } }
+/* Preflight zeroes margins, which pins a modal <dialog> to the top-left; centre it, keep it inside the viewport, dim the page. */
+dialog:modal { margin: auto; max-height: calc(100dvh - 2rem); overflow-y: auto; }
+dialog::backdrop { background: rgb(0 0 0 / 0.55); }

@@ -63,6 +63,11 @@ test('local: the composer offers the loop steer command', async ({ page }) => {
   await dialog.getByLabel('Tell the lane what to do, in plain words').fill('Fix "the strip"');
   await expect(dialog.getByTestId('steer-command')).toHaveText("npx compounding-loop steer -- core 'Fix \"the strip\"'");
   await expect(dialog.getByRole('button', { name: 'Copy command' })).toBeEnabled();
+  // Centred and inside the viewport, with its buttons reachable (design review, run 3).
+  const box = await dialog.boundingBox();
+  const vp = page.viewportSize();
+  expect(box && vp && box.x > 0 && box.y > 0 && box.y + box.height <= vp.height && Math.abs(box.x + box.width / 2 - vp.width / 2) < 2).toBe(true);
+  await expect(dialog.getByRole('button', { name: 'Copy command' })).toBeInViewport();
 });
 
 for (const theme of ['light', 'dark'] as const) {

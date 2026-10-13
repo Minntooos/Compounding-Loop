@@ -1,4 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
+import { ShipWheel } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { lintBrief, MIN_BRIEF_SCORE } from '@core/brief';
 import type { LoopDetail } from '@core/types';
@@ -92,7 +93,7 @@ export function ControlBar({ loop }: { loop: LoopDetail }) {
           ? <button type="button" className={btn} style={{ borderColor: 'var(--accent)' }} onClick={() => setAction('resume')}>Resume</button>
           : <button type="button" className={btn} style={{ borderColor: 'var(--border)' }} onClick={() => setAction('pause')}>Pause all</button>}
         <button type="button" className={btn} style={{ borderColor: 'var(--border)' }} onClick={() => setAction('next-round')}>Start next round</button>
-        <button type="button" className={btn} style={{ borderColor: 'var(--border)' }} onClick={() => setSteer({})} aria-keyshortcuts="s">Steer</button>
+        <button type="button" className={btn} style={{ borderColor: 'var(--border)' }} onClick={() => setSteer({})} aria-keyshortcuts="s"><span className="inline-flex items-center gap-1.5"><ShipWheel aria-hidden size={14} />Steer</span></button>
         {!loop.shipped && <button type="button" className={btn} style={{ borderColor: 'var(--border)' }} disabled={blocker !== undefined} onClick={() => setAction('release')}>Release</button>}
       </div>
       {blocker && <p className="text-[12px]" style={{ color: 'var(--muted)' }}>{blocker}</p>}

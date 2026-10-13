@@ -98,7 +98,7 @@ export function SteerDialog({ loop, lane: initialLane, local, onClose }: { loop:
       )}
       {blocked && <p role="status" className="mt-2 text-[13px]" style={{ color: 'var(--muted)' }}>{blocked}</p>}
       {note && <p role="status" data-testid="steer-note" className="mt-2 text-[13px]">{note}</p>}
-      <div className="mt-4 flex flex-wrap justify-end gap-2">
+      <div className="sticky -bottom-4 -mx-4 -mb-4 mt-4 flex flex-wrap justify-end gap-2 border-t p-4" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
         <button type="button" onClick={onClose} className="min-h-11 rounded border px-4" style={{ borderColor: 'var(--border)' }}>{note ? 'Close' : 'Cancel'}</button>
         <button type="button" disabled={blocked !== undefined} onClick={() => void act()} className="min-h-11 rounded px-4 font-semibold disabled:opacity-60" style={{ background: 'var(--accent)', color: 'var(--bg)' }}>{local ? 'Copy command' : 'Edit on GitHub'}</button>
       </div>

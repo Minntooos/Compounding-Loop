@@ -1,5 +1,5 @@
 import type { LaneStatus } from '@core/types';
-import { Lock, LockOpen } from 'lucide-react';
+import { Lock, LockOpen, ShipWheel } from 'lucide-react';
 import { relativeTime } from '../lib/format';
 import { claimText, describeUnanswered } from '../lib/lanes';
 import { LaneBadge } from './LaneBadge';
@@ -18,7 +18,7 @@ function LaneRow({ lane }: { lane: LaneStatus }) {
         <span className="inline-flex items-center gap-1 text-[12px]" style={{ color: 'var(--muted)' }}>
           {lane.locked ? <Lock aria-hidden size={13} /> : <LockOpen aria-hidden size={13} />}{lane.locked ? 'Locked' : 'No lock'}
         </span>
-        <button type="button" onClick={() => openSteer(lane.name)} aria-label={`Steer ${lane.name}`} className="ml-auto min-h-11 rounded border px-3 text-[13px] font-medium" style={{ borderColor: 'var(--border)' }}>Steer</button>
+        <button type="button" onClick={() => openSteer(lane.name)} aria-label={`Steer ${lane.name}`} className="ml-auto min-h-11 rounded border px-3 text-[13px] font-medium" style={{ borderColor: 'var(--border)' }}><span className="inline-flex items-center gap-1.5"><ShipWheel aria-hidden size={14} />Steer</span></button>
       </div>
       {lane.limit > 0 && <div className="mt-2"><ProgressBar label={`${lane.name} run budget`} value={Math.min(lane.run, lane.limit)} max={lane.limit} text={`${lane.run} of ${lane.limit} runs`} color="var(--accent)" /></div>}
       <p className="mt-1 [overflow-wrap:anywhere]" style={{ color: 'var(--muted)' }}>
