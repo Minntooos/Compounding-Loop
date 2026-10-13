@@ -1,6 +1,6 @@
 // Pure: turns fetched GitHub data into the dashboard's existing API shapes (no Node imports, runs in the browser).
 import { parseBlocked } from '../../core/blocked.js';
-import { activeClaim, commitLane, latestControlNotes, parseChangelog, parsePaused, parseLanesConfig, parseOutbox, parseRunCounter, parseTaskFile } from '../../core/parse/index.js';
+import { activeClaim, commitLane, latestControlNotes, parseChangelog, parsePaused, parseLanesConfig, parseOutbox, parseRunCounter, parseSchedule, parseTaskFile } from '../../core/parse/index.js';
 import type { OutboxMessage } from '../../core/parse/index.js';
 import { shipCheck } from '../../core/shipCheck.js';
 import { deriveLaneState, stallMinutesFor, summarizeOutboxes } from '../../core/laneStatus.js';
@@ -139,7 +139,7 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
   const pausedText = input.files['.ai/PAUSED'];
   const paused = pausedText === undefined ? undefined : pausedAtOf(pausedText);
   const runsData = lanes
-    ? buildRuns({ lanes: laneConfig.map((l) => ({ name: l.name, ...(l.cron && { cron: l.cron }), stopped: hasDone || ['done', 'blocked'].includes(lanes.find((s) => s.name === l.name)?.state ?? '') || lanes.find((s) => s.name === l.name)?.claim !== undefined })), logs: Object.fromEntries(laneNames.map((n) => [n, input.files[`.ai/lanes/${n}/runs.jsonl`]])), commits: timeline, now: input.now, ...(paused && { paused }) })
+    ? buildRuns({ lanes: laneConfig.map((l) => ({ name: l.name, ...(l.cron && { cron: l.cron }), stopped: hasDone || ['done', 'blocked'].includes(lanes.find((s) => s.name === l.name)?.state ?? '') || lanes.find((s) => s.name === l.name)?.claim !== undefined })), logs: Object.fromEntries(laneNames.map((n) => [n, input.files[`.ai/lanes/${n}/runs.jsonl`]])), commits: timeline, now: input.now, ...(input.files['.ai/schedule.json'] !== undefined && { schedule: parseSchedule(input.files['.ai/schedule.json']) }), ...(paused && { paused }) })
     : undefined;
   const lastRun = runsData && lastRunOf(runsData.runs);
   const controlText = input.files['.ai/control-room.md'];

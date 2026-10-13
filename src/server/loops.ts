@@ -14,7 +14,7 @@ import { deriveStatus } from '../core/status.js';
 import type { ContractItem, InboxItem, LaneStatus, LoopCommit, LoopDetail, LoopSummary, LoopTestResult } from '../core/types.js';
 import { annotateReleases, isShipped } from './shipped.js';
 import { homepageOf, packageVersion, releaseInboxItem, roundState } from './roundState.js';
-import { commitLane, latestControlNotes, parseChangelog, parsePaused } from '../core/parse/index.js';
+import { commitLane, latestControlNotes, parseChangelog, parsePaused, parseSchedule } from '../core/parse/index.js';
 import { shipCheck } from '../core/shipCheck.js';
 import { buildRuns, lastRunOf, sessionKey, silentLanesItem } from './runs.js';
 import { checkLoop, parseTestRecord } from './health.js';
@@ -67,9 +67,10 @@ function pausedInfo(text: string): NonNullable<LoopSummary['paused']> {
 async function readRuns(dir: string, lanes: readonly LaneStatus[], lanesJson: string | undefined, timeline: readonly LoopCommit[], now: Date) {
   const cron = new Map((parseLanesConfig(lanesJson ?? '').config?.lanes ?? []).map((l) => [l.name, l.cron] as const));
   const pausedText = await readOptional(path.join(dir, '.ai', 'PAUSED'));
+  const scheduleText = await readOptional(path.join(dir, '.ai', 'schedule.json'));
   const laneNames = lanes.map((l) => l.name);
   const logs = Object.fromEntries(await Promise.all(laneNames.map(async (n) => [n, await readOptional(path.join(dir, '.ai', 'lanes', n, 'runs.jsonl'))] as const)));
-  return buildRuns({ lanes: laneNames.map((name) => ({ name, ...(cron.get(name) && { cron: cron.get(name) as string }), stopped: ['done', 'blocked'].includes(lanes.find((l) => l.name === name)?.state ?? '') || lanes.find((l) => l.name === name)?.claim !== undefined })), logs, commits: timeline, now, ...(pausedText !== undefined && { paused: parsePaused(pausedText).at ? { at: parsePaused(pausedText).at as Date } : {} }) });
+  return buildRuns({ lanes: laneNames.map((name) => ({ name, ...(cron.get(name) && { cron: cron.get(name) as string }), stopped: ['done', 'blocked'].includes(lanes.find((l) => l.name === name)?.state ?? '') || lanes.find((l) => l.name === name)?.claim !== undefined })), logs, commits: timeline, now, ...(scheduleText !== undefined && { schedule: parseSchedule(scheduleText) }), ...(pausedText !== undefined && { paused: parsePaused(pausedText).at ? { at: parsePaused(pausedText).at as Date } : {} }) });
 }
 
 /** Local git facts for the ship-check; a failing git call reads as the safe answer (tag free, tree dirty). */

@@ -112,3 +112,24 @@ describe('sessions and live wiring', () => {
     expect(inbox.map((i) => i.kind)).toEqual(['lanes-not-running']);
   });
 });
+
+describe('buildRuns with schedule.json (A2)', () => {
+  const lanes = [{ name: 'core', cron: '0 * * * *' }];
+  const known = [commit('old', '2026-10-01T00:00:00Z', 'core')];
+  const sleeping = { version: 1 as const, lanes: { core: { notBefore: null, sleeping: true, paused: false, reason: 'idle' } } };
+
+  it('does not list slots the schedule skipped as missing runs, and a sleeping lane is not silent', () => {
+    const without = buildRuns({ lanes, logs: {}, commits: known, now: NOW });
+    expect(without.runs.some((r) => r.outcome === 'no-run-recorded')).toBe(true);
+    const withSchedule = buildRuns({ lanes, logs: {}, commits: known, now: NOW, schedule: sleeping });
+    expect(withSchedule.runs.some((r) => r.outcome === 'no-run-recorded')).toBe(false);
+    expect(withSchedule.silentLanes).toEqual([]);
+  });
+
+  it('flags routinesLookOff after 6 h of silence with due slots, never when paused', () => {
+    const quiet = buildRuns({ lanes, logs: {}, commits: known, now: NOW });
+    expect(quiet.routinesLookOff).toBe(true);
+    expect(buildRuns({ lanes, logs: {}, commits: known, now: NOW, paused: {} }).routinesLookOff).toBe(false);
+    expect(buildRuns({ lanes, logs: {}, commits: known, now: NOW, schedule: sleeping }).routinesLookOff).toBe(false);
+  });
+});

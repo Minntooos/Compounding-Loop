@@ -1,7 +1,7 @@
 // Pure (no Node imports): turns the per-lane run logs, the cron slots and the commits into the Runs tab's data.
-import { expectedSlots, matchSlots, missedInARow, parseRunLog } from '../core/parse/index.js';
+import { classifyRunSlots, expectedSlots, matchSlots, missedInARow, parseRunLog } from '../core/parse/index.js';
 import type { RunEntry, SlotResult } from '../core/parse/index.js';
-import type { InboxItem, LoopCommit, LoopRun } from '../core/types.js';
+import type { InboxItem, LoopCommit, LoopRun, Schedule } from '../core/types.js';
 
 export interface RunLane {
   name: string;
@@ -20,6 +20,8 @@ export interface RunsInput {
   now: Date;
   /** `.ai/PAUSED` exists: runs reply "Paused" and log nothing, so slots from `at` on (all, if unknown) are not missing. */
   paused?: { at?: Date };
+  /** `.ai/schedule.json`: a slot the schedule skipped (paused, sleeping, snoozed) is "Not due", not a missing run. */
+  schedule?: Schedule;
 }
 
 export interface RunsData {
@@ -28,6 +30,8 @@ export interface RunsData {
   nextRuns: { lane: string; at: string }[];
   /** Lanes with 3 or more scheduled runs in a row that left no trace. */
   silentLanes: { lane: string; missed: number }[];
+  /** Nothing logged for 6 h although runs were due: the routines themselves look off. */
+  routinesLookOff: boolean;
 }
 
 /** How far back the Runs tab looks. */
@@ -40,7 +44,19 @@ export const SILENT_STREAK = 3;
 const HOUR = 3_600_000;
 const MINUTE = 60_000;
 
-function laneRuns(lane: RunLane, input: RunsInput): { runs: LoopRun[]; next?: string; missed: number } {
+/** Slots (ISO, by lane) that no run was expected for, according to `schedule.json`. */
+function notDueSlots(input: RunsInput, from: Date): { skipped: Map<string, Set<string>>; routinesLookOff: boolean } {
+  const runs = new Map(input.lanes.map((l) => [l.name, parseRunLog(input.logs[l.name] ?? '')] as const));
+  const commits = new Map<string, Date[]>();
+  for (const c of input.commits) if (c.lane) commits.set(c.lane, [...(commits.get(c.lane) ?? []), new Date(c.at)]);
+  const classified = classifyRunSlots({
+    lanes: input.lanes, runs, schedule: input.schedule ?? { version: 1, lanes: {} }, paused: false, rootDone: false, laneDone: new Set(), now: input.now, from, commits,
+  });
+  const skipped = new Map(classified.lanes.map((l) => [l.lane, new Set(l.slots.filter((s) => s.kind === 'not-due').map((s) => s.slot))] as const));
+  return { skipped, routinesLookOff: !input.paused && classified.routinesLookOff };
+}
+
+function laneRuns(lane: RunLane, input: RunsInput, skipped: ReadonlySet<string>): { runs: LoopRun[]; next?: string; missed: number } {
   const from = new Date(input.now.getTime() - RUNS_WINDOW_HOURS * HOUR);
   const everLogged = parseRunLog(input.logs[lane.name] ?? '');
   const entries = everLogged.filter((e) => new Date(e.at) > from);
@@ -53,7 +69,7 @@ function laneRuns(lane: RunLane, input: RunsInput): { runs: LoopRun[]; next?: st
   const manual: SlotResult[] = entries.filter((e) => !claimed.has(e.at)).map((entry) => ({ slot: new Date(entry.at).toISOString(), entry, outcome: outcomeOf(entry) }));
   const graceEnd = input.now.getTime() - SLOT_GRACE_MINUTES * MINUTE;
   const pausedFrom = input.paused ? (input.paused.at?.getTime() ?? -Infinity) : Infinity;
-  const settled = results.filter((r) => r.outcome !== 'no-run-recorded' || (new Date(r.slot).getTime() <= graceEnd && new Date(r.slot).getTime() < pausedFrom));
+  const settled = results.filter((r) => r.outcome !== 'no-run-recorded' || (!skipped.has(r.slot) && new Date(r.slot).getTime() <= graceEnd && new Date(r.slot).getTime() < pausedFrom));
   const all = [...settled, ...manual].sort((a, b) => a.slot.localeCompare(b.slot));
   const loggedSessions = new Set(entries.flatMap((e) => (e.session ? [sessionKey(e.session)] : [])));
   const runs = all.map((r, i): LoopRun => {
@@ -88,11 +104,13 @@ export function sessionKey(idOrUrl: string): string {
 }
 
 export function buildRuns(input: RunsInput): RunsData {
-  const perLane = input.lanes.map((lane) => ({ lane, ...laneRuns(lane, input) }));
+  const { skipped, routinesLookOff } = notDueSlots(input, new Date(input.now.getTime() - RUNS_WINDOW_HOURS * HOUR));
+  const perLane = input.lanes.map((lane) => ({ lane, ...laneRuns(lane, input, skipped.get(lane.name) ?? new Set()) }));
   return {
     runs: perLane.flatMap((l) => l.runs).sort((a, b) => b.at.localeCompare(a.at)),
     nextRuns: perLane.flatMap((l) => (l.next ? [{ lane: l.lane.name, at: l.next }] : [])),
     silentLanes: perLane.filter((l) => l.missed >= SILENT_STREAK).map((l) => ({ lane: l.lane.name, missed: l.missed })),
+    routinesLookOff,
   };
 }
 
