@@ -110,6 +110,9 @@ describe('merge', () => {
     const check: HealthCheck = { loopId: 'b', kind: 'failing-tests', ok: false, reason: 'x', proof: '' };
     const [card] = mergeLoops([], live, [check]);
     expect(card?.ci).toEqual({ ok: false, reason: 'x' });
+    // A3: a test check that was never measured is not CI on the card (ok stays true for it).
+    const [plain] = mergeLoops([], live, [{ ...check, ok: true, state: 'unchecked' }]);
+    expect(plain?.ci).toBeUndefined();
     expect(card?.demoUrl).toBe('https://owner.github.io/b/');
     expect(pagesUrl('https://example.com/a/b')).toBeUndefined();
     expect(pagesUrl(undefined)).toBeUndefined();

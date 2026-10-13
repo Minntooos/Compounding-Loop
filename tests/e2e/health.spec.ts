@@ -22,13 +22,13 @@ test('an unmeasured check reads Not checked with how to check it, and is not cou
   const unchecked = rows.nth(0);
   await expect(unchecked).toHaveAttribute('data-state', 'unchecked');
   await expect(unchecked).toContainText('Not checked');
-  await expect(unchecked).toContainText('Test results: not checked yet');
+  await expect(unchecked).toContainText('Test results');
   await expect(unchecked).not.toContainText('OK');
   await expect(unchecked).not.toContainText('Tests pass');
   await expect(unchecked.locator('code', { hasText: 'npm test' })).toBeVisible();
   await expect(rows.nth(1)).toContainText('Pass');
   await expect(rows.nth(2)).toContainText('Fail');
-  await expect(page.getByTestId('health-summary')).toHaveText('1 failing · 1 pass · 1 not checked');
+  await expect(page.getByTestId('health-summary')).toHaveText('1 failing · 1 passing · 1 not checked');
   await expect(page.getByText('OK', { exact: true })).toHaveCount(0);
   expect(errors).toEqual([]);
 });

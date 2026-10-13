@@ -48,7 +48,7 @@ export function Health() {
             <span className="min-w-0 flex-1"><strong>{c.loopId}</strong> · {checkText(c)}<br /><span style={{ color: 'var(--muted)' }}>{humanizeTimes(c.reason)}</span>
               {state === 'unchecked' && c.howToCheck && <><br /><span>How to check: <Hint text={c.howToCheck} /></span></>}
             </span>
-            <code className="font-mono text-[12px]" style={{ color: 'var(--muted)' }}>{humanizeTimes(c.proof)}</code>
+            <code className="min-w-0 break-all font-mono text-[12px]" style={{ color: 'var(--muted)' }}>{humanizeTimes(c.proof)}</code>
           </li>
         );
       })}

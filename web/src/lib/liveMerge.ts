@@ -3,7 +3,7 @@ import type { HealthCheck, InboxItem, LoopDetail, LoopSummary } from '../../../s
 /** The live copy of a loop replaces the snapshot's copy of the same id, and goes first. */
 export function mergeLoops(snapshot: LoopSummary[], live: LoopDetail | undefined, checks: HealthCheck[] = []): LoopSummary[] {
   if (!live) return snapshot;
-  const ci = checks.find((c) => c.loopId === live.id && c.kind === 'failing-tests');
+  const ci = checks.find((c) => c.loopId === live.id && c.kind === 'failing-tests' && c.state !== 'unchecked');
   const demoUrl = pagesUrl(live.url);
   const card: LoopSummary = { ...live, ...(ci && { ci: { ok: ci.ok, reason: ci.reason } }), ...(demoUrl && { demoUrl }) };
   return [card, ...snapshot.filter((l) => l.id !== live.id)];

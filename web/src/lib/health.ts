@@ -9,6 +9,8 @@ const LABELS: Record<string, readonly [pass: string, fail: string]> = {
   'short-runs': ['Runs last long enough', 'Runs ending too fast'],
   'failing-tests': ['Tests pass', 'Tests failing'],
   'runner-silent': ['Runner is active', 'Runner went quiet'],
+  'lane-stalled': ['Lanes moving', 'Lane stalled'],
+  'lane-waiting-on-finished': ['No lane waits on a finished lane', 'Lane waits on a finished lane'],
 };
 
 /** Names the result, never just the check ("Tests pass", not "Tests failing" next to an OK badge). Unknown kinds fall back to the raw kind. */
@@ -33,16 +35,16 @@ export function checkState(check: Pick<HealthCheck, 'ok' | 'state'>): CheckState
   return check.state ?? (check.ok ? 'pass' : 'fail');
 }
 
-/** The row's sentence: the result for a measured check, what it would measure for an unchecked one. */
+/** The row's sentence: the result for a measured check, what it would measure for an unchecked one (its badge already says Not checked). */
 export function checkText(check: Pick<HealthCheck, 'kind' | 'ok' | 'state' | 'label'>): string {
-  if (checkState(check) === 'unchecked') return `${NAMES[check.kind] ?? check.kind}: not checked yet`;
+  if (checkState(check) === 'unchecked') return NAMES[check.kind] ?? check.kind;
   return check.label ?? checkLabel(check.kind, check.ok);
 }
 
-/** "3 pass · 1 failing · 2 not checked": an unmeasured check never counts as a pass. Empty parts are left out. */
+/** "1 failing · 3 passing · 2 not checked": an unmeasured check never counts as a pass. Empty parts are left out. */
 export function checkSummary(checks: readonly Pick<HealthCheck, 'ok' | 'state'>[]): string {
   const count = (s: CheckState) => checks.filter((c) => checkState(c) === s).length;
-  const parts: [number, string][] = [[count('fail'), 'failing'], [count('pass'), 'pass'], [count('unchecked'), 'not checked']];
+  const parts: [number, string][] = [[count('fail'), 'failing'], [count('pass'), 'passing'], [count('unchecked'), 'not checked']];
   return parts.filter(([n]) => n > 0).map(([n, w]) => `${n} ${w}`).join(' · ');
 }
 

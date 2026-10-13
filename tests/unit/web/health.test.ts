@@ -27,7 +27,7 @@ describe('checkState', () => {
 
 describe('checkText', () => {
   it('names what an unchecked check would measure and never states a result for it', () => {
-    expect(checkText({ kind: 'failing-tests', ok: true, state: 'unchecked', label: 'Not checked' })).toBe('Test results: not checked yet');
+    expect(checkText({ kind: 'failing-tests', ok: true, state: 'unchecked', label: 'Not checked' })).toBe('Test results');
     expect(checkText({ kind: 'failing-tests', ok: true, state: 'pass' })).toBe('Tests pass');
     expect(checkText({ kind: 'lane-stalled', ok: false, label: 'Lane web stalled' })).toBe('Lane web stalled');
   });
@@ -35,7 +35,7 @@ describe('checkText', () => {
 
 describe('checkSummary', () => {
   it('counts unchecked checks apart from passes and leaves empty groups out', () => {
-    expect(checkSummary([{ ok: true }, { ok: true, state: 'unchecked' }, { ok: false }, { ok: true, state: 'pass' }])).toBe('1 failing · 2 pass · 1 not checked');
+    expect(checkSummary([{ ok: true }, { ok: true, state: 'unchecked' }, { ok: false }, { ok: true, state: 'pass' }])).toBe('1 failing · 2 passing · 1 not checked');
     expect(checkSummary([{ ok: true, state: 'unchecked' }])).toBe('1 not checked');
     expect(checkSummary([])).toBe('');
   });
