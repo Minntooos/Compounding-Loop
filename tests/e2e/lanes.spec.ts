@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { DEMO_LOOPS, pinDemoLoops } from './demoLoops';
+import { writableServer } from './writable';
 
 const lane = (name: string, state: string, extra: object = {}) => ({
   name, state, run: 7, limit: 30, locked: state === 'building', unanswered: [],
@@ -213,6 +214,7 @@ test('control buttons confirm what changes and open the exact prefilled GitHub p
 });
 
 test('a local Pause shows a toast and closes the dialog', async ({ page }) => {
+  await writableServer(page);
   await withLanedLoop(page);
   await page.route('**/api/loops/laned/pause', (route) => route.fulfill({ json: { changed: true, pushed: true } }));
   await page.goto('/#/loop/laned');

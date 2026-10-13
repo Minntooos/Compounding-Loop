@@ -2,7 +2,7 @@ import type { Pace } from '@core/types';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Gauge } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
-import { hasServer, postPace } from '../api/client';
+import { canWrite, postPace } from '../api/client';
 import { lanePace, PACE_DOWNSHIFT, PACE_FLOOR, PACE_SUMMARY, PACE_WORD, PACES, paceEditUrl, paceFileText, paceToast, type LoopPace } from '../lib/pace';
 import { toast } from './Toasts';
 import { copyText } from './WelcomeStrip';
@@ -16,8 +16,8 @@ const button = 'min-h-11 rounded border px-3 text-[13px] font-medium disabled:op
  */
 export function PaceChooser({ loopId, pace, lane, slug, onClose }: { loopId: string; pace: LoopPace; lane?: string; slug?: string; onClose: () => void }) {
   const qc = useQueryClient();
-  const server = useQuery({ queryKey: ['server'], queryFn: hasServer });
-  const local = server.data === true;
+  const write = useQuery({ queryKey: ['canWrite'], queryFn: canWrite });
+  const local = write.data === true;
   const current = lane ? lanePace(pace, lane).pace : pace.pace;
   const [picked, setPicked] = useState<Pace>(current);
   const [busy, setBusy] = useState(false);

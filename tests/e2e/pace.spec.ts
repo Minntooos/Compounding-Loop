@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { writableServer } from './writable';
 
 // Round 5 C9: the Pace control on the Lanes tab: the loop's pace, each lane's override, four presets with what they skip.
 const lane = (name: string) => ({ name, state: 'building', run: 3, limit: 20, locked: false, unanswered: [] });
@@ -65,6 +66,7 @@ test('demo: a lane pace opens policy.json on GitHub and shows the whole new file
 });
 
 test('local: Save pace posts the loop pace or one lane, toasts, and keeps an error on the chooser', async ({ page }) => {
+  await writableServer(page);
   await page.route('**/api/loops', (r) => r.fulfill({ json: [LOOP] }));
   await page.route('**/api/loops/self', (r) => r.fulfill({ json: LOOP }));
   await page.route('**/api/inbox', (r) => r.fulfill({ json: [] }));

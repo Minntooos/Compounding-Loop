@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { DEMO_LOOPS, pinDemoLoops } from './demoLoops';
+import { writableServer } from './writable';
 
 function trackErrors(page: Page): string[] {
   const errors: string[] = [];
@@ -56,7 +57,8 @@ test('settings shows the server settings; the demo reveals no local folder or ac
   expect(errors).toEqual([]);
 });
 
-test('inbox: empty state in demo; a question can be accepted with j/k/a and the demo refuses writes', async ({ page, isMobile }) => {
+test('inbox: empty state in demo; a question can be accepted with j/k/a and a server that refuses writes says why', async ({ page, isMobile }) => {
+  await writableServer(page);
   // The demo's done laned loop is a waiting release (an Inbox row since round 5 A4), so the empty state needs no such loop.
   await page.route('**/api/loops', (r) => r.fulfill({ json: [] }));
   await page.goto('/#/inbox');

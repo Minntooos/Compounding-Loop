@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { writableServer } from './writable';
 
 // Round 5 C1 + C2: the status strip and the Needs-you rows, both fed by the one attention list.
 const lane = (name: string, state: string) => ({ name, state, run: 3, limit: 20, locked: false, unanswered: [] });
@@ -46,6 +47,7 @@ test('the strip states the fleet: what needs you, CI, and unknown limit stops', 
 });
 
 test('Needs-you rows are ordered and carry their action inline (local)', async ({ page }) => {
+  await writableServer(page);
   await serve(page, { demo: false });
   await page.goto('/');
   const rows = page.getByRole('list', { name: 'Needs you' }).getByTestId('attention-row');

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Fragment, useState } from 'react';
 import { Inbox as InboxIcon } from 'lucide-react';
 import type { InboxItem, LoopState, LoopSummary } from '@core/types';
-import { api, hasServer } from '../api/client';
+import { api, canWrite } from '../api/client';
 import { cardBadge, cardFacts, laneProgress, statusLine, roundProgress, runBudget, SELF_BUILD_ID, selfFirst } from '../lib/card';
 import { STATE_LABEL } from '../lib/format';
 import { attentionItems } from '../lib/lanes';
@@ -83,7 +83,7 @@ export function Fleet() {
   const [filter, setFilter] = useState<Filter>('all');
   const loops = useQuery({ queryKey: ['loops'], queryFn: api.loops });
   const inbox = useQuery({ queryKey: ['inbox'], queryFn: api.inbox });
-  const server = useQuery({ queryKey: ['server'], queryFn: hasServer });
+  const write = useQuery({ queryKey: ['canWrite'], queryFn: canWrite });
   if (loops.isPending || inbox.isPending) return <Loading what="Loading the fleet…" />;
   if (loops.isError || inbox.isError) return <LoadError what="the fleet" onRetry={() => { void loops.refetch(); void inbox.refetch(); }} busy={loops.isFetching || inbox.isFetching} />;
   if (loops.data.length === 0) {
@@ -97,7 +97,7 @@ export function Fleet() {
   }
   return (
     <div className="space-y-5">
-      <NeedsYou loops={loops.data} inbox={inbox.data} demo={server.data === false} />
+      <NeedsYou loops={loops.data} inbox={inbox.data} demo={write.data === false} />
       <FilterBar loops={loops.data} value={filter} onChange={setFilter} />
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loops">
         {selfFirst(loops.data.filter((l) => filter === 'all' || l.state === filter)).map((l) => <LoopCard key={l.id} loop={l} />)}

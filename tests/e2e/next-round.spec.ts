@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { writableServer } from './writable';
 
 // Round 5 C6: the next-round dialog shows its ingredients, drafts with Claude (local SSE) or copies the prompt (demo),
 // scores the brief live, and only a separate Start click starts the round.
@@ -61,6 +62,7 @@ test('demo: ingredients are listed, Copy prompt copies core’s prompt, and Star
 });
 
 test('local: Draft with Claude streams progress, fills the box, and only Start posts the round', async ({ page }) => {
+  await writableServer(page);
   await serve(page, { demo: false });
   const posted: string[] = [];
   await page.route('**/api/loops/self/draft-brief', (r) => r.fulfill({ contentType: 'text/event-stream', body: sse([['progress', { step: 'Reading DONE files, audit findings and steering' }], ['progress', { step: 'Scoring the draft' }], ['draft', { draft: GOOD_BRIEF, score: 90, gaps: [] }]]) }));
@@ -82,6 +84,7 @@ test('local: Draft with Claude streams progress, fills the box, and only Start p
 });
 
 test('local: a failed draft says why and offers Retry draft; the brief stays editable', async ({ page }) => {
+  await writableServer(page);
   await serve(page, { demo: false });
   await page.route('**/api/loops/self/draft-brief', (r) => r.fulfill({ contentType: 'text/event-stream', body: sse([['progress', { step: 'Asking Claude Code' }], ['error', { error: 'claude exited with code 1', status: 422 }]]) }));
   await page.goto('/#/loop/self');

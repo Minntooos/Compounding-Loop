@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { writableServer } from './writable';
 
 // Round 5 C4 history and C5 state: each lane on the Lanes tab says its schedule in words and lists its steer entries with their acknowledgements.
 const lane = (name: string) => ({ name, state: 'building', run: 3, limit: 20, locked: false, unanswered: [] });
@@ -126,6 +127,7 @@ test('demo: a lane the schedule can change links to schedule.json on GitHub; a f
 });
 
 test('local: Wake posts at once, Pause asks first, Snooze offers presets; errors stay on the row', async ({ page }) => {
+  await writableServer(page);
   await page.clock.install({ time: new Date('2026-10-13T12:40:00Z') });
   await page.route('**/api/loops', (r) => r.fulfill({ json: [LOOP] }));
   await page.route('**/api/loops/self', (r) => r.fulfill({ json: LOOP }));

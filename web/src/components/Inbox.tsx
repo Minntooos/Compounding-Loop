@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import type { InboxItem } from '@core/types';
-import { api, hasServer, postAnswer } from '../api/client';
+import { api, canWrite, postAnswer } from '../api/client';
 import { editFileUrl } from '../../../src/server/controls.js';
 import { slugOf } from '../lib/controls';
 import { attentionItems, liveInbox } from '../lib/lanes';
@@ -41,7 +41,7 @@ export function Inbox() {
   const [sel, setSel] = useState(0);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const loops = useQuery({ queryKey: ['loops'], queryFn: api.loops });
-  const server = useQuery({ queryKey: ['server'], queryFn: hasServer });
+  const write = useQuery({ queryKey: ['canWrite'], queryFn: canWrite });
   const [notice, setNotice] = useState('');
   // Without the "lanes not running" items that "Routines look off" replaces, so the Inbox lists what the badge counts.
   const items = liveInbox(loops.data ?? [], q.data ?? []);
@@ -68,11 +68,11 @@ export function Inbox() {
   return (
     <>
     {notice && <p role="status" style={{ color: 'var(--done)' }}>{notice}</p>}
-    {others.length > 0 && <div className="mb-3"><NeedsYouList rows={needsYouRows(others, loops.data ?? [], server.data === false)} label="Loops that need you" /></div>}
+    {others.length > 0 && <div className="mb-3"><NeedsYouList rows={needsYouRows(others, loops.data ?? [], write.data === false)} label="Loops that need you" /></div>}
     {items.length > 0 && <ul className="space-y-3" aria-label="Questions">
       {items.map((it, i) => {
         const key = `${it.loopId}/${it.file}`;
-        return <Item key={key} item={it} selected={i === cur} answer={drafts[key] ?? it.bestGuess} onAnswer={(v) => setDrafts((d) => ({ ...d, [key]: v }))} onDone={setNotice} readOnly={server.data === false} slug={slugOf(loops.data?.find((l) => l.id === it.loopId)?.repoUrl ?? loops.data?.find((l) => l.id === it.loopId)?.url)} />;
+        return <Item key={key} item={it} selected={i === cur} answer={drafts[key] ?? it.bestGuess} onAnswer={(v) => setDrafts((d) => ({ ...d, [key]: v }))} onDone={setNotice} readOnly={write.data === false} slug={slugOf(loops.data?.find((l) => l.id === it.loopId)?.repoUrl ?? loops.data?.find((l) => l.id === it.loopId)?.url)} />;
       })}
     </ul>}
     </>

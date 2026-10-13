@@ -24,11 +24,27 @@ export function hasServer(): Promise<boolean> {
         // Relative to the page, so it also works under /Compounding-Loop/. A hit means static hosting: no server.
         const res = await fetch('api/health.json', { headers: { accept: 'application/json' } }).catch(() => undefined);
         if (res?.ok && (res.headers.get('content-type') ?? '').includes('json')) return false;
-      } else if ((await fetchJson('/health'))?.ok === true) return true;
+      } else {
+        const res = await fetchJson('/health');
+        if (res?.ok === true) {
+          const health = (await res.json().catch(() => ({}))) as { demo?: unknown };
+          serverIsDemo = health.demo === true;
+          return true;
+        }
+      }
     }
     return false;
   })();
   return serverProbe;
+}
+
+let serverIsDemo = false;
+/**
+ * True when this dashboard can save: a server answers and is not `loop dashboard --demo` (/api/health `demo: true`), whose
+ * write routes answer 409. Write controls use this; the snapshot chip and welcome strip stay on `hasServer`.
+ */
+export async function canWrite(): Promise<boolean> {
+  return (await hasServer()) && !serverIsDemo;
 }
 
 /** Static hosting (GitHub Pages demo): relative `api/<route>.json` files exported by demo/export-static.mjs, else the bundled snapshot. */

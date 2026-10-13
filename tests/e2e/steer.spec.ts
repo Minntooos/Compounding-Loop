@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { writableServer } from './writable';
 
 // Round 5 C4: the steer composer shows the exact steer.md entry and, on the demo, opens GitHub's editor for that file.
 const lane = (name: string) => ({ name, state: 'building', run: 3, limit: 20, locked: false, unanswered: [] });
@@ -56,6 +57,7 @@ test('a lane row opens the composer for that lane, and S opens it from the page'
 });
 
 test('local: Save posts the entry to the server and closes; the loop steer command stays as a fallback', async ({ page }) => {
+  await writableServer(page);
   await serve(page, { demo: false });
   const posted: unknown[] = [];
   await page.route('**/api/loops/self/steer', (r) => { posted.push(r.request().postDataJSON()); return r.fulfill({ json: { ok: true, changed: true, lanes: ['web'], pushed: true } }); });
@@ -89,6 +91,7 @@ test('local: Save posts the entry to the server and closes; the loop steer comma
 });
 
 test('local: a server error stays in the dialog; an unpushed commit is Saved, never saved twice', async ({ page }) => {
+  await writableServer(page);
   await serve(page, { demo: false });
   let reply: { status: number; json: object } = { status: 422, json: { error: 'Say who you are: set git user.name or fill in your name' } };
   await page.route('**/api/loops/self/steer', (r) => r.fulfill(reply));

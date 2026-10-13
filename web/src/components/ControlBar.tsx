@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ShipWheel } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { LoopDetail } from '@core/types';
-import { hasServer, postControl } from '../api/client';
+import { canWrite, postControl } from '../api/client';
 import { toast } from './Toasts';
 import { SteerDialog } from './SteerDialog';
 import { NextRoundDialog } from './NextRoundDialog';
@@ -73,7 +73,7 @@ export function ControlBar({ loop }: { loop: LoopDetail }) {
   const [action, setAction] = useState<ControlAction>();
   const [local, setLocal] = useState(false);
   const [steer, setSteer] = useState<{ lane?: string }>();
-  useEffect(() => { void hasServer().then(setLocal); }, []);
+  useEffect(() => { void canWrite().then(setLocal); }, []);
   useEffect(() => onSteer((lane) => setSteer(lane ? { lane } : {})), []);
   // Once the version has shipped there is nothing to release: no disabled button with a stale reason.
   const blocker = loop.shipped ? undefined : releaseBlocker(loop);

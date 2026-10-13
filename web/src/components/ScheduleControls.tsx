@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import { hasServer, postSchedule } from '../api/client';
+import { canWrite, postSchedule } from '../api/client';
 import { scheduleButtons, scheduleEditUrl, scheduleToast, snoozePresets, type LaneScheduleKind, type ScheduleButton } from '../lib/schedule';
 import { toast } from './Toasts';
 
@@ -14,8 +14,8 @@ const button = 'min-h-11 rounded border px-3 text-[13px] font-medium disabled:op
  */
 export function ScheduleControls({ loopId, lane, kind, slug, now }: { loopId: string; lane: string; kind: LaneScheduleKind; slug?: string; now: Date }) {
   const qc = useQueryClient();
-  const server = useQuery({ queryKey: ['server'], queryFn: hasServer });
-  const local = server.data === true;
+  const write = useQuery({ queryKey: ['canWrite'], queryFn: canWrite });
+  const local = write.data === true;
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState<'confirm-pause' | 'snooze'>();
   const [error, setError] = useState<string>();
@@ -31,7 +31,7 @@ export function ScheduleControls({ loopId, lane, kind, slug, now }: { loopId: st
   useEffect(() => setOpen(undefined), [kind]);
   const step = (next: typeof open) => { moved.current = true; setOpen(next); };
   const actions = scheduleButtons(kind);
-  if (actions.length === 0 || server.data === undefined) return null;
+  if (actions.length === 0 || write.data === undefined) return null;
 
   if (!local) {
     if (!slug) return null;
