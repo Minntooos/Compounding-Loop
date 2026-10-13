@@ -9,7 +9,9 @@ import { expect, test, type Page } from '@playwright/test';
 // (IDEA.md Round 5 D). docs owns docs/assets/screens and copies them from there.
 // Design-review sets (before/after, 1440 and 375 px @1x, both themes, full page):
 //   SCREENS=1 SCREENS_DIR=web/design/before npx playwright test screenshots --project=laptop
-const screens: Record<string, string> = { fleet: '/', loop: '/loop/proj2', self: '/loop/compounding-loop', inbox: '/inbox', health: '/health', settings: '/settings', new: '/new' };
+const screens: Record<string, string> = { fleet: '/', loop: '/loop/proj2', self: '/loop/compounding-loop', 'self-lanes': '/loop/compounding-loop', 'self-runs': '/loop/compounding-loop', inbox: '/inbox', health: '/health', settings: '/settings', new: '/new' };
+// Loop tabs have no URL; these shots click one (Lanes: Pace, schedule, steer; Runs: the lane × hour heat map).
+const tabs: Record<string, string> = { 'self-lanes': 'Lanes', 'self-runs': 'Runs' };
 const reviewDir = process.env['SCREENS_DIR'];
 const dir = reviewDir ?? join('web', 'design', 'docs');
 const MAX_BYTES = 400 * 1024;
@@ -51,9 +53,14 @@ for (const shot of shots) {
         const page = await context.newPage();
         // Shoot demo mode as a visitor sees it (welcome strip, snapshot chip): no dashboard server.
         // The self-build loop only exists on a running server (the bundled snapshot is the five sites).
-        if (name !== 'self') await page.route('**/api/health', (route) => route.fulfill({ status: 404, contentType: 'application/json', body: '{}' }));
+        if (!name.startsWith('self')) await page.route('**/api/health', (route) => route.fulfill({ status: 404, contentType: 'application/json', body: '{}' }));
         await page.goto(`/#${route}`);
         await page.waitForLoadState('networkidle');
+        const tab = tabs[name];
+        if (tab) {
+          await page.getByRole('tab', { name: tab }).click();
+          await page.waitForLoadState('networkidle');
+        }
         const path = join(dir, `${name}-${theme}-${shot.size}.png`);
         await shoot(page, shot, path);
         await context.close();
