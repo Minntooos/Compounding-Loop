@@ -51,6 +51,9 @@ test('loop detail has a Lanes tab with a row per lane, run counters, lock and un
   await expect(rows.nth(1).getByTestId('lane-claim')).toHaveText('Unclaimed');
   await expect(rows.nth(1).getByRole('progressbar')).toHaveAttribute('aria-valuenow', '7');
   await expect(rows.nth(1)).toContainText('Locked');
+  // A done lane keeps its run counter but shows no budget bar.
+  await expect(rows.nth(0)).toContainText('Run 7/30');
+  await expect(rows.nth(0).getByRole('progressbar')).toHaveCount(0);
   await expect(rows.nth(2)).toContainText('Stalled');
   await expect(rows.nth(2)).toContainText('web → server: need the lanes route');
   const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();

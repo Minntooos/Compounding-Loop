@@ -98,7 +98,8 @@ function LaneRow({ lane, cockpit }: { lane: LaneStatus; cockpit: LanesCockpit })
         {schedule && cockpit.loopId && <ScheduleControls loopId={cockpit.loopId} lane={lane.name} kind={schedule.kind} {...(cockpit.slug && { slug: cockpit.slug })} now={cockpit.now ?? new Date()} />}
         {pacing && cockpit.pace && cockpit.loopId && <PaceChooser loopId={cockpit.loopId} pace={cockpit.pace} lane={lane.name} {...(cockpit.slug && { slug: cockpit.slug })} onClose={() => { setPacing(false); window.setTimeout(() => paceButton.current?.focus(), 0); }} />}
       </div>
-      {lane.limit > 0 && <div className="mt-2"><ProgressBar label={`${lane.name} run budget`} value={Math.min(lane.run, lane.limit)} max={lane.limit} text={`${lane.run} of ${lane.limit} runs`} color="var(--accent)" /></div>}
+      {/* A done lane spends no more runs: its budget bar would only read as unfinished work (the header keeps "Run N/limit"). */}
+      {lane.limit > 0 && lane.state !== 'done' && <div className="mt-2"><ProgressBar label={`${lane.name} run budget`} value={Math.min(lane.run, lane.limit)} max={lane.limit} text={`${lane.run} of ${lane.limit} runs`} color="var(--accent)" /></div>}
       <p className="mt-1 [overflow-wrap:anywhere]" style={{ color: 'var(--muted)' }}>
         {lane.lastCommit
           ? <><code className="font-mono text-[12px]">{lane.lastCommit.sha.slice(0, 7)}</code> {lane.lastCommit.subject} · {relativeTime(lane.lastCommit.at)}</>
