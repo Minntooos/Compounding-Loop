@@ -1,6 +1,6 @@
 # Lane: kit — round 5 (0.5.0 "Cockpit")
 
-Run: 1 / 20
+Run: 2 / 20
 Status: units 1-4 done except the `loop init --lanes` hook (core)
 Round 4 record: `.ai/lanes/kit/done-v4.md` (`git show 02874e8:.ai/lanes/kit/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
