@@ -168,6 +168,8 @@ export interface LoopDetail extends LoopSummary {
   idleRuns?: Record<string, number>;
   /** Each lane's `.ai/lanes/<lane>/steer.md` entries, file order (newest first); lanes with a steer file only. */
   steer?: { lane: string; entries: SteerEntry[] }[];
+  /** What `loop next-round --draft` would put in its prompt (core's `DraftInputs`); the C6 dialog lists it as ingredients (web lane, Round 5). */
+  draftInputs?: import('./draftBrief.js').DraftInputs;
   /** The next scheduled slot of each lane that has a cron. */
   nextRuns?: { lane: string; at: string }[];
   /** Contract, decisions and knowledge of each lane, grouped by lane; absent for loops without lanes. */

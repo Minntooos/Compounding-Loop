@@ -206,7 +206,7 @@ test('control buttons confirm what changes and open the exact prefilled GitHub p
   expect(popup.url()).toContain('https://github.com/o/r/new/main?filename=.ai%2FPAUSED');
   await popup.close();
   await page.getByRole('button', { name: 'Start next round' }).click();
-  await expect(dialog.getByRole('button', { name: 'Start next round' })).toBeDisabled();
+  await expect(dialog.getByRole('button', { name: /^Start round \d+$/ })).toBeDisabled();
   await expect(dialog.getByTestId('brief-score')).toContainText('needs 60');
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);

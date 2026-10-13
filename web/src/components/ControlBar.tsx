@@ -1,11 +1,11 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { ShipWheel } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { lintBrief, MIN_BRIEF_SCORE } from '@core/brief';
 import type { LoopDetail } from '@core/types';
 import { hasServer, postControl } from '../api/client';
 import { toast } from './Toasts';
 import { SteerDialog } from './SteerDialog';
+import { NextRoundDialog } from './NextRoundDialog';
 import { onSteer } from '../lib/steerEvents';
 import { CHANGE_TEXT, githubUrl, releaseBlocker, slugOf, VERB, type ControlAction } from '../lib/controls';
 
@@ -13,10 +13,11 @@ const PENDING: Record<ControlAction, string> = { pause: 'Pausing…', resume: 'R
 
 const DONE: Record<ControlAction, string> = { pause: 'Paused: lane runs will stop until you resume', resume: 'Resumed: lane runs continue on their next schedule', 'next-round': 'Next round started', release: 'Release workflow opened' };
 
-function ConfirmDialog({ loop, action, local, onClose }: { loop: LoopDetail; action: ControlAction; local: boolean; onClose: () => void }) {
+type SimpleAction = Exclude<ControlAction, 'next-round'>;
+
+function ConfirmDialog({ loop, action, local, onClose }: { loop: LoopDetail; action: SimpleAction; local: boolean; onClose: () => void }) {
   const ref = useRef<HTMLDialogElement>(null);
   const qc = useQueryClient();
-  const [brief, setBrief] = useState('');
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
@@ -26,17 +27,14 @@ function ConfirmDialog({ loop, action, local, onClose }: { loop: LoopDetail; act
     return () => opener?.focus();
   }, []);
   const slug = slugOf(loop.repoUrl ?? loop.url);
-  const score = action === 'next-round' ? lintBrief(brief).score : MIN_BRIEF_SCORE;
-  const url = (!local || action === 'release') && slug ? githubUrl(action, slug, { brief, reason }) : undefined;
-  const needs = action === 'next-round' && score < MIN_BRIEF_SCORE ? `Brief score ${score}; at least ${MIN_BRIEF_SCORE} is needed.` : undefined;
-  const missingUrl = (!local || action === 'release') && !url && !needs ? (slug ? 'This brief is too long for a prefilled GitHub link: shorten it, or run the command locally.' : 'This loop has no GitHub repository to open.') : undefined;
-  const blocked = needs ?? missingUrl;
+  const url = (!local || action === 'release') && slug ? githubUrl(action, slug, { reason }) : undefined;
+  const blocked = (!local || action === 'release') && !url ? 'This loop has no GitHub repository to open.' : undefined;
 
   async function confirm() {
     if (local && action !== 'release') {
       setBusy(true); setError(undefined);
       try {
-        const reply = await postControl(loop.id, action, action === 'next-round' ? { brief } : action === 'pause' ? { reason: reason || undefined } : {});
+        const reply = await postControl(loop.id, action, action === 'pause' ? { reason: reason || undefined } : {});
         await qc.invalidateQueries();
         // Lanes read main on GitHub: a commit that was not pushed has not changed anything for them.
         if (reply.pushError || reply.pushed === false) { setError(`Committed here but not pushed${reply.pushError ? `: ${reply.pushError}` : ''}. Push main to finish.`); setBusy(false); return; }
@@ -58,12 +56,6 @@ function ConfirmDialog({ loop, action, local, onClose }: { loop: LoopDetail; act
       {action === 'pause' && (
         <label className="mt-3 block text-[13px]">Reason (optional)
           <input value={reason} onChange={(e) => setReason(e.target.value)} className="mt-1 block min-h-11 w-full rounded border px-2" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }} />
-        </label>
-      )}
-      {action === 'next-round' && (
-        <label className="mt-3 block text-[13px]">Brief for the next round
-          <textarea value={brief} onChange={(e) => setBrief(e.target.value)} rows={8} className="mt-1 block w-full rounded border p-2 font-mono text-[13px]" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }} />
-          <span data-testid="brief-score" style={{ color: 'var(--muted)' }}>Brief score {score}/100 (needs {MIN_BRIEF_SCORE})</span>
         </label>
       )}
       {blocked && <p role="status" className="mt-2 text-[13px]" style={{ color: 'var(--muted)' }}>{blocked}</p>}
@@ -98,7 +90,8 @@ export function ControlBar({ loop }: { loop: LoopDetail }) {
       </div>
       {blocker && <p className="text-[12px]" style={{ color: 'var(--muted)' }}>{blocker}</p>}
       {steer && <SteerDialog loop={loop} {...(steer.lane && { lane: steer.lane })} local={local} onClose={() => setSteer(undefined)} />}
-      {action && <ConfirmDialog loop={loop} action={action} local={local} onClose={() => setAction(undefined)} />}
+      {action === 'next-round' && <NextRoundDialog loop={loop} local={local} onClose={() => setAction(undefined)} />}
+      {action && action !== 'next-round' && <ConfirmDialog loop={loop} action={action} local={local} onClose={() => setAction(undefined)} />}
     </div>
   );
 }

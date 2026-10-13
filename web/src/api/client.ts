@@ -1,6 +1,7 @@
 import type { DashboardSettings, HealthCheck, InboxItem, LoopDetail, LoopSummary } from '@core/types';
 import { probeOrder } from '../lib/probe';
 import { newestActivity, shortDateUtc } from '../lib/format';
+import { takeSseEvents } from '../lib/draft';
 import { mergeFacts, mergeLoops, pagesUrl } from '../lib/liveMerge';
 import { getLive, setSnapshotLoader } from './live';
 import { mockSnapshot } from './mock';
@@ -77,6 +78,37 @@ export async function postControl(loopId: string, action: 'pause' | 'resume' | '
   const reply = (await res.json().catch(() => ({}))) as ControlReply & { error?: string };
   if (!res.ok) throw new Error(reply.error ?? `${action} failed (${res.status})`);
   return reply;
+}
+
+export interface BriefDraft { draft: string; score: number }
+
+/**
+ * C6: ask the local server to draft the next brief with Claude Code. Reads the `POST …/draft-brief` event stream:
+ * `progress` steps go to `onProgress`, then `draft` resolves and `error` throws. `signal` stops it (Stop button).
+ */
+export async function streamDraftBrief(loopId: string, onProgress: (step: string) => void, signal: AbortSignal): Promise<BriefDraft> {
+  const res = await fetch(`/api/loops/${encodeURIComponent(loopId)}/draft-brief`, {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}', signal,
+  });
+  if (!res.ok || !res.body) {
+    const reply = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(reply.error ?? `Draft failed (${res.status})`);
+  }
+  const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
+  let buffer = '';
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    const { events, rest } = takeSseEvents(buffer + value);
+    buffer = rest;
+    for (const { event, data } of events) {
+      const body = JSON.parse(data) as { step?: string; draft?: string; score?: number; error?: string };
+      if (event === 'progress' && body.step) onProgress(body.step);
+      else if (event === 'draft' && typeof body.draft === 'string') { void reader.cancel(); return { draft: body.draft, score: body.score ?? 0 }; }
+      else if (event === 'error') { void reader.cancel(); throw new Error(body.error ?? 'Draft failed'); }
+    }
+  }
+  throw new Error('The server closed the connection before the draft was ready.');
 }
 
 export interface SteerReply extends ControlReply { lanes?: string[] }
