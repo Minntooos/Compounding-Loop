@@ -3,3 +3,4 @@
 {"at":"2026-10-13T03:20:00Z","lane":"core","units":["init-lanes-run-templates"],"tests":{"passed":747,"failed":0},"pushed":false,"note":"run 2"}
 {"at":"2026-10-13T05:17:19Z","lane":"core","units":["pace-policy"],"tests":{"passed":756,"failed":0},"pushed":true,"note":"run 3"}
 {"at":"2026-10-13T06:11:19Z","lane":"core","units":["pace-show-corrupt-warning"],"tests":{"passed":760,"failed":0},"pushed":true,"note":"run 4"}
+{"at":"2026-10-13T07:11:41Z","lane":"core","units":["lane-done"],"tests":{"passed":184,"failed":0},"pushed":true,"note":"run 5: DONE.md written"}
