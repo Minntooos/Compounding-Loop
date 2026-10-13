@@ -163,26 +163,33 @@ describe('runners/routine lane prompts', () => {
     for (const p of ['{{name}}', '{{lane}}', '{{lanes}}']) expect(readme).toContain(p);
   });
 
-  it('lane prompt keeps what made the real one work', () => {
-    for (const needle of ['40 minutes', 'reviewer subagent', 'git pull --ff-only', 'git pull --rebase', 'git push origin main', 'Never create or push a `claude/` branch', 'DONE.md', 'BLOCKED.md', 'Lane: {{lane}}', '.ai/control-room.md', 'outbox.md', 'Never spend money', 'force-push', 'session.lock']) {
+  it('lane prompt is thin: it does the pull and points at the run procedure', () => {
+    for (const needle of ['git pull --ff-only', 'git push origin HEAD:main', 'Never create or push a `claude/` branch', 'Lane: {{lane}}', '.ai/lane-run.md', 'steer.md', 'runs.jsonl', 'Not due', 'Never spend money', 'force-push']) {
       expect(lane, needle).toContain(needle);
     }
+    expect(lane.length).toBeLessThan(3000);
   });
 
-  it('lane prompt stands down on someone else\'s unexpired claim', () => {
-    for (const needle of ['.ai/lanes/{{lane}}/claim', 'names someone other than', 'expiry (an ISO UTC timestamp, compared with `date -u`) is in the future', 'expired claim counts as none']) {
-      expect(lane, needle).toContain(needle);
-    }
-  });
-
-  it('control room prompt keeps budget, stalled, leak and done handling', () => {
-    for (const needle of ['run budget reached', 'stalled', 'Leak check', 'DONE.md', 'Lane: control', 'check-lanes', 'Never force-push', 'Never spend money']) {
+  it('control room prompt is thin: it does the pull and points at the run procedure', () => {
+    for (const needle of ['git pull --ff-only', 'Lane: control', '.ai/control-run.md', '.ai/schedule.json', 'Never force-push', 'Never spend money']) {
       expect(control, needle).toContain(needle);
+    }
+    expect(control.length).toBeLessThan(3000);
+  });
+
+  it('the run procedure the prompts point at keeps what made the real one work', () => {
+    const laneRun = read('templates', 'lanes', 'lane-run.md');
+    for (const needle of ['40 minutes', 'reviewer subagent', 'pull', 'BLOCKED.md', 'DONE.md', 'Lane: <lane>', '.ai/control-room.md', 'outbox.md', 'Never spend money', 'force-push', 'expiry', 'Run budget']) {
+      expect(laneRun, needle).toContain(needle);
+    }
+    const controlRun = read('templates', 'lanes', 'control-run.md');
+    for (const needle of ['run budget reached', 'stalled', 'Leak check', 'DONE.md', 'Lane: control', 'check-lanes', 'Never spend money']) {
+      expect(controlRun, needle).toContain(needle);
     }
   });
 
   it('carry nothing specific to the repository that built them', () => {
-    for (const text of [lane, control]) expect(text).not.toMatch(/Minntooos|Compounding[_ ]Loop|trig_|gmail/i);
+    for (const text of [lane, control, read('templates', 'lanes', 'lane-run.md'), read('templates', 'lanes', 'control-run.md')]) expect(text).not.toMatch(/Minntooos|Compounding[_ ]Loop|trig_|gmail/i);
   });
 
   it('README staggers cron for 3 and 5 lanes without minute 0', () => {

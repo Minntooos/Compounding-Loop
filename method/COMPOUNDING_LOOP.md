@@ -429,6 +429,11 @@ A claim protects a lane, not a file: ownership of paths still decides what a lan
 
 Every run, successful or not, appends one line to `.ai/lanes/<lane>/runs.jsonl` (`loop runs log`); `loop runs` compares those lines and the commits with each lane's scheduled slots, so a slot with neither is shown as "no run recorded", which on a subscription plan usually means the usage limit. A run that cannot pull because its clone started from an old copy fetches `origin main`, works on a branch from it and pushes with `git push origin HEAD:main`; origin `main` is never reset or force-pushed.
 
+**Thin prompts, schedule, steering.** The routine prompt should be a few lines: name the lane, do the pull (with the stale-clone recovery) and say "follow `.ai/lane-run.md`" (the control room: `.ai/control-run.md`). The procedure lives in the repo, so changing how every lane runs is a commit, not an edit in five routine settings. `loop init --lanes` writes both files from the kit templates. Two more files let you leave the loop on around the clock:
+
+- `.ai/schedule.json` (`{"version":1,"lanes":{"<lane>":{"notBefore":ISO|null,"sleeping":bool,"paused":bool,"reason":string|null}}}`): the first thing a run checks, before any install. A lane that is paused, sleeping or before its `notBefore` replies "Not due" and stops in seconds. A missing file or entry means due. A lane that shipped nothing backs itself off (1 idle run: 3 h, 2 in a row: 6 h, 3 or more: sleeping); the control room wakes it when it has a steer entry, a message or a new round. Only the owner pauses a lane.
+- `.ai/lanes/<lane>/steer.md`: notes from the owner, newest first, each a heading `## YYYY-MM-DD HH:MM UTC · <author> · next-run|standing`. `next-run` entries come before the lane's own unit order, `standing` entries apply until removed. The lane acknowledges each with one line under it (`→ done in run N` or `→ not done: <why>`); that is the only edit it makes to the file.
+
 **Failure modes seen when this repo was built by five lanes**
 
 - **Stale sandbox clones.** A cloud run can start from an old clone and report that someone force-pushed or that a file vanished. Check `git log` on a fresh pull before believing a run's account of history.

@@ -2,6 +2,7 @@
 
 This repository is built by parallel **lanes**. Lanes in this repo: {{lanes}}. Each lane is a scheduled run that owns one part of the codebase. `.ai/lanes.json` says which paths each lane owns and which files are shared; read it first. Each lane's task file is `.ai/lanes/<lane>/task.md`.
 
+- **Run procedure:** a lane run follows `.ai/lane-run.md` (the control room: `.ai/control-run.md`); the routine prompt only names the lane and does the pull. It holds the cheap stop checks (a lane that is paused, sleeping or before its `notBefore` in `.ai/schedule.json` replies "Not due" and stops before the install), the steering step (`.ai/lanes/<your lane>/steer.md`: `next-run` entries first, `standing` entries until removed, each acknowledged with one `→` line), the run log and the idle backoff. Only `Lane: control` commits change those two files.
 - **Edit only the paths your lane owns.** Read anything. **Shared files** (`shared` in `.ai/lanes.json`) may be edited by any lane, with the smallest possible edit.
 - **Commit trailer:** every commit message ends with a line `Lane: <your lane>` (the control room uses `Lane: control`). `loop check-lanes` fails a commit that touches another lane's paths.
 - **Talking to other lanes:** write only to your own `.ai/lanes/<you>/outbox.md`, newest first, `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`. At the start of each run read every other lane's outbox and `.ai/control-room.md` for messages to you or `all`, and act on them or say in your task file why not.

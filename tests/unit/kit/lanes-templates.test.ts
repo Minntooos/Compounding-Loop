@@ -15,7 +15,7 @@ const placeholdersIn = (text: string): string[] => [...text.matchAll(/(?<!\$)\{\
 
 describe('templates/lanes', () => {
   it('ships every file the README lists', () => {
-    expect(templates.sort()).toEqual(['ci-check-lanes.yml', 'claude-section.md', 'control-room.md', 'outbox.md', 'task.md']);
+    expect(templates.sort()).toEqual(['ci-check-lanes.yml', 'claude-section.md', 'control-room.md', 'control-run.md', 'lane-run.md', 'outbox.md', 'schedule.json', 'steer.md', 'task.md']);
   });
 
   it('uses only documented placeholders, and the README documents all of them', () => {

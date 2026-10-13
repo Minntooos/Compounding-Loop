@@ -1,3 +1,19 @@
+# Audit: kit (round 5, 2026-10-13)
+
+Goal this round: every new user gets the round 5 run model: thin prompts, `.ai/lane-run.md`, `.ai/control-run.md`, `.ai/schedule.json` and `steer.md` (IDEA.md B5).
+
+## Blockers
+None open.
+
+## Findings
+| # | Finding | Severity | Fix |
+|---|---|---|---|
+| 1 | Lane and control-room routine prompts carried the whole procedure (about 7 steps each); changing it meant editing every routine | major | fixed: both are thin (step 0 + "follow `.ai/lane-run.md` / `.ai/control-run.md`"); the procedure moved to `templates/lanes/lane-run.md` and `control-run.md`, generalised from this repo's own files |
+| 2 | No templates for `.ai/schedule.json` and `.ai/lanes/<lane>/steer.md`; `lanes.yml` and the CLAUDE.md section knew nothing of "Not due" or steering | major | fixed: `schedule.json` (`lanes: {}`, a missing entry means due), `steer.md`; `lanes.yml` prompts and `claude-section.md` point at the procedures; tests in `round5-rules.test.ts` |
+| 3 | Method chapter 16 had no thin-prompt, schedule or steering text | minor | fixed |
+| 4 | `loop init --lanes` does not write the four new templates yet, so a new laned repo gets thin prompts but no `.ai/lane-run.md` | major | blocked on core (`src/cli/lanesInit.ts`, `src/core/lanesInit.ts`); asked in outbox |
+| 5 | Old repos keep working with the old prompts; the thin prompt on a repo without `lane-run.md` tells the run it is on a stale clone | minor | `runners/routine/README.md` says to copy the two files first |
+
 # Audit: kit (round 4, 2026-10-11)
 
 Goal this round: every runner and template honours `.ai/PAUSED`, writes a run-log line and recovers from a stale clone (IDEA.md B1, B2, B8).

@@ -77,7 +77,7 @@ jobs:
           # ("${{ matrix.lane }}" works for the lane). Short form shown:
           prompt: |
             You are one scheduled run of the ${{ matrix.lane }} lane of an unattended build loop.
-            Read CLAUDE.md and follow it exactly. Your task file is .ai/lanes/${{ matrix.lane }}/task.md.
+            Read CLAUDE.md and follow it exactly. Your task file is .ai/lanes/${{ matrix.lane }}/task.md. After the pull below, follow .ai/lane-run.md from step 1 with <lane> = ${{ matrix.lane }}: it has the cheap stop checks (a lane not due in .ai/schedule.json replies "Not due" and stops before the install), the steer step (.ai/lanes/${{ matrix.lane }}/steer.md) and the run log.
             Every commit ends with the trailer line "Lane: ${{ matrix.lane }}". Push to main, never to a claude/ branch.
             If .ai/PAUSED exists, the owner paused the loop: reply "Paused" and stop.
             Stop if DONE.md or BLOCKED.md exists at the root or in .ai/lanes/${{ matrix.lane }}/.
@@ -126,7 +126,7 @@ jobs:
           # Paste runners/routine/control-room-prompt.md here with {{name}} and {{lanes}} filled. Short form shown:
           prompt: |
             You are the scheduled control room run of an unattended build loop. Read CLAUDE.md and IDEA.md.
-            Pull main, run the tests, run `npx compounding-loop check-lanes` over the last 4 hours, read every lane's task.md and outbox,
+            Follow .ai/control-run.md from step 1 (schedule backoff and wake, tests, leak check, lane supervision). In short: pull main, run the tests, run `npx compounding-loop check-lanes` over the last 4 hours, read every lane's task.md and outbox,
             and write notes for lanes in `.ai/control-room.md`. Commit only `.ai/` notes and the smallest fixes, each ending with the trailer line "Lane: control". Push to main.
             If .ai/PAUSED exists, the owner paused the loop: reply "Paused" and stop. Stop if DONE.md or BLOCKED.md exists at the root.
             If `git pull --ff-only` fails because the clone started from a stale copy, run `git fetch origin main && git switch -C lane-run FETCH_HEAD` and push with `git push origin HEAD:main`.

@@ -29,6 +29,10 @@ With several lanes, create one routine per lane plus one control room routine.
 
 `loop run --lane <name>` fills them for local runs. In the cloud, paste the filled text into the routine. In the cloud nothing writes the lock; it only matters when a local `loop run --lane` is active too. The lane prompt stands down on a fresh `.ai/lanes/<lane>/session.lock`, stops on root or lane `DONE.md`/`BLOCKED.md`, stands down when `.ai/lanes/<lane>/claim` names someone else and has not expired (see `loop claim`), and ends every commit with `Lane: <lane>`.
 
+### Thin prompts
+
+The lane and control room prompts are short on purpose: they do the pull (with the stale-clone recovery) and say "follow `.ai/lane-run.md`" (control room: `.ai/control-run.md`). Everything else (stop checks, `.ai/schedule.json` "Not due" skip, steering in `.ai/lanes/<lane>/steer.md`, the run log, idle backoff) lives in those two files, which come from `templates/lanes/` (copy them into `.ai/`; `loop init --lanes` will write them once core ships the hook). Change how all lanes run with one commit that ends `Lane: control`; the routine settings stay as they are. A repo that predates them needs the two files before the thin prompts work (copy `lane-run.md` and `control-run.md` from `templates/lanes/` to `.ai/`).
+
 ### Staggered cron for N lanes
 
 Give lane `i` (counting from 0) the minute `7 + i * step` with `step = 12` for up to five lanes (more lanes: use a smaller step, but keep minutes distinct), and put the control room on its own minute every 3 hours. Runs last up to 40 minutes, so neighbouring lanes overlap; that is expected. Path ownership plus `git pull --rebase` before each push make it safe, and the stagger only spreads the pulls out. Avoid minute 0.

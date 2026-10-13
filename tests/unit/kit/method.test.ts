@@ -59,6 +59,13 @@ describe('method/COMPOUNDING_LOOP.md and knowledge files', () => {
     expect(method).toContain('16. Lanes');
   });
 
+  it('chapter 16 explains thin prompts, the schedule and steering', () => {
+    const method = read('method', 'COMPOUNDING_LOOP.md');
+    for (const needle of ['Thin prompts, schedule, steering', '.ai/lane-run.md', '.ai/control-run.md', '.ai/schedule.json', '"Not due"', 'notBefore', 'steer.md', 'next-run', 'standing', '→ done in run N']) {
+      expect(method, needle).toContain(needle);
+    }
+  });
+
   it('ships a knowledge index with an example entry that has frontmatter', () => {
     expect(read('method', 'knowledge-index.md')).not.toMatch(/^K-\d+/m);
     expect(read('method', 'example', 'K-0001.md')).toMatch(/^---\nid: K-0001\n/);

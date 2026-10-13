@@ -21,8 +21,9 @@ const runLog = (text: string): void => {
 };
 
 describe('Round 4 rules: pause, run log, stale clone', () => {
-  const lane = read('runners', 'routine', 'lane-prompt.md');
-  const control = read('runners', 'routine', 'control-room-prompt.md');
+  // The thin prompts only do step 0; the stop checks and run log live in the run procedures.
+  const lane = read('templates', 'lanes', 'lane-run.md') + read('runners', 'routine', 'lane-prompt.md');
+  const control = read('templates', 'lanes', 'control-run.md') + read('runners', 'routine', 'control-room-prompt.md');
   const section = read('templates', 'lanes', 'claude-section.md');
   const wf = read('runners', 'github-actions', 'lanes.yml');
   const loopPrompt = read('templates', 'static-site', '.ai', 'loop-prompt.md');
@@ -33,8 +34,11 @@ describe('Round 4 rules: pause, run log, stale clone', () => {
     for (const text of [lane, control, section, wf, loopPrompt, siteClaude, routine]) paused(text);
   });
 
-  it('the lane prompt checks the pause before the stop files', () => {
-    expect(lane.indexOf('.ai/PAUSED')).toBeLessThan(lane.indexOf('DONE.md'));
+  it('the lane procedure checks the pause and the stop files before the install', () => {
+    const laneRun = read('templates', 'lanes', 'lane-run.md');
+    const install = laneRun.indexOf('Run the install');
+    expect(laneRun.indexOf('.ai/PAUSED')).toBeLessThan(install);
+    expect(laneRun.indexOf('DONE.md')).toBeLessThan(install);
   });
 
   it('every prompt and template has the stale-clone recovery step', () => {
@@ -42,8 +46,8 @@ describe('Round 4 rules: pause, run log, stale clone', () => {
   });
 
   it('logs the run before the final push, not after it', () => {
-    expect(lane.indexOf('Run log:')).toBeLessThan(lane.indexOf('run the handoff'));
-    expect(lane).not.toMatch(/\n8\. /);
+    const laneRun = read('templates', 'lanes', 'lane-run.md');
+    expect(laneRun.indexOf('runs.jsonl')).toBeLessThan(laneRun.indexOf('Then commit, push to `main`, and stop'));
   });
 
   it('recovers with switch -C so a second stale run in a cached clone works', () => {
@@ -60,8 +64,8 @@ describe('Round 4 rules: pause, run log, stale clone', () => {
 
   it('lane prompt, lane workflow and lanes section end a run with a run-log line', () => {
     for (const text of [lane, section, wf]) runLog(text);
-    expect(lane).toMatch(/pushed or not/);
-    expect(lane).toContain('{{lane}}/runs.jsonl');
+    expect(lane).toMatch(/even when the run did nothing/);
+    expect(lane).toContain('<lane>/runs.jsonl');
   });
 
   it('the workflow prompts parse as YAML and still carry the pause rule per job', () => {
