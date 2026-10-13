@@ -1,7 +1,7 @@
 # Lane: web — round 5 (0.5.0 "Cockpit")
 
-Run: 12 / 20
-Status: units 1-8 done; run 12 re-shot self shots, made `loop dashboard --demo` read-only in the UI, Paused badge; next: audit minors (list in Handoff)
+Run: 13 / 20
+Status: units 1-8 done; run 13 re-shot self shots (server data blockers open), fleet filter by badge, Paused header, no double-commit Retry; next: remaining minors (list in Handoff)
 Round 4 record: `.ai/lanes/web/done-v4.md` (`git show 02874e8:.ai/lanes/web/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
@@ -63,6 +63,11 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - 2026-10-13 run 12: write controls use `canWrite()` (server answers and /api/health `demo !== true`); App's snapshot chip, WelcomeStrip and Settings keep `hasServer`. e2e "local" tests call `writableServer(page)` (tests/e2e/writable.ts) because the Playwright webServer is `--demo`.
 - 2026-10-13 run 12: a paused building/waiting loop's badge is Paused (below Stalled, like the strip), and while a loop is paused its lanes' `stalled` is ignored (badge, strip, attention list): core stalls lanes after 2 h even when paused. Easy to reverse if core fixes it at the source.
 
+- 2026-10-13 run 13: the fleet filter keys on `cardBadge` (Stalled, Paused included), not raw `state`, so a filter's count matches the cards it shows; a filter that a live update empties falls back to All.
+- 2026-10-13 run 13: beside a Paused badge the loop header shows no reason (the paused notice right below says who, when and why; A8 said once), except a lock reason (a session still running); `headerRound` reads the reason actually shown.
+- 2026-10-13 run 13: phone strip keeps leaving out round and next-due (reviewer minor, C1): line 2 must stay one line in 343 px and the loop header/cards carry the round. Revisit only with a DESIGN.md pass. Easy to reverse (`short: ''` in web/src/lib/strip.ts).
+- 2026-10-13 run 13: after "committed but not pushed" the pause/resume/next-round dialogs offer Close only (focus moves there): a Retry would commit the change twice. The network-error `catch` branch still offers Retry (we cannot know whether the server committed).
+
 ## Confirmed
 - CONFIRMED (run 11): the e2e/dashboard server serves the self loop from dist/server/this-repo.json (copied by `npm run build`), not demo/ directly.
 - CONFIRMED: Playwright route handlers that `route.fetch()` can fail a test with "Response has been disposed" when the test ends mid-fetch; cockpit.spec.ts serves static fixtures instead (3/3 green after, 1/4 flaky before).
@@ -79,9 +84,9 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
-Run 12 (2026-10-13 14:43-15:10 UTC; stale clone, branch `lane-run`, pushed `HEAD:main`): re-shot self screenshots after server's round 5 flip (5e53822); `canWrite()` so `loop dashboard --demo` takes the GitHub path in every write control, new tests/e2e/demoServer.spec.ts (d09541f); Paused badge + pause beats lane stall (5fe28b8, 98b92b4). Reviews in `.ai/audit/web.md` (run 12). npm test green: 247 e2e.
-Do first next run: if server added round 5 commits/lane contracts to demo/this-repo.json (see outbox 15:08), `npm run build` then `SCREENS=1 npx playwright test screenshots --project=laptop` and tell docs `self-*` is final.
-Open minors: header `stateReason` next to a Paused badge (could show the pause line, as `statusLine` does); fleet filter counts by `state` (Building (1) shows a Paused/Stalled card); phone scroll rows (nav, tabs, chips) have no scroll hint; phone strip drops round/next items; no auto-downshift notice (waiting core/server); "Limit stops not checked" while routines look off; Retry after "committed but not pushed" re-posts; heat-map minors; QUIET_KINDS duplicated (web/src/lib/runs.ts, src/server/runs.ts); long URLs break mid-word on Health phone; laptop heat map empty 18-00 band; SteerDialog author default fixed at open.
-Waiting on server: self snapshot commits/contracts/ci; `draftInputs` on LoopDetail + claude abort on Stop.
+Run 13 (2026-10-13 15:44-16:12 UTC; stale clone, branch `lane-run`, pushed `HEAD:main`): re-shot self screenshots after server's 15:50 snapshot (2be840e); fleet filter by badge + live-update fallback + 44 px phone targets (172587d, adebb4a, last unit); header beside Paused (24a38eb, b67f208); no double-commit Retry (e337870, 9db72b3); steer author default (ed0a2ee). Reviews in `.ai/audit/web.md` (run 13). npm test green: 253 e2e.
+Do first next run: if server fixed the self snapshot (core/kit DONE lanes, run slots vs git; outbox 16:10), `npm run build` then `SCREENS=1 npx playwright test screenshots --project=laptop`, check `self-lanes-light-laptop.png`, and tell docs `self-*` is final.
+Open minors: phone scroll rows (nav, tabs, chips) have no scroll hint in a still image; no auto-downshift notice (waiting core/server); "Limit stops not checked" while routines look off; heat-map minors + laptop empty 18-00 band; commits-per-day has no day labels; QUIET_KINDS duplicated (web/src/lib/runs.ts, src/server/runs.ts); long URLs break mid-word on Health phone; network-error Retry in control dialogs; "Push main to finish" names no folder (server's next-round swallows pushError).
+Waiting on server: self snapshot DONE lanes and run slots; `draftInputs` on LoopDetail + claude abort on Stop.
 Gotchas: the e2e/dashboard server serves dist/: after web or demo edits run `npm run build` before a single `npx playwright test x`. Never `pkill -f` a pattern; keep the PID.
 Design reviewer recipe: fixture routes as in tests/e2e/pace.spec.ts, `node bin/loop.js dashboard --demo --no-open --port 4181` or `vite preview`, a node script importing `node_modules/playwright/index.mjs` with executablePath `/opt/pw-browsers/chromium`. Web lib files import core with relative `../../../src/core/*.js` (`@core` alias is Vite-only).
