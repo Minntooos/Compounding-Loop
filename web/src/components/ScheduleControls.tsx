@@ -4,7 +4,7 @@ import { hasServer, postSchedule } from '../api/client';
 import { scheduleButtons, scheduleEditUrl, scheduleToast, snoozePresets, type LaneScheduleKind, type ScheduleButton } from '../lib/schedule';
 import { toast } from './Toasts';
 
-const LABEL: Record<ScheduleButton, string> = { pause: 'Pause lane', resume: 'Resume', snooze: 'Snooze…', wake: 'Wake now' };
+const LABEL: Record<ScheduleButton, string> = { pause: 'Pause lane', resume: 'Resume', snooze: 'Snooze until…', wake: 'Wake now' };
 const button = 'min-h-11 rounded border px-3 text-[13px] font-medium disabled:opacity-60';
 
 /**
@@ -58,7 +58,7 @@ export function ScheduleControls({ loopId, lane, kind, slug, now }: { loopId: st
   }
 
   return (
-    <div ref={group} data-testid="schedule-controls" className="mt-2 flex flex-wrap items-center gap-2" role="group" aria-label={`Schedule of ${lane}`}>
+    <div ref={group} data-testid="schedule-controls" className="flex flex-wrap items-center gap-2" role="group" aria-label={`Schedule of ${lane}`}>
       {open === undefined && actions.map((a) => (
         <button key={a} type="button" disabled={busy} aria-label={`${LABEL[a]} ${lane}`} aria-expanded={a === 'pause' || a === 'snooze' ? false : undefined} onClick={() => (a === 'pause' ? step('confirm-pause') : a === 'snooze' ? step('snooze') : void run(a))} className={button} style={{ borderColor: 'var(--border)' }}>{LABEL[a]}</button>
       ))}

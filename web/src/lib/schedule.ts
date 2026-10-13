@@ -69,7 +69,7 @@ export function scheduleButtons(kind: LaneScheduleKind): ScheduleButton[] {
 /** Snooze presets: spans core's `parseUntil` reads, and tomorrow 09:00 UTC as an ISO time. */
 export function snoozePresets(now: Date): { label: string; until: string }[] {
   const tomorrow = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 9));
-  return [{ label: '1 h', until: '1h' }, { label: '3 h', until: '3h' }, { label: 'Tomorrow 09:00 UTC', until: tomorrow.toISOString() }];
+  return [{ label: '1 h', until: '1h' }, { label: '3 h', until: '3h' }, { label: 'Tomorrow 09:00', until: tomorrow.toISOString() }];
 }
 
 /** The toast after a schedule action: what was written, in words. `changed: false` means it already was that way. */

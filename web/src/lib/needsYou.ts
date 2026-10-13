@@ -34,7 +34,7 @@ const STALLED_EXPLAIN =
 const ROUTINES_OFF_EXPLAIN =
   'No lane has logged a run for 6 hours although runs were due. A plan’s usage limit resets within 5 hours, so the scheduled ' +
   'routines themselves are probably switched off, deleted or failing to start. Check them where you created them (claude.ai or ' +
-  'your runner), then wake any lane .ai/schedule.json holds back. The lanes continue from their task files.';
+  'your runner), then wake any lane that is sleeping or snoozed (Lanes tab). The lanes continue from their task files.';
 
 const loopHref = (id: string) => `#/loop/${encodeURIComponent(id)}`;
 

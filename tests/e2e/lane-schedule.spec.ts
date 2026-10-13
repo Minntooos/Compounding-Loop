@@ -122,7 +122,7 @@ test('local: Wake posts at once, Pause asks first, Snooze offers presets; errors
   await expect(row(page, 'core').getByRole('button', { name: 'Pause lane core' })).toBeFocused();
   await row(page, 'core').getByRole('button', { name: 'Pause lane core' }).click();
   await row(page, 'core').getByRole('button', { name: 'Confirm pause' }).click();
-  await row(page, 'core').getByRole('button', { name: 'Snooze… core' }).click();
+  await row(page, 'core').getByRole('button', { name: 'Snooze until… core' }).click();
   await row(page, 'core').getByRole('button', { name: '3 h' }).click();
   await row(page, 'server').getByRole('button', { name: 'Resume server' }).click();
   await expect(row(page, 'server').getByTestId('schedule-error')).toHaveText('git commit failed');
