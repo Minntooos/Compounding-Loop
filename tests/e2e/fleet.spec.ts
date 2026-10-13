@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { pinDemoLoops } from './demoLoops';
+import { DEMO_LOOPS, pinDemoLoops } from './demoLoops';
 
 function trackErrors(page: Page): string[] {
   const errors: string[] = [];
@@ -97,4 +97,18 @@ test('timeline groups commits by day, names each lane and filters by lane', asyn
   expect(shown).toBeGreaterThan(0);
   expect(shown).toBeLessThan(total);
   for (const lane of await timeline.locator('li').evaluateAll((els) => els.map((e) => (e as HTMLElement).dataset.lane))) expect(lane).toBe('web');
+});
+
+test('the status filter counts cards by their badge: a paused loop is under Paused, not Building', async ({ page }) => {
+  const errors = trackErrors(page);
+  const paused = { ...DEMO_LOOPS[0], id: 'paused-one', name: 'paused-one', state: 'building', paused: { by: 'owner' } };
+  await pinDemoLoops(page, [paused]);
+  await page.goto('/');
+  const filters = page.getByRole('group', { name: 'Filter by status' });
+  await expect(filters.getByRole('button', { name: /^Building/ })).toHaveCount(0);
+  await filters.getByRole('button', { name: 'Paused (1)' }).click();
+  const cards = page.getByTestId('loop-card');
+  await expect(cards).toHaveCount(1);
+  await expect(cards.getByTestId('status-badge')).toHaveText('Paused');
+  expect(errors).toEqual([]);
 });

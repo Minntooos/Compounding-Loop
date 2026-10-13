@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activityStamp, cardBadge, chipHold, stateReason, headerRound, releasedText, cardFacts, statusLine, laneProgress, roundProgress, runBudget, selfFirst } from '../../../web/src/lib/card.js';
+import { activityStamp, badgeFilters, cardBadge, chipHold, stateReason, headerRound, releasedText, cardFacts, statusLine, laneProgress, roundProgress, runBudget, selfFirst } from '../../../web/src/lib/card.js';
 
 describe('fleet card model', () => {
   it('puts the self-build loop first and keeps the rest in order', () => {
@@ -110,5 +110,22 @@ describe('stateReason and chipHold', () => {
     expect(chipHold({ runOutcomes: off }, { name: 'web', state: 'building' })).toBeUndefined();
     expect(chipHold({ paused: { by: 'sam' } }, { name: 'web', state: 'building' })).toBe('loop-paused');
     expect(chipHold({ paused: { by: 'sam' } }, { name: 'kit', state: 'done' })).toBeUndefined();
+  });
+});
+
+describe('badgeFilters', () => {
+  it('counts loops by the badge their card shows, so a paused or stalled loop is not counted as Building', () => {
+    const off = { limitStops5h: 0, running: [], sleeping: [], routinesLookOff: true };
+    const loops = [
+      { state: 'building' as const }, { state: 'building' as const, paused: { by: 'owner' } },
+      { state: 'waiting' as const, runOutcomes: off }, { state: 'done' as const }, { state: 'done' as const },
+    ];
+    expect(badgeFilters(loops)).toEqual([
+      { badge: 'stalled', count: 1 }, { badge: 'building', count: 1 }, { badge: 'paused', count: 1 }, { badge: 'done', count: 2 },
+    ]);
+  });
+  it('offers no filter when every card shows the same badge', () => {
+    expect(badgeFilters([{ state: 'done' }, { state: 'done' }])).toEqual([]);
+    expect(badgeFilters([])).toEqual([]);
   });
 });

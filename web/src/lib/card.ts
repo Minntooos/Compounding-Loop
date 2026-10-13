@@ -101,6 +101,19 @@ export function cardBadge(loop: Pick<LoopSummary, 'state' | 'lanes' | 'runOutcom
   return loop.paused ? 'paused' : loop.state;
 }
 
+/** Fleet filter order: what needs the owner first, finished loops last. */
+const BADGE_ORDER: readonly CardBadge[] = ['failing', 'blocked', 'stalled', 'building', 'waiting', 'paused', 'done'];
+
+/**
+ * The fleet filter's buttons with their counts, keyed by the badge each card shows (`cardBadge`), so "Building (1)" never
+ * lists a card whose badge says Paused or Stalled. Only badges present; none when fewer than two (nothing to filter).
+ */
+export function badgeFilters(loops: Parameters<typeof cardBadge>[0][]): { badge: CardBadge; count: number }[] {
+  const badges = loops.map(cardBadge);
+  const present = BADGE_ORDER.map((badge) => ({ badge, count: badges.filter((b) => b === badge).length })).filter((f) => f.count > 0);
+  return present.length < 2 ? [] : present;
+}
+
 /** The reason under a Stalled badge: "Building" there would contradict it, so routines that look off say so (design review, run 6). */
 export function stateReason(loop: Pick<LoopSummary, 'reason'> & Partial<Pick<LoopSummary, 'state' | 'runOutcomes'>>): string {
   return loop.runOutcomes?.routinesLookOff && (loop.state === 'building' || loop.state === 'waiting') ? 'Routines look off' : loop.reason;

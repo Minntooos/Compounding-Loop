@@ -3,14 +3,13 @@ import { Fragment, useState } from 'react';
 import { Inbox as InboxIcon } from 'lucide-react';
 import type { InboxItem, LoopState, LoopSummary } from '@core/types';
 import { api, canWrite } from '../api/client';
-import { cardBadge, cardFacts, laneProgress, statusLine, roundProgress, runBudget, SELF_BUILD_ID, selfFirst } from '../lib/card';
-import { STATE_LABEL } from '../lib/format';
+import { badgeFilters, cardBadge, type CardBadge, cardFacts, laneProgress, statusLine, roundProgress, runBudget, SELF_BUILD_ID, selfFirst } from '../lib/card';
 import { attentionItems } from '../lib/lanes';
 import { needsYouRows } from '../lib/needsYou';
 import { NeedsYouList } from './NeedsYouList';
 import { LaneStrip } from './LaneStrip';
 import { ProgressBar } from './ProgressBar';
-import { StatusBadge } from './StatusBadge';
+import { BADGE_LABEL, StatusBadge } from './StatusBadge';
 import { LoadError, Loading } from './QueryState';
 
 function NeedsYou({ loops, inbox, demo }: { loops: LoopSummary[]; inbox: InboxItem[]; demo: boolean }) {
@@ -63,16 +62,17 @@ function LoopCard({ loop }: { loop: LoopSummary }) {
   );
 }
 
-type Filter = LoopState | 'all';
+type Filter = CardBadge | 'all';
 
+// Filters by the badge on each card (Stalled, Paused included), so a filter's count always matches the cards it shows.
 function FilterBar({ loops, value, onChange }: { loops: LoopSummary[]; value: Filter; onChange: (f: Filter) => void }) {
-  const present = (['failing', 'blocked', 'building', 'waiting', 'done'] as const).filter((s) => loops.some((l) => l.state === s));
-  if (present.length < 2) return null;
+  const filters = badgeFilters(loops);
+  if (filters.length === 0) return null;
   return (
     <div role="group" aria-label="Filter by status" className="flex flex-wrap gap-1.5">
-      {(['all', ...present] as const).map((f) => (
-        <button key={f} type="button" aria-pressed={value === f} onClick={() => onChange(f)} className="rounded border px-2.5 py-1 text-[13px] aria-pressed:font-semibold aria-pressed:underline" style={{ borderColor: 'var(--border)' }}>
-          {f === 'all' ? 'All' : STATE_LABEL[f]} ({f === 'all' ? loops.length : loops.filter((l) => l.state === f).length})
+      {[{ badge: 'all' as const, count: loops.length }, ...filters].map(({ badge, count }) => (
+        <button key={badge} type="button" aria-pressed={value === badge} onClick={() => onChange(badge)} className="rounded border px-2.5 py-1 text-[13px] aria-pressed:font-semibold aria-pressed:underline" style={{ borderColor: 'var(--border)' }}>
+          {badge === 'all' ? 'All' : BADGE_LABEL[badge]} ({count})
         </button>
       ))}
     </div>
@@ -100,7 +100,7 @@ export function Fleet() {
       <NeedsYou loops={loops.data} inbox={inbox.data} demo={write.data === false} />
       <FilterBar loops={loops.data} value={filter} onChange={setFilter} />
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loops">
-        {selfFirst(loops.data.filter((l) => filter === 'all' || l.state === filter)).map((l) => <LoopCard key={l.id} loop={l} />)}
+        {selfFirst(loops.data.filter((l) => filter === 'all' || cardBadge(l) === filter)).map((l) => <LoopCard key={l.id} loop={l} />)}
       </ul>
     </div>
   );
