@@ -82,6 +82,11 @@ describe('attentionItems (round 5 A1, A4)', () => {
     expect(describeAttention({ kind: 'routines-off', loopId: 'O' }, undefined)).toMatch(/^Routines look off/);
     expect(needsYouCount([{ ...off, runOutcomes: { ...off.runOutcomes!, routinesLookOff: false } }], [])).toBe(2);
   });
+
+  it('a paused loop lists its blocked lanes but not the lanes that went quiet because of the pause', () => {
+    const paused = { ...loop('building', [lane('a', 'stalled'), lane('b', 'blocked')]), id: 'P', paused: { by: 'sam' } } as LoopSummary;
+    expect(attentionItems([paused], []).map((i) => i.kind === 'lane' ? `lane:${i.lane.name}` : i.kind)).toEqual(['lane:b']);
+  });
 });
 
 describe('describeAttention', () => {

@@ -96,7 +96,8 @@ export type CardBadge = LoopSummary['state'] | 'stalled' | 'paused';
  */
 export function cardBadge(loop: Pick<LoopSummary, 'state' | 'lanes' | 'runOutcomes'> & Partial<Pick<LoopSummary, 'paused'>>): CardBadge {
   if (loop.state !== 'building' && loop.state !== 'waiting') return loop.state;
-  if (loop.runOutcomes?.routinesLookOff || loop.lanes?.some((l) => l.state === 'stalled')) return 'stalled';
+  // Core stalls a lane after 2 h without a commit, pause or not; a paused loop's quiet lanes are the pause, not a stall.
+  if (loop.runOutcomes?.routinesLookOff || (!loop.paused && loop.lanes?.some((l) => l.state === 'stalled'))) return 'stalled';
   return loop.paused ? 'paused' : loop.state;
 }
 

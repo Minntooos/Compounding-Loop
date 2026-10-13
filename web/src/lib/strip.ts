@@ -41,7 +41,8 @@ function lastActivity(loop: Pick<LoopSummary, 'lastRun' | 'lastCommit'>): number
  * Paused comes before Likely running: the pause commit itself is recent activity, and a paused loop runs nothing.
  */
 export function loopStripState(loop: Summary, now: Date): StripState {
-  if (loop.lanes?.some((l) => l.state === 'stalled') || loop.runOutcomes?.routinesLookOff) return 'stalled';
+  // A paused loop's lanes go quiet on purpose: core still marks them stalled after 2 h, so the pause wins over that.
+  if ((!loop.paused && loop.lanes?.some((l) => l.state === 'stalled')) || loop.runOutcomes?.routinesLookOff) return 'stalled';
   if (releaseWaiting(loop)) return 'release-waiting';
   if (loop.paused) return 'paused';
   if (loop.state === 'done') return loop.shipped ? 'released' : 'done';

@@ -46,7 +46,8 @@ export function liveInbox<I extends InboxLike>(loops: Pick<LoopSummary, 'id' | '
  * The one attention list: the banner count, the nav badge and the Needs-you rows all read it, so they cannot disagree.
  * Per loop: "Routines look off" (the server saw 6 h of silence with runs due), its lane problems, else 1 for a failing loop
  * or a waiting release. One cause is never listed twice: a blocked lane or a waiting release the inbox already lists, and
- * while all routines look off, the stalled lanes and the inbox's "lanes not running" item (`liveInbox`).
+ * while all routines look off, the stalled lanes and the inbox's "lanes not running" item (`liveInbox`). A paused loop's
+ * lanes stall after 2 h by core's clock; that is the pause (the inbox's paused item), not a stall.
  */
 export function attentionItems<I extends InboxLike>(loops: LoopSummary[], inbox: I[]): AttentionItem<I>[] {
   const live = liveInbox(loops, inbox);
@@ -54,8 +55,9 @@ export function attentionItems<I extends InboxLike>(loops: LoopSummary[], inbox:
   for (const l of loops) {
     const mine = live.filter((i) => i.loopId === l.id);
     const off = l.runOutcomes?.routinesLookOff === true;
+    const quiet = off || l.paused !== undefined;
     if (off) items.push({ kind: 'routines-off', loopId: l.id });
-    const lanes = lanesNeedingYou(l.lanes).filter((x) => !(mine.length > 0 && x.state === 'blocked') && !(off && x.state === 'stalled'));
+    const lanes = lanesNeedingYou(l.lanes).filter((x) => !(mine.length > 0 && x.state === 'blocked') && !(quiet && x.state === 'stalled'));
     if (lanes.length > 0) items.push(...lanes.map((lane): AttentionItem<I> => ({ kind: 'lane', loopId: l.id, lane })));
     else if (l.state === 'failing') items.push({ kind: 'failing', loopId: l.id });
     else if (releaseWaiting(l) && !mine.some((i) => i.kind === 'release')) items.push({ kind: 'release', loopId: l.id });

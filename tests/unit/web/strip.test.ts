@@ -11,7 +11,9 @@ const text = (segs: { id: string; text: string }[], id: string) => segs.find((s)
 describe('loopStripState', () => {
   it('stalled beats a waiting release, which beats paused', () => {
     const lanes = [lane('core', 'done'), lane('web', 'stalled')];
-    expect(loopStripState(loop({ state: 'done', lanes, paused: { by: 'x' } }), NOW)).toBe('stalled');
+    expect(loopStripState(loop({ state: 'done', lanes }), NOW)).toBe('stalled');
+    // A paused loop's lanes stall by core's 2 h clock; that quiet is the pause, not a stall.
+    expect(loopStripState(loop({ lanes, paused: { by: 'x' } }), NOW)).toBe('paused');
     expect(loopStripState(loop({ state: 'done', lanes: [lane('core', 'done')], paused: { by: 'x' } }), NOW)).toBe('release-waiting');
   });
   it('"Routines look off" makes the loop Stalled, even when it is otherwise Running', () => {

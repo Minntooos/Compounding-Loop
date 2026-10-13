@@ -93,6 +93,7 @@ describe('cardBadge', () => {
     expect(cardBadge({ state: 'building', paused: { by: 'owner' } })).toBe('paused');
     expect(cardBadge({ state: 'waiting', paused: { by: 'owner' }, lanes: [lane('building')] })).toBe('paused');
     expect(cardBadge({ state: 'building', paused: { by: 'owner' }, runOutcomes: off })).toBe('stalled');
+    expect(cardBadge({ state: 'building', paused: { by: 'owner' }, lanes: [lane('stalled')] })).toBe('paused');
     expect(cardBadge({ state: 'failing', paused: { by: 'owner' } })).toBe('failing');
   });
 });
