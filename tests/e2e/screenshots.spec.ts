@@ -59,6 +59,7 @@ for (const shot of shots) {
         const tab = tabs[name];
         if (tab) {
           await page.getByRole('tab', { name: tab }).click();
+          await expect(page.getByRole('tab', { name: tab })).toHaveAttribute('aria-selected', 'true');
           await page.waitForLoadState('networkidle');
         }
         const path = join(dir, `${name}-${theme}-${shot.size}.png`);
