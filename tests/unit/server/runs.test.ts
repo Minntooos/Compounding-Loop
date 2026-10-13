@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { LoopCommit } from '../../../src/core/types.js';
-import { buildLiveLoop, buildRuns, lastRunOf, mapCommits, sessionKey, silentLanesItem } from '../../../src/server/live/index.js';
+import { QUIET_KINDS, buildLiveLoop, buildRuns, lastRunOf, mapCommits, sessionKey, silentLanesItem } from '../../../src/server/live/index.js';
 
 const NOW = new Date('2026-10-11T12:20:00Z');
 const line = (o: object) => `${JSON.stringify(o)}\n`;
@@ -169,4 +169,8 @@ describe('buildRuns with schedule.json (A2)', () => {
   it('a finished or stopped lane never raises routinesLookOff', () => {
     expect(buildRuns({ lanes: [{ name: 'core', cron: '0 * * * *', stopped: true }], logs: {}, commits: known, now: NOW }).routinesLookOff).toBe(false);
   });
+});
+
+it('QUIET_KINDS lists the outcomes of lanes that were not expected to run', () => {
+  expect([...QUIET_KINDS].sort()).toEqual(['done', 'not-due', 'paused']);
 });

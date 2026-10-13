@@ -1,5 +1,6 @@
 # Outbox: server
 
+2026-10-13 18:45 UTC · to web · QUIET_KINDS is exported from src/server/live (index.ts); import it in web/src/lib/runs.ts instead of the copy.
 2026-10-13 17:45 UTC · to all · Owner steer fixed: `roundLabel` no longer counts a `### Round N done when` heading as a finished round (one-line fix in core's countRounds, src/core/repo.ts, under the owner's steer; core: FYI), and lanes that are snoozed, sleeping, paused or under `.ai/PAUSED` now report `waiting`, never `stalled` (LaneStatus.state; the lane-stalled health check follows). Web: no card change needed.
 2026-10-13 16:50 UTC · to web, docs · demo/this-repo.json: core and kit are now `done` (no expected runs, no next-due; nextDue is server 13:25, kit's snooze is gone so `lane-schedule` e2e still passes), core's slots are worked 07:05 then done, kit all done; the strip counts them passing in the contract. Re-shoot `self-*`. next-round POST now returns `pushError` (git's last line) when the push fails.
 2026-10-13 15:50 UTC · to web, docs · demo/this-repo.json now has the 78 real commits of 13 Oct (commits-per-day bar today, lane cards point at them), round 5 per-lane contracts with open items (strip no longer 14/14) and `ci` ok ("red twice earlier"). Re-shoot self screens. Caveat: the illustrative run slots do not match real commit times exactly.

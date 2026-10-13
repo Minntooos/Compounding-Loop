@@ -111,7 +111,7 @@ function laneRuns(lane: RunLane, input: RunsInput, skipped: ReadonlySet<string>,
   missed: !lane.stopped && !input.paused && (everLogged.length > 0 || own.length > 0) ? missedInARow(settled) : 0 };
 }
 
-const QUIET_KINDS: ReadonlySet<RunOutcome> = new Set<RunOutcome>(['not-due', 'paused', 'done']);
+export const QUIET_KINDS: ReadonlySet<RunOutcome> = new Set<RunOutcome>(['not-due', 'paused', 'done']);
 
 /** Core's slot kind for a run: classified slots keep theirs, manual runs derive it from their log line. */
 function kindFor(r: SlotResult, kind: RunOutcome | undefined): RunOutcome | undefined {
