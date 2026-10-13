@@ -151,3 +151,40 @@ Buttons are never shown disabled without a reason in adjacent text. Targets are 
 14. Ready to ship lists every ship-check item with a reason; Release is disabled with the first failing item named.
 15. Paused loops read "Paused by <name> since <time>", not as errors.
 16. Fleet card stays a 5-second glance: no chart or table on it.
+
+## 12. Round 5 (0.5.0 "Cockpit"): glance, steer, sleep
+
+Same tokens and rules as sections 3-11; no new dependency (heat map and strip are plain HTML/SVG). The bar: from the home screen alone, in 5 seconds, the owner answers *anything need me? running or stalled? limit stops? CI? ready to ship?* Each answer has exactly one place, and each place is a word plus a shape, never colour alone.
+
+**One attention list.** `attentionItems(loops, inbox)` (`web/src/lib/lanes.ts`) is the single source for the fleet banner count, the Inbox nav badge, the status strip's "needs you" segment and the Needs-you rows. Nothing computes its own count.
+
+**Status strip** (C1, top of every page, under the header, full width, `role="status"` but announced only on change). One line at 1440 px, two at 375 px (line 1 = state and needs-you, line 2 = the rest), never horizontally scrolling. Segments in fixed order, separated by a middle dot, each a 16 px icon + word:
+1. *Loop state*: Running (pulsing ring once on change) · Likely running (dashed ring) · Idle (hollow circle) · Sleeping (moon) · Paused (pause bars, neutral) · Done (tick) · Release waiting (tag, blocked colour).
+2. *Needs you*: "2 need you" (blocked colour, links to the Inbox) or "Nothing needs you" (done colour).
+3. *Round*: "Round 5 · 3 of 7 done-whens" (or the server's `roundLabel`).
+4. *CI*: "CI passing" (tick) / "CI failing" (cross) / "CI not checked" (grey dash).
+5. *Limit stops*: "2 limit stops in 5 h" (warn colour, links to the Runs tab) — the segment is omitted when 0, not shown as "0".
+6. *Next due*: "next: web 02:15 UTC" or "all lanes sleeping".
+On the fleet it summarises every loop (worst state wins); on a loop page, that loop. Text 13 px; height 32 px desktop, 2 × 28 px phone.
+
+**Needs-you row** (C2; fleet top and Inbox). Card row: icon + one-sentence reason (what happened, in plain words) + loop name + the action inline as a button on the right (wraps under the text at 375 px, 44 px target). Actions per kind: release waiting → *Review & release* (opens Ready to ship); BLOCKED question → *Answer* (local, opens the answer form) or *Edit on GitHub* (demo); stalled / limit stops → *What this means* (disclosure with one paragraph) + *Wake*; round done → *Start next round*. Rows are ordered: blocked questions, failing, limit stops, stalled, release. Empty: the existing green "Nothing needs you" strip.
+
+**Heat map** (C3; loop page Overview and the Runs tab head). A grid: one row per lane (lane name left, 13 px, lane colour dot), one column per hour of the last 24 h (12 at 375 px, with a "Show 24 h" toggle), newest right. Cell 20 × 20 px desktop (gap 2), 24 px phone; radius 4. Outcome = fill + an inner glyph so it never relies on colour: *worked* (done colour, solid), *idle* (surface-2 with hollow ring), *not due* (no fill, dotted outline), *likely running* (building colour, pulsing once), *limit stop* (warn colour, slash), *failed* (failing colour, cross), *paused / done* (muted, bar). Empty hour = no cell border at all. Legend below the grid, one line, each swatch with its word. Each cell is a link (`aria-label="web 14:00 UTC: worked, 2 units"`) to `#/loop/<id>?tab=Runs&run=<at>`; tooltip shows the same text. Grid is a `table` with a caption for screen readers.
+
+**Steer composer** (C4). Opens from a *Steer* button (outline, wheel icon) on the loop page header, each lane row and each unit, from the `S` key, and from the command palette. A dialog (section 11 dialog rules): *Scope* select (loop → lane; lane → unit, prefilled from where it was opened), *Timing* segmented control (Next run / Standing), one textarea ("Tell the lane what to do, in plain words"), then a read-only *Preview* box in mono showing the exact `steer.md` entry (`## 2026-10-13 14:05 UTC · you · next-run` + text). Buttons: local → *Save* and *Save and wake* (primary); demo → *Open on GitHub* (opens the prefilled editor, says "GitHub opens on a page you still have to commit"). The lane page shows *Steer history*: newest first, each entry with its acknowledgement as a chip — "→ done in run 7" (tick), "→ not done: <why>" (warn), "waiting for the next run" (hollow).
+
+**Schedule controls** (C5; each lane row and lane page). State sentence first, in words: "Due", "Sleeping since 14:00 UTC · 3 idle runs", "Snoozed until 18:00 UTC", "Paused by sam · reason". Then buttons: *Pause lane* / *Resume*, *Snooze until…* (a small time picker with 1 h / 3 h / tomorrow 09:00 presets), *Wake now*. Same confirm-and-what-changes rule as section 11; demo opens the prefilled `schedule.json` editor. *Pause all* stays in the loop control bar.
+
+**Releases list** (C7). Each version row: version (mono), date or "Unreleased", then chips: *Tagged* / *No tag*, npm *latest* / *published* / *not published* / *npm not checked* (grey), each chip icon + word. Shipped version also gets the line "0.4.0 released 13 Oct" on the card and the strip. Ready to ship (section 11) shows only when not shipped.
+
+**Health three states** (A3). Each check row: *Pass* (tick, done colour) / *Fail* (cross, failing colour) / *Not checked* (grey dash, muted) with one sentence on how to check it ("Run `loop doctor` in the repo"). "OK" is never shown for an unmeasured check.
+
+**Phone tab bars** (A6). The main nav and the loop tabs scroll sideways inside their row with a 24 px fade at the edge that has more content (no fade when at that end), labels never cut by the viewport edge without the fade, and the active tab is scrolled into view on load and on change (`scrollIntoView({inline:'nearest'})`, instant under reduced motion).
+
+**Review checklist additions (17-22).**
+17. From the home screenshot alone: anything need me, running or stalled, limit stops, CI, ready to ship — all five answered.
+18. Banner, nav badge, strip and Inbox show the same number.
+19. Every heat-map outcome has a word in the legend and a glyph in the cell.
+20. Steer preview shows the exact file entry; the demo opens the exact GitHub URL.
+21. Schedule state reads as a sentence before any button.
+22. At 375 px: strip on two lines, no clipped tab label without a fade, no horizontal page scroll.
