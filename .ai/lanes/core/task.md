@@ -1,7 +1,7 @@
 # Lane: core — round 5 (0.5.0 "Cockpit")
 
 Run: 1 / 20
-Status: in progress (units 1-4 done)
+Status: in progress (units 1-5 done)
 Round 4 record: `.ai/lanes/core/done-v4.md` (`git show 02874e8:.ai/lanes/core/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
@@ -39,5 +39,5 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
-Run 1 shipped units 1-4: audit; parsers (`src/core/parse/schedule.ts`, `steer.ts`); CLI `loop schedule ...` and `loop steer` (`src/cli/schedule.ts`); `classifyRunSlots`/`missedRun` (`src/core/parse/outcomes.ts`, used by `loop runs`; slots carry `kind`). Next: unit 5 `lintBrief` (src/core/brief.ts, A9: score IDEA.md Round 5 >= 85) and A5 rounds (src/core/rounds.ts), then unit 6 `next-round --draft [--out] [--print-prompt]` via `runPrompt`, then unit 7 (check-lanes: allow `.ai/schedule.json` for `Lane: <lane>` commits touching only its entry?).
-Notes: `schedule update --lane X` is what lanes run at step 8 (commits `Lane: X`). A manual `wake` stays until the lane logs a run. server's `src/server/runs.ts` still has its own slot logic; outbox tells server to adopt classifyRunSlots. Sandbox: origin main may not fast-forward; use branch `lane-run`, push `origin HEAD:main`.
+Run 1 shipped units 1-5: audit; schedule/steer parsers + CLI (`src/cli/schedule.ts`); `classifyRunSlots` (`src/core/parse/outcomes.ts`, used by `loop runs`); `lintBrief` understands round briefs (inline `**Label:**` lead-ins, lettered A-E must-have sections, `Round N done when`; this IDEA.md Round 5 scores 100); `countRounds(brief, doneFiles)` in `src/core/repo.ts` (A5, used by readLoopFacts). Next: unit 6 `loop next-round --draft [--out .ai/next-round.draft.md] [--print-prompt]` via `runPrompt` (src/core/runPrompt.ts, src/cli/laneRound.ts for the pure-plan pattern); inputs: root/lane DONE "next 10" lists (`extractNextItems`), open audit findings, unacknowledged steer (`parseSteer`), IDEA.md out-of-scope. Then unit 7: audit minors; check-lanes: allow `.ai/schedule.json` for `Lane: <lane>` commits; reviewer pass on units 4-5 (not yet reviewed by a subagent).
+Notes: `schedule update --lane X` is what lanes run at step 8. A manual `wake` stays until the lane logs a run. Sandbox: origin main may not fast-forward; use branch `lane-run`, push `origin HEAD:main`.

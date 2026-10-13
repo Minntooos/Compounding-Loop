@@ -28,17 +28,39 @@ const MIN_WORDS = 120;
 /** Bold labels (`**Goal:** text`) count as the deepest heading level. */
 const LABEL_LEVEL = 7;
 
+/** `**Label:**` or `**Label**:` lead-ins, also several on one line (a round brief runs them together in a paragraph). */
+const INLINE_LABEL = /(?:^|\s)\*\*([^*]{2,80}?)(?::\*\*|\*\*:)\s*/g;
+
 function splitSections(text: string): Section[] {
   const flat: { heading: string; level: number; own: string }[] = [];
+  const addText = (line: string) => {
+    const last = flat[flat.length - 1];
+    if (last) last.own += `${line}\n`;
+  };
   for (const line of text.split(/\r?\n/)) {
     const heading = /^(#{1,6})\s+(.*?)\s*#*\s*$/.exec(line);
-    const label = /^\s*\*\*(.+?)\*\*:?\s*(.*)$/.exec(line) ?? /^\s*\*\*(.+?):\*\*\s*(.*)$/.exec(line);
-    if (heading) flat.push({ heading: heading[2] ?? '', level: (heading[1] ?? '#').length, own: '' });
-    else if (label && !/^\s*[-*+]\s/.test(line)) flat.push({ heading: (label[1] ?? '').replace(/:$/, ''), level: LABEL_LEVEL, own: `${label[2] ?? ''}\n` });
-    else {
-      const last = flat[flat.length - 1];
-      if (last) last.own += `${line}\n`;
+    if (heading) {
+      flat.push({ heading: heading[2] ?? '', level: (heading[1] ?? '#').length, own: '' });
+      continue;
     }
+    const labels = /^\s*[-*+]\s/.test(line) ? [] : [...line.matchAll(INLINE_LABEL)];
+    const bare = labels.length === 0 ? /^\s*\*\*([^*]+?)\*\*\s*$/.exec(line) : undefined;
+    if (labels.length === 0 && !bare) {
+      addText(line);
+      continue;
+    }
+    if (bare) {
+      flat.push({ heading: (bare[1] ?? '').replace(/:$/, ''), level: LABEL_LEVEL, own: '' });
+      continue;
+    }
+    const first = labels[0] as RegExpMatchArray;
+    const before = line.slice(0, first.index);
+    if (before.trim()) addText(before);
+    labels.forEach((label, i) => {
+      const start = (label.index ?? 0) + label[0].length;
+      const end = labels[i + 1]?.index ?? line.length;
+      flat.push({ heading: (label[1] ?? '').replace(/:$/, '').trim(), level: LABEL_LEVEL, own: `${line.slice(start, end)}\n` });
+    });
   }
   return flat.map((section, i) => {
     let body = section.own;
@@ -51,6 +73,9 @@ function splitSections(text: string): Section[] {
 }
 
 const findSection = (sections: Section[], pattern: RegExp) => sections.find((s) => pattern.test(s.heading));
+
+/** A round brief lists its must-haves under lettered headings (`### A. P0 bugs`), so every such section counts. */
+const LETTERED = /^\W*[A-Z][.)]\s/;
 
 /** Bullet and numbered-list items of a section body, without their markers. */
 export function listItems(body: string): string[] {
@@ -73,7 +98,7 @@ export function lintBrief(text: string): BriefLint {
   const gaps: BriefGap[] = [];
   const miss = (gap: BriefGap) => gaps.push(gap);
 
-  const oneLine = findSection(sections, /^\W*(one[- ]line|summary|overview|goal|what (this|it) is|pitch)\b/i);
+  const oneLine = findSection(sections, /^\W*(one[- ]line|summary|overview|goal|what (this|it|we are|we're) (is |are )?(building|is)?|the new headline|headline|pitch)\b/i);
   if (!oneLine || oneLine.body.trim().length < 20) {
     miss({ id: 'one-line', cost: 15, message: 'No one-line description of what you are building.' });
   }
@@ -83,8 +108,9 @@ export function lintBrief(text: string): BriefLint {
     miss({ id: 'audience', cost: 15, message: 'No audience: say who this is for.' });
   }
 
-  const mustHeading = findSection(sections, /^\W*(must[- ]?haves?|requirements?|features?|deliverables?|scope\b)/i);
-  const items = mustHeading ? listItems(mustHeading.body) : [];
+  const mustSections = sections.filter((x) => /^\W*(must[- ]?haves?|requirements?|features?|deliverables?|scope\b)/i.test(x.heading) || LETTERED.test(x.heading));
+  // Nested sections repeat their parent's text, so count each list line once.
+  const items = [...new Set(mustSections.flatMap((x) => listItems(x.body)))];
   if (items.length < 3) {
     miss({ id: 'must-haves', cost: 20, message: 'Fewer than three must-haves listed as bullets.' });
   } else {
@@ -98,7 +124,7 @@ export function lintBrief(text: string): BriefLint {
     }
   }
 
-  const doneWhen = findSection(sections, /^\W*(done[- ]when|definition of done|acceptance|success criteria)/i);
+  const doneWhen = findSection(sections, /^\W*(?:round \d+\s+)?(done[- ]when|definition of done|acceptance|success criteria)/i);
   const checkable = doneWhen ? /`[^`]+`|\b(npm|pnpm|yarn|pytest|make|cargo)\b|\btests?\s+(pass|green)/i.test(doneWhen.body) : false;
   if (!checkable) {
     miss({ id: 'done-when', cost: 25, message: 'No checkable done-when: list commands or tests that must pass.' });

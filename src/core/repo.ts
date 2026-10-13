@@ -26,6 +26,20 @@ export function countDoneRounds(fileNames: readonly string[]): number {
   return fileNames.filter((name) => /^done-v\d+\.md$/.test(name)).length;
 }
 
+/**
+ * Finished rounds. A brief that has `## Round N` headings is the source: every round heading not marked "current"
+ * counts once. Without such headings (a single-loop repo) the `done-vN.md` files are counted, since a handoff note
+ * named `done-v5.md` must not make a fifth round.
+ */
+export function countRounds(briefText: string | undefined, doneFileNames: readonly string[]): number {
+  const rounds = new Set<number>();
+  for (const line of (briefText ?? '').split(/\r?\n/)) {
+    const m = /^#{1,3}\s+Round\s+(\d+)\b(.*)$/i.exec(line);
+    if (m && !/\bcurrent\b/i.test(m[2] ?? '')) rounds.add(Number(m[1]));
+  }
+  return rounds.size > 0 ? rounds.size : countDoneRounds(doneFileNames);
+}
+
 async function exists(file: string): Promise<boolean> {
   try {
     await stat(file);
@@ -69,7 +83,7 @@ export async function readLoopFacts(dir: string): Promise<LoopFacts> {
     // The stop files sit at the repo root, per CLAUDE.md "Unattended mode".
     hasBlocked: await exists(path.join(dir, 'BLOCKED.md')),
     hasDone: await exists(path.join(dir, 'DONE.md')),
-    roundsDone: countDoneRounds(aiFiles),
+    roundsDone: countRounds(await readOptional(path.join(dir, 'IDEA.md')), aiFiles),
     ...(lockAt && { lockAt }),
     ...(lastCommitAt && { lastCommitAt }),
     healthFailures: [],

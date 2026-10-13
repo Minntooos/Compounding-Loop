@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
-  countDoneRounds, parseLockTime, parseRunCounter, readLastCommitAt, readLoopFacts, readRunCounter,
+  countDoneRounds, countRounds, parseLockTime, parseRunCounter, readLastCommitAt, readLoopFacts, readRunCounter,
 } from '../../../src/core/repo.js';
 
 describe('parseRunCounter', () => {
@@ -72,5 +72,19 @@ describe('folder readers', () => {
 
   it('has no run counter without a task.md', async () => {
     expect(await readRunCounter(dir)).toBeUndefined();
+  });
+});
+
+describe('countRounds (A5)', () => {
+  it('counts round headings, not handoff notes named done-vN.md', () => {
+    const idea = '## Round 3 (current): x\n\n## Round 2 (finished)\n\n# Round 1 brief (finished)\n';
+    expect(countRounds(idea, ['done-v1.md', 'done-v2.md', 'done-v5.md'])).toBe(2);
+  });
+  it('falls back to the done files without round headings', () => {
+    expect(countRounds('# IDEA\nBuild it.', ['done-v1.md', 'done-v2.md'])).toBe(2);
+    expect(countRounds(undefined, [])).toBe(0);
+  });
+  it('a repeated heading number counts once', () => {
+    expect(countRounds('## Round 1 a\n## Round 1 b\n', [])).toBe(1);
   });
 });

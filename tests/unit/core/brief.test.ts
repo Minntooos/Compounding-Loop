@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { briefPasses, isVagueItem, lintBrief, listItems } from '../../../src/core/brief.js';
+import { briefPasses, isVagueItem, lintBrief, listItems, MIN_BRIEF_SCORE } from '../../../src/core/brief.js';
 
 const good = `# IDEA: Mortgage calculators
 
@@ -93,5 +93,41 @@ describe('listItems and isVagueItem', () => {
     expect(isVagueItem('Looks good')).toBe(true);
     expect(isVagueItem('A modern, clean layout for everyone')).toBe(true);
     expect(isVagueItem('Twenty pages listed in `sitemap.xml`')).toBe(false);
+  });
+});
+
+describe('round briefs (A9)', () => {
+  const roundBrief = `## Round 5 (current): 0.5.0 "Cockpit" — see everything
+
+**What we are building:** a CLI, a local dashboard and templates that run unattended, verified Claude Code build loops. **Audience:** solo developers and small teams who run Claude Code loops from scheduled routines.
+
+### A. P0 bugs (each needs a test that fails before the fix)
+1. The release stays "waiting on you" after the tag \`v0.4.0\` exists; read npm \`latest\`.
+2. Phantom "no run recorded" slots: none after root \`DONE.md\` or while \`.ai/PAUSED\` exists.
+3. Health shows OK for checks never measured: three states, not four.
+
+### B. Schedule and steering
+1. \`loop schedule show|pause|resume\` with \`--json\` output.
+2. \`loop steer <lane> "<text>"\` writes an entry and commits.
+
+### Round 5 done when
+- \`npm test\` passes on a clean clone.
+- Every A bug has a regression test in \`tests/unit\`.
+
+**Out of scope (later rounds):**
+- Hosted backend, accounts, analytics.
+`;
+  it('scores a brief with bold lead-ins, lettered must-have lists and a "Round N done when" heading', () => {
+    const lint = lintBrief(roundBrief);
+    expect(lint.gaps.map((g) => g.id)).not.toEqual(expect.arrayContaining(['audience', 'one-line', 'must-haves', 'done-when', 'out-of-scope']));
+    expect(lint.score).toBeGreaterThanOrEqual(85);
+  });
+  it('reads two bold labels on one line', () => {
+    const lint = lintBrief('**What we are building:** a thing that does useful work for people. **Audience:** solo developers who ship small tools.');
+    expect(lint.gaps.map((g) => g.id)).not.toContain('one-line');
+    expect(lint.gaps.map((g) => g.id)).not.toContain('audience');
+  });
+  it('still flags a brief with none of it', () => {
+    expect(lintBrief('Build me an app.').score).toBeLessThan(MIN_BRIEF_SCORE);
   });
 });
