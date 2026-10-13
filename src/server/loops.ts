@@ -73,7 +73,7 @@ async function readRuns(dir: string, lanes: readonly LaneStatus[], lanesJson: st
 }
 
 /** Local git facts for the ship-check; a failing git call reads as the safe answer (tag free, tree dirty). */
-async function readShipGit(dir: string, tag: string): Promise<{ tagExists: boolean; treeClean: boolean; tags: string[]; tagAt?: Date; doneAt?: Date }> {
+async function readShipGit(dir: string, tag: string): Promise<{ tagExists: boolean; treeClean: boolean; tags?: string[]; tagAt?: Date; doneAt?: Date }> {
   const git = (args: string[]) => execFileAsync('git', args, { cwd: dir, timeout: 15_000 }).then((r) => r.stdout, () => undefined);
   const [tagList, status] = await Promise.all([git(['tag', '--list', 'v*']), git(['status', '--porcelain'])]);
   const tags = (tagList ?? '').split('\n').map((t) => t.trim()).filter((t) => t !== '');
@@ -81,7 +81,7 @@ async function readShipGit(dir: string, tag: string): Promise<{ tagExists: boole
   const [tagOut, doneOut] = tagExists ? await Promise.all([git(['log', '-1', '--format=%cI', tag]), git(['log', '-1', '--format=%cI', '--', 'DONE.md'])]) : [undefined, undefined];
   const date = (out: string | undefined) => (out && !Number.isNaN(Date.parse(out.trim())) ? new Date(out.trim()) : undefined);
   const [tagAt, doneAt] = [date(tagOut), date(doneOut)];
-  return { tagExists, treeClean: status !== undefined && status.trim() === '', tags, ...(tagAt && { tagAt }), ...(doneAt && { doneAt }) };
+  return { tagExists, treeClean: status !== undefined && status.trim() === '', ...(tagList !== undefined && { tags }), ...(tagAt && { tagAt }), ...(doneAt && { doneAt }) };
 }
 
 /** `.ai/last-test.json` as a card result, dated by the file's mtime; undefined when absent or malformed. */

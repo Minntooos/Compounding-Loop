@@ -1,7 +1,7 @@
 # Lane: server — round 5 (0.5.0 "Cockpit")
 
 Run: 2 / 20
-Status: units 1-2 done (audit, A1, A7); next: unit 3 fixtures
+Status: units 1-2 done (audit, A1, A7) + web's A1 data fixes (run 2); next: unit 3 fixtures
 Round 4 record: `.ai/lanes/server/done-v4.md` (`git show 02874e8:.ai/lanes/server/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
@@ -40,4 +40,5 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
+Run 2: shipped now also needs tag not older than DONE.md (local mode only; live has tag names only, no dates: still open for live); annotateReleases leaves tag/npm absent when unchecked. Still to do: A3 HealthCheck.state/howToCheck, A5 round count from headings (core's countRounds in src/core/repo.ts), A2 classifyRunSlots in src/server/runs.ts, then units 3-5.
 Run 1: unit 1 (audit) and unit 2 (A1 shipped detection incl. per-release tag/npm state, CSP, A7 local card fields) done with regression tests. Next: unit 3 (demo fixtures: demo/build-self.mjs / this-repo.json get runs.jsonl lines, schedule.json, steer.md), then units 4-5 once core ships `loop schedule`/`loop steer`/`classifyRunSlots` (check src/core/parse for them). The 'phantom run slots' (A2) fix needs core's classifier.
