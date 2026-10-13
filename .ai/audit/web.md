@@ -189,3 +189,8 @@ Reviewer on 76d831f: no blockers. Kept: the pinned fleet replaces the live sites
 ### Run 15 (2026-10-13)
 - Lane-filter chips (Timeline, Runs) get the A6 edge fade via one `LaneFilter` (4c30f6b); `phone-tabs.spec.ts` fails on the old code (cut chip, no fade). No reviewer (pace fast, no shared files).
 - Start round lost reply (0213b23): independent reviewer, no blockers. Minors fixed: the alert says "may have started" (a commit can fail after files changed: still Close-only, since a Retry would run on a half-changed tree); round number frozen at open so a refetch does not relabel the dialog "round 7". Accepted: if the refetch also fails, Retry is offered.
+
+### Run 16 (2026-10-13)
+- `QUIET_KINDS` now imported from server's live entry (5deeb02), no copy. Full `npm test` green (904 unit, 263 e2e).
+- Steer history no longer leaves a tall gap under lane cards (a8fab24); Health rows drop a reason that only repeats the row (d0b20d6) and keep "returned 200" together on a wrapped proof. Screens re-shot.
+- Independent design reviewer (combined): pass with minors, no blockers; tap target still 44 px, no information hidden (checked every server reason). Minors: near-repeats remain ("no leaked strings" under "No leaked text", "no lane is stalled" under "Lanes moving"; server wording); open steer-history state not in a screenshot (lane-schedule.spec opens it).

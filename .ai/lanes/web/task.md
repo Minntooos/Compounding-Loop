@@ -1,7 +1,7 @@
 # Lane: web — round 5 (0.5.0 "Cockpit")
 
-Run: 15 / 20
-Status: units 1-8 done; run 15 cleared two minors (lane-filter chip fade, lost Start-round reply); next: remaining minors (list in Handoff)
+Run: 16 / 20
+Status: units 1-8 done; run 16 cleared QUIET_KINDS copy, steer-history gap, health repeat/orphan minors; next: remaining minors (list in Handoff)
 Round 4 record: `.ai/lanes/web/done-v4.md` (`git show 02874e8:.ai/lanes/web/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
 
@@ -92,8 +92,8 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
 
 ## Handoff
-Run 15 (2026-10-13 17:43-18:00 UTC; stale clone, branch `lane-run`, pushed `HEAD:main`): lane-filter chips fade where cut (4c30f6b, phone-tabs.spec failed before); lost Start-round reply checks the loop before Retry (0213b23, next-round.spec failed before; reviewer: no blockers, two minors fixed). npm test green: 263 e2e. Pace fast: per-unit reviewer only on the risky unit.
-Open minors: phone strip words ("Limits not checked" vs "No stops", laptop "Limit stops"; revisit with a DESIGN pass + re-shoot); no auto-downshift notice (waiting core/server); heat-map minors + laptop empty 18-00 band; QUIET_KINDS duplicated (asked server to export it from src/server/runs.ts); pause/resume catch-branch Retry is safe (server reports "already in that state"); tall gap under Steer history on lane cards; Health rows repeat the check name in the reason.
-Waiting on server: `QUIET_KINDS` export.
-Gotchas: the e2e/dashboard server serves dist/: after web or demo edits run `npm run build` before a single `npx playwright test x`. Never `pkill -f` a pattern; keep the PID. A layout regression test must sweep lengths (see health.spec.ts long proof): one fixed string passed on the broken code.
-Design reviewer recipe: fixture routes as in tests/e2e/pace.spec.ts, `node bin/loop.js dashboard --demo --no-open --port 4181` or `vite preview`, a node script importing `node_modules/playwright/index.mjs` with executablePath `/opt/pw-browsers/chromium`. Web lib files import core with relative `../../../src/core/*.js` (`@core` alias is Vite-only). `SCREENS=1 npx playwright test screenshots --project=laptop` re-shoots web/design/docs.
+Run 16 (2026-10-13 18:44-18:55 UTC; stale clone, branch `lane-run`, pushed `HEAD:main`): QUIET_KINDS imported from src/server/live (5deeb02); steer-history gap under lane cards (a8fab24); health rows hide a pure-repeat reason and tie the proof's last two words (d0b20d6 + this commit, screens re-shot). Full npm test green at start (904 unit, 263 e2e); later units ran typecheck, health unit, lane/health e2e. Design reviewer: pass with minors.
+Open minors: phone strip words ("Limits not checked" vs laptop "Limit stops"; needs a DESIGN pass + re-shoot); no auto-downshift notice (waiting core/server); heat-map laptop empty band before the first slot (truthful: no slot expected; a note would need a DESIGN pass); near-repeat health reasons are server wording (ask server: leak reason "no leaked strings…", lane-stalled "no lane is stalled"); one-letter heat-map lane labels on phone.
+Waiting on: nothing. Lane is close to done: if the next run finds only these minors, consider "Lane finished" (all done-whens pass per audit).
+Gotchas: the e2e/dashboard server serves dist/: after web or demo edits run `npm run build` before a single `npx playwright test x`. Never `pkill -f` a pattern; keep the PID. A layout regression test must sweep lengths (see health.spec.ts long proof).
+Design reviewer recipe: fixture routes as in tests/e2e/lane-schedule.spec.ts in a node script importing `node_modules/playwright/index.mjs` with executablePath `/opt/pw-browsers/chromium` against `npx vite preview --port 4182` (after build). Web lib files import core/server with relative `../../../src/...js`. `SCREENS=1 npx playwright test screenshots` re-shoots web/design/docs.

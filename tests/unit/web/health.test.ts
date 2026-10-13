@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkLabel, checkState, checkSummary, checkText, codeParts, humanizeTimes, reasonRepeats } from '../../../web/src/lib/health.js';
+import { checkLabel, checkState, checkSummary, checkText, codeParts, humanizeTimes, keepLastWords, reasonRepeats } from '../../../web/src/lib/health.js';
 
 describe('checkLabel', () => {
   it('states the result of the check, not only its name', () => {
@@ -62,5 +62,12 @@ describe('reasonRepeats', () => {
   it('keeps an empty or filler-only reason out of the repeat rule', () => {
     expect(reasonRepeats('Tests pass', '')).toBe(false);
     expect(reasonRepeats('Tests pass', 'all')).toBe(false);
+  });
+});
+
+describe('keepLastWords', () => {
+  it('ties the last two words together and leaves one-word text alone', () => {
+    expect(keepLastWords('GET https://a.app returned 200')).toBe('GET https://a.app returned\u00a0200');
+    expect(keepLastWords('200')).toBe('200');
   });
 });

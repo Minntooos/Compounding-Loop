@@ -52,6 +52,11 @@ export function reasonRepeats(text: string, reason: string): boolean {
   return told.length > 0 && told.every((w) => said.has(w));
 }
 
+/** Joins the last two words with a no-break space, so a wrapped proof never leaves "200" alone on its line. */
+export function keepLastWords(text: string): string {
+  return text.replace(/ (?=\S+$)/, '\u00a0');
+}
+
 /** "1 failing · 3 passing · 2 not checked": an unmeasured check never counts as a pass. Empty parts are left out. */
 export function checkSummary(checks: readonly Pick<HealthCheck, 'ok' | 'state'>[]): string {
   const count = (s: CheckState) => checks.filter((c) => checkState(c) === s).length;
