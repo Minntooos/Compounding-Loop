@@ -18,6 +18,7 @@ import { ProgressBar } from './ProgressBar';
 import { headerRound, releasedText, statusLine } from '../lib/card';
 import { useScrollFade } from './useScrollFade';
 import { runLimitText, siteOf } from '../lib/settings';
+import { scheduleClock } from '../lib/schedule';
 
 const BASE_TABS = ['Timeline', 'Contract', 'Knowledge', 'Decisions', 'Settings'] as const;
 type Tab = (typeof BASE_TABS)[number] | 'Lanes' | 'Runs' | 'Tests' | 'Releases';
@@ -34,7 +35,7 @@ function TabBody({ tab, loop }: { tab: Tab; loop: Detail }) {
   switch (tab) {
     case 'Timeline':
       return <Timeline commits={loop.timeline} />;
-    case 'Lanes': return <LanesTab lanes={loop.lanes ?? []} cockpit={{ ...(loop.schedule && { schedule: loop.schedule }), ...(loop.idleRuns && { idleRuns: loop.idleRuns }), ...(loop.steer && { steer: loop.steer }), ...(loop.paused && { loopPaused: true }) }} />;
+    case 'Lanes': return <LanesTab lanes={loop.lanes ?? []} cockpit={{ ...(loop.schedule && { schedule: loop.schedule }), ...(loop.idleRuns && { idleRuns: loop.idleRuns }), ...(loop.steer && { steer: loop.steer }), ...(loop.paused && { loopPaused: true }), now: scheduleClock(loop, new Date()) }} />;
     case 'Runs': return <RunsTab runs={loop.runs ?? []} paused={loop.paused !== undefined} quiet={(loop.lanes ?? []).filter((l) => l.state === 'done' || l.state === 'blocked').map((l) => l.name)} {...(loop.nextRuns && { nextRuns: loop.nextRuns })} />;
     case 'Tests': return <TestsTab runs={loop.runs ?? []} />;
     case 'Releases': return <ReleasesTab releases={loop.releases ?? []} />;
