@@ -71,7 +71,7 @@ function FilterBar({ loops, value, onChange }: { loops: LoopSummary[]; value: Fi
   return (
     <div role="group" aria-label="Filter by status" className="flex flex-wrap gap-1.5">
       {[{ badge: 'all' as const, count: loops.length }, ...filters].map(({ badge, count }) => (
-        <button key={badge} type="button" aria-pressed={value === badge} onClick={() => onChange(badge)} className="rounded border px-2.5 py-1 text-[13px] aria-pressed:font-semibold aria-pressed:underline" style={{ borderColor: 'var(--border)' }}>
+        <button key={badge} type="button" aria-pressed={value === badge} onClick={() => onChange(badge)} className="min-h-[44px] rounded border px-2.5 py-1 text-[13px] sm:min-h-0 aria-pressed:font-semibold aria-pressed:underline" style={{ borderColor: 'var(--border)' }}>
           {badge === 'all' ? 'All' : BADGE_LABEL[badge]} ({count})
         </button>
       ))}

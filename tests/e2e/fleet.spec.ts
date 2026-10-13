@@ -106,6 +106,8 @@ test('the status filter counts cards by their badge: a paused loop is under Paus
   await page.goto('/');
   const filters = page.getByRole('group', { name: 'Filter by status' });
   await expect(filters.getByRole('button', { name: /^Building/ })).toHaveCount(0);
+  // DESIGN.md: 44 px touch targets on a phone.
+  if (page.viewportSize()!.width < 640) expect((await filters.getByRole('button', { name: 'All (7)' }).boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await filters.getByRole('button', { name: 'Paused (1)' }).click();
   const cards = page.getByTestId('loop-card');
   await expect(cards).toHaveCount(1);
