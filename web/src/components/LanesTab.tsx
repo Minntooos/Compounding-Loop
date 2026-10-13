@@ -1,13 +1,64 @@
-import type { LaneStatus } from '@core/types';
-import { Lock, LockOpen, ShipWheel } from 'lucide-react';
+import type { LaneStatus, Schedule, SteerEntry } from '@core/types';
+import { AlarmClock, Check, Circle, Clock, Lock, LockOpen, Moon, Pause, ShipWheel, TriangleAlert } from 'lucide-react';
 import { relativeTime } from '../lib/format';
 import { claimText, describeUnanswered } from '../lib/lanes';
 import { LaneBadge } from './LaneBadge';
 import { ProgressBar } from './ProgressBar';
 import { openSteer } from '../lib/steerEvents';
+import { laneScheduleState, steerAckChip, type LaneScheduleKind } from '../lib/schedule';
+import { timeUtc, dayHeading } from '../lib/timeline';
+
+const SCHEDULE_ICON: Record<LaneScheduleKind, typeof Clock> = { due: Clock, 'loop-paused': Pause, paused: Pause, sleeping: Moon, snoozed: AlarmClock };
+const ACK_ICON = { done: Check, blocked: TriangleAlert, muted: Circle } as const;
+
+export interface LanesCockpit {
+  schedule?: Schedule;
+  idleRuns?: Record<string, number>;
+  steer?: { lane: string; entries: SteerEntry[] }[];
+  /** `.ai/PAUSED` exists: every lane is held. */
+  loopPaused?: boolean;
+  now?: Date;
+}
+
+function ScheduleLine({ lane, cockpit }: { lane: string; cockpit: LanesCockpit }) {
+  const entry = cockpit.schedule?.lanes[lane];
+  const state = laneScheduleState({ ...(entry && { entry }), ...(cockpit.idleRuns?.[lane] !== undefined && { idleRuns: cockpit.idleRuns[lane] }), ...(cockpit.loopPaused && { loopPaused: true }), now: cockpit.now ?? new Date() });
+  const Icon = SCHEDULE_ICON[state.kind];
+  return (
+    <p data-testid="lane-schedule" data-kind={state.kind} className="mt-1 inline-flex items-start gap-1.5 text-[13px] [overflow-wrap:anywhere]" style={{ color: state.kind === 'due' ? 'var(--text)' : 'var(--muted)' }}>
+      <Icon aria-hidden size={14} className="mt-[3px] shrink-0" /><span>{state.text}</span>
+    </p>
+  );
+}
+
+// Steer text is repo text: text nodes only.
+function SteerHistory({ lane, entries }: { lane: string; entries: SteerEntry[] }) {
+  if (entries.length === 0) return null;
+  const waiting = entries.filter((e) => !e.ack).length;
+  return (
+    <details data-testid="steer-history" className="mt-2">
+      <summary className="min-h-11 cursor-pointer py-2 text-[13px] font-medium">Steer history · {entries.length}{waiting > 0 ? ` · ${waiting} waiting` : ''}</summary>
+      <ol aria-label={`Steer history of ${lane}`} className="space-y-2">
+        {entries.map((e, i) => {
+          const chip = steerAckChip(e.ack);
+          const Icon = ACK_ICON[chip.tone];
+          return (
+            <li key={i} data-testid="steer-entry" className="rounded border p-2 text-[13px]" style={{ borderColor: 'var(--border)' }}>
+              <p className="font-mono text-[12px]" style={{ color: 'var(--muted)' }}>{dayHeading(e.at.slice(0, 10))} {timeUtc(e.at)} · {e.author} · {e.scope === 'standing' ? 'standing' : 'next run'}</p>
+              <p className="mt-1 whitespace-pre-wrap [overflow-wrap:anywhere]">{e.text}</p>
+              <p data-testid="steer-ack" className="mt-1 inline-flex items-start gap-1 text-[12px] [overflow-wrap:anywhere]" style={{ color: `var(--${chip.tone})` }}>
+                <Icon aria-hidden size={13} className="mt-[2px] shrink-0" /><span>→ {chip.text}</span>
+              </p>
+            </li>
+          );
+        })}
+      </ol>
+    </details>
+  );
+}
 
 // Lane names, commit subjects and message text come from repo files: rendered as text nodes only.
-function LaneRow({ lane }: { lane: LaneStatus }) {
+function LaneRow({ lane, cockpit }: { lane: LaneStatus; cockpit: LanesCockpit }) {
   return (
     <li data-testid="lane-row" className="rounded-lg border p-3" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -20,6 +71,7 @@ function LaneRow({ lane }: { lane: LaneStatus }) {
         </span>
         <button type="button" onClick={() => openSteer(lane.name)} aria-label={`Steer ${lane.name}`} className="ml-auto min-h-11 rounded border px-3 text-[13px] font-medium" style={{ borderColor: 'var(--border)' }}><span className="inline-flex items-center gap-1.5"><ShipWheel aria-hidden size={14} />Steer</span></button>
       </div>
+      {(cockpit.schedule || cockpit.idleRuns || cockpit.loopPaused) && <ScheduleLine lane={lane.name} cockpit={cockpit} />}
       {lane.limit > 0 && <div className="mt-2"><ProgressBar label={`${lane.name} run budget`} value={Math.min(lane.run, lane.limit)} max={lane.limit} text={`${lane.run} of ${lane.limit} runs`} color="var(--accent)" /></div>}
       <p className="mt-1 [overflow-wrap:anywhere]" style={{ color: 'var(--muted)' }}>
         {lane.lastCommit
@@ -33,10 +85,11 @@ function LaneRow({ lane }: { lane: LaneStatus }) {
           ))}
         </ul>
       )}
+      <SteerHistory lane={lane.name} entries={cockpit.steer?.find((s) => s.lane === lane.name)?.entries ?? []} />
     </li>
   );
 }
 
-export function LanesTab({ lanes }: { lanes: LaneStatus[] }) {
-  return <ul className="space-y-2" aria-label="Lanes">{lanes.map((l) => <LaneRow key={l.name} lane={l} />)}</ul>;
+export function LanesTab({ lanes, cockpit = {} }: { lanes: LaneStatus[]; cockpit?: LanesCockpit }) {
+  return <ul className="space-y-2" aria-label="Lanes">{lanes.map((l) => <LaneRow key={l.name} lane={l} cockpit={cockpit} />)}</ul>;
 }
