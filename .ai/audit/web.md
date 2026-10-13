@@ -26,6 +26,7 @@ Method: read IDEA.md Round 5 A and C against `web/src` on a fresh pull (`npm tes
 
 ### Minor
 - Live mode does not fetch npm yet (server outbox 02:40: `npmPackageUrl(packageName(...))` → `buildLiveLoop({npm})`); the static CSP already allows the registry (`src/server/static-export.ts` `LIVE_CONNECT_HOSTS`).
+- Live Releases: if the tag-list request fails but the exact `v<version>` lookup works, or a repo has more than 100 tags, older rows show "No tag" (server's `annotateReleases` turns missing into false; asked server, outbox 02:15).
 - The demo has no run-log, schedule or steer fixtures yet (server unit 3); web uses Playwright-routed fixtures until then.
 - Phantom "no run recorded" slots (A2) are core/server's classifier; web only renders the outcome it gets.
 - A5 (proj2 "round 6/6" from a handoff `done-v5.md`) is server's round count and A9 (brief score) is core's `lintBrief`; web only displays both. Sent to their outboxes (web outbox 01:50).
