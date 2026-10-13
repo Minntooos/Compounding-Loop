@@ -91,3 +91,40 @@ for (const theme of ['light', 'dark'] as const) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });
 }
+
+test('demo: a lane the schedule can change links to schedule.json on GitHub; a finished one has no button', async ({ page }) => {
+  await serve(page, { ...LOOP, lanes: [lane('core'), { ...lane('kit'), state: 'done' }] });
+  await expect(row(page, 'core').getByTestId('schedule-edit')).toHaveAttribute('href', 'https://github.com/o/r/edit/main/.ai/schedule.json');
+  await expect(row(page, 'kit').getByTestId('schedule-edit')).toHaveCount(0);
+});
+
+test('local: Wake posts at once, Pause asks first, Snooze offers presets; errors stay on the row', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-10-13T12:40:00Z') });
+  await page.route('**/api/loops', (r) => r.fulfill({ json: [LOOP] }));
+  await page.route('**/api/loops/self', (r) => r.fulfill({ json: LOOP }));
+  await page.route('**/api/inbox', (r) => r.fulfill({ json: [] }));
+  const posted: unknown[] = [];
+  await page.route('**/api/loops/self/schedule', (r) => {
+    const body = r.request().postDataJSON() as { action: string };
+    posted.push(body);
+    return body.action === 'resume' ? r.fulfill({ status: 422, json: { error: 'git commit failed' } }) : r.fulfill({ json: { ok: true, changed: true, lanes: ['x'], pushed: true } });
+  });
+  await page.goto('/#/loop/self');
+  await page.getByRole('tab', { name: 'Lanes' }).click();
+  await row(page, 'docs').getByRole('button', { name: 'Wake now docs' }).click();
+  await expect(page.getByText('Woke docs: it runs at its next slot')).toBeVisible();
+  await row(page, 'core').getByRole('button', { name: 'Pause lane core' }).click();
+  expect(posted).toHaveLength(1);
+  // The clicked button is gone: focus moves into the inline step, and back out on Cancel.
+  await expect(row(page, 'core').getByRole('button', { name: 'Confirm pause' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('Enter');
+  await expect(row(page, 'core').getByRole('button', { name: 'Pause lane core' })).toBeFocused();
+  await row(page, 'core').getByRole('button', { name: 'Pause lane core' }).click();
+  await row(page, 'core').getByRole('button', { name: 'Confirm pause' }).click();
+  await row(page, 'core').getByRole('button', { name: 'Snooze… core' }).click();
+  await row(page, 'core').getByRole('button', { name: '3 h' }).click();
+  await row(page, 'server').getByRole('button', { name: 'Resume server' }).click();
+  await expect(row(page, 'server').getByTestId('schedule-error')).toHaveText('git commit failed');
+  expect(posted).toEqual([{ action: 'wake', lane: 'docs' }, { action: 'pause', lane: 'core' }, { action: 'snooze', lane: 'core', until: '3h' }, { action: 'resume', lane: 'server' }]);
+});

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { laneScheduleState, scheduleClock, steerAckChip } from '../../../web/src/lib/schedule.js';
+import { laneScheduleState, scheduleButtons, scheduleClock, scheduleToast, snoozePresets, steerAckChip } from '../../../web/src/lib/schedule.js';
 
 const now = new Date('2026-10-13T12:40:00Z');
 const entry = (over: Partial<{ notBefore: string | null; sleeping: boolean; paused: boolean; reason: string | null }>) => ({ notBefore: null, sleeping: false, paused: false, reason: null, ...over });
@@ -51,5 +51,24 @@ describe('scheduleClock', () => {
     expect(scheduleClock({}, now)).toBe(now);
     expect(scheduleClock({ snapshotAt: '2026-10-11T14:51:27Z', lastRun: { lane: 'web', at: '2026-10-13T12:35:00Z', outcome: 'pushed' } }, new Date('2026-10-20T00:00:00Z')).toISOString()).toBe('2026-10-13T12:35:00.000Z');
     expect(scheduleClock({ snapshotAt: '2026-10-11T14:51:27Z' }, now).toISOString()).toBe('2026-10-11T14:51:27.000Z');
+  });
+});
+
+describe('schedule controls (C5)', () => {
+  it('offers only the buttons that change something for the state', () => {
+    expect(scheduleButtons('due')).toEqual(['pause', 'snooze']);
+    expect(scheduleButtons('paused')).toEqual(['resume']);
+    expect(scheduleButtons('sleeping')).toEqual(['wake', 'pause']);
+    expect(scheduleButtons('snoozed')).toEqual(['wake', 'pause']);
+    expect(scheduleButtons('stopped')).toEqual([]);
+    expect(scheduleButtons('loop-paused')).toEqual([]);
+  });
+  it('snooze presets are spans core reads and tomorrow 09:00 UTC', () => {
+    expect(snoozePresets(new Date('2026-10-31T23:30:00Z')).map((p) => p.until)).toEqual(['1h', '3h', '2026-11-01T09:00:00.000Z']);
+  });
+  it('the toast says what was written, or that nothing changed', () => {
+    expect(scheduleToast('snooze', 'web', true, '3 h')).toBe('Snoozed web for 3 h: it skips its runs until then');
+    expect(scheduleToast('wake', 'web', true)).toMatch(/^Woke web/);
+    expect(scheduleToast('pause', 'web', false)).toBe('Nothing to change: web already was that way');
   });
 });

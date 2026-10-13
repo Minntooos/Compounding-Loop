@@ -44,6 +44,7 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 - 2026-10-13 run 4: lane schedule sentence is shorter than DESIGN §12's example ("Sleeping · 3 idle runs · reason", "Paused · reason"): `ScheduleEntry` has no since/by fields. Done/blocked lanes say they stopped themselves instead of "Due". Snapshot loops read their schedule at their newest moment (`scheduleClock`), so the frozen demo never drifts.
 - 2026-10-13 run 5: "Routines look off" replaces the server inbox's `lanes-not-running` item for that loop (`liveInbox`, also on the Inbox page) and its stalled-lane rows: that item blames the usage limit, which resets within 5 h, so after 6 h of silence its advice is wrong (reviewer blocker). Asked server to skip it at the source.
 - 2026-10-13 run 5: local steer composer is one *Save* button, not Save + Save and wake: server's `POST …/steer` (core `runSteer`) always wakes a held-back lane. The CLI command stays folded under "Or run it from a terminal".
+- 2026-10-13 run 5: C5 buttons ship without a toast Undo (Toasts has no actions; the opposite button undoes) and the demo shows one *Edit schedule on GitHub* link, not a prefilled schedule.json: core's schedule transform is node-only (src/cli/schedule.ts) and web must not re-implement it.
 - 2026-10-13 run 4: C5 buttons wait for server's `POST …/schedule`; this unit ships the state sentence and the steer history only.
 
 ## Confirmed

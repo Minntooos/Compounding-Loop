@@ -91,6 +91,16 @@ export async function postSteer(loopId: string, body: { lane: string; text: stri
   return reply;
 }
 
+/** POST a schedule action for one lane: core's `runScheduleAction` edits `.ai/schedule.json` and commits. */
+export async function postSchedule(loopId: string, body: { action: 'pause' | 'resume' | 'snooze' | 'wake'; lane: string; until?: string; reason?: string }): Promise<SteerReply> {
+  const res = await fetch(`/api/loops/${encodeURIComponent(loopId)}/schedule`, {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+  });
+  const reply = (await res.json().catch(() => ({}))) as SteerReply & { error?: string };
+  if (!res.ok) throw new Error(reply.error ?? `Schedule change failed (${res.status})`);
+  return reply;
+}
+
 /** Static hosting only: the snapshot's rows, with the self-build loop replaced by its live GitHub state when that loads. */
 async function withLive<T>(snapshot: T, merge: (rows: T, live: NonNullable<Awaited<ReturnType<typeof getLive>>>) => T): Promise<T> {
   if (await hasServer()) return snapshot;

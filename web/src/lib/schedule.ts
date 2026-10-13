@@ -1,6 +1,9 @@
 import { notDueReason } from '../../../src/core/parse/schedule.js';
 import type { LaneState, LoopSummary, ScheduleEntry, SteerAck } from '../../../src/core/types.js';
+import { scheduleEditUrl } from '../../../src/server/controls.js';
 import { dueTime } from './strip.js';
+
+export { scheduleEditUrl };
 
 export type LaneScheduleKind = 'due' | 'stopped' | 'loop-paused' | 'paused' | 'sleeping' | 'snoozed';
 
@@ -46,4 +49,36 @@ export function scheduleClock(loop: Pick<LoopSummary, 'lastRun'> & { snapshotAt?
   if (!loop.snapshotAt) return now;
   const times = [loop.snapshotAt, loop.lastRun?.at].map((t) => (t ? new Date(t).getTime() : NaN)).filter((t) => !Number.isNaN(t));
   return times.length ? new Date(Math.max(...times)) : now;
+}
+
+export type ScheduleButton = 'pause' | 'resume' | 'snooze' | 'wake';
+
+/**
+ * The schedule buttons that make sense for a lane's state (DESIGN §12 C5): a due lane can be paused or snoozed, a paused one
+ * resumed, a held-back one woken or paused. A finished, blocked or loop-paused lane gets none: the schedule is not what stops it.
+ */
+export function scheduleButtons(kind: LaneScheduleKind): ScheduleButton[] {
+  switch (kind) {
+    case 'due': return ['pause', 'snooze'];
+    case 'paused': return ['resume'];
+    case 'sleeping': case 'snoozed': return ['wake', 'pause'];
+    default: return [];
+  }
+}
+
+/** Snooze presets: spans core's `parseUntil` reads, and tomorrow 09:00 UTC as an ISO time. */
+export function snoozePresets(now: Date): { label: string; until: string }[] {
+  const tomorrow = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 9));
+  return [{ label: '1 h', until: '1h' }, { label: '3 h', until: '3h' }, { label: 'Tomorrow 09:00 UTC', until: tomorrow.toISOString() }];
+}
+
+/** The toast after a schedule action: what was written, in words. `changed: false` means it already was that way. */
+export function scheduleToast(action: ScheduleButton, lane: string, changed: boolean, presetLabel?: string): string {
+  if (!changed) return `Nothing to change: ${lane} already was that way`;
+  switch (action) {
+    case 'pause': return `Paused ${lane}: it skips its runs until you resume it`;
+    case 'resume': return `Resumed ${lane}: it runs at its next slot`;
+    case 'wake': return `Woke ${lane}: it runs at its next slot`;
+    case 'snooze': return `Snoozed ${lane}${presetLabel ? ` for ${presetLabel}` : ''}: it skips its runs until then`;
+  }
 }

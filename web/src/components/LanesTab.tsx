@@ -3,6 +3,7 @@ import { AlarmClock, Check, Circle, CircleSlash, Clock, Lock, LockOpen, Moon, Pa
 import { relativeTime } from '../lib/format';
 import { claimText, describeUnanswered } from '../lib/lanes';
 import { LaneBadge } from './LaneBadge';
+import { ScheduleControls } from './ScheduleControls';
 import { ProgressBar } from './ProgressBar';
 import { openSteer } from '../lib/steerEvents';
 import { laneScheduleState, steerAckChip, type LaneScheduleKind } from '../lib/schedule';
@@ -18,12 +19,18 @@ export interface LanesCockpit {
   /** `.ai/PAUSED` exists: every lane is held. */
   loopPaused?: boolean;
   now?: Date;
+  /** For the C5 buttons: the loop they act on and its GitHub repo (the demo's link). */
+  loopId?: string;
+  slug?: string;
 }
 
-function ScheduleLine({ lane: status, cockpit }: { lane: LaneStatus; cockpit: LanesCockpit }) {
-  const lane = status.name;
-  const entry = cockpit.schedule?.lanes[lane];
-  const state = laneScheduleState({ ...(entry && { entry }), ...(cockpit.idleRuns?.[lane] !== undefined && { idleRuns: cockpit.idleRuns[lane] }), ...(cockpit.loopPaused && { loopPaused: true }), laneState: status.state, now: cockpit.now ?? new Date() });
+function laneSchedule(status: LaneStatus, cockpit: LanesCockpit) {
+  const entry = cockpit.schedule?.lanes[status.name];
+  const idle = cockpit.idleRuns?.[status.name];
+  return laneScheduleState({ ...(entry && { entry }), ...(idle !== undefined && { idleRuns: idle }), ...(cockpit.loopPaused && { loopPaused: true }), laneState: status.state, now: cockpit.now ?? new Date() });
+}
+
+function ScheduleLine({ state }: { state: ReturnType<typeof laneScheduleState> }) {
   const Icon = SCHEDULE_ICON[state.kind];
   return (
     <span data-testid="lane-schedule" data-kind={state.kind} className="inline-flex items-start gap-1.5 text-[13px] [overflow-wrap:anywhere]" style={{ color: state.kind === 'due' ? 'var(--text)' : 'var(--muted)' }}>
@@ -60,6 +67,7 @@ function SteerHistory({ lane, entries, laneState }: { lane: string; entries: Ste
 
 // Lane names, commit subjects and message text come from repo files: rendered as text nodes only.
 function LaneRow({ lane, cockpit }: { lane: LaneStatus; cockpit: LanesCockpit }) {
+  const schedule = cockpit.schedule || cockpit.idleRuns || cockpit.loopPaused ? laneSchedule(lane, cockpit) : undefined;
   return (
     <li data-testid="lane-row" className="rounded-lg border p-3" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -70,9 +78,10 @@ function LaneRow({ lane, cockpit }: { lane: LaneStatus; cockpit: LanesCockpit })
         <span className="inline-flex items-center gap-1 text-[12px]" style={{ color: 'var(--muted)' }}>
           {lane.locked ? <Lock aria-hidden size={13} /> : <LockOpen aria-hidden size={13} />}{lane.locked ? 'Locked' : 'No lock'}
         </span>
-        {(cockpit.schedule || cockpit.idleRuns || cockpit.loopPaused) && <ScheduleLine lane={lane} cockpit={cockpit} />}
+        {schedule && <ScheduleLine state={schedule} />}
         <button type="button" onClick={() => openSteer(lane.name)} aria-label={`Steer ${lane.name}`} className="ml-auto min-h-11 rounded border px-3 text-[13px] font-medium" style={{ borderColor: 'var(--border)' }}><span className="inline-flex items-center gap-1.5"><ShipWheel aria-hidden size={14} />Steer</span></button>
       </div>
+      {schedule && cockpit.loopId && <ScheduleControls loopId={cockpit.loopId} lane={lane.name} kind={schedule.kind} {...(cockpit.slug && { slug: cockpit.slug })} now={cockpit.now ?? new Date()} />}
       {lane.limit > 0 && <div className="mt-2"><ProgressBar label={`${lane.name} run budget`} value={Math.min(lane.run, lane.limit)} max={lane.limit} text={`${lane.run} of ${lane.limit} runs`} color="var(--accent)" /></div>}
       <p className="mt-1 [overflow-wrap:anywhere]" style={{ color: 'var(--muted)' }}>
         {lane.lastCommit
