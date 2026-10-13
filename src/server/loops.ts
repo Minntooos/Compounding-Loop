@@ -68,9 +68,13 @@ async function readRuns(dir: string, lanes: readonly LaneStatus[], lanesJson: st
   const cron = new Map((parseLanesConfig(lanesJson ?? '').config?.lanes ?? []).map((l) => [l.name, l.cron] as const));
   const pausedText = await readOptional(path.join(dir, '.ai', 'PAUSED'));
   const scheduleText = await readOptional(path.join(dir, '.ai', 'schedule.json'));
+  const schedule = scheduleText === undefined ? undefined : parseSchedule(scheduleText);
+  const pausedAt = pausedText === undefined ? undefined : parsePaused(pausedText).at;
   const laneNames = lanes.map((l) => l.name);
   const logs = Object.fromEntries(await Promise.all(laneNames.map(async (n) => [n, await readOptional(path.join(dir, '.ai', 'lanes', n, 'runs.jsonl'))] as const)));
-  return buildRuns({ lanes: laneNames.map((name) => ({ name, ...(cron.get(name) && { cron: cron.get(name) as string }), stopped: ['done', 'blocked'].includes(lanes.find((l) => l.name === name)?.state ?? '') || lanes.find((l) => l.name === name)?.claim !== undefined })), logs, commits: timeline, now, ...(scheduleText !== undefined && { schedule: parseSchedule(scheduleText) }), ...(pausedText !== undefined && { paused: parsePaused(pausedText).at ? { at: parsePaused(pausedText).at as Date } : {} }) });
+  const steerTexts = Object.fromEntries(await Promise.all(laneNames.map(async (n) => [n, await readOptional(path.join(dir, '.ai', 'lanes', n, 'steer.md'))] as const)));
+  const data = buildRuns({ steerTexts, lanes: laneNames.map((name) => ({ name, ...(cron.get(name) && { cron: cron.get(name) as string }), stopped: ['done', 'blocked'].includes(lanes.find((l) => l.name === name)?.state ?? '') || lanes.find((l) => l.name === name)?.claim !== undefined })), logs, commits: timeline, now, ...(schedule && { schedule }), ...(pausedText !== undefined && { paused: pausedAt ? { at: pausedAt } : {} }) });
+  return { ...data, ...(schedule && { schedule }) };
 }
 
 /** Local git facts for the ship-check; a failing git call reads as the safe answer (tag free, tree dirty). */
@@ -149,7 +153,7 @@ export async function readLoop(dir: string, now: Date = new Date()): Promise<Loo
     ...(notes.length > 0 && { controlNotes: notes }),
     ...(changelogText !== undefined && { releases: annotateReleases(parseChangelog(changelogText), shipGit?.tags, undefined) }),
     ...(runsData && lastRunOf(runsData.runs) && { lastRun: lastRunOf(runsData.runs) }),
-    ...(runsData && { runs: runsData.runs, nextRuns: runsData.nextRuns }),
+    ...(runsData && { runs: runsData.runs, nextRuns: runsData.nextRuns, runOutcomes: runsData.outcomes, idleRuns: runsData.idleRuns, ...(runsData.schedule && { schedule: runsData.schedule }), ...(runsData.steer.length > 0 && { steer: runsData.steer }) }),
     ...(ship && { ship }),
     ...(releaseWaiting && { releaseWaiting }),
     ...(shippedNow && version && { shipped: { version, ...(releaseDate && { date: releaseDate }), npm: 'unknown' as const } }),

@@ -139,8 +139,9 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
   const pausedText = input.files['.ai/PAUSED'];
   const paused = pausedText === undefined ? undefined : pausedAtOf(pausedText);
   const runsData = lanes
-    ? buildRuns({ lanes: laneConfig.map((l) => ({ name: l.name, ...(l.cron && { cron: l.cron }), stopped: hasDone || ['done', 'blocked'].includes(lanes.find((s) => s.name === l.name)?.state ?? '') || lanes.find((s) => s.name === l.name)?.claim !== undefined })), logs: Object.fromEntries(laneNames.map((n) => [n, input.files[`.ai/lanes/${n}/runs.jsonl`]])), commits: timeline, now: input.now, ...(input.files['.ai/schedule.json'] !== undefined && { schedule: parseSchedule(input.files['.ai/schedule.json']) }), ...(paused && { paused }) })
+    ? buildRuns({ steerTexts: Object.fromEntries(laneNames.map((n) => [n, input.files[`.ai/lanes/${n}/steer.md`]])), lanes: laneConfig.map((l) => ({ name: l.name, ...(l.cron && { cron: l.cron }), stopped: hasDone || ['done', 'blocked'].includes(lanes.find((s) => s.name === l.name)?.state ?? '') || lanes.find((s) => s.name === l.name)?.claim !== undefined })), logs: Object.fromEntries(laneNames.map((n) => [n, input.files[`.ai/lanes/${n}/runs.jsonl`]])), commits: timeline, now: input.now, ...(input.files['.ai/schedule.json'] !== undefined && { schedule: parseSchedule(input.files['.ai/schedule.json']) }), ...(paused && { paused }) })
     : undefined;
+  const schedule = input.files['.ai/schedule.json'] === undefined ? undefined : parseSchedule(input.files['.ai/schedule.json']);
   const lastRun = runsData && lastRunOf(runsData.runs);
   const controlText = input.files['.ai/control-room.md'];
   const notes = controlText === undefined || !lanes ? [] : Object.entries(latestControlNotes(controlText, laneNames)).map(([lane, n]) => ({ lane, at: n.at, text: n.text }));
@@ -172,7 +173,7 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
     ...(changelogText !== undefined && { releases: annotateReleases(parseChangelog(changelogText), input.tags === undefined ? undefined : tags, npm) }),
     ...(ship && { ship }),
     ...(lastRun && { lastRun }),
-    ...(runsData && { runs: runsData.runs.slice(0, MAX_RUNS), nextRuns: runsData.nextRuns }),
+    ...(runsData && { runs: runsData.runs.slice(0, MAX_RUNS), nextRuns: runsData.nextRuns, runOutcomes: runsData.outcomes, idleRuns: runsData.idleRuns, ...(schedule && { schedule }), ...(runsData.steer.length > 0 && { steer: runsData.steer }) }),
     ...(releaseWaiting && { releaseWaiting }),
     ...(shippedNow && version && { shipped: { version, ...(releaseDate && { date: releaseDate }), npm: npmStateOf(version, npm) } }),
     round,

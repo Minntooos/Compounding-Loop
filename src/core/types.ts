@@ -83,6 +83,8 @@ export interface LoopSummary {
   repoUrl?: string;
   /** `.ai/PAUSED` exists: who paused, when (ISO) and why (server lane, Round 4). Also on the fleet card ("Paused by X since ..."). */
   paused?: { by: string; at?: string; reason?: string };
+  /** What the lanes are doing right now, from the run logs and `.ai/schedule.json` (server lane, Round 5). Absent without lanes. */
+  runOutcomes?: RunOutcomes;
   /** The newest run of any lane, for the fleet card's one status line. */
   lastRun?: { lane: string; at: string; outcome: LoopRun['outcome'] };
   lastCommit?: LoopCommit;
@@ -120,6 +122,20 @@ export interface LoopRun {
 /** Where a version stands on npm: `latest` is the dist-tag, `published` an older version, `unknown` when the registry could not be read (server lane, Round 5). */
 export type NpmState = 'latest' | 'published' | 'not-published' | 'unknown';
 
+/** The status strip's run facts for one loop (server lane, Round 5). */
+export interface RunOutcomes {
+  /** Due slots of the last 5 hours with no run recorded: usage-limit stops or failed starts. */
+  limitStops5h: number;
+  /** Lanes whose newest slot is still inside the 50-minute run window. */
+  running: string[];
+  /** Lanes the schedule holds back (sleeping or snoozed; paused lanes are not listed). */
+  sleeping: string[];
+  /** Nothing logged for 6 h although runs were due: show "Routines look off" once. */
+  routinesLookOff: boolean;
+  /** The earliest upcoming slot of a lane that will run (its cron, not before its snooze ends). */
+  nextDue?: { lane: string; at: string };
+}
+
 /** One CHANGELOG release (same shape as core's parsed `Release`), plus its tag and npm state when known. */
 export interface LoopRelease {
   version: string;
@@ -140,6 +156,12 @@ export interface LoopDetail extends LoopSummary {
   ship?: { ready: boolean; items: { id: string; label: string; ok: boolean; detail: string }[]; openFindings: string[] };
   /** Newest first: each lane's recorded and missing runs of the last two days (loops with lanes). */
   runs?: LoopRun[];
+  /** `.ai/schedule.json` as parsed (loops with lanes; absent when the file is). */
+  schedule?: Schedule;
+  /** Idle runs at the end of each lane's run log (the backoff counts these). */
+  idleRuns?: Record<string, number>;
+  /** Each lane's `.ai/lanes/<lane>/steer.md` entries, file order (newest first); lanes with a steer file only. */
+  steer?: { lane: string; entries: SteerEntry[] }[];
   /** The next scheduled slot of each lane that has a cron. */
   nextRuns?: { lane: string; at: string }[];
   /** Contract, decisions and knowledge of each lane, grouped by lane; absent for loops without lanes. */

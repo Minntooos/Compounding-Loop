@@ -6,7 +6,7 @@
     "demoUrl": "https://minntooos.github.io/Compounding-Loop/",
     "repoUrl": "https://github.com/Minntooos/Compounding-Loop",
     "state": "done",
-    "reason": "rounds 1 to 3 built unattended by five parallel lanes, all done; round 4 is running now",
+    "reason": "rounds 1 to 3 built unattended by five parallel lanes, all done",
     "round": 3,
     "roundsTotal": 4,
     "roundLabel": "Round 3 done · 0.3.0",
@@ -1560,7 +1560,880 @@
     ],
     "knowledge": [],
     "decisions": [],
-    "history": []
+    "history": [],
+    "runs": [
+      {
+        "lane": "server",
+        "at": "2026-10-13T12:25:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T12:37:00.000Z",
+        "units": [
+          "unit 48"
+        ],
+        "tests": {
+          "passed": 227,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "core",
+        "at": "2026-10-13T12:05:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T12:17:00.000Z",
+        "units": [
+          "unit 48"
+        ],
+        "tests": {
+          "passed": 227,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "web",
+        "at": "2026-10-13T11:35:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T11:47:00.000Z",
+        "units": [
+          "unit 47"
+        ],
+        "tests": {
+          "passed": 226,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "server",
+        "at": "2026-10-13T11:25:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T11:37:00.000Z",
+        "units": [
+          "unit 47"
+        ],
+        "tests": {
+          "passed": 226,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "core",
+        "at": "2026-10-13T11:05:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T11:17:00.000Z",
+        "units": [
+          "unit 47"
+        ],
+        "tests": {
+          "passed": 226,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "web",
+        "at": "2026-10-13T10:35:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T10:47:00.000Z",
+        "units": [
+          "unit 46"
+        ],
+        "tests": {
+          "passed": 225,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "server",
+        "at": "2026-10-13T10:25:00.000Z",
+        "outcome": "no-run-recorded",
+        "units": [],
+        "commits": []
+      },
+      {
+        "lane": "core",
+        "at": "2026-10-13T10:05:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T10:17:00.000Z",
+        "units": [
+          "unit 46"
+        ],
+        "tests": {
+          "passed": 225,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "docs",
+        "at": "2026-10-13T09:45:00.000Z",
+        "outcome": "nothing-pushed",
+        "endedAt": "2026-10-13T09:57:00.000Z",
+        "units": [],
+        "commits": [],
+        "note": "nothing to do"
+      },
+      {
+        "lane": "web",
+        "at": "2026-10-13T09:35:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T09:47:00.000Z",
+        "units": [
+          "unit 45"
+        ],
+        "tests": {
+          "passed": 224,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "server",
+        "at": "2026-10-13T09:25:00.000Z",
+        "outcome": "no-run-recorded",
+        "units": [],
+        "commits": []
+      },
+      {
+        "lane": "kit",
+        "at": "2026-10-13T09:15:00.000Z",
+        "outcome": "nothing-pushed",
+        "endedAt": "2026-10-13T09:27:00.000Z",
+        "units": [],
+        "commits": [],
+        "note": "nothing to do"
+      },
+      {
+        "lane": "core",
+        "at": "2026-10-13T09:05:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T09:17:00.000Z",
+        "units": [
+          "unit 45"
+        ],
+        "tests": {
+          "passed": 224,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "docs",
+        "at": "2026-10-13T08:45:00.000Z",
+        "outcome": "nothing-pushed",
+        "endedAt": "2026-10-13T08:57:00.000Z",
+        "units": [],
+        "commits": [],
+        "note": "nothing to do"
+      },
+      {
+        "lane": "web",
+        "at": "2026-10-13T08:35:00.000Z",
+        "outcome": "nothing-pushed",
+        "endedAt": "2026-10-13T08:47:00.000Z",
+        "units": [],
+        "commits": [],
+        "note": "nothing to do"
+      },
+      {
+        "lane": "server",
+        "at": "2026-10-13T08:25:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T08:37:00.000Z",
+        "units": [
+          "unit 44"
+        ],
+        "tests": {
+          "passed": 223,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "kit",
+        "at": "2026-10-13T08:15:00.000Z",
+        "outcome": "nothing-pushed",
+        "endedAt": "2026-10-13T08:27:00.000Z",
+        "units": [],
+        "commits": [],
+        "note": "nothing to do"
+      },
+      {
+        "lane": "core",
+        "at": "2026-10-13T08:05:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T08:17:00.000Z",
+        "units": [
+          "unit 44"
+        ],
+        "tests": {
+          "passed": 223,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "docs",
+        "at": "2026-10-13T07:45:00.000Z",
+        "outcome": "nothing-pushed",
+        "endedAt": "2026-10-13T07:57:00.000Z",
+        "units": [],
+        "commits": [],
+        "note": "nothing to do"
+      },
+      {
+        "lane": "web",
+        "at": "2026-10-13T07:35:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T07:47:00.000Z",
+        "units": [
+          "unit 43"
+        ],
+        "tests": {
+          "passed": 222,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "server",
+        "at": "2026-10-13T07:25:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T07:37:00.000Z",
+        "units": [
+          "unit 43"
+        ],
+        "tests": {
+          "passed": 222,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "kit",
+        "at": "2026-10-13T07:15:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T07:27:00.000Z",
+        "units": [
+          "unit 43"
+        ],
+        "tests": {
+          "passed": 222,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "core",
+        "at": "2026-10-13T07:05:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T07:17:00.000Z",
+        "units": [
+          "unit 43"
+        ],
+        "tests": {
+          "passed": 222,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "docs",
+        "at": "2026-10-13T06:45:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T06:57:00.000Z",
+        "units": [
+          "unit 42"
+        ],
+        "tests": {
+          "passed": 221,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "web",
+        "at": "2026-10-13T06:35:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T06:47:00.000Z",
+        "units": [
+          "unit 42"
+        ],
+        "tests": {
+          "passed": 221,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "server",
+        "at": "2026-10-13T06:25:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T06:37:00.000Z",
+        "units": [
+          "unit 42"
+        ],
+        "tests": {
+          "passed": 221,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "kit",
+        "at": "2026-10-13T06:15:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T06:27:00.000Z",
+        "units": [
+          "unit 42"
+        ],
+        "tests": {
+          "passed": 221,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "core",
+        "at": "2026-10-13T06:05:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T06:17:00.000Z",
+        "units": [
+          "unit 42"
+        ],
+        "tests": {
+          "passed": 221,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "docs",
+        "at": "2026-10-13T05:45:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T05:57:00.000Z",
+        "units": [
+          "unit 41"
+        ],
+        "tests": {
+          "passed": 220,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "web",
+        "at": "2026-10-13T05:35:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T05:47:00.000Z",
+        "units": [
+          "unit 41"
+        ],
+        "tests": {
+          "passed": 220,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "server",
+        "at": "2026-10-13T05:25:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T05:37:00.000Z",
+        "units": [
+          "unit 41"
+        ],
+        "tests": {
+          "passed": 220,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "kit",
+        "at": "2026-10-13T05:15:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T05:27:00.000Z",
+        "units": [
+          "unit 41"
+        ],
+        "tests": {
+          "passed": 220,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "core",
+        "at": "2026-10-13T05:05:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T05:17:00.000Z",
+        "units": [
+          "unit 41"
+        ],
+        "tests": {
+          "passed": 220,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "docs",
+        "at": "2026-10-13T04:45:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T04:57:00.000Z",
+        "units": [
+          "unit 40"
+        ],
+        "tests": {
+          "passed": 219,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "web",
+        "at": "2026-10-13T04:35:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T04:47:00.000Z",
+        "units": [
+          "unit 40"
+        ],
+        "tests": {
+          "passed": 219,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "server",
+        "at": "2026-10-13T04:25:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T04:37:00.000Z",
+        "units": [
+          "unit 40"
+        ],
+        "tests": {
+          "passed": 219,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "kit",
+        "at": "2026-10-13T04:15:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T04:27:00.000Z",
+        "units": [
+          "unit 40"
+        ],
+        "tests": {
+          "passed": 219,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "core",
+        "at": "2026-10-13T04:05:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T04:17:00.000Z",
+        "units": [
+          "unit 40"
+        ],
+        "tests": {
+          "passed": 219,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "docs",
+        "at": "2026-10-13T03:45:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T03:57:00.000Z",
+        "units": [
+          "unit 39"
+        ],
+        "tests": {
+          "passed": 218,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "web",
+        "at": "2026-10-13T03:35:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T03:47:00.000Z",
+        "units": [
+          "unit 39"
+        ],
+        "tests": {
+          "passed": 218,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "server",
+        "at": "2026-10-13T03:25:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T03:37:00.000Z",
+        "units": [
+          "unit 39"
+        ],
+        "tests": {
+          "passed": 218,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "kit",
+        "at": "2026-10-13T03:15:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T03:27:00.000Z",
+        "units": [
+          "unit 39"
+        ],
+        "tests": {
+          "passed": 218,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "core",
+        "at": "2026-10-13T03:05:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T03:17:00.000Z",
+        "units": [
+          "unit 39"
+        ],
+        "tests": {
+          "passed": 218,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "docs",
+        "at": "2026-10-13T02:45:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T02:57:00.000Z",
+        "units": [
+          "unit 38"
+        ],
+        "tests": {
+          "passed": 217,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "web",
+        "at": "2026-10-13T02:35:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T02:47:00.000Z",
+        "units": [
+          "unit 38"
+        ],
+        "tests": {
+          "passed": 217,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "server",
+        "at": "2026-10-13T02:25:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T02:37:00.000Z",
+        "units": [
+          "unit 38"
+        ],
+        "tests": {
+          "passed": 217,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "kit",
+        "at": "2026-10-13T02:15:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T02:27:00.000Z",
+        "units": [
+          "unit 38"
+        ],
+        "tests": {
+          "passed": 217,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "core",
+        "at": "2026-10-13T02:05:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T02:17:00.000Z",
+        "units": [
+          "unit 38"
+        ],
+        "tests": {
+          "passed": 217,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "docs",
+        "at": "2026-10-13T01:45:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T01:57:00.000Z",
+        "units": [
+          "unit 37"
+        ],
+        "tests": {
+          "passed": 216,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "web",
+        "at": "2026-10-13T01:35:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T01:47:00.000Z",
+        "units": [
+          "unit 37"
+        ],
+        "tests": {
+          "passed": 216,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "server",
+        "at": "2026-10-13T01:25:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T01:37:00.000Z",
+        "units": [
+          "unit 37"
+        ],
+        "tests": {
+          "passed": 216,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "kit",
+        "at": "2026-10-13T01:15:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T01:27:00.000Z",
+        "units": [
+          "unit 37"
+        ],
+        "tests": {
+          "passed": 216,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "core",
+        "at": "2026-10-13T01:05:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T01:17:00.000Z",
+        "units": [
+          "unit 37"
+        ],
+        "tests": {
+          "passed": 216,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      },
+      {
+        "lane": "docs",
+        "at": "2026-10-13T00:45:00.000Z",
+        "outcome": "pushed",
+        "endedAt": "2026-10-13T00:57:00.000Z",
+        "units": [
+          "unit 36"
+        ],
+        "tests": {
+          "passed": 215,
+          "failed": 0
+        },
+        "commits": [],
+        "note": "unit shipped"
+      }
+    ],
+    "runOutcomes": {
+      "limitStops5h": 2,
+      "running": [
+        "web"
+      ],
+      "sleeping": [
+        "kit",
+        "docs"
+      ],
+      "routinesLookOff": false,
+      "nextDue": {
+        "lane": "core",
+        "at": "2026-10-13T13:05:00.000Z"
+      }
+    },
+    "idleRuns": {
+      "core": 0,
+      "kit": 2,
+      "server": 0,
+      "web": 0,
+      "docs": 3
+    },
+    "schedule": {
+      "version": 1,
+      "lanes": {
+        "kit": {
+          "notBefore": "2026-10-13T15:15:00Z",
+          "sleeping": false,
+          "paused": false,
+          "reason": "idle twice in a row"
+        },
+        "docs": {
+          "notBefore": null,
+          "sleeping": true,
+          "paused": false,
+          "reason": "docs waits for the first features"
+        }
+      }
+    },
+    "steer": [
+      {
+        "lane": "core",
+        "entries": [
+          {
+            "at": "2026-10-13T05:50:00.000Z",
+            "author": "owner",
+            "scope": "next-run",
+            "text": "Ship the pace parser before anything else.",
+            "ack": {
+              "state": "done",
+              "run": 4
+            }
+          },
+          {
+            "at": "2026-10-12T21:00:00.000Z",
+            "author": "owner",
+            "scope": "standing",
+            "text": "Keep every new command usable with --json.",
+            "ack": {
+              "state": "done",
+              "run": 1
+            }
+          }
+        ]
+      },
+      {
+        "lane": "server",
+        "entries": [
+          {
+            "at": "2026-10-13T11:30:00.000Z",
+            "author": "owner",
+            "scope": "next-run",
+            "text": "Put run-log fixtures in the demo snapshot first; web is waiting on them."
+          },
+          {
+            "at": "2026-10-13T09:10:00.000Z",
+            "author": "owner",
+            "scope": "next-run",
+            "text": "Add the npm state to every release.",
+            "ack": {
+              "state": "not-done",
+              "why": "npm is only asked in live mode; local mode stays offline"
+            }
+          },
+          {
+            "at": "2026-10-12T21:00:00.000Z",
+            "author": "owner",
+            "scope": "standing",
+            "text": "Never call npm from local mode.",
+            "ack": {
+              "state": "done",
+              "run": 1
+            }
+          }
+        ]
+      },
+      {
+        "lane": "web",
+        "entries": [
+          {
+            "at": "2026-10-13T10:05:00.000Z",
+            "author": "owner",
+            "scope": "standing",
+            "text": "Keep the phone layout to one thumb: no horizontal scroll at 375 px."
+          }
+        ]
+      }
+    ],
+    "lastRun": {
+      "lane": "server",
+      "at": "2026-10-13T12:25:00.000Z",
+      "outcome": "pushed"
+    }
   },
   "checks": [
     {

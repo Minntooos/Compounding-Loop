@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { laneNotesFromTask } from '../src/server/taskBullets.ts';
 import { scrubText } from './build-demo.mjs';
+import { cockpitFixture } from './cockpit-fixture.mjs';
 
 const execFileAsync = promisify(execFile);
 export const ROUND_ONE_COMMIT = '3385cdf';
@@ -84,7 +85,7 @@ export async function buildSelf(repoDir) {
     demoUrl: 'https://minntooos.github.io/Compounding-Loop/',
     repoUrl: 'https://github.com/Minntooos/Compounding-Loop',
     state: 'done',
-    reason: 'rounds 1 to 3 built unattended by five parallel lanes, all done; round 4 is running now',
+    reason: 'rounds 1 to 3 built unattended by five parallel lanes, all done',
     round: 3,
     roundsTotal: 4,
     // The snapshot is a fixed point: it never claims a release is waiting; live data says that.
@@ -100,6 +101,7 @@ export async function buildSelf(repoDir) {
     knowledge: [],
     decisions: [],
     history: [],
+    ...cockpitFixture(),
   };
   const checks = [{ loopId: detail.id, kind: 'failing-tests', ok: true, reason: 'all tests pass', proof: `npm test was green at ${SNAPSHOT_COMMIT}` }];
   return { loop: detail, checks };

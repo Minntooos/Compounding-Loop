@@ -65,6 +65,24 @@ describe('shipped demo/this-repo.json (the sixth demo loop)', () => {
     expect(loop.laneNotes?.some((n) => n.decisions.length > 0)).toBe(true);
   });
 
+  it('carries run-log, schedule and steer fixtures that exercise every outcome web shows', async () => {
+    const { loop } = await readShipped();
+    expect(new Set(loop.runs?.map((r) => r.outcome))).toEqual(new Set(['pushed', 'nothing-pushed', 'no-run-recorded']));
+    expect(loop.runOutcomes).toMatchObject({ limitStops5h: 2, running: ['web'], sleeping: ['kit', 'docs'], routinesLookOff: false });
+    expect(loop.runOutcomes?.nextDue).toEqual({ lane: 'core', at: '2026-10-13T13:05:00.000Z' });
+    expect(loop.schedule?.lanes.docs?.sleeping).toBe(true);
+    expect(loop.schedule?.lanes.kit?.notBefore).toBe('2026-10-13T15:15:00Z');
+    expect(loop.idleRuns).toEqual({ core: 0, kit: 2, server: 0, web: 0, docs: 3 });
+    const steer = Object.fromEntries((loop.steer ?? []).map((s) => [s.lane, s.entries]));
+    // Acknowledged (done and not-done), open next-run and open standing entries are all present.
+    const all = Object.values(steer).flat();
+    expect(all.some((e) => e.ack?.state === 'done')).toBe(true);
+    expect(all.some((e) => e.ack?.state === 'not-done')).toBe(true);
+    expect(all.some((e) => !e.ack && e.scope === 'next-run')).toBe(true);
+    expect(all.some((e) => !e.ack && e.scope === 'standing')).toBe(true);
+    expect(loop.reason).not.toMatch(/round 4/);
+  });
+
   it('contains no emails, local paths, tokens, routine or session ids, or author emails', async () => {
     const text = JSON.stringify(await readShipped());
     expect(text).not.toMatch(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/);
