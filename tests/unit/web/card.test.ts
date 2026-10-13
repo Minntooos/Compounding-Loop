@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activityStamp, badgeFilters, cardBadge, chipHold, stateReason, headerRound, releasedText, cardFacts, statusLine, laneProgress, roundProgress, runBudget, selfFirst } from '../../../web/src/lib/card.js';
+import { activityStamp, badgeFilters, cardBadge, chipHold, headerReason, stateReason, headerRound, releasedText, cardFacts, statusLine, laneProgress, roundProgress, runBudget, selfFirst } from '../../../web/src/lib/card.js';
 
 describe('fleet card model', () => {
   it('puts the self-build loop first and keeps the rest in order', () => {
@@ -127,5 +127,18 @@ describe('badgeFilters', () => {
   it('offers no filter when every card shows the same badge', () => {
     expect(badgeFilters([{ state: 'done' }, { state: 'done' }])).toEqual([]);
     expect(badgeFilters([])).toEqual([]);
+  });
+});
+
+describe('headerReason', () => {
+  it('is empty beside a Paused badge: the build reason would contradict it and the paused notice explains', () => {
+    expect(headerReason({ state: 'building', reason: 'Building round 5', paused: { by: 'sam', reason: 'holiday' } })).toBeUndefined();
+    expect(headerReason({ state: 'waiting', reason: 'Waiting', paused: { by: 'owner' } })).toBeUndefined();
+  });
+  it('keeps the state reason when the badge is not Paused', () => {
+    const off = { limitStops5h: 0, running: [], sleeping: [], routinesLookOff: true };
+    expect(headerReason({ state: 'building', reason: 'Building', paused: { by: 'sam' }, runOutcomes: off })).toBe('Routines look off');
+    expect(headerReason({ state: 'failing', reason: 'Tests failing', paused: { by: 'sam' } })).toBe('Tests failing');
+    expect(headerReason({ state: 'building', reason: 'Building round 5' })).toBe('Building round 5');
   });
 });

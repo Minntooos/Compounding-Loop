@@ -72,6 +72,9 @@ test('fleet card lane chips show the whole loop paused', async ({ page }) => {
   await expect(page.getByTestId('loop-card').getByTestId('status-badge')).toHaveText('Paused');
   await page.goto('/#/loop/self');
   await expect(page.getByTestId('status-badge')).toHaveText('Paused');
+  // No build reason beside the Paused badge; the notice under the header says who paused it.
+  await expect(page.getByTestId('header-reason')).toHaveCount(0);
+  await expect(page.getByTestId('paused-notice')).toContainText('Paused by sam since 12:00 UTC');
 });
 
 test('the whole loop paused holds every lane', async ({ page }) => {

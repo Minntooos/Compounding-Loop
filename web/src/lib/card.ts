@@ -120,6 +120,14 @@ export function stateReason(loop: Pick<LoopSummary, 'reason'> & Partial<Pick<Loo
 }
 
 /**
+ * The loop header's text beside its badge, or undefined beside a Paused badge: the build reason ("Building round 5") would
+ * contradict it, and the paused notice under the header already says who paused it, when and why (said once, A8).
+ */
+export function headerReason(loop: Parameters<typeof cardBadge>[0] & Pick<LoopSummary, 'reason'>): string | undefined {
+  return cardBadge(loop) === 'paused' ? undefined : stateReason(loop);
+}
+
+/**
  * A fleet card lane chip's hold. Cards carry no schedule.json, only `runOutcomes.sleeping` (sleeping or snoozed lanes) and
  * the loop pause, so a lane paused on its own still reads its lane state here (the Lanes tab says Paused).
  */
