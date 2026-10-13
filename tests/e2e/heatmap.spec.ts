@@ -38,7 +38,7 @@ test('every slot is a labelled cell and the legend has every outcome word', asyn
   const map = page.getByTestId('heatmap');
   await expect(map.getByRole('table')).toBeVisible();
   for (const label of ['web 12:05 UTC: likely running', 'web 11:05 UTC: worked, 2 units', 'core 11:05 UTC: failed, 2 failing', 'web 10:05 UTC: idle',
-    'core 10:05 UTC: limit stop, no run line (usage limit or a failed start)', 'docs 11:05 UTC: not due', 'kit 11:05 UTC: done', 'server 11:05 UTC: paused']) {
+    'core 10:05 UTC: limit stop, no run logged (usage limit or a failed start)', 'docs 11:05 UTC: not due', 'kit 11:05 UTC: done', 'server 11:05 UTC: paused']) {
     await expect(map.getByRole('link', { name: label, exact: true })).toBeVisible();
   }
   await expect(map.getByTestId('heat-legend').getByRole('listitem')).toHaveText(['worked', 'idle', 'likely running', 'failed', 'limit stop', 'not due', 'paused', 'done']);

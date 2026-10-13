@@ -11,7 +11,7 @@ export const HEAT_LABEL: Record<HeatOutcome, string> = {
 
 /** Detail line under a Runs-tab row whose word needs an explanation. */
 export const HEAT_HINT: Partial<Record<HeatOutcome, string>> = {
-  'limit-stop': 'no run line: usage limit or a failed start',
+  'limit-stop': 'no run logged: usage limit or a failed start',
   running: 'inside its 50-minute run window',
 };
 
@@ -26,8 +26,11 @@ const BY_OUTCOME: Record<LoopRun['outcome'], HeatOutcome> = {
 };
 
 /** Core's slot kind when the server sent one, else the run outcome (older servers and snapshots). */
-export function heatOutcome(run: Pick<LoopRun, 'kind' | 'outcome'>): HeatOutcome {
-  return run.kind ? BY_KIND[run.kind] : BY_OUTCOME[run.outcome];
+export function heatOutcome(run: Pick<LoopRun, 'kind' | 'outcome'> & { units?: string[] }): HeatOutcome {
+  if (run.kind) return BY_KIND[run.kind];
+  // Core counts a run that finished units as worked even when it pushed nothing (src/core/outcomes.ts).
+  if (run.outcome === 'nothing-pushed' && (run.units?.length ?? 0) > 0) return 'worked';
+  return BY_OUTCOME[run.outcome];
 }
 
 const HOUR = 3_600_000;
@@ -70,7 +73,7 @@ export function heatCellLabel({ run, outcome }: HeatCell): string {
   const units = run.units.length;
   const extra = outcome === 'worked' && units > 0 ? `, ${units} ${units === 1 ? 'unit' : 'units'}`
     : outcome === 'failed' && run.tests ? `, ${run.tests.failed} failing`
-    : outcome === 'limit-stop' ? ', no run line (usage limit or a failed start)' : '';
+    : outcome === 'limit-stop' ? ', no run logged (usage limit or a failed start)' : '';
   return `${run.lane} ${timeUtc(run.at)}: ${HEAT_LABEL[outcome]}${extra}`;
 }
 

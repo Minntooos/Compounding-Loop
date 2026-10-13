@@ -28,6 +28,10 @@ describe('runs helpers', () => {
     expect(silentLanes([missed('web', 9), missed('web', 8), run('web', '2026-10-11T07:00:00Z')])).toEqual([]);
     expect(silentLanes([missed('web', 9), missed('core', 9), missed('web', 8), missed('web', 7)])).toEqual(['web']);
     expect(silentLanes([missed('web', 9), run('web', '2026-10-11T08:00:00Z'), missed('web', 7), missed('web', 6)])).toEqual([]);
+    // A likely-running slot is not a missed one (core's kind wins over the outcome).
+    const running = { ...missed('web', 10), kind: 'running' as const };
+    expect(silentLanes([missed('web', 9), running, missed('web', 8), missed('web', 7)].map((r, i) => i === 0 ? running : r))).toEqual([]);
+    expect(silentLanes([{ ...missed('web', 9), kind: 'missed' as const }, missed('web', 8), missed('web', 7)])).toEqual(['web']);
   });
   it('words the test result', () => {
     expect(testsText(undefined)).toBeUndefined();

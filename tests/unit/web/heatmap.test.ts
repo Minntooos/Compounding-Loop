@@ -13,6 +13,10 @@ describe('heatOutcome', () => {
   it('falls back to the run outcome when the server sent no kind', () => {
     expect((['pushed', 'nothing-pushed', 'tests-failed', 'no-run-recorded'] as const).map((outcome) => heatOutcome({ outcome }))).toEqual(['worked', 'idle', 'failed', 'limit-stop']);
   });
+  it('calls a run that finished units worked even when it pushed nothing', () => {
+    expect(heatOutcome({ outcome: 'nothing-pushed', units: ['a'] })).toBe('worked');
+    expect(heatOutcome({ outcome: 'nothing-pushed', units: [] })).toBe('idle');
+  });
   it('has a legend word for every outcome', () => {
     expect(new Set(HEAT_ORDER)).toEqual(new Set(Object.keys(HEAT_LABEL)));
   });
@@ -53,7 +57,7 @@ describe('heatCellLabel and heatCellHref', () => {
   it('says lane, time and outcome with the useful detail', () => {
     expect(heatCellLabel({ run: run('web', '2026-10-13T14:00:00Z', 'pushed', { units: ['a', 'b'] }), outcome: 'worked' })).toBe('web 14:00 UTC: worked, 2 units');
     expect(heatCellLabel({ run: run('core', '2026-10-13T09:00:00Z', 'tests-failed', { tests: { passed: 3, failed: 2 } }), outcome: 'failed' })).toBe('core 09:00 UTC: failed, 2 failing');
-    expect(heatCellLabel({ run: run('kit', '2026-10-13T09:00:00Z', 'no-run-recorded'), outcome: 'limit-stop' })).toBe('kit 09:00 UTC: limit stop, no run line (usage limit or a failed start)');
+    expect(heatCellLabel({ run: run('kit', '2026-10-13T09:00:00Z', 'no-run-recorded'), outcome: 'limit-stop' })).toBe('kit 09:00 UTC: limit stop, no run logged (usage limit or a failed start)');
     expect(heatCellLabel({ run: run('docs', '2026-10-13T09:00:00Z', 'no-run-recorded', { kind: 'not-due' }), outcome: 'not-due' })).toBe('docs 09:00 UTC: not due');
   });
   it('links to the slot in the Runs tab, and the route reads it back', () => {

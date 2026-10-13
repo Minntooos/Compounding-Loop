@@ -26,7 +26,8 @@ export function silentLanes(runs: LoopRun[], threshold = SILENT_THRESHOLD): stri
     let streak = 0;
     for (const r of runs) {
       if (r.lane !== lane) continue;
-      if (r.outcome !== 'no-run-recorded') break;
+      // A missed slot: core's `missed` kind, or no run line when the server sent no kind (never a running or quiet slot).
+      if (r.kind ? r.kind !== 'missed' : r.outcome !== 'no-run-recorded') break;
       streak += 1;
     }
     return streak >= threshold;
