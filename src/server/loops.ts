@@ -11,12 +11,13 @@ import { parseLanesConfig } from '../core/lanes.js';
 import { parseBlocked } from '../core/blocked.js';
 import { readLoopFacts, readRunCounter } from '../core/repo.js';
 import { deriveStatus } from '../core/status.js';
-import type { ContractItem, InboxItem, LaneStatus, LoopCommit, LoopDetail, LoopSummary } from '../core/types.js';
-import { packageVersion, releaseInboxItem, roundState } from './roundState.js';
+import type { ContractItem, InboxItem, LaneStatus, LoopCommit, LoopDetail, LoopSummary, LoopTestResult } from '../core/types.js';
+import { annotateReleases, isShipped } from './shipped.js';
+import { homepageOf, packageVersion, releaseInboxItem, roundState } from './roundState.js';
 import { commitLane, latestControlNotes, parseChangelog, parsePaused } from '../core/parse/index.js';
 import { shipCheck } from '../core/shipCheck.js';
 import { buildRuns, lastRunOf, sessionKey, silentLanesItem } from './runs.js';
-import { checkLoop } from './health.js';
+import { checkLoop, parseTestRecord } from './health.js';
 import { bulletsUnder, contractFromTask, laneNotesFromTask } from './taskBullets.js';
 
 export { bulletsUnder, contractFromTask };
@@ -72,10 +73,19 @@ async function readRuns(dir: string, lanes: readonly LaneStatus[], lanesJson: st
 }
 
 /** Local git facts for the ship-check; a failing git call reads as the safe answer (tag free, tree dirty). */
-async function readShipGit(dir: string, tag: string): Promise<{ tagExists: boolean; treeClean: boolean }> {
+async function readShipGit(dir: string, tag: string): Promise<{ tagExists: boolean; treeClean: boolean; tags: string[] }> {
   const git = (args: string[]) => execFileAsync('git', args, { cwd: dir, timeout: 15_000 }).then((r) => r.stdout, () => undefined);
-  const [tags, status] = await Promise.all([git(['tag', '--list', tag]), git(['status', '--porcelain'])]);
-  return { tagExists: (tags ?? '').split('\n').some((t) => t.trim() === tag), treeClean: status !== undefined && status.trim() === '' };
+  const [tagList, status] = await Promise.all([git(['tag', '--list', 'v*']), git(['status', '--porcelain'])]);
+  const tags = (tagList ?? '').split('\n').map((t) => t.trim()).filter((t) => t !== '');
+  return { tagExists: tags.includes(tag), treeClean: status !== undefined && status.trim() === '', tags };
+}
+
+/** `.ai/last-test.json` as a card result, dated by the file's mtime; undefined when absent or malformed. */
+async function readTestFile(dir: string): Promise<LoopTestResult | undefined> {
+  const file = path.join(dir, '.ai', 'last-test.json');
+  const [text, info] = await Promise.all([readOptional(file), stat(file).catch(() => undefined)]);
+  const record = text === undefined ? undefined : parseTestRecord(text);
+  return record && info ? { ...record, at: info.mtime.toISOString() } : undefined;
 }
 
 /** Reads one clone into the API's LoopDetail. `now` is a parameter so tests are deterministic. */
@@ -100,31 +110,44 @@ export async function readLoop(dir: string, now: Date = new Date()): Promise<Loo
   const round = facts.roundsDone + 1;
   const task = taskText ?? '';
   const version = packageVersion(packageText);
-  const { roundLabel, releaseWaiting } = roundState({ round, hasDone: facts.hasDone, laned: lanes !== undefined, ...(version && { version }) });
+  const shipGit = version ? await readShipGit(dir, `v${version}`) : undefined;
+  // npm is not asked locally (no network in a dashboard that works offline): the tag alone decides.
+  const shippedNow = version !== undefined && shipGit !== undefined && isShipped({ version, tagExists: shipGit.tagExists });
+  const { roundLabel, releaseWaiting } = roundState({ round, hasDone: facts.hasDone, laned: lanes !== undefined, shipped: shippedNow, ...(version && { version }) });
+  const releaseDate = version ? parseChangelog(changelogText ?? '').find((r) => r.version === version)?.date : undefined;
   const doneText = lanes && version ? await readOptional(path.join(dir, 'DONE.md')) : undefined;
   const newestTests = runsData?.runs.find((r) => r.tests && r.endedAt);
-  const ship = doneText !== undefined && version
+  const ship = doneText !== undefined && version && shipGit && !shippedNow
     ? shipCheck({
         version,
         doneText,
         ...(changelogText !== undefined && { changelogText }),
-        ...(await readShipGit(dir, `v${version}`)),
+        tagExists: shipGit.tagExists,
+        treeClean: shipGit.treeClean,
         ...(newestTests?.tests && { tests: { ...newestTests.tests, ...(newestTests.endedAt && { at: newestTests.endedAt }) } }),
       })
     : undefined;
+  // The same card fields the live and demo loops carry (Round 5 A7): CI from the tests check, newest test result, site.
+  const ciCheck = checks.find((c) => c.kind === 'failing-tests');
+  const site = homepageOf(packageText);
+  const cardTests = newestTests?.tests && newestTests.endedAt ? { ...newestTests.tests, at: newestTests.endedAt } : await readTestFile(dir);
   return {
     id: path.basename(dir),
     name: path.basename(dir),
+    ...(site && { url: site, demoUrl: site }),
+    ...(ciCheck && { ci: { ok: ciCheck.ok, reason: ciCheck.reason } }),
+    ...(cardTests && { tests: cardTests }),
     state: status.state,
     reason: releaseWaiting && status.state === 'done' ? `${roundLabel} · release waiting on you` : status.reason,
     roundLabel,
     ...(pausedText !== undefined && { paused: pausedInfo(pausedText) }),
     ...(notes.length > 0 && { controlNotes: notes }),
-    ...(changelogText !== undefined && { releases: parseChangelog(changelogText) }),
+    ...(changelogText !== undefined && { releases: annotateReleases(parseChangelog(changelogText), shipGit?.tags ?? [], undefined) }),
     ...(runsData && lastRunOf(runsData.runs) && { lastRun: lastRunOf(runsData.runs) }),
     ...(runsData && { runs: runsData.runs, nextRuns: runsData.nextRuns }),
     ...(ship && { ship }),
     ...(releaseWaiting && { releaseWaiting }),
+    ...(shippedNow && version && { shipped: { version, ...(releaseDate && { date: releaseDate }), npm: 'unknown' as const } }),
     round,
     // The total is unknown for a real loop (the owner can always add a round), so it never reads "5 of 3".
     roundsTotal: round,
@@ -157,7 +180,9 @@ async function readReleaseItem(dir: string): Promise<InboxItem | undefined> {
   const file = path.join(dir, 'DONE.md');
   const [info, laned] = await Promise.all([stat(file).catch(() => undefined), stat(path.join(dir, '.ai', 'lanes.json')).catch(() => undefined)]);
   if (!info || !laned) return undefined;
-  return releaseInboxItem(path.basename(dir), packageVersion(await readOptional(path.join(dir, 'package.json'))), info.mtime.toISOString());
+  const version = packageVersion(await readOptional(path.join(dir, 'package.json')));
+  if (version && isShipped({ version, tagExists: (await readShipGit(dir, `v${version}`)).tagExists })) return undefined;
+  return releaseInboxItem(path.basename(dir), version, info.mtime.toISOString());
 }
 
 async function readSilentItem(dir: string, now: Date): Promise<InboxItem | undefined> {

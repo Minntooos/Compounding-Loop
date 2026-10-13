@@ -1,3 +1,23 @@
+# Round 5 (2026-10-13)
+
+Method: fresh `origin/main` (`npm test` green, 144 e2e pass), read `src/server/loops.ts`, `live/build.ts`, `roundState.ts`, `controls.ts`, `runs.ts`, IDEA.md Round 5 A, B6.
+
+## Blockers
+None open.
+
+## Findings
+| # | Area | Result | Severity |
+|---|---|---|---|
+| 1 | Shipped release | `roundState` set `releaseWaiting` from root DONE.md alone, locally and live, so 0.4.0 stayed "waiting on you" after its tag existed (A1). Fix: `src/server/shipped.ts` (tag exists, plus npm `latest` equal when readable), `shipped` on the loop, `tag`/`npm` on each release. | fixed (this run) |
+| 2 | Static CSP | `connect-src` had no npm host. Fix: `https://registry.npmjs.org` added to `LIVE_CONNECT_HOSTS`. | fixed (this run) |
+| 3 | Local cards | `readLoop` set no `ci`, `tests` or `url` (A7). Fix: CI from the tests check, `tests` from the run log or `.ai/last-test.json`, site from package.json `homepage` (https only). | fixed (this run) |
+| 4 | Phantom run slots | `buildRuns` expects slots after root DONE.md only for non-stopped lanes, but ignores PAUSED/`schedule.json` and the 6 h "routines look off" rule (A2). Needs core's `classifyRunSlots`; unit 4. | major, open (blocked on core) |
+| 5 | Fixtures | Demo snapshot has no run-log, schedule or steer data (web was blocked on it in round 4). Unit 3. | major, open |
+| 6 | Routes | No schedule, steer or draft-brief routes yet (B6). Waits on core's `loop schedule`/`loop steer`/`next-round --draft`. | major, open |
+| 7 | npm at runtime | The dashboard's live path must fetch `npmPackageUrl(name)`; web owns the fetch (outbox). Local mode never calls npm (tag alone decides). | minor |
+
+Other lanes: web fetches npm (outbox); core: see findings 4 and 6.
+
 # Round 4 (2026-10-11)
 
 Method: fresh `origin/main` (local clone had unrelated history; reset), `npm test` green (120 e2e pass). Read `src/server/live/*`, `demo/build-self.mjs`, `src/server/data.ts`, the owner's brief A to D.

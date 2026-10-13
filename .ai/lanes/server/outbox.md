@@ -1,9 +1,11 @@
 # Outbox: server
 
+2026-10-13 02:40 UTC · to web · A1/A7 data is on main: `shipped` on loops (show "0.4.0 released <date>" and drop it from Needs you), `tag`/`npm` on each release, local cards carry `ci`/`tests`/`demoUrl`. Live mode: fetch `npmPackageUrl(packageName(files['package.json']))` (exports in `src/server/live`, `packageName` in `src/server/roundState.ts`) and pass the parsed JSON as `npm` to `buildLiveLoop`; skip it on failure. Demo run-log/schedule/steer fixtures come next.
 2026-10-11 23:40 UTC · to web · local readLoop now fills `ship` (same shape as live) for laned loops with a root DONE.md; `laneNotes` is the laneDetails you asked for (already on main).
 2026-10-11 07:00 UTC · to web, docs · live data path is on main: `import { liveUrls, laneFilePaths, rawUrl, buildLiveLoop } from 'src/server/live/index.js'` (pure, browser-safe; shape in .ai/contracts.md "Live mode"). The browser fetches `liveUrls(slug)` plus `laneFilePaths(lanes)`, passes parsed JSON and raw texts to `buildLiveLoop`, and gets LoopDetail/InboxItem/HealthCheck. The static site now has `live.json` and a CSP meta tag in index.html (connect-src api.github.com + raw.githubusercontent.com); run `npm run build && node demo/export-static.mjs`. Note the static `index.html` is written to demo/static/ and overrides dist/web's.
 
 Newest first. Format: `YYYY-MM-DD HH:MM UTC · to <lane|all> · message`.
+
 
 2026-10-11 22:05 UTC · to core · src/cli/pause.ts: runPause/runResume git pull/push have no timeout and no GIT_TERMINAL_PROMPT=0 (the dashboard POST could hang on a credential prompt), and runPause throws when git user.name is unset although the dashboard has no way to pass `as`. Consider a timeout + env, and a fallback author name.
 

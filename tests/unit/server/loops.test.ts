@@ -210,18 +210,33 @@ describe('laned clone: ship check from local git', () => {
   };
   const itemOk = (detail: { ship?: { items: { id: string; ok: boolean }[] } }, id: string) => detail.ship?.items.find((i) => i.id === id)?.ok;
 
-  it('reports a free tag and a clean tree, then an existing tag and a dirty tree', async () => {
+  it('reports a free tag and a clean tree, then a dirty tree', async () => {
     const dir = makeLoop('ship', files);
     const clean = await readLoop(dir, new Date());
     expect(itemOk(clean, 'tag')).toBe(true);
     expect(itemOk(clean, 'clean')).toBe(true);
     expect(itemOk(clean, 'done')).toBe(true);
-    git(dir, 'tag', 'v2.0.0');
     writeFileSync(path.join(dir, 'stray.txt'), 'x');
     const dirty = await readLoop(dir, new Date());
-    expect(itemOk(dirty, 'tag')).toBe(false);
     expect(itemOk(dirty, 'clean')).toBe(false);
     expect(dirty.ship?.ready).toBe(false);
+  });
+
+  // Regression (Round 5 A1): the release stayed "waiting on you" after its tag existed.
+  it('a release whose tag exists is shipped: no waiting release, no ship panel, no attention item', async () => {
+    const dir = makeLoop('shipped', { ...files, 'CHANGELOG.md': '# Changelog\n\n## [Unreleased]\n- Next\n\n## [2.0.0] - 2026-10-12\n- Shipped\n\n## [1.0.0] - 2026-10-01\n- Old\n' });
+    const waiting = await readLoop(dir, new Date());
+    expect(waiting).toMatchObject({ releaseWaiting: true });
+    expect(waiting.shipped).toBeUndefined();
+    git(dir, 'tag', 'v2.0.0');
+    const detail = await readLoop(dir, new Date());
+    expect(detail.releaseWaiting).toBeUndefined();
+    expect(detail.ship).toBeUndefined();
+    expect(detail.shipped).toEqual({ version: '2.0.0', date: '2026-10-12', npm: 'unknown' });
+    expect(detail.reason).not.toContain('release waiting');
+    expect(detail.releases?.map((r) => [r.version, r.tag])).toEqual([['Unreleased', undefined], ['2.0.0', true], ['1.0.0', false]]);
+    const inbox = (await (await (await createApp({ demo: false, projectsDir: root })).request('/api/inbox')).json()) as InboxItem[];
+    expect(inbox.some((i) => i.loopId === 'shipped' && i.kind === 'release')).toBe(false);
   });
 
   it('has no ship check without a root DONE.md', async () => {
@@ -265,5 +280,20 @@ describe('laned clone: pause, control-room notes and releases', () => {
     const mine = summary.find((l) => l.id === 'ctl');
     expect(mine?.paused).toBeDefined();
     expect(mine && 'releases' in mine).toBe(false);
+  });
+});
+
+// Regression (Round 5 A7): local fleet cards lacked the CI, tests and site fields the demo cards carry.
+describe('local cards carry CI, tests and the site', () => {
+  it('fills ci from the tests check, tests from last-test.json and the site from package.json homepage', async () => {
+    const dir = makeLoop('card', { '.ai/task.md': TASK, '.ai/last-test.json': '{"passed":12,"failed":2}', 'package.json': '{"name":"x","version":"1.0.0","homepage":"https://card.example.com"}' });
+    const summary = ((await (await (await createApp({ demo: false, projectsDir: root })).request('/api/loops')).json()) as LoopSummary[]).find((l) => l.id === 'card');
+    expect(summary).toMatchObject({ ci: { ok: false, reason: '2 tests fail' }, tests: { passed: 12, failed: 2 }, url: 'https://card.example.com', demoUrl: 'https://card.example.com' });
+    expect(Date.parse(summary?.tests?.at ?? '')).not.toBeNaN();
+    expect(dir).toContain('card');
+  });
+  it('ignores a homepage that is not https', async () => {
+    const detail = await readLoop(makeLoop('card-http', { '.ai/task.md': TASK, 'package.json': '{"homepage":"javascript:alert(1)"}' }), new Date());
+    expect([detail.url, detail.demoUrl, detail.tests]).toEqual([undefined, undefined, undefined]);
   });
 });

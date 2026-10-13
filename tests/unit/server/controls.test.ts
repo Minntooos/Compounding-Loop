@@ -76,11 +76,11 @@ describe('control data in the live loop', () => {
     const files = { '.ai/lanes.json': lanes, 'DONE.md': '# Done\n', 'package.json': '{"version":"0.4.0"}', 'CHANGELOG.md': changelog };
     const ready = buildLiveLoop({ ...base, files }).detail.ship;
     expect(ready?.items.map((i) => [i.id, i.ok]).filter(([id]) => id !== 'tests')).toEqual([['done', true], ['findings', true], ['changelog', true], ['tag', true], ['clean', true]]);
-    const tagged = buildLiveLoop({ ...base, tags: [{ name: 'v0.4.0' }], files }).detail.ship;
+    // Once the tag exists the release is shipped, so there is nothing left to check (Round 5 A1).
+    const tagged = buildLiveLoop({ ...base, tags: [{ name: 'v0.4.0' }], files }).detail;
     // The matching-refs response (no 100-tag cap) reads the same.
-    expect(buildLiveLoop({ ...base, tags: [{ ref: 'refs/tags/v0.4.0' }], files }).detail.ship).toEqual(tagged);
-    expect(tagged?.ready).toBe(false);
-    expect(tagged?.items.find((i) => i.id === 'tag')?.ok).toBe(false);
+    expect(buildLiveLoop({ ...base, tags: [{ ref: 'refs/tags/v0.4.0' }], files }).detail).toEqual(tagged);
+    expect([tagged.ship, tagged.shipped?.version]).toEqual([undefined, '0.4.0']);
     expect(buildLiveLoop({ ...base, files: { ...files, 'DONE.md': undefined } }).detail.ship).toBeUndefined();
   });
 

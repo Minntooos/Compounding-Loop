@@ -104,9 +104,9 @@ describe('serving the dashboard', async () => {
 });
 
 describe('static CSP and live config', () => {
-  it('allows exactly the two GitHub hosts in connect-src and nothing else extra', () => {
+  it('allows exactly the two GitHub hosts and the npm registry in connect-src, nothing else', () => {
     const connect = STATIC_CSP.split('; ').find((d) => d.startsWith('connect-src'));
-    expect(connect).toBe("connect-src 'self' https://api.github.com https://raw.githubusercontent.com");
+    expect(connect).toBe("connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://registry.npmjs.org");
     expect([...(STATIC_CSP.match(/https?:\/\/[^\s;]+/g) ?? [])].sort()).toEqual([...LIVE_CONNECT_HOSTS].sort());
     expect(STATIC_CSP.replace(connect ?? '', '')).toBe(CSP.replace("connect-src 'self'", ''));
     expect(STATIC_CSP).not.toMatch(/unsafe-eval|\*/);

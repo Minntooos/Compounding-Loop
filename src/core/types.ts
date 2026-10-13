@@ -77,6 +77,8 @@ export interface LoopSummary {
   roundLabel?: string;
   /** Root DONE.md exists: the round is finished and a release waits on the owner. */
   releaseWaiting?: boolean;
+  /** The version in package.json is released: its tag exists and, when npm could be checked, npm `latest` equals it (server lane, Round 5). */
+  shipped?: { version: string; date?: string; npm: NpmState };
   /** The code repository, when `url` points somewhere else (the loop's site or Pages demo). */
   repoUrl?: string;
   /** `.ai/PAUSED` exists: who paused, when (ISO) and why (server lane, Round 4). Also on the fleet card ("Paused by X since ..."). */
@@ -115,10 +117,16 @@ export interface LoopRun {
   note?: string;
 }
 
-/** One CHANGELOG release (same shape as core's parsed `Release`). */
+/** Where a version stands on npm: `latest` is the dist-tag, `published` an older version, `unknown` when the registry could not be read (server lane, Round 5). */
+export type NpmState = 'latest' | 'published' | 'not-published' | 'unknown';
+
+/** One CHANGELOG release (same shape as core's parsed `Release`), plus its tag and npm state when known. */
 export interface LoopRelease {
   version: string;
   date?: string;
+  /** A git tag `v<version>` exists; absent when tags were not checked. */
+  tag?: boolean;
+  npm?: NpmState;
   sections: { title: string; items: string[] }[];
   items: string[];
 }

@@ -11,6 +11,8 @@ export interface RoundFacts {
   laned: boolean;
   /** `version` from the repo's package.json, when it has one. */
   version?: string;
+  /** The version is released (tag exists, npm agrees when readable): nothing waits on the owner any more. */
+  shipped?: boolean;
 }
 
 export interface RoundState {
@@ -30,8 +32,30 @@ export function packageVersion(packageJson: string | undefined): string | undefi
   }
 }
 
-export function roundState({ round, hasDone, laned, version }: RoundFacts): RoundState {
-  return { roundLabel: hasDone ? `Round ${round} done${version ? ` · ${version}` : ''}` : `Round ${round}`, releaseWaiting: hasDone && laned };
+/** `name` of a package.json text, for the npm lookup. */
+export function packageName(packageJson: string | undefined): string | undefined {
+  if (packageJson === undefined) return undefined;
+  try {
+    const name = (JSON.parse(packageJson) as { name?: unknown }).name;
+    return typeof name === 'string' && name !== '' ? name : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** `homepage` of a package.json text when it is an https URL: the loop's public site. */
+export function homepageOf(packageJson: string | undefined): string | undefined {
+  if (packageJson === undefined) return undefined;
+  try {
+    const homepage = (JSON.parse(packageJson) as { homepage?: unknown }).homepage;
+    return typeof homepage === 'string' && /^https:\/\/[^\s]+$/.test(homepage) ? homepage : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export function roundState({ round, hasDone, laned, version, shipped = false }: RoundFacts): RoundState {
+  return { roundLabel: hasDone ? `Round ${round} done${version ? ` · ${version}` : ''}` : `Round ${round}`, releaseWaiting: hasDone && laned && !shipped };
 }
 
 /** The attention-list entry for a waiting release; `kind: 'release'` tells the UI not to offer an answer form. */

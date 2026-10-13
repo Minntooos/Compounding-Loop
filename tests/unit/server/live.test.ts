@@ -189,6 +189,38 @@ describe('a finished round waits for the owner (regression: "Nothing needs you" 
     expect(inbox).toEqual([{ loopId: 'Compounding-Loop', file: 'DONE.md', kind: 'release', question: 'Release 0.4.0 is waiting on you', bestGuess: 'Check "Ready to ship", then run the Release workflow', since: '2026-10-11T05:35:00.000Z' }]);
   });
 
+  // Regression (Round 5 A1): shipped = tag exists, plus npm `latest` equals the version when npm could be read.
+  describe('shipped detection', () => {
+    const tags = [{ name: 'v0.4.0' }];
+    const npm = (latest: string, versions: string[]) => ({ 'dist-tags': { latest }, versions: Object.fromEntries(versions.map((v) => [v, {}])) });
+    const changelog = '# Changelog\n\n## [0.4.0] - 2026-10-12\n- Shipped\n\n## [0.3.0] - 2026-10-01\n- Old\n\n## [0.5.0]\n- Planned\n';
+
+    it('tag plus npm latest: shipped, off the attention list', () => {
+      const { detail, inbox } = buildLiveLoop({ ...base, files: { ...files, 'CHANGELOG.md': changelog }, tags, npm: npm('0.4.0', ['0.3.0', '0.4.0']) });
+      expect(detail.releaseWaiting).toBeUndefined();
+      expect(detail.shipped).toEqual({ version: '0.4.0', date: '2026-10-12', npm: 'latest' });
+      expect(detail.ship).toBeUndefined();
+      expect(detail.reason).not.toContain('release waiting');
+      expect(inbox.filter((i) => i.kind === 'release')).toEqual([]);
+      expect(detail.releases?.map((r) => [r.version, r.tag, r.npm])).toEqual([['0.4.0', true, 'latest'], ['0.3.0', false, 'published'], ['0.5.0', false, 'not-published']]);
+    });
+    it('tag but npm still serves an older latest: still waiting', () => {
+      const { detail, inbox } = buildLiveLoop({ ...base, files, tags, npm: npm('0.3.0', ['0.3.0']) });
+      expect(detail.releaseWaiting).toBe(true);
+      expect(detail.shipped).toBeUndefined();
+      expect(inbox.filter((i) => i.kind === 'release')).toHaveLength(1);
+    });
+    it('tag and an unreadable npm: the tag decides', () => {
+      const { detail } = buildLiveLoop({ ...base, files, tags, npm: { error: 'rate limited' } });
+      expect(detail.shipped).toEqual({ version: '0.4.0', npm: 'unknown' });
+      expect(detail.releaseWaiting).toBeUndefined();
+    });
+    it('npm has it but no tag: still waiting', () => {
+      const { detail } = buildLiveLoop({ ...base, files, tags: [], npm: npm('0.4.0', ['0.4.0']) });
+      expect(detail.releaseWaiting).toBe(true);
+    });
+  });
+
   it('a loop without lanes that finished is just finished', () => {
     const { detail, inbox } = buildLiveLoop({ ...base, files: { 'DONE.md': 'x' } });
     expect(detail.releaseWaiting).toBeUndefined();

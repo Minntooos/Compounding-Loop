@@ -12,6 +12,7 @@ import { bulletsUnder, contractFromTask, laneNotesFromTask } from '../taskBullet
 import { latestFinishedRun, mapCommits, mapRuns, type LiveCommit } from './github.js';
 import { packageVersion, releaseInboxItem, roundState } from '../roundState.js';
 import { buildRuns, lastRunOf, silentLanesItem } from '../runs.js';
+import { annotateReleases, isShipped, npmStateOf, parseNpmPackage } from '../shipped.js';
 import { mergeCommits } from './merge.js';
 import { countRoundFiles } from './urls.js';
 
@@ -50,6 +51,8 @@ export interface LiveInput {
   runs: unknown;
   /** Parsed JSON of the tags response (`tagsApiUrl` or `tagLookupApiUrl`); without it the ship-check assumes the tag is free. */
   tags?: unknown;
+  /** Parsed JSON of npm's package document (`npmPackageUrl`); without it, or if unreadable, npm state is unknown and the tag alone decides. */
+  npm?: unknown;
   /** The loop's public site (the repo's GitHub Pages), from `live.json`; shown as the site instead of the repo. */
   pagesUrl?: string;
   /** Raw file text by repo-relative path; a file that 404ed is absent or undefined. */
@@ -128,7 +131,10 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
   const laneBudget = (lanes ?? []).reduce((n, l) => ({ run: n.run + l.run, limit: n.limit + l.limit }), { run: 0, limit: 0 });
   const hasDone = input.files['DONE.md'] !== undefined;
   const version = packageVersion(input.files['package.json']);
-  const { roundLabel, releaseWaiting } = roundState({ round, hasDone, laned: lanes !== undefined, ...(version && { version }) });
+  const tags = tagNames(input.tags);
+  const npm = parseNpmPackage(input.npm);
+  const shippedNow = version !== undefined && isShipped({ version, tagExists: tags.includes(`v${version}`), npm });
+  const { roundLabel, releaseWaiting } = roundState({ round, hasDone, laned: lanes !== undefined, shipped: shippedNow, ...(version && { version }) });
   const repoUrl = `https://github.com/${input.slug}`;
   const pausedText = input.files['.ai/PAUSED'];
   const paused = pausedText === undefined ? undefined : pausedAtOf(pausedText);
@@ -140,17 +146,18 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
   const notes = controlText === undefined || !lanes ? [] : Object.entries(latestControlNotes(controlText, laneNames)).map(([lane, n]) => ({ lane, at: n.at, text: n.text }));
   const changelogText = input.files['CHANGELOG.md'];
   const newestTests = runsData?.runs.find((r) => r.tests && r.endedAt);
-  const ship = hasDone && lanes && version
+  const ship = hasDone && lanes && version && !shippedNow
     ? shipCheck({
         version,
         doneText: input.files['DONE.md'] as string,
         ...(changelogText !== undefined && { changelogText }),
-        tagExists: tagNames(input.tags).includes(`v${version}`),
+        tagExists: tags.includes(`v${version}`),
         // A remote repo has no working tree to be dirty.
         treeClean: true,
         ...(newestTests?.tests && { tests: { ...newestTests.tests, ...(newestTests.endedAt && { at: newestTests.endedAt }) } }),
       })
     : undefined;
+  const releaseDate = version ? parseChangelog(changelogText ?? '').find((r) => r.version === version)?.date : undefined;
   const detail: LoopDetail = {
     id,
     name: id,
@@ -162,11 +169,12 @@ export function buildLiveLoop(input: LiveInput): LiveLoop {
     roundLabel,
     ...(pausedText !== undefined && { paused: pausedInfo(pausedText) }),
     ...(notes.length > 0 && { controlNotes: notes }),
-    ...(changelogText !== undefined && { releases: parseChangelog(changelogText) }),
+    ...(changelogText !== undefined && { releases: annotateReleases(parseChangelog(changelogText), tags, npm) }),
     ...(ship && { ship }),
     ...(lastRun && { lastRun }),
     ...(runsData && { runs: runsData.runs.slice(0, MAX_RUNS), nextRuns: runsData.nextRuns }),
     ...(releaseWaiting && { releaseWaiting }),
+    ...(shippedNow && version && { shipped: { version, ...(releaseDate && { date: releaseDate }), npm: npmStateOf(version, npm) } }),
     round,
     roundsTotal: round,
     // A laned loop's budget is its lanes' budgets; the root task file has none.

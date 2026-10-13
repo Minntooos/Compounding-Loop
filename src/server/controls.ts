@@ -8,6 +8,7 @@ export const NEXT_ROUND_FILE = '.ai/next-round.md';
 
 const GITHUB = 'https://github.com';
 const API = 'https://api.github.com';
+export const NPM_REGISTRY = 'https://registry.npmjs.org';
 
 function checkedSlug(slug: string): string {
   if (!isRepoSlug(slug)) throw new Error(`not a GitHub repo slug: ${slug}`);
@@ -68,6 +69,12 @@ export const latestReleaseRunApiUrl = (slug: string): string => `${API}/repos/${
 
 /** API URL listing the repo's tags (for the ship-check "tag does not exist yet" item). */
 export const tagsApiUrl = (slug: string): string => `${API}/repos/${checkedSlug(slug)}/tags?per_page=100`;
+
+/** The npm registry's package document (`dist-tags`, `versions`); it sends `Access-Control-Allow-Origin: *`, so the static demo may read it. Scoped names keep their `@` and encode the slash. */
+export const npmPackageUrl = (name: string): string => {
+  if (!/^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/.test(name)) throw new Error(`not an npm package name: ${name}`);
+  return `${NPM_REGISTRY}/${name.replace('/', '%2f')}`;
+};
 
 /** API URL matching one release tag by prefix; unlike `tagsApiUrl` it is not capped by the repo's first 100 tags. Response items carry `ref: "refs/tags/<name>"`. */
 export const tagLookupApiUrl = (slug: string, version: string): string => `${API}/repos/${checkedSlug(slug)}/git/matching-refs/tags/v${encodeURIComponent(version)}`;

@@ -6,8 +6,8 @@ import { withLabel } from './checkLabels.js';
 import { sortByAttention, toSummary } from './data.js';
 import { CSP } from './static.js';
 
-/** The only two hosts the static site may fetch from, besides itself: the live data path (src/server/live). */
-export const LIVE_CONNECT_HOSTS: readonly string[] = ['https://api.github.com', 'https://raw.githubusercontent.com'];
+/** The only hosts the static site may fetch from, besides itself: the live data path (src/server/live) and npm's registry (release state). */
+export const LIVE_CONNECT_HOSTS: readonly string[] = ['https://api.github.com', 'https://raw.githubusercontent.com', 'https://registry.npmjs.org'];
 
 /** The local server's CSP with `connect-src` widened to the live hosts. Everything else stays identical. */
 export const STATIC_CSP = CSP.replace("connect-src 'self'", `connect-src 'self' ${LIVE_CONNECT_HOSTS.join(' ')}`);
