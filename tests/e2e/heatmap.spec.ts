@@ -59,6 +59,10 @@ test('focusing a cell shows its words; following it opens that slot in the Runs 
   await expect(picked).toHaveCount(1);
   await expect(picked).toContainText('core');
   await expect(picked).toContainText('Tests failed');
+  // The same cell again, from the Timeline: no hashchange, still opens Runs.
+  await page.getByRole('tab', { name: 'Timeline' }).click();
+  await page.getByTestId('heatmap').getByRole('link', { name: 'core 11:05 UTC: failed, 2 failing' }).click();
+  await expect(page.getByRole('tab', { name: 'Runs' })).toHaveAttribute('aria-selected', 'true');
   // A quiet slot has no row in the list: the tab says no run was expected.
   await page.getByTestId('heatmap').getByRole('link', { name: 'docs 11:05 UTC: not due' }).click();
   await expect(page.getByTestId('runs-picked-quiet')).toHaveText('docs 11:05 UTC: not due: no run was expected in that slot.');

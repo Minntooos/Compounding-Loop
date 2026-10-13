@@ -40,10 +40,13 @@ function RunRow({ run, picked }: { run: LoopRun; picked: boolean }) {
 export function RunsTab({ runs: slots, nextRuns, quiet = [], paused = false, heat, focus }: {
   runs: LoopRun[]; nextRuns?: { lane: string; at: string }[]; quiet?: string[]; paused?: boolean;
   /** Heat map at the head of the tab (C3): the loop it links into, the clock it is read at and the lane order. */
-  heat?: { loopId: string; now: Date; lanes?: string[] };
+  heat?: { loopId: string; now: Date; lanes?: string[]; onPick?: () => void };
   focus?: RunFocus;
 }) {
   const [active, setActive] = useState<ReadonlySet<string>>(new Set());
+  const focusKey = focus && `${focus.lane}@${focus.at}`;
+  // A picked slot must not hide behind a lane filter.
+  useEffect(() => { if (focusKey) setActive(new Set()); }, [focusKey]);
   const isFocus = (r: LoopRun) => focus !== undefined && r.lane === focus.lane && r.at === focus.at;
   const quietPick = focus && slots.find((r) => isFocus(r) && !listedRuns([r]).length);
   const runs = listedRuns(slots);
@@ -51,7 +54,7 @@ export function RunsTab({ runs: slots, nextRuns, quiet = [], paused = false, hea
   const shown = filterRuns(runs, active);
   const silent = paused ? [] : silentLanes(runs).filter((l) => !quiet.includes(l));
   const toggle = (lane: string) => setActive((prev) => { const next = new Set(prev); if (!next.delete(lane)) next.add(lane); return next; });
-  const heatMap = heat && <HeatMap loopId={heat.loopId} runs={slots} now={heat.now} {...(heat.lanes && { lanes: heat.lanes })} />;
+  const heatMap = heat && <HeatMap loopId={heat.loopId} runs={slots} now={heat.now} {...(heat.lanes && { lanes: heat.lanes })} {...(heat.onPick && { onPick: heat.onPick })} />;
   if (runs.length === 0) return <div className="space-y-4">{heatMap}<p style={{ color: 'var(--muted)' }}>No runs recorded yet. Runners call <code className="font-mono">loop runs log</code> at the end of each run.</p></div>;
   return (
     <div className="space-y-4">

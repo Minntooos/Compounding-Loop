@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { LoopRun } from '@core/types';
-import { HEAT_LABEL, HEAT_ORDER, heatCellHref, heatCellLabel, heatGrid, type HeatCell, type HeatOutcome } from '../lib/heatmap';
+import { HEAT_LABEL, HEAT_ORDER, QUIET_OUTCOMES, heatCellHref, heatCellLabel, heatGrid, type HeatCell, type HeatOutcome } from '../lib/heatmap';
 import { laneColor, timeUtc } from '../lib/timeline';
 import { useScrollFade } from './useScrollFade';
 
@@ -30,14 +30,14 @@ const FOLD = 12;
  * Lane × hour grid of the last 24 h of expected slots. Each cell links to its slot in the Runs tab; hovering or focusing a
  * cell shows its words in the readout line under the grid. Lane names and run data come from repo files: text nodes only.
  */
-export function HeatMap({ loopId, runs, now, lanes }: { loopId: string; runs: LoopRun[]; now: Date; lanes?: string[] }) {
+export function HeatMap({ loopId, runs, now, lanes, onPick }: { loopId: string; runs: LoopRun[]; now: Date; lanes?: string[]; onPick?: () => void }) {
   const [all, setAll] = useState(false);
   const [hover, setHover] = useState<HeatCell | null>(null);
   const fade = useScrollFade<HTMLDivElement>(all);
   const grid = heatGrid(runs, now, 24, lanes);
   if (grid.rows.length === 0) return null;
   const folded = (i: number) => (!all && i < grid.hours.length - FOLD ? 'hidden sm:table-cell' : '');
-  const newest = grid.rows.flatMap((r) => r.cells).filter((c): c is HeatCell => c !== null).sort((a, b) => b.run.at.localeCompare(a.run.at))[0];
+  const newest = grid.rows.flatMap((r) => r.cells).filter((c): c is HeatCell => c !== null && !QUIET_OUTCOMES.has(c.outcome)).sort((a, b) => b.run.at.localeCompare(a.run.at))[0];
   const readout = hover ?? newest;
   return (
     <section aria-labelledby="heatmap-title" data-testid="heatmap" className="space-y-2">
@@ -75,7 +75,7 @@ export function HeatMap({ loopId, runs, now, lanes }: { loopId: string; runs: Lo
                   <td key={grid.hours[i]} className={`h-5 w-5 p-0 ${folded(i)}`}>
                     {cell && (
                       <a href={heatCellHref(loopId, cell.run)} aria-label={heatCellLabel(cell)} data-testid="heat-cell"
-                        onMouseEnter={() => setHover(cell)} onFocus={() => setHover(cell)} onBlur={() => setHover(null)}
+                        onClick={onPick} onMouseEnter={() => setHover(cell)} onFocus={() => setHover(cell)} onBlur={() => setHover(null)}
                         className="block rounded focus-visible:outline-2 focus-visible:outline-offset-1" style={{ outlineColor: 'var(--accent)' }}>
                         <HeatGlyph outcome={cell.outcome} />
                       </a>

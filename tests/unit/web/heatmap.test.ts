@@ -38,6 +38,12 @@ describe('heatGrid', () => {
     expect(g.rows.map((r) => r.lane)).toEqual(['core', 'web', 'zeta']);
     expect(g.rows[1]?.cells[22]?.run.at).toBe('2026-10-13T09:40:00Z');
   });
+  it('prefers a recorded run over a missed slot at the same moment', () => {
+    const at = '2026-10-13T09:05:00Z';
+    for (const order of [[run('web', at, 'no-run-recorded'), run('web', at)], [run('web', at), run('web', at, 'no-run-recorded')]]) {
+      expect(heatGrid(order, now).rows[0]?.cells[22]?.outcome).toBe('worked');
+    }
+  });
   it('folds to fewer hours when asked', () => {
     expect(heatGrid([], now, 12).hours).toHaveLength(12);
   });

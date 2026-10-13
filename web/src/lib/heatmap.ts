@@ -49,10 +49,15 @@ export function heatGrid(runs: LoopRun[], now: Date, hours = 24, lanes: string[]
     const row = cells.get(run.lane);
     if (!row || Number.isNaN(t) || i < 0 || i >= hours) continue;
     const prev = row[i];
-    if (!prev || prev.run.at < run.at) row[i] = { run, outcome: heatOutcome(run) };
+    // Newest slot wins; at the same moment a recorded run beats a slot with no run line.
+    const newer = !prev || Date.parse(prev.run.at) < t || (Date.parse(prev.run.at) === t && prev.run.outcome === 'no-run-recorded' && run.outcome !== 'no-run-recorded');
+    if (newer) row[i] = { run, outcome: heatOutcome(run) };
   }
   return { hours: columns, rows: names.map((lane) => ({ lane, cells: cells.get(lane) ?? [] })).filter((r) => r.cells.some(Boolean)) };
 }
+
+/** Expected silence: never the readout's "newest" slot. */
+export const QUIET_OUTCOMES: ReadonlySet<HeatOutcome> = new Set(['not-due', 'paused', 'done']);
 
 /** "web 14:00 UTC: worked, 2 units" — the cell's aria-label and readout. */
 export function heatCellLabel({ run, outcome }: HeatCell): string {

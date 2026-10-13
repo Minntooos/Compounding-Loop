@@ -36,11 +36,11 @@ function TextList({ items, empty }: { items: string[]; empty: string }) {
 
 const heatFor = (loop: Detail) => ({ loopId: loop.id, now: scheduleClock(loop, new Date()), ...(loop.lanes && { lanes: loop.lanes.map((l) => l.name) }) });
 
-function TabBody({ tab, loop, focus }: { tab: Tab; loop: Detail; focus?: RunFocus }) {
+function TabBody({ tab, loop, focus, toRuns }: { tab: Tab; loop: Detail; focus?: RunFocus; toRuns: () => void }) {
   switch (tab) {
     case 'Timeline':
       if (!loop.runs?.length) return <Timeline commits={loop.timeline} />;
-      return <div className="space-y-6"><HeatMap runs={loop.runs} {...heatFor(loop)} /><Timeline commits={loop.timeline} /></div>;
+      return <div className="space-y-6"><HeatMap runs={loop.runs} {...heatFor(loop)} onPick={toRuns} /><Timeline commits={loop.timeline} /></div>;
     case 'Lanes': return <LanesTab lanes={loop.lanes ?? []} cockpit={{ ...(loop.schedule && { schedule: loop.schedule }), ...(loop.idleRuns && { idleRuns: loop.idleRuns }), ...(loop.steer && { steer: loop.steer }), ...(loop.paused && { loopPaused: true }), loopId: loop.id, ...(slugOf(loop.repoUrl ?? loop.url) && { slug: slugOf(loop.repoUrl ?? loop.url) as string }), now: scheduleClock(loop, new Date()) }} />;
     case 'Runs': return <RunsTab runs={loop.runs ?? []} paused={loop.paused !== undefined} quiet={(loop.lanes ?? []).filter((l) => l.state === 'done' || l.state === 'blocked').map((l) => l.name)} {...(loop.nextRuns && { nextRuns: loop.nextRuns })} heat={heatFor(loop)} {...(focus && { focus })} />;
     case 'Tests': return <TestsTab runs={loop.runs ?? []} />;
@@ -85,6 +85,7 @@ function onTabKey(e: React.KeyboardEvent, tabs: Tab[], tab: Tab, setTab: (t: Tab
 
 export function LoopDetail({ id, focus }: { id: string; focus?: RunFocus }) {
   const [tab, setTab] = useState<Tab>(focus ? 'Runs' : 'Timeline');
+  // A cell's click switches tabs itself (the same link twice fires no hashchange); this covers links opened from elsewhere.
   // A heat-map cell link changes only the query, so the page stays mounted: switch to Runs on every new pick.
   const focusKey = focus && `${focus.lane}@${focus.at}`;
   useEffect(() => { if (focusKey) setTab('Runs'); }, [focusKey]);
@@ -133,7 +134,7 @@ export function LoopDetail({ id, focus }: { id: string; focus?: RunFocus }) {
           <button key={t} type="button" role="tab" tabIndex={tab === t ? 0 : -1} onKeyDown={(e) => onTabKey(e, tabs, tab, setTab)} id={`tab-${t}`} aria-controls="loop-panel" aria-selected={tab === t} onClick={() => setTab(t)} className="rounded-t px-3 py-2 aria-selected:border-b-2 aria-selected:font-semibold" style={{ borderColor: 'var(--accent)' }}>{t}</button>
         ))}
       </div>
-      <div role="tabpanel" id="loop-panel" aria-labelledby={`tab-${tab}`}><TabBody tab={tab} loop={loop} {...(focus && { focus })} /></div>
+      <div role="tabpanel" id="loop-panel" aria-labelledby={`tab-${tab}`}><TabBody tab={tab} loop={loop} {...(focus && { focus })} toRuns={() => setTab('Runs')} /></div>
     </div>
   );
 }
