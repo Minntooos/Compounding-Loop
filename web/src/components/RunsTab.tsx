@@ -1,7 +1,10 @@
 import { AlertTriangle, CheckCircle2, Circle, CircleDashed, XCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { LoopRun } from '@core/types';
 import { dayHeading, laneColor, timeUtc } from '../lib/timeline';
+import { heatCellLabel, heatOutcome } from '../lib/heatmap';
+import type { RunFocus } from '../lib/route';
+import { HeatMap } from './HeatMap';
 import { filterRuns, groupRunsByDay, listedRuns, OUTCOME_HINT, OUTCOME_LABEL, silentLanes, testsText, type RunOutcome } from '../lib/runs';
 
 const ICON = { pushed: CheckCircle2, 'nothing-pushed': Circle, 'tests-failed': XCircle, 'no-run-recorded': CircleDashed } as const;
@@ -10,12 +13,15 @@ const COLOR: Record<RunOutcome, string> = {
 };
 
 // Lane names, units and notes come from repo files: rendered as text nodes only.
-function RunRow({ run }: { run: LoopRun }) {
+function RunRow({ run, picked }: { run: LoopRun; picked: boolean }) {
+  const ref = useRef<HTMLLIElement>(null);
+  // Opened from a heat-map cell: bring the slot into view once, without stealing focus from the page.
+  useEffect(() => { if (picked) ref.current?.scrollIntoView({ block: 'center' }); }, [picked]);
   const Icon = ICON[run.outcome];
   const tests = testsText(run.tests);
   const hint = OUTCOME_HINT[run.outcome];
   return (
-    <li data-testid="run-row" data-outcome={run.outcome} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 border-l-[3px] py-1 pl-3" style={{ borderColor: laneColor(run.lane) }}>
+    <li ref={ref} data-testid="run-row" data-outcome={run.outcome} aria-current={picked ? 'true' : undefined} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 rounded-r border-l-[3px] py-1 pl-3" style={{ borderColor: laneColor(run.lane), ...(picked && { background: 'var(--surface-2)', outline: '1px solid var(--accent)' }) }}>
       <span className="font-mono text-[12px]" style={{ color: laneColor(run.lane) }}>{run.lane}</span>
       <time dateTime={run.at} className="font-mono text-[12px] tabular-nums" style={{ color: 'var(--muted)' }}>{timeUtc(run.at)}</time>
       <span className="inline-flex items-center gap-1.5 text-[13px] font-medium" style={{ color: COLOR[run.outcome] }}>
@@ -31,16 +37,26 @@ function RunRow({ run }: { run: LoopRun }) {
 }
 
 /** `quiet` lanes (done or blocked) and a paused loop never raise the notice: their missed slots are expected (same guards as the server's attention item). */
-export function RunsTab({ runs: slots, nextRuns, quiet = [], paused = false }: { runs: LoopRun[]; nextRuns?: { lane: string; at: string }[]; quiet?: string[]; paused?: boolean }) {
+export function RunsTab({ runs: slots, nextRuns, quiet = [], paused = false, heat, focus }: {
+  runs: LoopRun[]; nextRuns?: { lane: string; at: string }[]; quiet?: string[]; paused?: boolean;
+  /** Heat map at the head of the tab (C3): the loop it links into, the clock it is read at and the lane order. */
+  heat?: { loopId: string; now: Date; lanes?: string[] };
+  focus?: RunFocus;
+}) {
   const [active, setActive] = useState<ReadonlySet<string>>(new Set());
+  const isFocus = (r: LoopRun) => focus !== undefined && r.lane === focus.lane && r.at === focus.at;
+  const quietPick = focus && slots.find((r) => isFocus(r) && !listedRuns([r]).length);
   const runs = listedRuns(slots);
   const lanes = [...new Set(runs.map((r) => r.lane))];
   const shown = filterRuns(runs, active);
   const silent = paused ? [] : silentLanes(runs).filter((l) => !quiet.includes(l));
   const toggle = (lane: string) => setActive((prev) => { const next = new Set(prev); if (!next.delete(lane)) next.add(lane); return next; });
-  if (runs.length === 0) return <p style={{ color: 'var(--muted)' }}>No runs recorded yet. Runners call <code className="font-mono">loop runs log</code> at the end of each run.</p>;
+  const heatMap = heat && <HeatMap loopId={heat.loopId} runs={slots} now={heat.now} {...(heat.lanes && { lanes: heat.lanes })} />;
+  if (runs.length === 0) return <div className="space-y-4">{heatMap}<p style={{ color: 'var(--muted)' }}>No runs recorded yet. Runners call <code className="font-mono">loop runs log</code> at the end of each run.</p></div>;
   return (
     <div className="space-y-4">
+      {heatMap}
+      {quietPick && <p data-testid="runs-picked-quiet" className="text-[13px]" style={{ color: 'var(--muted)' }}>{heatCellLabel({ run: quietPick, outcome: heatOutcome(quietPick) })}: no run was expected in that slot.</p>}
       {silent.length > 0 && (
         <p role="status" data-testid="runs-silent" className="flex items-start gap-2 rounded-lg border p-3" style={{ borderColor: 'var(--blocked)', background: 'var(--surface)' }}>
           <AlertTriangle aria-hidden size={16} className="mt-0.5 shrink-0" style={{ color: 'var(--blocked)' }} />
@@ -66,7 +82,7 @@ export function RunsTab({ runs: slots, nextRuns, quiet = [], paused = false }: {
             <h3 className="sticky top-0 z-10 flex items-baseline gap-2 py-1 text-[13px] font-semibold" style={{ background: 'var(--bg)' }}>
               {dayHeading(g.day)}<span className="font-normal" style={{ color: 'var(--muted)' }}>{g.runs.length} {g.runs.length === 1 ? 'run' : 'runs'}</span>
             </h3>
-            <ol className="space-y-1">{g.runs.map((r, i) => <RunRow key={`${r.lane}-${r.at}-${i}`} run={r} />)}</ol>
+            <ol className="space-y-1">{g.runs.map((r, i) => <RunRow key={`${r.lane}-${r.at}-${i}`} run={r} picked={isFocus(r)} />)}</ol>
           </section>
         ))}
       </div>

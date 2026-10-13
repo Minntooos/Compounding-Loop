@@ -37,7 +37,7 @@ function initialTheme(): Theme {
 function Page({ route, theme, setTheme }: { route: Route; theme: Theme; setTheme: (t: Theme) => void }) {
   switch (route.name) {
     case 'fleet': return <Fleet />;
-    case 'loop': return <LoopDetail id={route.id} />;
+    case 'loop': return <LoopDetail id={route.id} {...(route.focus && { focus: route.focus })} />;
     case 'inbox': return <Inbox />;
     case 'health': return <Health />;
     case 'new': return <NewLoop />;

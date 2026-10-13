@@ -1,6 +1,6 @@
 # Lane: web — round 5 (0.5.0 "Cockpit")
 
-Run: 7 / 20
+Run: 8 / 20
 Status: units 1-5 parts done (C3 waits on server); C6 done in run 7; C7 chips done; next: C6 screenshot design pass, then C3/C9 when server ships slot `kind` / pace routes
 Round 4 record: `.ai/lanes/web/done-v4.md` (`git show 02874e8:.ai/lanes/web/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
