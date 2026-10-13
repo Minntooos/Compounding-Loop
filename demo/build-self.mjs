@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { laneNotesFromTask } from '../src/server/taskBullets.ts';
 import { scrubText } from './build-demo.mjs';
-import { cockpitFixture } from './cockpit-fixture.mjs';
+import { cockpitFixture, roundFiveHeader } from './cockpit-fixture.mjs';
 
 const execFileAsync = promisify(execFile);
 export const ROUND_ONE_COMMIT = '3385cdf';
@@ -78,30 +78,25 @@ export async function buildSelf(repoDir) {
   const timeline = commits.map(({ sha, at, message, author, shown }) => ({ sha, at, message, ...(author && { author }), lane: shown }));
   const run = lanes.reduce((n, l) => n + l.run, 0);
   const runLimit = lanes.reduce((n, l) => n + l.limit, 0);
+  const header = roundFiveHeader(lanes);
   const detail = {
     id: 'compounding-loop',
     name: 'compounding-loop (this repo)',
     url: 'https://minntooos.github.io/Compounding-Loop/',
     demoUrl: 'https://minntooos.github.io/Compounding-Loop/',
     repoUrl: 'https://github.com/Minntooos/Compounding-Loop',
-    state: 'done',
-    reason: 'rounds 1 to 3 built unattended by five parallel lanes, all done',
-    round: 3,
-    roundsTotal: 4,
-    // The snapshot is a fixed point: it never claims a release is waiting; live data says that.
-    roundLabel: 'Round 3 done · 0.3.0',
+    // state, reason, round, roundLabel, snapshotAt and the lane states come from roundFiveHeader: a fixed point that never claims a release is waiting.
     run,
     runLimit,
     lastCommit: timeline[0],
-    snapshotAt: timeline[0].at,
-    lanes,
     timeline,
-    contract: lanes.map((l) => ({ text: `${l.name} lane: every done-when passes`, pass: true })),
+    contract: header.lanes.map((l) => ({ text: `${l.name} lane: every done-when passes`, pass: l.state === 'done' })),
     laneNotes: ROUND_ONE_LANES.map((name) => laneNotesFromTask(name, scrubText(laneTexts.get(name) ?? ''), true)),
     knowledge: [],
     decisions: [],
     history: [],
     ...cockpitFixture(),
+    ...header,
   };
   const checks = [{ loopId: detail.id, kind: 'failing-tests', ok: true, reason: 'all tests pass', proof: `npm test was green at ${SNAPSHOT_COMMIT}` }];
   return { loop: detail, checks };

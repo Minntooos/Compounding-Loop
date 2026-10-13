@@ -34,14 +34,16 @@ describe('parsers', () => {
 });
 
 describe('shipped demo/this-repo.json (the sixth demo loop)', () => {
-  it('is the sixth loop with five finished lanes and the run counters from the lane files', async () => {
+  it('is the sixth loop: a round 5 in progress, five lanes with the run counters from the lane files', async () => {
     const { loop } = await readShipped();
     expect(loop.name).toBe('compounding-loop (this repo)');
-    expect(loop.lanes?.map((l) => [l.name, l.state])).toEqual([['core', 'done'], ['kit', 'done'], ['server', 'done'], ['web', 'done'], ['docs', 'done']]);
+    expect(loop.lanes?.map((l) => [l.name, l.state])).toEqual([['core', 'building'], ['kit', 'waiting'], ['server', 'building'], ['web', 'building'], ['docs', 'waiting']]);
     // Totals over three rounds: 30 + 20 + 20 runs of budget per lane.
     expect(loop.lanes?.every((l) => l.limit === 70 && l.run > 0)).toBe(true);
-    expect([loop.round, loop.roundsTotal, loop.state]).toEqual([3, 4, 'done']);
-    expect(loop.reason).toMatch(/rounds 1 to 3/);
+    expect([loop.round, loop.roundsTotal, loop.state]).toEqual([5, 5, 'building']);
+    expect(loop.roundLabel).toBe('Round 5 · building');
+    // The header agrees with the run data it carries: not finished, and the contract is not all passing.
+    expect(loop.contract.some((c) => !c.pass)).toBe(true);
   });
 
   it('keeps the full history up to the pin, newest first, and says when the snapshot was taken (regression: it stopped at 100 commits)', async () => {
@@ -49,7 +51,8 @@ describe('shipped demo/this-repo.json (the sixth demo loop)', () => {
     expect(loop.timeline.length).toBeGreaterThan(100);
     expect(new Set(loop.timeline.map((c) => c.sha)).size).toBe(loop.timeline.length);
     expect(loop.timeline[0]?.sha).toBe(SNAPSHOT_COMMIT);
-    expect(loop.snapshotAt).toBe(loop.timeline[0]?.at);
+    // The history is pinned at the 0.3.0 commit; the snapshot is drawn later, at the fixture's moment.
+    expect(loop.snapshotAt).toBe('2026-10-13T12:40:00.000Z');
     expect(loop.timeline.map((c) => c.at)).toEqual(loop.timeline.map((c) => c.at).sort().reverse());
     // Round 1 (the oldest day) is present, which the 100-commit cap used to cut off.
     expect(loop.timeline.at(-1)?.at.slice(0, 10)).toBe('2026-10-05');

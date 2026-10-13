@@ -5,11 +5,11 @@
     "url": "https://minntooos.github.io/Compounding-Loop/",
     "demoUrl": "https://minntooos.github.io/Compounding-Loop/",
     "repoUrl": "https://github.com/Minntooos/Compounding-Loop",
-    "state": "done",
-    "reason": "rounds 1 to 3 built unattended by five parallel lanes, all done",
-    "round": 3,
-    "roundsTotal": 4,
-    "roundLabel": "Round 3 done · 0.3.0",
+    "state": "building",
+    "reason": "round 5 \"Cockpit\" is being built by five parallel lanes",
+    "round": 5,
+    "roundsTotal": 5,
+    "roundLabel": "Round 5 · building",
     "run": 63,
     "runLimit": 350,
     "lastCommit": {
@@ -19,11 +19,11 @@
       "author": "Minntooos",
       "lane": "control"
     },
-    "snapshotAt": "2026-10-11T14:51:27.000Z",
+    "snapshotAt": "2026-10-13T12:40:00.000Z",
     "lanes": [
       {
         "name": "core",
-        "state": "done",
+        "state": "building",
         "run": 14,
         "limit": 70,
         "lastCommit": {
@@ -36,7 +36,7 @@
       },
       {
         "name": "kit",
-        "state": "done",
+        "state": "waiting",
         "run": 9,
         "limit": 70,
         "lastCommit": {
@@ -49,7 +49,7 @@
       },
       {
         "name": "server",
-        "state": "done",
+        "state": "building",
         "run": 6,
         "limit": 70,
         "lastCommit": {
@@ -62,7 +62,7 @@
       },
       {
         "name": "web",
-        "state": "done",
+        "state": "building",
         "run": 21,
         "limit": 70,
         "lastCommit": {
@@ -75,7 +75,7 @@
       },
       {
         "name": "docs",
-        "state": "done",
+        "state": "waiting",
         "run": 13,
         "limit": 70,
         "lastCommit": {
@@ -1440,23 +1440,23 @@
     "contract": [
       {
         "text": "core lane: every done-when passes",
-        "pass": true
+        "pass": false
       },
       {
         "text": "kit lane: every done-when passes",
-        "pass": true
+        "pass": false
       },
       {
         "text": "server lane: every done-when passes",
-        "pass": true
+        "pass": false
       },
       {
         "text": "web lane: every done-when passes",
-        "pass": true
+        "pass": false
       },
       {
         "text": "docs lane: every done-when passes",
-        "pass": true
+        "pass": false
       }
     ],
     "laneNotes": [

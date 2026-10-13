@@ -16,7 +16,7 @@ describe('demo API', async () => {
     const loops = await get<LoopSummary[]>('/api/loops');
     expect(loops).toHaveLength(6);
     expect(loops[0]).not.toHaveProperty('timeline');
-    expect(loops[0]).toMatchObject({ state: 'done', roundsTotal: 5 });
+    expect(loops[0]).toMatchObject({ state: 'building', roundsTotal: 5 });
   });
 
   it('GET /api/loops/:id returns the detail', async () => {
@@ -84,7 +84,7 @@ describe('loadDemoSnapshot', () => {
     const loops = (await loadDemoSnapshot([real])).loops;
     expect(loops.every((l) => typeof l.snapshotAt === 'string')).toBe(true);
     expect(loops.find((l) => l.id === 'proj1')?.snapshotAt).toBe('2026-10-06T21:44:10.086Z');
-    expect(loops.find((l) => l.id === 'compounding-loop')?.snapshotAt).toMatch(/^2026-10-11T14:51/);
+    expect(loops.find((l) => l.id === 'compounding-loop')?.snapshotAt).toMatch(/^2026-10-13T12:40/);
     await expect(loadDemoSnapshot([new URL('./nope.json', import.meta.url)])).rejects.toThrow(/demo snapshot not found/);
   });
 });

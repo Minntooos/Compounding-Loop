@@ -118,3 +118,19 @@ export function cockpitFixture() {
     ...(newest && { lastRun: { lane: newest.lane, at: newest.at, outcome: newest.outcome } }),
   };
 }
+
+/** Lane states matching the run pattern above: web is running now, kit and docs are held back, core and server are mid-round. */
+const LANE_STATES = { core: 'building', kit: 'waiting', server: 'building', web: 'building', docs: 'waiting' };
+
+/** The header fields that make the demo's self loop a round 5 in progress, so it agrees with its own run data. */
+export function roundFiveHeader(lanes) {
+  return {
+    state: 'building',
+    reason: 'round 5 "Cockpit" is being built by five parallel lanes',
+    round: 5,
+    roundsTotal: 5,
+    roundLabel: 'Round 5 · building',
+    snapshotAt: FIXTURE_NOW.toISOString(),
+    lanes: lanes.map((l) => ({ ...l, state: LANE_STATES[l.name] ?? l.state })),
+  };
+}
