@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { CheckCircle2, OctagonAlert } from 'lucide-react';
+import { CheckCircle2, CircleMinus, OctagonAlert } from 'lucide-react';
 import { api } from '../api/client';
-import { checkLabel, humanizeTimes } from '../lib/health';
+import { checkState, checkSummary, checkText, codeParts, humanizeTimes, type CheckState } from '../lib/health';
 import { LoadError, Loading } from './QueryState';
 
 function Doctor() {
@@ -19,6 +19,17 @@ function Doctor() {
   );
 }
 
+/** Badge per state (DESIGN.md "Health three states"): "OK" is never shown for a check that was never measured. */
+const BADGE: Record<CheckState, { word: string; color: string; Icon: typeof CheckCircle2 }> = {
+  pass: { word: 'Pass', color: 'var(--done)', Icon: CheckCircle2 },
+  fail: { word: 'Fail', color: 'var(--failing)', Icon: OctagonAlert },
+  unchecked: { word: 'Not checked', color: 'var(--muted)', Icon: CircleMinus },
+};
+
+function Hint({ text }: { text: string }) {
+  return <>{codeParts(text).map((part, i) => (i % 2 === 1 ? <code key={i} className="font-mono text-[12px]">{part}</code> : part))}</>;
+}
+
 export function Health() {
   const q = useQuery({ queryKey: ['checks'], queryFn: api.checks });
   if (q.isPending) return <Loading />;
@@ -26,16 +37,21 @@ export function Health() {
   if (q.data.length === 0) return <p style={{ color: 'var(--muted)' }}>No checks yet. Add a loop to see them.</p>;
   return (
     <>
+    <p className="mb-3" data-testid="health-summary" style={{ color: 'var(--muted)' }}>{checkSummary(q.data)}</p>
     <ul className="space-y-2" aria-label="Health checks">
-      {q.data.map((c) => (
-        <li key={`${c.loopId}/${c.kind}`} className="flex flex-wrap items-start gap-3 rounded-lg border p-3" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
-          <span className="flex items-center gap-1.5 font-medium" style={{ color: c.ok ? 'var(--done)' : 'var(--failing)' }}>
-            {c.ok ? <CheckCircle2 aria-hidden size={16} /> : <OctagonAlert aria-hidden size={16} />}{c.ok ? 'OK' : 'Failing'}
-          </span>
-          <span className="flex-1"><strong>{c.loopId}</strong> · {checkLabel(c.kind, c.ok)}<br /><span style={{ color: 'var(--muted)' }}>{humanizeTimes(c.reason)}</span></span>
-          <code className="font-mono text-[12px]" style={{ color: 'var(--muted)' }}>{humanizeTimes(c.proof)}</code>
-        </li>
-      ))}
+      {q.data.map((c) => {
+        const state = checkState(c);
+        const { word, color, Icon } = BADGE[state];
+        return (
+          <li key={`${c.loopId}/${c.kind}`} data-state={state} className="flex flex-wrap items-start gap-3 rounded-lg border p-3" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
+            <span className="flex items-center gap-1.5 font-medium" style={{ color }}><Icon aria-hidden size={16} />{word}</span>
+            <span className="min-w-0 flex-1"><strong>{c.loopId}</strong> · {checkText(c)}<br /><span style={{ color: 'var(--muted)' }}>{humanizeTimes(c.reason)}</span>
+              {state === 'unchecked' && c.howToCheck && <><br /><span>How to check: <Hint text={c.howToCheck} /></span></>}
+            </span>
+            <code className="font-mono text-[12px]" style={{ color: 'var(--muted)' }}>{humanizeTimes(c.proof)}</code>
+          </li>
+        );
+      })}
     </ul>
     <Doctor />
     </>
