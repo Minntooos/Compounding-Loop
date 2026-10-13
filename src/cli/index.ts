@@ -18,6 +18,7 @@ import { formatShipCheck, runShipCheck } from './shipCheck.js';
 import { formatRuns, logRun, readRuns } from './runs.js';
 import { runPause, runResume, type PauseResult } from './pause.js';
 import { runRound } from './run.js';
+import { runDraft } from './draft.js';
 import { formatScheduleReport, runScheduleAction, runScheduleShow, runScheduleUpdate, runSteer, type ScheduleAction, type ScheduleResult } from './schedule.js';
 
 const pkg = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')) as { version: string };
@@ -127,8 +128,18 @@ program
   .option('--brief <file>', 'laned repos: the next round\'s brief (scored first)')
   .option('--no-commit', 'with --brief: write the changes but do not commit')
   .option('--json', 'with --brief: print the plan as JSON (shape: RoundPlan in src/core/laneRound.ts)')
-  .action(async (dir: string, options: { dryRun?: boolean; brief?: string; commit: boolean; json?: boolean }) => {
+  .option('--draft', 'ask Claude (claude -p) to draft the next brief from the DONE.md lists, open audit findings and steering; writes it and prints its score')
+  .option('--out <file>', 'with --draft: where the draft goes (default .ai/next-round.draft.md)')
+  .option('--print-prompt', 'with --draft: print the prompt only, to paste into Claude Code yourself')
+  .option('--model <model>', 'with --draft: the Claude model to use')
+  .action(async (dir: string, options: { dryRun?: boolean; brief?: string; commit: boolean; json?: boolean; draft?: boolean; out?: string; printPrompt?: boolean; model?: string }) => {
     try {
+      if (options.draft || options.printPrompt) {
+        const r = await runDraft(path.resolve(dir), { ...(options.printPrompt && { printPrompt: true }), ...(options.out && { out: options.out }), ...(options.model && { model: options.model }) });
+        if (!r.draft) console.log(r.prompt);
+        else console.log(`Draft written to ${path.relative(process.cwd(), r.outFile as string) || r.outFile}. Brief score ${r.lint?.score}/100${r.lint?.gaps.length ? `; missing: ${r.lint.gaps.map((g) => g.message).join(' ')}` : ''}\nReview it, then: loop next-round --brief ${options.out ?? '.ai/next-round.draft.md'}`);
+        return;
+      }
       if (options.brief) {
         const result = await runLaneRound(path.resolve(dir), { briefFile: options.brief, dryRun: Boolean(options.dryRun), commit: options.commit });
         console.log(options.json ? JSON.stringify(result, null, 2) : formatLaneRound(result, Boolean(options.dryRun)));

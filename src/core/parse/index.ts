@@ -23,3 +23,5 @@ export type { NotDueReason, WakeInput, WakeReason } from './schedule.js';
 export { addSteerEntry, formatSteerEntry, parseSteer, standingEntries, steerHeading, steerOrder, steerPath, unacknowledged } from './steer.js';
 export { RUN_WINDOW_MS, SILENCE_MS, classifyRunSlots, missedRun } from './outcomes.js';
 export type { ClassifiedRuns, ClassifiedSlot, ClassifyInput, RunOutcome } from './outcomes.js';
+export { buildDraftPrompt, draftClaudeArgs, extractOpenFindings, extractOutOfScope, nextRoundNumber } from '../draftBrief.js';
+export type { DraftInputs } from '../draftBrief.js';
