@@ -108,3 +108,26 @@ test('demo without the DONE lists copies the command that prints the full prompt
   await dialog.getByRole('button', { name: 'Copy the prompt command' }).click();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('npx compounding-loop next-round --draft --print-prompt');
 });
+
+test('local: committed but not pushed offers Close, not a Retry that would start the round or pause again', async ({ page }) => {
+  await writableServer(page);
+  await serve(page, { demo: false });
+  const posted: string[] = [];
+  const notPushed = { ok: true, changed: true, committed: true, pushed: false, pushError: 'no upstream' };
+  await page.route('**/api/loops/self/next-round', (r) => { posted.push('next-round'); return r.fulfill({ json: notPushed }); });
+  await page.route('**/api/loops/self/pause', (r) => { posted.push('pause'); return r.fulfill({ json: notPushed }); });
+  await page.goto('/#/loop/self');
+  await page.getByRole('button', { name: 'Start next round' }).click();
+  const dialog = page.getByTestId('control-dialog');
+  await dialog.getByLabel('Brief for round 6').fill(GOOD_BRIEF);
+  await dialog.getByRole('button', { name: 'Start round 6' }).click();
+  await expect(dialog.getByRole('alert')).toHaveText('Committed here but not pushed: no upstream. Push main to finish.');
+  await expect(dialog.getByRole('button', { name: /Retry|Start round/ })).toHaveCount(0);
+  await dialog.getByRole('button', { name: 'Close' }).click();
+  await page.getByRole('button', { name: 'Pause all' }).click();
+  await dialog.getByRole('button', { name: 'Pause', exact: true }).click();
+  await expect(dialog.getByRole('alert')).toContainText('not pushed');
+  await expect(dialog.getByRole('button', { name: /Retry|Pause/ })).toHaveCount(0);
+  await expect(dialog.getByRole('button', { name: 'Close' })).toBeVisible();
+  expect(posted).toEqual(['next-round', 'pause']);
+});

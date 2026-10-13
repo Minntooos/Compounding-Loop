@@ -30,6 +30,8 @@ export function NextRoundDialog({ loop, local, onClose }: { loop: LoopDetail; lo
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [note, setNote] = useState<string>();
+  // Committed but not pushed: the round is already written, so a Retry would start it twice; only pushing finishes it.
+  const [committed, setCommitted] = useState(false);
   useEffect(() => {
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : undefined;
     ref.current?.showModal();
@@ -86,7 +88,7 @@ export function NextRoundDialog({ loop, local, onClose }: { loop: LoopDetail; lo
       const reply = await postControl(loop.id, 'next-round', { brief });
       await qc.invalidateQueries();
       // Lanes read main on GitHub: a commit that was not pushed has not started anything for them.
-      if (reply.pushError || reply.pushed === false) { setError(`Committed here but not pushed${reply.pushError ? `: ${reply.pushError}` : ''}. Push main to finish.`); setBusy(false); return; }
+      if (reply.pushError || reply.pushed === false) { setCommitted(true); setError(`Committed here but not pushed${reply.pushError ? `: ${reply.pushError}` : ''}. Push main to finish.`); setBusy(false); return; }
       toast(`Round ${inputs.round} started`);
       onClose();
     } catch (e) { setError(e instanceof Error ? e.message : String(e)); setBusy(false); }
@@ -149,8 +151,8 @@ export function NextRoundDialog({ loop, local, onClose }: { loop: LoopDetail; lo
       {blocked && <p id="next-round-blocked" className="mt-2 text-[13px]" style={muted}>{blocked}</p>}
       {error && <p role="alert" className="mt-2 text-[13px]" style={{ color: 'var(--failing)' }}>{error}</p>}
       <div className="mt-4 flex flex-wrap justify-end gap-2">
-        <button type="button" disabled={busy} onClick={onClose} className="min-h-11 rounded border px-4 disabled:opacity-60" style={{ borderColor: 'var(--border)' }}>Cancel</button>
-        <button type="button" disabled={busy || streaming || blocked !== undefined} aria-describedby={blocked ? 'next-round-blocked' : undefined} onClick={() => void go()} className="min-h-11 rounded px-4 font-semibold disabled:opacity-60" style={{ background: 'var(--accent)', color: 'var(--bg)' }}>{busy ? 'Starting…' : error ? 'Retry' : `Start round ${inputs.round}`}</button>
+        <button type="button" disabled={busy} onClick={onClose} className="min-h-11 rounded border px-4 disabled:opacity-60" style={{ borderColor: 'var(--border)' }}>{committed ? 'Close' : 'Cancel'}</button>
+        {!committed && <button type="button" disabled={busy || streaming || blocked !== undefined} aria-describedby={blocked ? 'next-round-blocked' : undefined} onClick={() => void go()} className="min-h-11 rounded px-4 font-semibold disabled:opacity-60" style={{ background: 'var(--accent)', color: 'var(--bg)' }}>{busy ? 'Starting…' : error ? 'Retry' : `Start round ${inputs.round}`}</button>}
       </div>
     </dialog>
   );

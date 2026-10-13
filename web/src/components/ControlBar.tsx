@@ -21,6 +21,8 @@ function ConfirmDialog({ loop, action, local, onClose }: { loop: LoopDetail; act
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
+  // Committed but not pushed: the change is already written, so a Retry would commit it again; only pushing finishes it.
+  const [committed, setCommitted] = useState(false);
   useEffect(() => {
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : undefined;
     ref.current?.showModal();
@@ -37,7 +39,7 @@ function ConfirmDialog({ loop, action, local, onClose }: { loop: LoopDetail; act
         const reply = await postControl(loop.id, action, action === 'pause' ? { reason: reason || undefined } : {});
         await qc.invalidateQueries();
         // Lanes read main on GitHub: a commit that was not pushed has not changed anything for them.
-        if (reply.pushError || reply.pushed === false) { setError(`Committed here but not pushed${reply.pushError ? `: ${reply.pushError}` : ''}. Push main to finish.`); setBusy(false); return; }
+        if (reply.pushError || reply.pushed === false) { setCommitted(true); setError(`Committed here but not pushed${reply.pushError ? `: ${reply.pushError}` : ''}. Push main to finish.`); setBusy(false); return; }
         if (reply.changed === false) { setError('Nothing to change: it was already in that state.'); setBusy(false); return; }
         toast(DONE[action]);
         onClose();
@@ -61,8 +63,8 @@ function ConfirmDialog({ loop, action, local, onClose }: { loop: LoopDetail; act
       {blocked && <p role="status" className="mt-2 text-[13px]" style={{ color: 'var(--muted)' }}>{blocked}</p>}
       {error && <p role="alert" className="mt-2 text-[13px]" style={{ color: 'var(--failing)' }}>{error}</p>}
       <div className="mt-4 flex flex-wrap justify-end gap-2">
-        <button type="button" disabled={busy} onClick={onClose} className="min-h-11 rounded border px-4 disabled:opacity-60" style={{ borderColor: 'var(--border)' }}>Cancel</button>
-        <button type="button" disabled={busy || blocked !== undefined} onClick={() => void confirm()} className="min-h-11 rounded px-4 font-semibold disabled:opacity-60" style={{ background: 'var(--accent)', color: 'var(--bg)' }}>{busy ? PENDING[action] : error ? 'Retry' : VERB[action]}</button>
+        <button type="button" disabled={busy} onClick={onClose} className="min-h-11 rounded border px-4 disabled:opacity-60" style={{ borderColor: 'var(--border)' }}>{committed ? 'Close' : 'Cancel'}</button>
+        {!committed && <button type="button" disabled={busy || blocked !== undefined} onClick={() => void confirm()} className="min-h-11 rounded px-4 font-semibold disabled:opacity-60" style={{ background: 'var(--accent)', color: 'var(--bg)' }}>{busy ? PENDING[action] : error ? 'Retry' : VERB[action]}</button>}
       </div>
     </dialog>
   );
