@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkLabel, checkState, checkSummary, checkText, codeParts, humanizeTimes } from '../../../web/src/lib/health.js';
+import { checkLabel, checkState, checkSummary, checkText, codeParts, humanizeTimes, reasonRepeats } from '../../../web/src/lib/health.js';
 
 describe('checkLabel', () => {
   it('states the result of the check, not only its name', () => {
@@ -46,5 +46,21 @@ describe('codeParts', () => {
     expect(codeParts('Run `loop run` here')).toEqual(['Run ', 'loop run', ' here']);
     expect(codeParts('plain')).toEqual(['plain']);
     expect(codeParts('odd ` one')).toEqual(['odd ` one']);
+  });
+});
+
+describe('reasonRepeats', () => {
+  it('drops a reason that only restates the row', () => {
+    expect(reasonRepeats('Tests pass', 'all tests pass')).toBe(true);
+    expect(reasonRepeats('Runner is active', 'runner is active')).toBe(true);
+  });
+  it('keeps a reason that adds a fact', () => {
+    expect(reasonRepeats('Tests failing', '3 tests fail')).toBe(false);
+    expect(reasonRepeats('No stale session lock', 'no lock held')).toBe(false);
+    expect(reasonRepeats('Runs last long enough', 'recent runs did real work')).toBe(false);
+  });
+  it('keeps an empty or filler-only reason out of the repeat rule', () => {
+    expect(reasonRepeats('Tests pass', '')).toBe(false);
+    expect(reasonRepeats('Tests pass', 'all')).toBe(false);
   });
 });

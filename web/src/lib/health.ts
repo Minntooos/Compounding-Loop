@@ -41,6 +41,17 @@ export function checkText(check: Pick<HealthCheck, 'kind' | 'ok' | 'state' | 'la
   return check.label ?? checkLabel(check.kind, check.ok);
 }
 
+/** Words that carry no fact of their own, so "all tests pass" says nothing beside "Tests pass". */
+const FILLER = new Set(['a', 'all', 'an', 'are', 'did', 'do', 'does', 'is', 'recent', 'the']);
+
+/** True when the reason only repeats the row's sentence (every word but filler is in it), so the row can leave it out. */
+export function reasonRepeats(text: string, reason: string): boolean {
+  const words = (s: string) => s.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w !== '' && !FILLER.has(w));
+  const said = new Set(words(text));
+  const told = words(reason);
+  return told.length > 0 && told.every((w) => said.has(w));
+}
+
 /** "1 failing · 3 passing · 2 not checked": an unmeasured check never counts as a pass. Empty parts are left out. */
 export function checkSummary(checks: readonly Pick<HealthCheck, 'ok' | 'state'>[]): string {
   const count = (s: CheckState) => checks.filter((c) => checkState(c) === s).length;

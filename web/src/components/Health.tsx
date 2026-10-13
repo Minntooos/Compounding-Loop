@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { CheckCircle2, CircleMinus, OctagonAlert } from 'lucide-react';
 import { api } from '../api/client';
-import { checkState, checkSummary, checkText, codeParts, humanizeTimes, type CheckState } from '../lib/health';
+import { checkState, checkSummary, checkText, codeParts, humanizeTimes, reasonRepeats, type CheckState } from '../lib/health';
 import { LoadError, Loading } from './QueryState';
 
 function Doctor() {
@@ -42,10 +42,11 @@ export function Health() {
       {q.data.map((c) => {
         const state = checkState(c);
         const { word, color, Icon } = BADGE[state];
+        const text = checkText(c);
         return (
           <li key={`${c.loopId}/${c.kind}`} data-state={state} className="flex flex-wrap items-start gap-3 rounded-lg border p-3" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
             <span className="flex items-center gap-1.5 font-medium" style={{ color }}><Icon aria-hidden size={16} />{word}</span>
-            <span className="min-w-0 flex-1"><strong>{c.loopId}</strong> · {checkText(c)}<br /><span style={{ color: 'var(--muted)' }}>{humanizeTimes(c.reason)}</span>
+            <span className="min-w-0 flex-1"><strong>{c.loopId}</strong> · {text}{!reasonRepeats(text, c.reason) && <><br /><span style={{ color: 'var(--muted)' }}>{humanizeTimes(c.reason)}</span></>}
               {state === 'unchecked' && c.howToCheck && <><br /><span>How to check: <Hint text={c.howToCheck} /></span></>}
             </span>
             <code className="min-w-0 font-mono [overflow-wrap:anywhere] text-[12px]" style={{ color: 'var(--muted)' }}>{humanizeTimes(c.proof)}</code>
