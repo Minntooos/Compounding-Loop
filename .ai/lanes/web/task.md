@@ -1,6 +1,6 @@
 # Lane: web — round 5 (0.5.0 "Cockpit")
 
-Run: 10 / 20
+Run: 11 / 20
 Status: units 1-8 done (unit 7 cockpit screenshots run 10; A3 + C9 run 9); next: audit majors, starting with the demo read-only write controls
 Round 4 record: `.ai/lanes/web/done-v4.md` (`git show 02874e8:.ai/lanes/web/task.md` for its Decisions).
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).

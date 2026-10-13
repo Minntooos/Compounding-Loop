@@ -6,7 +6,7 @@ const lane = (name: string) => ({ name, state: 'building', run: 3, limit: 20, lo
 const LOOP = {
   id: 'self', name: 'self', state: 'building', reason: 'Building', repoUrl: 'https://github.com/o/r', round: 5, roundsTotal: 5, run: 0, runLimit: 0,
   lanes: ['core', 'web'].map(lane), timeline: [], contract: [], knowledge: [], decisions: [],
-  pace: { pace: 'balanced', overrides: { web: 'careful' } },
+  pace: { pace: 'balanced', overrides: { web: 'careful' }, note: 'control room set web to careful: CI red twice in 24 h' },
 };
 
 const row = (page: Page, name: string) => page.getByTestId('lane-row').filter({ has: page.getByRole('heading', { name, exact: true }) });
@@ -28,6 +28,7 @@ test('the Lanes tab states the loop pace and a lane override; the chooser shows 
   const block = page.getByTestId('pace-block');
   await expect(block.getByRole('heading', { name: 'Pace: Balanced' })).toBeVisible();
   await expect(block).toContainText('one reviewer per run');
+  await expect(block.getByTestId('pace-note')).toHaveText('Note: control room set web to careful: CI red twice in 24 h');
   await expect(row(page, 'web').getByTestId('lane-pace')).toHaveText('Pace: Careful (own)');
   await expect(row(page, 'core').getByTestId('lane-pace')).toHaveCount(0);
   await block.getByRole('button', { name: 'Change pace' }).click();
@@ -38,7 +39,7 @@ test('the Lanes tab states the loop pace and a lane override; the chooser shows 
   for (const word of ['Careful', 'Fast', 'Sprint']) await expect(group.getByRole('radio', { name: new RegExp(word) })).toBeVisible();
   await expect(group).toContainText('no reviewer');
   await expect(block).toContainText('never push with a failing check');
-  await expect(block).toContainText('red twice in 24 h');
+  await expect(block.getByTestId('pace-note-clears')).toHaveText('A new pace clears the note above.');
   expect(errors).toEqual([]);
 });
 

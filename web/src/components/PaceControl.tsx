@@ -68,6 +68,8 @@ export function PaceChooser({ loopId, pace, lane, slug, onClose }: { loopId: str
         </div>
       </fieldset>
       <p className="mt-2 text-[13px]" style={{ color: 'var(--muted)' }}>{PACE_FLOOR} {PACE_DOWNSHIFT}</p>
+      {/* core's policy writer keeps no `reason`, so any new pace (local save or the demo's file) drops the note. */}
+      {pace.note && <p data-testid="pace-note-clears" className="mt-1 text-[13px]" style={{ color: 'var(--muted)' }}>A new pace clears the note above.</p>}
       <div className="mt-2 flex flex-wrap items-center gap-2">
         {local
           ? <button type="button" data-testid="pace-save" disabled={busy || picked === current} onClick={() => void save()} className={button} style={{ borderColor: 'var(--accent)' }}>Save pace</button>
@@ -82,7 +84,7 @@ export function PaceChooser({ loopId, pace, lane, slug, onClose }: { loopId: str
   );
 }
 
-/** The Pace block at the head of the Lanes tab: the loop's pace in one sentence, its plain line, and Change pace. */
+/** The Pace block at the head of the Lanes tab: the loop's pace in one sentence, its plain line, why it was last set, and Change pace. */
 export function PaceBlock({ loopId, pace, slug }: { loopId: string; pace: LoopPace; slug?: string }) {
   const [open, setOpen] = useState(false);
   const opener = useRef<HTMLButtonElement>(null);
@@ -95,6 +97,7 @@ export function PaceBlock({ loopId, pace, slug }: { loopId: string; pace: LoopPa
         {!open && <button ref={opener} type="button" onClick={() => setOpen(true)} className={`${button} ml-auto`} style={{ borderColor: 'var(--border)' }}>Change pace</button>}
       </div>
       <p className="mt-1 text-[13px]" style={{ color: 'var(--muted)' }}>{PACE_SUMMARY[pace.pace]}</p>
+      {pace.note && <p data-testid="pace-note" className="mt-1 text-[13px]">Note: {pace.note}</p>}
       {open && <PaceChooser loopId={loopId} pace={pace} {...(slug && { slug })} onClose={close} />}
     </section>
   );
