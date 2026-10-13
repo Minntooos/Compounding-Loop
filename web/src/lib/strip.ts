@@ -144,7 +144,7 @@ function limitSegment(limitStops: number | undefined, unchecked: number, href: s
   if (limitStops === undefined) return { id: 'limits', text: 'Limit stops not checked', short: 'Limits not checked', tone: 'muted', icon: 'dash' };
   const partial = unchecked > 0 ? ` · ${unchecked} not checked` : '';
   if (limitStops === 0) return { id: 'limits', text: `No limit stops${partial}`, ...(partial && { short: `No stops · ${unchecked} unchecked` }), tone: 'muted', icon: 'check' };
-  return { id: 'limits', text: `${limitStops} limit stop${limitStops === 1 ? '' : 's'} in 5 h${partial}`, short: `${limitStops} limit stop${limitStops === 1 ? '' : 's'}`, tone: 'blocked', icon: 'warn', ...(href ? { href } : {}) };
+  return { id: 'limits', text: `${limitStops} limit stop${limitStops === 1 ? '' : 's'} in 5 h${partial}`, short: `${limitStops} limit stop${limitStops === 1 ? '' : 's'}${unchecked > 0 ? ` · ${unchecked} unchecked` : ''}`, tone: 'blocked', icon: 'warn', ...(href ? { href } : {}) };
 }
 
 function shipSegment(loops: Summary[], details: ReadonlyMap<string, Detail>): Segment | undefined {

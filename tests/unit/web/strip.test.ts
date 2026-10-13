@@ -121,6 +121,7 @@ describe('run outcomes (server runOutcomes)', () => {
     expect(limitStopsOf(fleet)).toBe(2);
     expect(limitsUnchecked(fleet)).toBe(2);
     expect(text(stripSegments({ loops: fleet, scoped: false, attention: 0, now: NOW }), 'limits')).toBe('2 limit stops in 5 h · 2 not checked');
+    expect(stripSegments({ loops: fleet, scoped: false, attention: 0, now: NOW }).find((g) => g.id === 'limits')?.short).toBe('2 limit stops · 2 unchecked');
     expect(text(stripSegments({ loops: [loop({ lanes, runOutcomes: ro() }), loop({ lanes })], scoped: false, attention: 0, now: NOW }), 'limits')).toBe('No limit stops · 1 not checked');
     // Gone silent: the server zeroes the count, which would read as "No limit stops".
     expect(limitStopsOf([loop({ lanes, runOutcomes: ro({ routinesLookOff: true }) })])).toBeUndefined();

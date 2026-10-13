@@ -16,6 +16,7 @@ test('commits per day names its first and last day under bars that span the char
   await page.route('**/api/inbox.json', (r) => r.fulfill({ json: [] }));
   await page.goto('/#/loop/self');
   const chart = page.getByTestId('activity-chart');
+  await expect(chart.locator('figcaption')).toHaveText('Commits per day (UTC) · busiest 2');
   await expect(chart.getByTestId('activity-axis').locator('span')).toHaveText(['Sun 11 Oct', 'Tue 13 Oct']);
   const figure = await chart.boundingBox();
   const bars = await chart.locator('rect').evaluateAll((rects) => rects.map((r) => r.getBoundingClientRect()).map((b) => ({ left: b.left, right: b.right })));

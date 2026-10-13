@@ -14,7 +14,7 @@ export function ActivityChart({ commits }: { commits: LoopCommit[] }) {
   const label = `Commits per day, ${dayHeading(days[0]!.day)} to ${dayHeading(days[days.length - 1]!.day)}: ${total} in total, busiest day ${max}.`;
   return (
     <figure data-testid="activity-chart" className="rounded-lg border p-3" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
-      <figcaption className="mb-1 text-[12px]" style={{ color: 'var(--muted)' }}>Commits per day (UTC)</figcaption>
+      <figcaption className="mb-1 text-[12px]" style={{ color: 'var(--muted)' }}>Commits per day (UTC) · busiest {max}</figcaption>
       {/* Stretched, not letterboxed: the day labels below sit at the figure's edges, so the bars must reach them. */}
       <svg role="img" aria-hidden="false" aria-label={label} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="block h-20 w-full">
         {days.map((d, i) => {
