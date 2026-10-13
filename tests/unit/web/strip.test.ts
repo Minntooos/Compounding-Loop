@@ -53,7 +53,7 @@ describe('stripSegments', () => {
     const ok = loop({ id: 'a', name: 'a', ci: { ok: true, reason: '' } });
     const bad = loop({ id: 'b', name: 'b', tests: { passed: 3, failed: 1 } as LoopSummary['tests'] });
     expect(text(stripSegments({ loops: [ok, bad], scoped: false, attention: 0, now: NOW }), 'ci')).toBe('CI failing · b');
-    expect(text(stripSegments({ loops: [ok, loop({ id: 'c' })], scoped: false, attention: 0, now: NOW }), 'ci')).toBe('CI passing on 1 of 2');
+    expect(text(stripSegments({ loops: [ok, loop({ id: 'c' })], scoped: false, attention: 0, now: NOW }), 'ci')).toBe('CI passing on 1 · 1 not checked');
     expect(text(stripSegments({ loops: [loop()], scoped: true, attention: 0, now: NOW }), 'ci')).toBe('CI not checked');
   });
   it('a loop page shows its round, done-when progress, ship check and next lane', () => {
@@ -62,13 +62,14 @@ describe('stripSegments', () => {
     const details = new Map([['a', { ship, contract: [{ text: 'x', pass: true }, { text: 'y', pass: false }], nextRuns: [{ lane: 'web', at: '2026-10-13T04:15:00Z' }, { lane: 'core', at: '2026-10-14T01:00:00Z' }] }]]);
     const segs = stripSegments({ loops: [l], scoped: true, attention: 1, details, now: NOW });
     expect(text(segs, 'round')).toBe('Round 5 done · 0.5.0 · 1 of 2 done-whens');
-    expect(text(segs, 'ship')).toBe('Not ready · Tag v0.5.0 is free');
+    expect(text(segs, 'ship')).toBe('Not ready · failing check: Tag v0.5.0 is free');
     expect(text(segs, 'next')).toBe('next: web 04:15 UTC');
     expect(text(segs, 'state')).toBe('Release waiting');
   });
-  it('a shipped loop shows "Released <version>"; a building one has no ship segment', () => {
-    const shipped = loop({ state: 'done', lanes: [lane('core', 'done')], shipped: { version: '0.4.0', npm: 'latest' } });
-    expect(text(stripSegments({ loops: [shipped], scoped: true, attention: 0, now: NOW }), 'ship')).toBe('Released 0.4.0');
+  it('a shipped loop shows "<version> released <date>"; a building one has no ship segment', () => {
+    const shipped = loop({ state: 'done', lanes: [lane('core', 'done')], shipped: { version: '0.4.0', date: '2026-10-13T00:40:00Z', npm: 'latest' } });
+    expect(text(stripSegments({ loops: [shipped], scoped: true, attention: 0, now: NOW }), 'ship')).toBe('0.4.0 released 13 Oct');
+    expect(text(stripSegments({ loops: [shipped, loop({ id: 'b' })], scoped: false, attention: 0, now: NOW }), 'ship')).toBe('0.4.0 released 13 Oct · a');
     expect(text(stripSegments({ loops: [loop()], scoped: true, attention: 0, now: NOW }), 'ship')).toBeUndefined();
   });
 });

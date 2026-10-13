@@ -9,3 +9,4 @@
 {"at":"2026-10-12T09:46:33.000Z","lane":"web","units":[],"tests":{"passed":144,"failed":0},"pushed":true,"note":"run 14; nothing actionable, remaining items blocked on server fixture data"}
 {"at":"2026-10-12T10:46:27.000Z","lane":"web","units":[],"tests":{"passed":144,"failed":0},"pushed":true,"note":"run 15; lane finished, DONE.md written"}
 {"at":"2026-10-13T02:17:16.402Z","lane":"web","units":["round 5 audit","DESIGN.md section 12","A1 A4 A8 attention list","A6 phone tab rows","C7 releases chips + live tag/npm"],"tests":{"passed":156,"failed":0},"pushed":true,"note":"run 1 (round 5); C8 screenshot design review still owed for run-1 UI units"}
+{"at":"2026-10-13T03:05:00.095Z","lane":"web","session":"https://claude.ai/code/session_0115NyjhnDoAFVa6RHLVJDc6","units":["C1 status strip","C2 Needs-you rows","C8 design review runs 1-2"],"tests":{"passed":170,"failed":0},"pushed":true,"note":"run 2 (round 5); limit stops/Wake wait on server run outcomes + schedule API"}

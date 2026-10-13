@@ -38,7 +38,7 @@ test('the strip states the fleet: what needs you, CI, and unknown limit stops', 
   await expect(strip.locator('[data-segment="limits"]')).toHaveText(phone ? 'Limits not checked' : 'Limit stops not checked', { useInnerText: true });
   if (!phone) await expect(strip.locator('[data-segment="round"]')).toHaveText('4 loops · 1 done', { useInnerText: true });
   else await expect(strip.locator('[data-segment="round"]')).toBeHidden();
-  await expect(strip.getByRole('link', { name: 'Not ready · CHANGELOG has 0.5.0' })).toHaveAttribute('href', '#/loop/ready');
+  await expect(strip.locator('[data-segment="ship"]')).toHaveAttribute('href', '#/loop/ready');
   // Strip, nav badge and banner agree.
   await expect(page.getByTestId('nav-attention')).toHaveText('4', { useInnerText: true });
   await expect(page.getByRole('link', { name: /4 things need you/ })).toBeVisible();

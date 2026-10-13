@@ -57,7 +57,9 @@ export function Inbox() {
     window.addEventListener('keydown', on);
     return () => window.removeEventListener('keydown', on);
   }, [items.length]);
-  if (q.isPending) return <Loading />;
+  // The attention rows need the loops too, or the Inbox could say "empty" while the badge counts lane problems (A4).
+  if (q.isPending || loops.isPending) return <Loading />;
+  if (loops.isError) return <LoadError what="the loops" onRetry={() => void loops.refetch()} busy={loops.isFetching} />;
   if (q.isError) return <LoadError what="the inbox" onRetry={() => void q.refetch()} busy={q.isFetching} />;
   // The same list the fleet banner and the nav badge count (A4); items the server inbox does not hold get a plain row.
   const others = attentionItems(loops.data ?? [], items).flatMap((a) => (a.kind === 'inbox' ? [] : [a]));

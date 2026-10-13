@@ -48,7 +48,7 @@ export function StatusStrip({ loopId }: { loopId?: string }) {
   const [first, second, ...rest] = segments;
   const lineTwoStart = rest.find((s) => s.short !== '');
   return (
-    <div className="border-t" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
+    <div role="status" className="border-t" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
       <ul aria-label={loopId ? 'Loop status' : 'Fleet status'} data-testid="status-strip"
         className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-1.5 text-[13px] md:min-h-8">
         {first && <Item s={first} sep="none" />}

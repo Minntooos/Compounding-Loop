@@ -52,7 +52,7 @@ function rowFor(a: AttentionItem, loop: Pick<LoopSummary, 'name' | 'reason' | 'u
       return { group: 'question', text: it.question.split('\n')[0] ?? it.question, action };
     }
     case 'lane':
-      if (a.lane.state === 'blocked') return { group: 'question', text: `Lane ${a.lane.name} is blocked`, action: open };
+      if (a.lane.state === 'blocked') return { group: 'question', text: `Lane ${a.lane.name} is blocked`, action: demo ? editOnGitHub(slug, `.ai/lanes/${a.lane.name}/BLOCKED.md`, open) : open };
       if (a.lane.state === 'stalled') return { group: 'stalled', text: `Lane ${a.lane.name} is stalled`, action: wake, explain: STALLED_EXPLAIN };
       return { group: 'stalled', text: `Lane ${a.lane.name} waits on a finished lane`, action: open };
     case 'failing': return { group: 'failing', text: `Failing${loop?.reason ? ` · ${loop.reason}` : ''}`, action: { label: 'Open checks', href: '#/health' } };

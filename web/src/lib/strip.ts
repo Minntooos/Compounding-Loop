@@ -1,6 +1,6 @@
 import type { LoopDetail, LoopSummary } from '../../../src/core/types.js';
 import { RUN_WINDOW_MS } from '../../../src/core/parse/outcomes.js';
-import { activityStamp } from './card.js';
+import { activityStamp, releasedText } from './card.js';
 import { releaseWaiting } from './lanes.js';
 
 /** Segment 1 of the status strip (DESIGN.md §12), in precedence order: the first one any loop has wins on the fleet. */
@@ -103,7 +103,8 @@ function ciSegment(loops: Summary[], scoped: boolean): Segment {
     const who = scoped ? '' : failing.length === 1 && failing[0] ? ` · ${failing[0].l.name}` : ` · ${failing.length} loops`;
     return { id: 'ci', text: `CI failing${who}`, short: 'CI failing', tone: 'failing', icon: 'cross', href: scoped ? '#/health' : loopHref(failing[0]?.l.id ?? '') };
   }
-  const partial = !scoped && known.length < loops.length ? ` on ${known.length} of ${loops.length}` : '';
+  const unknown = loops.length - known.length;
+  const partial = !scoped && unknown > 0 ? ` on ${known.length} · ${unknown} not checked` : '';
   return { id: 'ci', text: `CI passing${partial}`, ...(partial && { short: `CI passing ${known.length}/${loops.length}` }), tone: 'done', icon: 'check' };
 }
 
@@ -122,11 +123,14 @@ function shipSegment(loops: Summary[], details: ReadonlyMap<string, Detail>): Se
     const first = ship.items.find((i) => !i.ok);
     return ship.ready
       ? { id: 'ship', text: 'Ready to ship', tone: 'done', icon: 'check', href: loopHref(waiting.id) }
-      : { id: 'ship', text: `Not ready${first ? ` · ${first.label}` : ''}`, tone: 'blocked', icon: 'warn', href: loopHref(waiting.id) };
+      : { id: 'ship', text: `Not ready${first ? ` · failing check: ${first.label}` : ''}`, short: 'Not ready', tone: 'blocked', icon: 'warn', href: loopHref(waiting.id) };
   }
-  const shipped = loops.find((l) => l.shipped);
+  const shipped = loops.filter((l) => l.shipped);
+  const one = shipped.length === 1 ? shipped[0] : undefined;
   // Nothing to ship while the round is still building: that is not a question, so the segment is left out.
-  return shipped?.shipped ? { id: 'ship', text: `Released ${shipped.shipped.version}`, tone: 'done', icon: 'tag' } : undefined;
+  if (!one?.shipped) return undefined;
+  const who = loops.length > 1 ? ` · ${one.name}` : '';
+  return { id: 'ship', text: `${releasedText(one.shipped)}${who}`, short: `${one.shipped.version} released`, tone: 'done', icon: 'tag' };
 }
 
 /** "02:15 UTC" today, "14 Oct 02:15 UTC" on another day. */
