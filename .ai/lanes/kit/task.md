@@ -1,29 +1,30 @@
-# Lane: kit — round 5 (0.5.0 "Cockpit")
+# Lane: kit — round 6 (0.6.0 "Memory + proof")
 
-Run: 2 / 20
-Status: units 1-4 done except the `loop init --lanes` hook (core)
-Round 4 record: `.ai/lanes/kit/done-v4.md` (`git show 02874e8:.ai/lanes/kit/task.md` for its Decisions).
-How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
+Run: 0 / 20
+Status: not started
+Round 5 record: `.ai/lanes/kit/done-v5.md`.
+How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/policy.json`, run log, idle backoff).
 
 ## Contract
-**Goal:** every new user gets the round 5 run model: thin prompts, `.ai/lane-run.md`, `.ai/control-run.md`, `.ai/schedule.json` and `steer.md` (IDEA.md Round 5 B5).
-**Owns (globs from `.ai/lanes.json`):** method/**, templates/**, runners/**, plugin/**, tests/unit/kit/**
+**Goal:** the recipe format and seeds, the eval tasks, the hook wiring (plugin and this repo), and the method rewritten around the new objective (IDEA.md Round 6 A1, A5, A6, B4, B5, C1, D).
+**Owns (globs from `.ai/lanes.json`):** method/**, templates/**, runners/**, plugin/**, evals/**, .claude/**, tests/unit/kit/**
 **Done when:**
 - `npm test` passes.
-- Round 5 audit section with no open blocker.
-- `loop init --lanes` in an empty temp repo writes the four new templates (test).
-- Tests assert every runner prompt and template contains the cheap not-due skip, the steer step, the run-log step and the stale-clone step.
-**Constraints:** edit only the paths you own, plus the smallest edit to shared files (CLAUDE.md "Lanes"). Read anything. Unacknowledged `next-run` entries in `steer.md` come before this list.
-**Out of scope:** CLI code (core; ask in your outbox for the `loop init --lanes` hook), UI, docs pages (docs).
+- Round 6 audit section with no open blocker.
+- The Round 6 "done when" kit-tests line passes: `plugin/hooks/hooks.json` valid and runs `loop hook`; this repo's `.claude/settings.json` hook commands exist; both seed recipes pass `loop recipe check`; every eval task fails on its fixture and passes with its solution; the objective line is identical in method, templates and `CLAUDE.md`.
+**Constraints:** edit only the paths you own, plus the smallest edit to shared files. Read anything. Unacknowledged `next-run` entries in `steer.md` come before this list.
+**Out of scope:** parsing, matching and CLI code (core), API (server), UI (web), docs pages (docs).
 
 ## Units, in order
-1. Round 5 re-audit (`.ai/audit/kit.md`).
-2. Templates for `.ai/lane-run.md` and `.ai/control-run.md` (generalised from this repo's own files: no repo names, `<lane>` placeholders), `.ai/schedule.json` (every lane due) and `.ai/lanes/<lane>/steer.md`. Ask core in your outbox to have `loop init --lanes` write them.
-3. Thin runner prompts: `runners/routine/*` and the CLAUDE.md template say "follow `.ai/lane-run.md`" and keep step 0 (pull, stale clone) in the prompt. Method §16: "thin prompts, schedule, steering".
-4. The template tests named in Done when. Then write DONE: this lane is small this round on purpose.
+1. Round 6 re-audit (`.ai/audit/kit.md`).
+2. D: method rewrite (§1 objective word for word from IDEA.md D, §2 Experience row, §7 recipe layer, §8 exact hook events, §12 recipe step, §13 tokens per verified unit + eval) and the templates' Operating Card objective line; the identical-objective test.
+3. A1 + A5: `templates/recipe.md` (the format) and the two seed recipes (`templates/recipes/static-calculator-site.md` from the five sites in `.ai/reference/`, `templates/recipes/cli-command-json.md` from this repo), each under 6 KB. A6: retro step in method §12 and `plugin/commands/retro.md`. Until core's parser lands, test the front matter with the `yaml` package directly.
+4. C1: `evals/calc-page`, `evals/cli-json`, `evals/known-trap`, each with `task.md`, a zero-dependency `repo/`, `eval.json` (check command, recipe id), `solution/`; the test that the check fails on the fixture and passes with the solution.
+5. B4: `plugin/hooks/hooks.json` (five events, built-in tool matchers, `loop hook <event>`).
+6. B5 (only after core says `loop hook` is on `main` and green): this repo's `.claude/settings.json` (`node bin/loop.js hook <event>`, 5 s timeout) and a seeded `.ai/triggers.yaml` (K-0001, K-0002 and the traps listed in IDEA.md B5). Check the hook on a sample stdin before pushing: a broken hook would hit every lane.
+7. Audit majors, then minors.
 
 ## Decisions
-- 2026-10-13: `schedule.json` template is `lanes: {}` (missing entry = due per lane-run.md step 1), so core needs no per-lane fill. Only the lane/control prompts changed; single-loop `runners/routine/prompt.md` stays (core test keeps it equal to DEFAULT_PROMPT).
 
 ## Confirmed
 
@@ -33,7 +34,8 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 
 ## Don't
 - Edit paths another lane owns (a fix to a red `main` is the one exception; say so in your outbox).
-- Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
+- Change the Operating Card, the version, or publish anything.
+- Run `loop eval --runner claude` or call any model for an eval: tests use the fake runner.
 
 ## Handoff
-Run 1: units 1-4 done (audit, four templates in templates/lanes/, thin prompts, tests in tests/unit/kit/round5-rules.test.ts, method ch. 16). Open: core must write the templates in `loop init --lanes` (asked in outbox 2026-10-13 02:00). Next run: if core shipped it, add a kit test that runs it in a temp repo is core's; then review outboxes and write DONE.md. If core has not, write DONE.md anyway listing it.
+<Rewritten at the end of every run: commit, whether the tree is clean, the single next step, what to read first. Name finished units as "units 1-3 done" so `loop next` can skip them, and list what you shipped that another lane waits on (also in your outbox).>

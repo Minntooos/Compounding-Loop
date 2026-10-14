@@ -1,33 +1,30 @@
-# Lane: core — round 5 (0.5.0 "Cockpit")
+# Lane: core — round 6 (0.6.0 "Memory + proof")
 
-Run: 5 / 20
-Status: DONE (run 5)
-Round 4 record: `.ai/lanes/core/done-v4.md` (`git show 02874e8:.ai/lanes/core/task.md` for its Decisions).
-How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
+Run: 0 / 20
+Status: not started
+Round 5 record: `.ai/lanes/core/done-v5.md`.
+How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/policy.json`, run log, idle backoff).
 
 ## Contract
-**Goal:** the browser-safe logic and CLI commands behind steering, scheduling and run outcomes (IDEA.md Round 5 A2, A5, A9, B1-B4).
+**Goal:** the recipe store and matcher, the trigger engine with `loop hook`, and the eval runner (IDEA.md Round 6 A2-A4, B1-B3, C2-C4).
 **Owns (globs from `.ai/lanes.json`):** src/core/**, src/cli/**, bin/**, tests/unit/core/**, tests/unit/cli/**
 **Done when:**
 - `npm test` passes.
-- Round 5 audit section with no open blocker.
-- A2, A5 and A9 each have a regression test that fails before the fix; `lintBrief` scores the Round 5 brief at least 85.
-- Unit tests cover `loop schedule` (every action, backoff and wake rules, `--json`, `--no-commit`), `loop steer`, the schedule and steer parsers, `classifyRunSlots` (every outcome) and `next-round --draft --print-prompt` (no Claude call in tests).
-**Constraints:** edit only the paths you own, plus the smallest edit to shared files (CLAUDE.md "Lanes"). Read anything. Unacknowledged `next-run` entries in `steer.md` come before this list.
-**Out of scope:** UI (web), templates and runner prompts (kit), HTTP routes and GitHub/npm fetching (server).
+- Round 6 audit section with no open blocker.
+- Unit tests for every item in the Round 6 "done when" unit-test line (recipes, triggers, `loop hook`, `loop triggers stats`, `loop eval run --runner fake`, `loop eval report`).
+- `loop init --hooks` writes `.ai/triggers.yaml` and `.claude/settings.json` (test in an empty temp repo).
+**Constraints:** edit only the paths you own, plus the smallest edit to shared files. Read anything. Unacknowledged `next-run` entries in `steer.md` come before this list.
+**Out of scope:** templates, recipe and eval *content* and the plugin (kit), API routes (server), UI (web).
 
 ## Units, in order
-1. Round 5 re-audit (`.ai/audit/core.md`).
-2. Browser-safe schedule (`parseSchedule`, `isDue(entry, now)`, `applyBackoff(runs, entry, now)`, `wakeReasons(...)`) and steer (`parseSteer`, `formatSteerEntry`, acknowledgement state) parsers in `src/core/parse/**`, plus types in `src/core/types.ts` (additive). Tell server and web in your outbox as soon as they are on main: they build on them.
-3. `loop schedule show|pause|resume|snooze|wake|update` and `loop steer` (IDEA.md B1-B2), committing with `Lane: control` (`--no-commit`). After this, lanes stop applying the backoff by hand; say so in your outbox.
-4. `classifyRunSlots(lanes, runs, schedule, paused, doneFiles, now)` (B3) replaces the phantom-slot logic (A2): no expected slots after root DONE, while PAUSED, for done/blocked or not-due lanes, and one "routines look off" state after 6 h of silence. Use it in `loop runs`.
-5. `lintBrief` understands round briefs (A9). Fix A5 (count rounds from the brief or headings, not from `done-vN.md` names) where the parser lives.
-6. `loop next-round --draft [--out] [--print-prompt]` (B4) through the existing `runPrompt`; the prompt builder is a pure, tested function.
-7. Audit majors, then minors.
-8. Pace (IDEA.md B7): browser-safe `parsePolicy` + `paceFor(lane)`, `loop pace show|set`, and `loop init --lanes` writes `.ai/policy.json` (ask kit for the template text; until kit wakes, use `{"version":1,"pace":"balanced","lanes":{}}`).
+1. Round 6 re-audit (`.ai/audit/core.md`).
+2. Recipes (A2-A4): parser + linter (`check`), store (`.ai/recipes/`, `~/.ai/recipes/`, `LOOP_HOME`), matcher (stack from `package.json` at major version, tags, task text), `loop recipe list|show --context|match|check|add`, then `loop recipe draft --print-prompt` (same pattern as `next-round --draft`). Ship the parser first and tell kit in your outbox: kit's seed recipes and tests wait on it.
+3. Triggers (B1-B3): `src/core/triggers.ts`, `loop hook <event>` (exact `hookSpecificOutput` shape; exit 0 on any error; 2,000-character cap; once per `session_id`; no network), `.ai/.trigger-log.jsonl` (add to `.gitignore`), `loop triggers stats`, optional `triggers` count in `loop runs log`. Tell kit when `loop hook` is on `main` and green: kit wires this repo's hooks only after that.
+4. `loop init --hooks`: starter `.ai/triggers.yaml` and project `.claude/settings.json` hooks; `loop init` offers seed recipes that `match` ranks above zero.
+5. Eval (C2-C4): `loop eval run` (temp dir copy, `git init`, `claude -p --output-format json --max-turns 30`, restricted tools, `--env-file`, recipe arm prepends `recipe show --context`, then the task's check), results jsonl, `loop eval report` (table + headline; no results, no headline). Fake runner + recorded JSON fixture in tests.
+6. Audit majors, then minors. Dogfood findings from the owner's setup (2026-10-14): `next-round --brief` writes task files with unfilled `<placeholders>` and a duplicate `---` before the old round in IDEA.md, and inserts the control-room note in the middle of the file. Fix if small.
 
 ## Decisions
-- `applyBackoff` leaves the entry unchanged when the newest run had units (no invented wake-up) and never touches a paused entry. `wakeReasons` takes pre-parsed messages `{at,to[]}` so outbox and control-room notes share it.
 
 ## Confirmed
 
@@ -37,13 +34,8 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 
 ## Don't
 - Edit paths another lane owns (a fix to a red `main` is the one exception; say so in your outbox).
-- Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
+- Change the Operating Card, the version, or publish anything.
+- Run `loop eval --runner claude` or call any model for an eval: tests use the fake runner.
 
 ## Handoff
-Run 1 shipped units 1-6: audit; schedule/steer parsers + CLI (`src/cli/schedule.ts`); `classifyRunSlots` (`src/core/parse/outcomes.ts`); `lintBrief` round briefs + `countRounds`; `loop next-round --draft [--out] [--print-prompt]` (`src/core/draftBrief.ts`, `src/cli/draft.ts`; `--out` confined to new .md files inside the repo). Next: unit 7. Known open minors: (a) `lintBrief` is generous with junk lettered sections (a `### A. stuff` with three short items scores 80; consider stricter vague check); (b) DONE (check-lanes allows `.ai/schedule.json` for any lane); (c) `loop schedule` push failure message names the pull; (d) tests/unit/kit/chrome-extension.test.ts is flaky under full-suite load (32 s). Then DONE per CLAUDE.md "Lane finished" if the contract holds (done-when: all tests listed in contract exist).
-Notes: `schedule update --lane X` is what lanes run at step 8. Sandbox: origin main may not fast-forward; use branch `lane-run`, push `origin HEAD:main`.
-Run 2: `loop init --lanes` / `loop lanes add` now write lane-run.md, control-run.md, schedule.json and per-lane steer.md (loop state, never overwritten; kit's 02:00 ask). Web's formatSteerEntry/prompt-builder/parseSchedule/classifyRunSlots asks were already exported from src/core/parse. Remaining: unit 7 minors, then DONE.
-
-Run 3: unit 8 (Pace) shipped: `src/core/parse/policy.ts` (parsePolicy, paceFor, withPace, formatPolicy, PACE_SUMMARY), `src/cli/pace.ts` (`loop pace show|set [--lane]`), `loop init --lanes` writes `.ai/policy.json` from a built-in default (no kit template exists). Reviewer nits left: corrupt policy.json silently reads as balanced; kit template could drift from FALLBACK_LANE_TEMPLATES.policy. Remaining: unit 7 minors, then DONE.
-
-Run 4: `policyProblem` (src/core/parse/policy.ts) + `loop pace show` warns when policy.json is corrupt or has no valid pace (reviewer nit from run 3 closed). Left: kit template drift vs FALLBACK_LANE_TEMPLATES.policy (kit is DONE; no action), minor (a) lintBrief junk sections. All contract done-when items hold; next run: DONE per CLAUDE.md "Lane finished" after reading outboxes.
+<Rewritten at the end of every run: commit, whether the tree is clean, the single next step, what to read first. Name finished units as "units 1-3 done" so `loop next` can skip them, and list what you shipped that another lane waits on (also in your outbox).>

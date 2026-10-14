@@ -1,29 +1,27 @@
-# Lane: docs — round 5 (0.5.0 "Cockpit")
+# Lane: docs — round 6 (0.6.0 "Memory + proof")
 
-Run: 3 / 20
-Status: DONE (run 3)
-Round 4 record: `.ai/lanes/docs/done-v4.md` (`git show 02874e8:.ai/lanes/docs/task.md` for its Decisions).
-How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle backoff).
+Run: 0 / 20
+Status: not started
+Round 5 record: `.ai/lanes/docs/done-v5.md`.
+How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/policy.json`, run log, idle backoff).
 
 ## Contract
-**Goal:** a stranger can steer and schedule a loop from the docs alone (IDEA.md Round 5 D).
+**Goal:** `docs/memory.md`, `docs/eval.md`, the README section, CHANGELOG and launch drafts for round 6 (IDEA.md Round 6 F).
 **Owns (globs from `.ai/lanes.json`):** README.md, docs/**, launch/**, .github/**, CONTRIBUTING.md, CODE_OF_CONDUCT.md, CHANGELOG.md, SECURITY.md, tests/unit/docs/**
 **Done when:**
 - `npm test` passes.
-- Round 5 audit section with no open blocker.
-- `docs/steering.md` exists, and the fresh-install test follows it word for word.
-- `docs/dashboard.md` covers every new control and what it writes; README has "Glance, steer, sleep"; CHANGELOG `[Unreleased]` lists 0.5.0; screenshots under 400 kB each.
-- The docs unit tests (links, commands named in docs exist in `loop --help`) pass.
-**Constraints:** edit only the paths you own, plus the smallest edit to shared files (CLAUDE.md "Lanes"). Read anything. Unacknowledged `next-run` entries in `steer.md` come before this list.
-**Out of scope:** Code (core/server/web), templates (kit).
+- Round 6 audit section with no open blocker.
+- `docs/memory.md` and `docs/eval.md` exist and every command in them runs as written in a fresh temp repo (test, using `--runner fake` for the eval).
+- README has the "Learn once, one-shot the next" section with `<!-- eval: pending -->` where the number goes; launch drafts use the same placeholder; CHANGELOG `[Unreleased]` lists round 6.
+**Constraints:** edit only the paths you own, plus the smallest edit to shared files. Read anything. Unacknowledged `next-run` entries in `steer.md` come before this list.
+**Out of scope:** code (core, server, web), templates and method (kit).
 
 ## Units, in order
-1. Round 5 re-audit (`.ai/audit/docs.md`). Your first run is scheduled late (`.ai/schedule.json`), so that features exist to document.
-2. `docs/steering.md` (IDEA.md D), with the exact thin routine prompt text from kit's templates.
-3. `docs/dashboard.md` for every new control; README "Glance, steer, sleep"; CHANGELOG `[Unreleased]`.
-4. Swap in web's new screenshots; `launch/` drafts mention steering and idle-for-free.
-5. Audit majors, then minors. Write DONE only after web and core are DONE, so the docs match what shipped.
-6. Pace in `docs/steering.md` and `docs/dashboard.md` (IDEA.md B7, C9).
+1. Round 6 re-audit (`.ai/audit/docs.md`).
+2. `docs/memory.md`: recipes (format, store, match, draft, check), triggers (`.ai/triggers.yaml`, the five hook events, plugin vs `.claude/settings.json`), cleanup.
+3. `docs/eval.md`: tasks, arms, running it, reading the report; local models through Ollama (variables from IDEA.md Research, marked as unverified until the owner's run), hardware honesty.
+4. README section, CHANGELOG, launch drafts with the placeholder.
+5. Audit majors, then minors.
 
 ## Decisions
 
@@ -35,11 +33,8 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, run log, idle b
 
 ## Don't
 - Edit paths another lane owns (a fix to a red `main` is the one exception; say so in your outbox).
-- Change the Operating Card, the version, `.ai/lane-run.md` or `.ai/control-run.md`; publish, tag or dispatch `release.yml`.
+- Change the Operating Card, the version, or publish anything.
+- Run `loop eval --runner claude` or call any model for an eval: tests use the fake runner.
 
 ## Handoff
-Run 1 shipped units 1-3 (audit, docs/steering.md incl. pace, dashboard.md controls, README section, CHANGELOG, docs.test.ts). Next: unit 4 (swap screenshots once web is DONE, <400 kB each; launch/ drafts mention steering and idle-for-free), recheck dashboard.md labels against web's final UI, run the fresh-install test from a packed tarball, then DONE only after core and web are DONE.
-Note: pull in run 1 diverged from origin, so I worked on branch `lane-run` and pushed with `git push origin HEAD:main`.
-
-Run 2: unit 4 done (web's final screenshots copied to docs/assets/screens, all <400 kB; dashboard.md push-failure and "Round N may have started" wording; x-thread mentions steering/idle-for-free). Remaining: fresh-install test from packed tarball, recheck labels; DONE only after web is DONE (core, kit done).
-Run 3: refreshed fleet screenshots from web's final set, verified packed-tarball commands, wrote DONE.md.
+<Rewritten at the end of every run: commit, whether the tree is clean, the single next step, what to read first. Name finished units as "units 1-3 done" so `loop next` can skip them, and list what you shipped that another lane waits on (also in your outbox).>

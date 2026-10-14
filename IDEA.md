@@ -1,6 +1,94 @@
 # IDEA: Compounding Loop
 
-## Round 5 (current): 0.5.0 "Cockpit" — see everything, steer anything, idle for free — started 2026-10-13 01:30 UTC
+## Round 6 (current): 0.6.0 "Memory + proof" — learn once, one-shot the next — started 2026-10-14 00:30 UTC
+
+Round 5 finished (root report `.ai/done-v5.md`) and **0.5.0 is published on npm** (tag `v0.5.0`). The cockpit works. This round builds the part that makes the loop *compound*, and measures it.
+
+**What we are building:** Compounding Loop, a CLI, a local dashboard and templates that run unattended, verified Claude Code build loops. **Audience:** solo developers and small teams who run Claude Code loops and want each project to make the next one cheaper.
+
+**The new headline:** *Learn once, one-shot the next.* When a project or feature is finished, what it taught is kept as a **recipe** (steps, traps, the checks that prove each step) and as **triggers** that fire at the moment they matter. The next project of the same kind starts from a small, exact context instead of from zero, so a smaller or local model can do it in one pass. **The proof is a number:** an eval that rebuilds known tasks cold and with a recipe, on Haiku and on a local model, and reports pass rate, tokens and time. That number becomes the launch headline.
+
+**Why now:** after five rounds this repo has 2 knowledge entries, no trigger engine, no cross-project store and no recipe capture; the method itself says "tokens are the cheapest resource", which contradicts the pitch. The orchestration is done; the memory layer is not.
+
+**Framing (keep it honest):** not "zero context" but *the smallest context that still passes*: one recipe plus the checks that prove it. A claim counts only when the eval measures it.
+
+**Principles (unchanged):** the repo is the source of truth. No tokens in the browser, no backend, no telemetry, no calls home. Everything new works for any user's loop (`loop init`, `loop init --lanes`, the plugin), not only for this repo.
+
+### How runs work (same as round 5)
+`.ai/lane-run.md` and `.ai/control-run.md` are the procedure; `.ai/schedule.json` decides who is due; `.ai/lanes/<lane>/steer.md` carries steering; `.ai/policy.json` sets the pace (the owner set `sprint`: light tests per unit, full `npm test` before the run's last push). **Lanes never run a real eval against Claude or any model**: it spends the owner's usage. They use the fake runner; the owner's local Claude Code runs the real eval after root `DONE.md`.
+
+### Step 1 for every lane: a short re-audit (first unit)
+Add a "Round 6" section at the top of `.ai/audit/<lane>.md`: this round's goal judged as a demanding senior specialist in agent memory and evaluation would judge it, findings ranked blocker/major/minor with evidence and a one-line fix. Findings in another lane's area go to that lane's outbox. Fix blockers first.
+
+### Research the lanes build on (read, don't re-derive)
+- **ACE, Agentic Context Engineering** (Zhang et al., ICLR 2026, arXiv 2510.04618): an evolving "playbook" updated by small delta edits (generator, reflector, curator), never by full rewrites; full rewrites caused *context collapse* (18,282 → 122 tokens, accuracy 66.7% → 57.1%). With it, a smaller open model matched the top production agent on AppWorld. → Recipes and knowledge change by appended or edited items with evidence, never by regenerating the whole file.
+- **Agent Workflow Memory** (Wang et al., 2024) and **Voyager's skill library** (Wang et al., 2023): store reusable *workflows/skills* induced from successful runs, retrieve by task similarity. → Recipes are induced only from work whose checks passed.
+- **Dynamic Cheatsheet** (Suzgun et al., 2025): a small curated memory of strategies and code snippets carried across tasks. → Keep each recipe short and capped.
+- **Claude Code hooks** (code.claude.com/docs/en/hooks, checked 2026-10-14): `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PostToolUse` and `PostToolUseFailure` can add context the model sees through `{"hookSpecificOutput":{"hookEventName":"<event>","additionalContext":"…"}}` on stdout (`hookEventName` is required). `PostToolUse` fires only after a tool *succeeds*; a failed Bash call fires `PostToolUseFailure`. Plain stdout is added only for `SessionStart` and `UserPromptSubmit`. Plugins declare hooks in `plugin/hooks/hooks.json` (same shape as settings, top-level `hooks` key) and reference scripts with `${CLAUDE_PLUGIN_ROOT}`. Reports say `additionalContext` is dropped for MCP and Agent tool calls: match only built-in tools.
+- **Local models** (GUESS until the owner runs it): Ollama exposes an Anthropic-compatible API, so Claude Code runs against it with `ANTHROPIC_BASE_URL=http://localhost:11434`, `ANTHROPIC_AUTH_TOKEN=ollama`, `ANTHROPIC_API_KEY=""` and `ANTHROPIC_DEFAULT_{HAIKU,SONNET,OPUS}_MODEL=<local model>` (or `ollama launch claude`). It needs a model with tool calling and at least a 64k context window.
+
+### A. Recipes (core: store, match, draft; kit: format, seeds, retro)
+1. **Format** (kit writes `templates/recipe.md` and the method section; core parses it). A recipe is one Markdown file with YAML front matter: `id` (`R-<slug>`), `title`, `kind` (`project` | `feature`), `stack` (list of `name@major`, e.g. `node@20`, `playwright@1`), `tags`, `status` (`CONFIRMED` | `GUESS`), `source` (repo and commit it came from), `uses`, `passes`, `updated`. Sections, in order: **When to use** (one paragraph), **Steps** (numbered; every step names the command or test that proves it), **Traps** (each one line, with the knowledge id or trigger that covers it), **Checks** (the commands that decide done), **Start from** (templates or files to copy). **Hard cap: 6 KB.** A recipe is the small exact context, not a manual.
+2. **Store.** Project recipes in `.ai/recipes/`, the user's cross-project store in `~/.ai/recipes/` (`LOOP_HOME` overrides `~/.ai` for tests). Same rule as method §7 library notes: nothing personal, no absolute paths, no emails, no secrets.
+3. **`loop recipe list | show <id> [--context] | match [task text] | check [file] | add <file> [--global]`**, each with `--json`.
+   - `match` ranks recipes for the current repo: stack overlap read from `package.json` dependencies at their major version (a major mismatch counts against), plus tag/keyword overlap with the task text. It prints the top 3 with the score and the reason ("stack 3/4, tags: calculator, static").
+   - `show --context` prints exactly the block a model would receive (front matter dropped, sections kept). This is what the eval's recipe arm uses.
+   - `check` lints: front matter fields, required sections, size cap, every step has a check, no absolute paths, emails or token-like strings. Exit 1 with fix-it messages.
+4. **`loop recipe draft [--from <lane|dir>] [--print-prompt]`**: the prompt is built from DONE.md, the task file's Decisions/Tried/Don't, the knowledge entries and the run log; it asks Claude for a recipe in the format above. Same pattern as `next-round --draft`: `--print-prompt` makes no Claude call (tests use it), the draft is written to `.ai/recipes/<id>.draft.md` and scored by `check`; a human renames it to accept it. Delta rule (ACE): a draft for an existing id is a list of added or changed items, never a full rewrite.
+5. **Seeds (kit):** `templates/recipes/static-calculator-site.md`, distilled from the five live calculator sites (the starter kit and the round 1 notes in `.ai/reference/`), and `templates/recipes/cli-command-json.md` (add a `loop` subcommand with `--json`, help text and unit tests), distilled from this repo. Both pass `loop recipe check`. `loop init` offers the seeds that `match` ranks above zero.
+6. **Retro** (method §12 and `plugin/commands/retro.md`): a new step, "Is this a procedure someone will repeat? Then draft a recipe (`loop recipe draft`)", and the promotion ladder gains a side branch: a repeated *procedure* becomes a recipe; a repeated *mistake* still goes note → trigger → check.
+
+### B. Triggers that fire at the right moment (core: matcher and `loop hook`; kit: wiring)
+1. **`src/core/triggers.ts`**: parse `.ai/triggers.yaml` (the method's C.5 shape, with the existing `yaml` dependency) and match an event: `error` (substring or `/regex/` on a failed tool's output), `file` (glob on the path a tool reads or edits), `command` (prefix or `/regex/` on a Bash command, before it runs), `topic` (keywords in the user prompt). `inject` is either text or a path to a knowledge entry (its first 1,200 characters).
+2. **`loop hook <event>`** reads the hook JSON from stdin and prints the `hookSpecificOutput` object above, or nothing when no trigger matches. Event → kinds: `PostToolUseFailure` → error and file; `PostToolUse` → file; `PreToolUse` (Bash) → command; `UserPromptSubmit` → topic; `SessionStart` → one line naming the best recipe from `loop recipe match` (and nothing when none scores). Rules: no network, no Claude call; **exit 0 on any internal error** (a broken hook must never break a run); total injected text capped at 2,000 characters; the same trigger is injected at most once per `session_id`.
+3. **Counting:** each fire appends `{at, session, id, event}` to `.ai/.trigger-log.jsonl` (gitignored, local). `loop triggers stats [--json]` shows fired counts per id; `loop runs log` gains an optional `triggers` count so a lane's run line records how many fired. `helped` is set by the retro, by hand (method §8: delete triggers that help less than half the time).
+4. **Wiring (kit):** `plugin/hooks/hooks.json` runs `loop hook <event>` for the five events, matchers limited to built-in tools (`Bash|Read|Edit|Write|Glob|Grep`). `loop init` writes a starter `.ai/triggers.yaml` and, when the user agrees (`--hooks`), a project `.claude/settings.json` with the same hooks for people without the plugin.
+5. **Dogfood (kit):** this repo gets `.claude/settings.json` running `node bin/loop.js hook <event>` (the cloud sandbox has no global `loop`), with a 5 s timeout, and a seeded `.ai/triggers.yaml` from K-0001, K-0002 and the traps this repo actually hit: `Could not find claude.exe on PATH` (check the abort signal first), CRLF from Python writes on Windows, `EBUSY` at cleanup, Playwright `Response has been disposed` (flaky route), a `Lane ownership` failure (wrong trailer: `Lane: release` for version bumps). Seeding happens only after core's `loop hook` is on `main` and green, so no lane run ever loads a hook that doesn't exist yet.
+
+### C. The proof: `loop eval` (core: runner and report; kit: tasks)
+1. **Tasks** live in `evals/<task-id>/`: `task.md` (the one-paragraph request a cold model gets), `repo/` (a tiny fixture with **zero npm dependencies**: Node's built-in `node --test` only, so no network is needed), `check` (the command that decides pass/fail, from `eval.json`), `recipe` (the recipe id for the recipe arm) and `solution/` (a reference patch). Three tasks to start:
+   - `calc-page`: add a calculator page to a small static site (tested formula, canonical and sitemap entry, meta description ≤ 160 characters). Recipe: static-calculator-site.
+   - `cli-json`: add a subcommand with `--json` output and tests to a small Node CLI. Recipe: cli-command-json.
+   - `known-trap`: a change that hits a planted trap a trigger covers (e.g. Windows paths or CRLF). Arms: cold, recipe, recipe + triggers.
+   Each task's test proves its check *discriminates*: the untouched fixture fails it and fixture + `solution/` passes it.
+2. **`loop eval run [--task <id>] [--arm cold|recipe|both] [--model <name>] [--runs N] [--runner claude|fake]`**: for each run, copy `repo/` to a fresh temp dir, `git init`, run `claude -p <prompt> --output-format json --max-turns 30` with tools limited to file edits and `node`/`npm test` in that dir (never the user's repo; print the exact command), then run the check. Record from the JSON result: pass, input/output/cache tokens, cost, duration, turns. A local model is just environment variables (above); `--env-file <path>` passes them without putting them in shell history. The recipe arm prepends `loop recipe show <id> --context`.
+3. **`loop eval report [--json]`**: results append to `evals/results/<YYYY-MM-DD>-<model>.jsonl`; the report is a table per task × arm × model (pass rate, median tokens, median time, turns) and one headline sentence built from it, e.g. "Haiku: 3/3 with a recipe vs 1/3 cold, 58% fewer tokens". No number is ever invented: no results file, no headline.
+4. **Tests** use `--runner fake` (a script that applies `solution/` or does nothing) and a recorded `claude -p --output-format json` fixture for parsing. No test calls Claude or the network.
+
+### D. The objective, rewritten (kit; the owner already changed this repo's Operating Card)
+The new objective, word for word in this repo's `CLAUDE.md` Operating Card (owner's setup commit), `templates/` and `method/COMPOUNDING_LOOP.md`:
+
+> **Objective:** the most verified-correct results per minute of the owner's attention, from the smallest context that still passes. A wrong result that looks right is the most expensive one. Tokens are spent where they buy correctness (checks, review), not on re-learning what a recipe, a trigger or a check already knows.
+
+Kit rewrites method §1 (why tokens now count: a smaller context lets a smaller or local model do the job, and the plan's five-hour limit is shared by every run; round 4 spent about two thirds of its fires on idle runs), adds an "Experience" row to the §2 sparse-activation table (recipes), a recipe layer to §7, the exact hook events to §8, the recipe step to §12, and "tokens per verified unit" plus the eval to §13. A kit test asserts the objective line is identical in all three places.
+
+### E. Show it (server: data; web: screens)
+1. **server:** `GET /api/loops/:id/knowledge` (index entries, triggers with fired counts, recipes that match this loop), `GET /api/recipes` (project and user store; home paths shown as `~`), `GET /api/eval` (latest report). Demo snapshot fixtures for all three; eval demo data is visibly marked **sample**.
+2. **web:** the empty Knowledge tab becomes **Knowledge & recipes**: index entries with trigger badges and fired counts, recipe cards (stack chips, step and check counts, uses/passes, a copy button for `loop recipe show <id> --context`), and an **Eval** view: the table, the headline sentence, and an empty state that names the command to run. Same bar as round 5: axe clean, both themes, 1440 and 375 px, no console errors, an independent design reviewer per unit.
+
+### F. Docs
+`docs/memory.md` (recipes, triggers, hooks via plugin or `.claude/settings.json`, cleanup), `docs/eval.md` (running the eval, local models through Ollama with the variables above, hardware honesty: a 6 GB GPU fits only small models), README section "Learn once, one-shot the next" with the headline left as `<!-- eval: pending -->` until the owner's real run, CHANGELOG `[Unreleased]`, and the method objective change called out. Launch drafts lead with the eval number, also as a placeholder.
+
+### Round 6 done when
+- `npm test` passes on a clean clone and on CI's three jobs.
+- Every lane's audit has a Round 6 section with no open blocker.
+- Unit tests cover: the recipe parser, linter and matcher (stack overlap, major mismatch, tags, ties), every `loop recipe` action with `--json`, `recipe draft --print-prompt` (no Claude call), the trigger parser and every event kind, the per-session dedupe and the size cap, `loop hook` for each event with the exact `hookSpecificOutput` shape and exit 0 on bad stdin, `loop triggers stats`, and `loop eval run --runner fake` (pass, fail, token and time parsing from the recorded fixture) plus `loop eval report` (table, headline, no headline without results).
+- Kit tests: `plugin/hooks/hooks.json` is valid and runs `loop hook`; this repo's `.claude/settings.json` hook commands exist; both seed recipes pass `loop recipe check`; every eval task's check fails on the fixture and passes with its solution; the objective line is identical in the three places.
+- e2e with the demo data proves the Knowledge & recipes screen, the Eval table and headline, the empty states, axe, phone layout and zero console errors.
+- Dogfood: at least one lane run this round records `triggers` > 0 in its runs.jsonl line, or the lane records evidence of why the cloud sandbox did not load `.claude/settings.json` hooks.
+- Fresh install from a packed tarball in an empty temp dir: `loop init --hooks` writes `.ai/triggers.yaml` and `.claude/settings.json`; `loop recipe match` in a copy of `evals/calc-page/repo` ranks static-calculator-site first; `loop eval run --runner fake --task calc-page` passes; `loop hook PostToolUseFailure` with a sample stdin prints the matching entry.
+- **Do not change `version`, publish, dispatch `release.yml` or create tags, and never run `loop eval --runner claude`.** The owner's local Claude Code runs the real eval and releases 0.6.0 after root `DONE.md`.
+
+**Deadline:** 2026-10-17 18:00 UTC. After that, start no new unit: finish what's open and write DONE.
+
+**Out of scope (later rounds):**
+- Round 7 "Operator": a request queue with a PR-triggered operator routine, live steering of a running session, adaptive cadence, the usage governor, self-starting rounds, the autonomy dial, a plan-approval gate, auto-adjusting pace.
+- Round 8: team roles and presence, multi-repo fleets, run replay.
+- Never in scope: a hosted backend, accounts, tokens in the browser, analytics, npm publish, posting the launch, repo settings changes, enabling or disabling routines, downloading models.
+
+---
+
+## Round 5 (finished 2026-10-13; published as 0.5.0 on 2026-10-14): 0.5.0 "Cockpit" — see everything, steer anything, idle for free — started 2026-10-13 01:30 UTC
 
 Round 4 finished (root report `.ai/done-v4.md`) and **0.4.0 is published on npm** (tag `v0.4.0`). The owner audited the 0.4.0 dashboard at 1440 and 375 px and wrote the end-state vision (https://claude.ai/artifact/KZwwmdiDfSAXXAtRfC3krJ, private to the owner; everything a lane needs is restated here). This round is the first step of that vision.
 

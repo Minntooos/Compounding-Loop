@@ -4,7 +4,7 @@
     "core": { "notBefore": null, "sleeping": false, "paused": false, "reason": null },
     "kit": { "notBefore": null, "sleeping": false, "paused": false, "reason": null },
     "server": { "notBefore": null, "sleeping": false, "paused": false, "reason": null },
-    "web": { "notBefore": null, "sleeping": false, "paused": false, "reason": null },
-    "docs": { "notBefore": "2026-10-13T18:00:00Z", "sleeping": false, "paused": false, "reason": "docs waits for the first features (owner's round 5 setup)" }
+    "web": { "notBefore": "2026-10-14T12:00:00Z", "sleeping": false, "paused": false, "reason": "web waits for core's recipe/eval data and server's fixtures (owner's round 6 setup)" },
+    "docs": { "notBefore": "2026-10-15T12:00:00Z", "sleeping": false, "paused": false, "reason": "docs waits for the first features (owner's round 6 setup)" }
   }
 }

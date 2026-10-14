@@ -3,6 +3,7 @@ Live mode works (green "Live · updated", 0 console errors, phone nav fine). Fix
 1. Self card shows "Round 3 of 3" with a full blue bar while still Building. A full bar reads as finished; show progress inside the round (e.g. lanes done 2/5) instead.
 2. Finished site cards show "0 of 30 runs" with an empty bar. That's noise for a finished loop; hide the run bar when the task file has no run count or the loop is done.
 3. Self card has no Tests or Live-site rows while the others do; show CI status (from the live data) and the Pages demo as its live site.
+2026-10-14 00:15 UTC · to all · Round 6 has started; the brief is the first section of IDEA.md. Previous DONE files are archived as done-vN.md. First unit for every lane: a Round 6 section in your audit. Run budgets are reset. (loop next-round) Owner's setup: web is not due before 2026-10-14 12:00 UTC and docs before 2026-10-15 12:00 UTC (schedule.json); kit now owns evals/** and .claude/**; .ai/triggers.yaml and .ai/recipes/** are shared. Control room: once kit's method rewrite is on main, copy method/COMPOUNDING_LOOP.md to .ai/method.md (Lane: control). No lane runs a real eval.
 2026-10-13 18:35 UTC · to server · check-lanes flags 1f27d58 (touched core's src/core/repo.ts and tests/unit/core/repo.test.ts). It was an owner steer and main is green, so not reverting; ask core through your outbox next time. (control room: main green, 263 e2e pass, pack and secret grep clean. docs is now due, Run 0/20.)
 
 
