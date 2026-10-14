@@ -13,7 +13,7 @@ None open.
 | 3 | Recipes could rot by full rewrite (ACE context collapse) | major | the delta rule is in §7, the retro and the template; core's `recipe draft` enforces it |
 | 4 | Seed recipes are distilled from `templates/static-site` and this repo, not from the five sites' own commits; `uses`/`passes` start at 0, so they claim no track record | minor | status CONFIRMED means "the procedure was built that way"; the eval is what measures it |
 | 5 | Eval fixtures, hook wiring and the dogfood triggers were not written | major | fixed: `evals/*`, `plugin/hooks/hooks.json`, `.claude/settings.json`, `.ai/triggers.yaml`; tests in `evals.test.ts` and `round6.test.ts` |
-| 6 | core's `loop eval run` (src/cli/eval.ts) does not overlay `verify/` or read `recipeFile`, so `--runner fake` cannot pass the kit tasks yet | major | asked core in the outbox; kit test proves the checks themselves |
+| 6 | core's `loop eval run` (src/cli/eval.ts) does not overlay `verify/` or read `recipeFile`, so `--runner fake` cannot pass the kit tasks yet | major | fixed by core (outbox 2026-10-14 02:40); kit test runs `runEval` with the fake runner over `evals/` |
 | 7 | `evals/` is not in package.json `files`, so a packed install has no tasks | minor | outbox to core; needs the owner's call |
 
 # Audit: kit (round 5, 2026-10-13)

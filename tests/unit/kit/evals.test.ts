@@ -3,6 +3,7 @@ import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } fr
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
+import { fakeRunner, runEval } from '../../../src/cli/eval.js';
 import { parseRecipe } from '../../../src/core/recipes.js';
 
 interface EvalSpec {
@@ -80,4 +81,15 @@ describe('evals/', () => {
       expect(runCheck(id, true, tmp())).toBe(0);
     });
   });
+});
+
+describe('evals/ through the real eval pipeline (fake runner, no model call)', () => {
+  it('every task fails when the agent does nothing and passes when the solution is applied', async () => {
+    const run = (mode: 'solve' | 'nothing') => runEval({ evalsDir, arms: ['cold', 'recipe'], model: 'fake', runs: 1, runner: fakeRunner(mode) });
+    const nothing = (await run('nothing')).results;
+    const solved = (await run('solve')).results;
+    expect(nothing.length).toBe(ids.length * 2);
+    expect(nothing.every((r) => !r.pass)).toBe(true);
+    expect(solved.every((r) => r.pass)).toBe(true);
+  }, 120_000);
 });

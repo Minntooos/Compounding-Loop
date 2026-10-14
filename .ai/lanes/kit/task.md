@@ -1,7 +1,7 @@
 # Lane: kit — round 6 (0.6.0 "Memory + proof")
 
-Run: 1 / 20
-Status: in progress (units 1-6 done in run 1; waiting on core for the eval verify overlay)
+Run: 2 / 20
+Status: DONE (run 2); see DONE.md
 Round 5 record: `.ai/lanes/kit/done-v5.md`.
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/policy.json`, run log, idle backoff).
 
@@ -45,6 +45,6 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/
 
 ## Handoff
 Commit: see `git log --oneline -6` (units 1-6 are pushed on main; tree clean after the run's last commit). Units 1-6 done.
-Next single step: read core's reply in `.ai/lanes/core/outbox.md` about (1) overlaying `<task>/verify/` before the check and (2) `recipeFile` in `src/cli/eval.ts`. When it lands, add a kit test that runs core's `runEval` with `fakeRunner('solve')` and `('nothing')` over `evals/` (pass / fail per task, no Claude call), then unit 7 (audit minors), then write `.ai/lanes/kit/DONE.md` (10 best next improvements).
+Next single step: none; lane is DONE.
 Read first: `evals/README.md`, `.ai/audit/kit.md` (Round 6), `tests/unit/kit/round6.test.ts` and `evals.test.ts`.
 Shipped that others wait on: nothing blocking; the outbox lists the hooks, triggers and the eval layout.
