@@ -19,6 +19,7 @@ import { formatRuns, logRun, readRuns } from './runs.js';
 import { runPause, runResume, type PauseResult } from './pause.js';
 import { runRound } from './run.js';
 import { runDraft } from './draft.js';
+import { fakeRunner, formatEvalReport, parseArms, readEvalReport, realRunner, runEval } from './eval.js';
 import { formatTriggersReport, runHook, triggersStats } from './hook.js';
 import { runRecipeDraft } from './recipeDraft.js';
 import { addRecipe, checkRecipes, formatMatches, formatRecipeList, listRecipes, matchHere, showRecipe } from './recipe.js';
@@ -620,6 +621,60 @@ triggersCmd
     try {
       const report = await triggersStats(path.resolve(options.dir));
       console.log(options.json ? JSON.stringify(report, null, 2) : formatTriggersReport(report));
+    } catch (error) {
+      fail(error);
+    }
+  });
+
+const evalCmd = program.command('eval').description('The proof: rebuild known tasks cold and with a recipe, and report pass rate, tokens and time');
+evalCmd
+  .command('run')
+  .description('Run eval tasks in temp copies (never your repo). --runner claude spends your Claude usage; --runner fake spends nothing and does not save results')
+  .option('--task <id...>', 'task ids in evals/ (default: all)')
+  .option('--arm <arm>', 'cold | recipe | recipe+triggers | both (cold + recipe) | all', 'both')
+  .option('--model <name>', 'model passed to claude --model', 'default')
+  .option('--runs <n>', 'runs per task and arm', '1')
+  .option('--runner <runner>', 'claude | fake', 'claude')
+  .option('--fake-mode <mode>', 'with --runner fake: solve (apply solution/) or nothing', 'solve')
+  .option('--env-file <path>', 'KEY=value lines for the claude process (for local models); values are never printed')
+  .option('--json', 'print the results as JSON')
+  .option('--dir <dir>', 'repo folder', '.')
+  .action(async (options: { task?: string[]; arm: string; model: string; runs: string; runner: string; fakeMode: string; envFile?: string; json?: boolean; dir: string }) => {
+    try {
+      if (options.runner !== 'claude' && options.runner !== 'fake') throw new Error('--runner must be claude or fake.');
+      if (options.fakeMode !== 'solve' && options.fakeMode !== 'nothing') throw new Error('--fake-mode must be solve or nothing.');
+      const dir = path.resolve(options.dir);
+      const fake = options.runner === 'fake';
+      const report = await runEval({
+        evalsDir: path.join(dir, 'evals'),
+        ...(options.task && { tasks: options.task }),
+        arms: parseArms(options.arm),
+        model: fake ? 'fake' : options.model,
+        runs: Number(options.runs),
+        runner: fake ? fakeRunner(options.fakeMode) : realRunner,
+        ...(options.envFile && { envFile: path.resolve(options.envFile) }),
+        log: (line) => console.error(line),
+        ...(!fake && { save: { dir, date: new Date().toISOString().slice(0, 10) } }),
+      });
+      if (options.json) console.log(JSON.stringify(report, null, 2));
+      else {
+        for (const r of report.results) console.log(`${r.pass ? 'PASS' : 'FAIL'}  ${r.task}  ${r.arm}  ${r.model}  ${r.durationMs}ms  ${r.turns} turns`);
+        console.log(report.savedTo ? `Saved to ${report.savedTo}. See: loop eval report` : fake ? 'Fake runner: results are not saved.' : '');
+      }
+      if (report.results.some((r) => !r.pass) && fake) process.exitCode = 1;
+    } catch (error) {
+      fail(error);
+    }
+  });
+evalCmd
+  .command('report')
+  .description('A table per task × arm × model and one headline sentence, from evals/results/*.jsonl (no results, no headline)')
+  .option('--json', 'print as JSON (rows, headline)')
+  .option('--dir <dir>', 'repo folder', '.')
+  .action(async (options: { json?: boolean; dir: string }) => {
+    try {
+      const report = await readEvalReport(path.join(path.resolve(options.dir), 'evals'));
+      console.log(options.json ? JSON.stringify(report, null, 2) : formatEvalReport(report));
     } catch (error) {
       fail(error);
     }

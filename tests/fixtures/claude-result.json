@@ -1,0 +1,17 @@
+{
+  "type": "result",
+  "subtype": "success",
+  "is_error": false,
+  "duration_ms": 41873,
+  "duration_api_ms": 38120,
+  "num_turns": 12,
+  "result": "Added the calculator page and its test.",
+  "session_id": "00000000-0000-4000-8000-000000000000",
+  "total_cost_usd": 0.0412,
+  "usage": {
+    "input_tokens": 1450,
+    "cache_creation_input_tokens": 8200,
+    "cache_read_input_tokens": 61000,
+    "output_tokens": 5230
+  }
+}

@@ -30,3 +30,5 @@ export { RECIPE_CAP_BYTES, RECIPE_FIELDS, RECIPE_SECTIONS, checkRecipe, checksOf
 export type { Recipe, RecipeMatch } from '../recipes.js';
 export { ENTRY_CAP, EVENT_KINDS, INJECT_CAP, TRIGGERS_FILE, TRIGGER_KINDS, TRIGGER_LOG_FILE, entryText, hookOutput, injectPath, matchTriggers, parseTriggerLog, parseTriggers, triggerStats } from '../triggers.js';
 export type { FireRecord, HookFacts, ParsedTriggers, TriggerEntry, TriggerKind, TriggerStat } from '../triggers.js';
+export { EVAL_ARMS, EVAL_TOOLS, MAX_TURNS, buildEvalReport, evalClaudeArgs, evalHeadline, evalRows, formatEvalTable, parseClaudeJson, parseResults, resultsFile, totalTokens } from '../eval.js';
+export type { ClaudeRunStats, EvalArm, EvalReport, EvalResult } from '../eval.js';

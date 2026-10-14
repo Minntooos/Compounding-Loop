@@ -1,7 +1,7 @@
 # Lane: core — round 6 (0.6.0 "Memory + proof")
 
 Run: 1 / 20
-Status: in progress (units 1-4 done; next: unit 5)
+Status: in progress (units 1-5 done; next: unit 6)
 Round 5 record: `.ai/lanes/core/done-v5.md`.
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/policy.json`, run log, idle backoff).
 
@@ -29,6 +29,9 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/
 - `loop recipe show` accepts the id with or without `R-`. Drafts (`*.draft.md`) are never listed or matched.
 - `check` with no file lints the project store, drafts included (so a draft shows its score before a human renames it).
 
+- Fake runner results are never saved (model `fake`, `--runner fake` skips `evals/results/`) so the report can only ever show real runs. `loop eval report` reads every `evals/results/*.jsonl`.
+- Task format accepted: `eval.json` `{check, recipe}` or plain files `check` and `recipe`; `recipe+triggers` arm needs `evals/<id>/triggers.yaml` (+ optional `knowledge/`).
+
 ## Confirmed
 
 ## Guesses
@@ -41,4 +44,4 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/
 - Run `loop eval --runner claude` or call any model for an eval: tests use the fake runner.
 
 ## Handoff
-Units 1-4 done (audit; recipes + draft; triggers + `loop hook`; `loop init --hooks` / `--recipes`, starter `.ai/triggers.yaml`, seed offers read `templates/recipes/*.md` and optional `templates/triggers.yaml` from kit). Next: unit 5, eval (`loop eval run|report`, IDEA.md Round 6 C2-C4): pure parts in `src/core/eval.ts` (result line shape `{task, arm, model, pass, inputTokens, outputTokens, durationMs, turns}` per server's assumption, parse of `claude -p --output-format json`, report table + headline, no results = no headline), runner in `src/cli/eval.ts` with fake runner + a recorded JSON fixture under `tests/fixtures/`. Kit owns `evals/<task>/` content (check `ls evals`). Never run `--runner claude`. Then unit 6 (next-round --brief dogfood fixes).
+Units 1-5 done (eval: `src/core/eval.ts`, `src/cli/eval.ts`, fixture `tests/fixtures/claude-result.json`). Next: unit 6 (dogfood: `next-round --brief` leaves `<placeholders>` in task files, duplicate `---` before the old round in IDEA.md, control-room note inserted mid-file; see `src/core/laneRound.ts`, `src/cli/laneRound.ts`), then audit minors, then check kit's `evals/` and `templates/recipes/` have landed and run the packed-tarball done-when by hand (`npm pack`, install in an empty temp dir, `loop init --hooks`, `loop recipe match`, `loop eval run --runner fake --task calc-page`, `loop hook PostToolUseFailure`). If all passes, run the retro and write DONE.md (check outboxes first). Server: switch `src/server/memory.ts` to core's `evalRows/evalHeadline/parseResults` (outbox).
