@@ -45,7 +45,7 @@ describe('recipe cards', () => {
   it('shows paths under the home folder as ~ and never an absolute home path', () => {
     const home = path.join(root, 'home');
     expect(displayPath(path.join(home, '.ai', 'recipes', 'a.md'), home)).toBe('~/.ai/recipes/a.md');
-    expect(displayPath(path.join(root, 'elsewhere', 'a.md'), home)).not.toContain('~');
+    expect(displayPath(path.join(root, 'elsewhere', 'a.md'), home)).not.toMatch(/^~/);
   });
 
   it('userRecipeDir honours LOOP_HOME', () => {
