@@ -1,6 +1,6 @@
 # Lane: server — round 6 (0.6.0 "Memory + proof")
 
-Run: 2 / 20
+Run: 3 / 20
 Status: units 1-4 done (routes + fixtures + core's parsers); no open audit findings
 Round 5 record: `.ai/lanes/server/done-v5.md`.
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/policy.json`, run log, idle backoff).
