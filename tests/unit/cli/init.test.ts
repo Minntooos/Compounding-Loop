@@ -61,4 +61,50 @@ describe('loop init', () => {
     const out = execFileSync(process.execPath, [tsx, cli, 'init', dir, '--force', '--dry-run'], { encoding: 'utf8' });
     expect(out).toContain('create    AGENTS.md');
   });
+
+  it('--hooks writes .ai/triggers.yaml and .claude/settings.json in an empty repo, and re-running changes nothing', async () => {
+    const real = await loadKit();
+    const first = await runInit(dir, { force: true, dryRun: false, hooks: true }, real);
+    expect(first.hooksAdded).toHaveLength(5);
+    expect(await readFile(path.join(dir, '.ai', 'triggers.yaml'), 'utf8')).toContain('Triggers:');
+    const settings = JSON.parse(await readFile(path.join(dir, '.claude', 'settings.json'), 'utf8')) as { hooks: Record<string, unknown> };
+    expect(Object.keys(settings.hooks)).toEqual(['SessionStart', 'UserPromptSubmit', 'PreToolUse', 'PostToolUse', 'PostToolUseFailure']);
+    const second = await runInit(dir, { force: true, dryRun: false, hooks: true }, real);
+    expect(second.hooksAdded).toEqual([]);
+    expect(second.actions.find((a) => a.dest === '.claude/settings.json')?.kind).toBe('skip');
+  });
+
+  it('without --hooks no settings file is written; a broken settings file refuses with --hooks', async () => {
+    await runInit(dir, { force: true, dryRun: false }, await loadKit());
+    await expect(readFile(path.join(dir, '.claude', 'settings.json'))).rejects.toThrow();
+    await mkdir(path.join(dir, '.claude'));
+    await writeFile(path.join(dir, '.claude', 'settings.json'), '{nope');
+    expect((await runInit(dir, { force: true, dryRun: false, hooks: true }, await loadKit())).refused).toMatch(/not valid JSON/);
+    expect(await readFile(path.join(dir, '.claude', 'settings.json'), 'utf8')).toBe('{nope');
+  });
+
+  it('--dry-run with --hooks writes nothing', async () => {
+    await runInit(dir, { force: true, dryRun: true, hooks: true }, await loadKit());
+    await expect(readFile(path.join(dir, '.claude', 'settings.json'))).rejects.toThrow();
+  });
+
+  it('offers the seed recipes that match the repo, and --recipes installs them', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'loop-seeds-'));
+    try {
+      await mkdir(path.join(root, 'templates', 'recipes'), { recursive: true });
+      const seed = (id: string, stack: string) => `---\nid: ${id}\ntitle: ${id}\nkind: project\nstack: [${stack}]\ntags: []\nstatus: CONFIRMED\nsource: o/r@abc1234\nuses: 0\npasses: 0\nupdated: 2026-10-14\n---\n# ${id}\n`;
+      await writeFile(path.join(root, 'templates', 'recipes', 'a.md'), seed('R-fits', 'node@20'));
+      await writeFile(path.join(root, 'templates', 'recipes', 'b.md'), seed('R-other', 'ruby@3'));
+      await writeFile(path.join(dir, 'package.json'), '{"engines":{"node":">=20"}}');
+      const offered = await runInit(dir, { force: true, dryRun: false }, kit, root);
+      expect(offered.recipeOffers.map((o) => o.id)).toEqual(['R-fits']);
+      await expect(readFile(path.join(dir, '.ai', 'recipes', 'R-fits.md'))).rejects.toThrow();
+      const installed = await runInit(dir, { force: true, dryRun: false, recipes: true }, kit, root);
+      expect(installed.recipeOffers).toEqual([]);
+      expect(await readFile(path.join(dir, '.ai', 'recipes', 'R-fits.md'), 'utf8')).toContain('R-fits');
+      expect((await runInit(dir, { force: true, dryRun: false }, kit, root)).recipeOffers).toEqual([]);
+    } finally {
+      await rm(root, { recursive: true, force: true, maxRetries: 5 });
+    }
+  });
 });

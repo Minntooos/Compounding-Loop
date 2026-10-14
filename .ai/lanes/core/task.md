@@ -1,7 +1,7 @@
 # Lane: core — round 6 (0.6.0 "Memory + proof")
 
 Run: 1 / 20
-Status: in progress (units 1-3 done; next: unit 4)
+Status: in progress (units 1-4 done; next: unit 5)
 Round 5 record: `.ai/lanes/core/done-v5.md`.
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/policy.json`, run log, idle backoff).
 
@@ -41,4 +41,4 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/
 - Run `loop eval --runner claude` or call any model for an eval: tests use the fake runner.
 
 ## Handoff
-Units 1-3 done (audit; recipes incl. draft; triggers, `loop hook`, `loop triggers stats`, `--triggers` on `loop runs log`). Next: unit 4, `loop init --hooks` (writes starter `.ai/triggers.yaml` + project `.claude/settings.json` hooks running `loop hook <event>`; template for triggers is kit's, add to FALLBACK like other templates, check `src/core/init.ts` + `src/cli/init.ts`), and `loop init` offering seed recipes `match` ranks above zero (kit's seeds in `templates/recipes/` may not exist yet: check). Then unit 5 (eval). Read first: IDEA.md Round 6 B4, C. Shipped for others: outbox 01:22 (loop hook).
+Units 1-4 done (audit; recipes + draft; triggers + `loop hook`; `loop init --hooks` / `--recipes`, starter `.ai/triggers.yaml`, seed offers read `templates/recipes/*.md` and optional `templates/triggers.yaml` from kit). Next: unit 5, eval (`loop eval run|report`, IDEA.md Round 6 C2-C4): pure parts in `src/core/eval.ts` (result line shape `{task, arm, model, pass, inputTokens, outputTokens, durationMs, turns}` per server's assumption, parse of `claude -p --output-format json`, report table + headline, no results = no headline), runner in `src/cli/eval.ts` with fake runner + a recorded JSON fixture under `tests/fixtures/`. Kit owns `evals/<task>/` content (check `ls evals`). Never run `--runner claude`. Then unit 6 (next-round --brief dogfood fixes).

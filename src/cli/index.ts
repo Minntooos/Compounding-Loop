@@ -38,21 +38,24 @@ program
   .argument('[dir]', 'target repo folder', '.')
   .option('--force', 'skip the brief check and overwrite existing kit files')
   .option('--dry-run', 'show what would be written without writing')
+  .option('--hooks', 'also add the loop hook commands to .claude/settings.json (for people without the plugin)')
+  .option('--recipes', 'also install the seed recipes that match this repo (they are listed either way)')
   .option('--lanes <names>', 'also set up parallel lanes, e.g. --lanes core,web,docs (writes .ai/lanes.json and per-lane files)')
-  .action(async (dir: string, options: { force?: boolean; dryRun?: boolean; lanes?: string }) => {
+  .action(async (dir: string, options: { force?: boolean; dryRun?: boolean; hooks?: boolean; recipes?: boolean; lanes?: string }) => {
     const laneList = options.lanes === undefined ? undefined : parseLaneList(options.lanes);
     if (laneList?.error) {
       console.error(laneList.error);
       process.exitCode = 1;
       return;
     }
-    const result = await runInit(path.resolve(dir), { force: Boolean(options.force), dryRun: Boolean(options.dryRun), ...(laneList && { skipTask: true }) });
+    const result = await runInit(path.resolve(dir), { force: Boolean(options.force), dryRun: Boolean(options.dryRun), hooks: Boolean(options.hooks), recipes: Boolean(options.recipes), ...(laneList && { skipTask: true }) });
     if (result.refused) {
       console.error(result.refused);
       process.exitCode = 1;
       return;
     }
     for (const action of result.actions) console.log(`${action.kind.padEnd(9)} ${action.dest}${action.reason ? `  (${action.reason})` : ''}`);
+    for (const offer of result.recipeOffers) console.log(`recipe    ${offer.id} fits this repo (${offer.reason}). Install it with: loop init --recipes`);
     if (result.missing.includes('method/operating-card.md')) console.error('warning: the Operating Card was NOT installed, so CLAUDE.md is unchanged.');
     for (const rel of result.missing) console.error(`warning: ${rel} is not in this package yet; used a built-in fallback or skipped it`);
     if (laneList) {

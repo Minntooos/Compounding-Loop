@@ -1,7 +1,11 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readdir } from 'node:fs/promises';
 import { briefBlocker, planInit, type InitAction, type KitFile } from '../core/init.js';
+import { SETTINGS_FILE, STARTER_TRIGGERS, mergeHookSettings } from '../core/hooksInit.js';
+import { TRIGGERS_FILE } from '../core/triggers.js';
+import { dependencyMajors, matchRecipes, parseRecipe } from '../core/recipes.js';
 
 /** Root of the installed package (or this checkout): two levels above `dist/cli` or `src/cli`. */
 export const packageRoot = fileURLToPath(new URL('../../', import.meta.url));
@@ -43,6 +47,7 @@ export async function loadKit(root: string = packageRoot): Promise<Kit> {
     { dest: '.ai/task.md', content: task ?? FALLBACK_TASK, keep: true },
     { dest: '.ai/knowledge/.gitkeep', content: '', keep: true },
     { dest: '.ai/plans/.gitkeep', content: '', keep: true },
+    { dest: TRIGGERS_FILE, content: (await readIfExists(path.join(root, 'templates', 'triggers.yaml'))) ?? STARTER_TRIGGERS, keep: true },
   ];
   if (method !== undefined) files.push({ dest: '.ai/method.md', content: method });
   return { files, card, missing };
@@ -53,14 +58,47 @@ export interface InitResult {
   missing: string[];
   /** Set when the brief blocked the run; nothing was written. */
   refused?: string;
+  /** Seed recipes from the package that `loop recipe match` ranks above zero for this repo and that are not installed yet. */
+  recipeOffers: RecipeOffer[];
+  /** With `--hooks`: events that got a hook in `.claude/settings.json`. */
+  hooksAdded?: string[];
 }
 
-export async function runInit(target: string, options: { force: boolean; dryRun: boolean; /** Laned loops keep their tasks per lane, so skip the single `.ai/task.md`. */ skipTask?: boolean }, kit?: Kit): Promise<InitResult> {
+export interface RecipeOffer {
+  id: string;
+  title: string;
+  reason: string;
+  /** Path inside the package, for `loop recipe add`. */
+  file: string;
+  /** The file's text, so `--recipes` can install it. */
+  content: string;
+}
+
+/** Seed recipes shipped in `templates/recipes/` that fit the target repo's stack and are not already in `.ai/recipes/`. */
+export async function offerRecipes(target: string, root: string = packageRoot): Promise<RecipeOffer[]> {
+  const dir = path.join(root, 'templates', 'recipes');
+  const seeds: { recipe: NonNullable<ReturnType<typeof parseRecipe>>; file: string; content: string }[] = [];
+  for (const name of (await readdir(dir).catch(() => [] as string[])).filter((n) => n.endsWith('.md')).sort()) {
+    const content = await readIfExists(path.join(dir, name));
+    const recipe = content === undefined ? undefined : parseRecipe(content);
+    if (content !== undefined && recipe) seeds.push({ recipe, file: path.join('templates', 'recipes', name), content });
+  }
+  const deps = dependencyMajors(await readIfExists(path.join(target, 'package.json')));
+  const installed = new Set((await readdir(path.join(target, '.ai', 'recipes')).catch(() => [] as string[])).map((n) => n.replace(/\.md$/, '')));
+  return matchRecipes(seeds.map((s) => s.recipe), deps)
+    .filter((m) => !installed.has(m.recipe.id))
+    .map((m) => {
+      const seed = seeds.find((s) => s.recipe === m.recipe)!;
+      return { id: m.recipe.id, title: m.recipe.title, reason: m.reason, file: seed.file, content: seed.content };
+    });
+}
+
+export async function runInit(target: string, options: { force: boolean; dryRun: boolean; /** Laned loops keep their tasks per lane, so skip the single `.ai/task.md`. */ skipTask?: boolean; /** Also merge the five `loop hook` commands into `.claude/settings.json`. */ hooks?: boolean; /** Install the offered seed recipes into `.ai/recipes/`. */ recipes?: boolean }, kit?: Kit, root: string = packageRoot): Promise<InitResult> {
   const loadedKit = kit ?? (await loadKit());
   const loaded = options.skipTask ? { ...loadedKit, files: loadedKit.files.filter((f) => f.dest !== '.ai/task.md') } : loadedKit;
   const brief = await readIfExists(path.join(target, 'IDEA.md'));
   const blocker = options.force ? undefined : briefBlocker(brief);
-  if (blocker) return { actions: [], missing: loaded.missing, refused: blocker };
+  if (blocker) return { actions: [], missing: loaded.missing, refused: blocker, recipeOffers: [] };
 
   const existing = new Map<string, string>();
   for (const dest of [...loaded.files.map((f) => f.dest), 'CLAUDE.md', 'AGENTS.md']) {
@@ -71,8 +109,18 @@ export async function runInit(target: string, options: { force: boolean; dryRun:
   try {
     actions = planInit({ kit: loaded.files, card: loaded.card, existing, force: options.force });
   } catch (error) {
-    return { actions: [], missing: loaded.missing, refused: error instanceof Error ? error.message : String(error) };
+    return { actions: [], missing: loaded.missing, refused: error instanceof Error ? error.message : String(error), recipeOffers: [] };
   }
+  let hooksAdded: string[] | undefined;
+  if (options.hooks) {
+    const current = await readIfExists(path.join(target, ...SETTINGS_FILE.split('/')));
+    const merged = mergeHookSettings(current);
+    if (merged.error || merged.content === undefined) return { actions: [], missing: loaded.missing, refused: merged.error ?? 'Could not merge hooks.', recipeOffers: [] };
+    hooksAdded = merged.added;
+    actions.push(merged.added.length === 0 ? { dest: SETTINGS_FILE, kind: 'skip', reason: 'hooks already installed' } : { dest: SETTINGS_FILE, kind: current === undefined ? 'create' : 'update', content: merged.content });
+  }
+  const recipeOffers = await offerRecipes(target, root);
+  if (options.recipes) for (const offer of recipeOffers) actions.push({ dest: `.ai/recipes/${offer.id}.md`, kind: 'create', content: offer.content });
   if (!options.dryRun) {
     for (const action of actions) {
       if (action.content === undefined) continue;
@@ -81,5 +129,5 @@ export async function runInit(target: string, options: { force: boolean; dryRun:
       await writeFile(file, action.content);
     }
   }
-  return { actions, missing: loaded.missing };
+  return { actions, missing: loaded.missing, recipeOffers: options.recipes ? [] : recipeOffers, ...(hooksAdded && { hooksAdded }) };
 }
