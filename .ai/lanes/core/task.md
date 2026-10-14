@@ -33,6 +33,7 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/
 - Task format accepted: `eval.json` `{check, recipe}` or plain files `check` and `recipe`; `recipe+triggers` arm needs `evals/<id>/triggers.yaml` (+ optional `knowledge/`).
 
 ## Confirmed
+- `yaml` was a devDependency but `src/core/triggers.ts` and `recipes.ts` import it at runtime, so a packed install crashed with ERR_MODULE_NOT_FOUND (found by the tarball smoke test in run 1). Moved to `dependencies` (reason: the CLI parses front matter and triggers.yaml); `tests/unit/core/dependencies.test.ts` now guards this for every package.
 
 ## Guesses
 

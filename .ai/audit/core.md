@@ -10,7 +10,7 @@ Goal judged as a specialist in agent memory and evaluation: recipe store and mat
 | R6-2 | No trigger engine or `loop hook`; a hook that throws or prints junk would break a run | blocker for kit | FIXED (run 1): `src/core/triggers.ts`, `loop hook <event>` (exit 0 on any error, 2,000-char cap, once per session), `loop triggers stats` |
 | R6-3 | No eval runner; a claimed number must come from a recorded result file, never invented | major | FIXED (run 1): `src/core/eval.ts`, `loop eval run|report`; fake runner never saves, no results file means no headline |
 | R6-4 | `next-round --brief` leaves `<placeholders>`, a duplicate `---`, and inserts the control note mid-file (owner dogfood) | major | FIXED (run 1): duplicate `---` stripped from the brief, `fillTaskPlaceholders` fills the lane task template, `addControlNote` inserts after the `# ` title |
-| R6-5 | server's `src/server/memory.ts` has its own recipe summarizer and matcher; two copies can drift | minor | server: switch to `src/core/recipes.ts` (`summarizeRecipe`, `matchRecipes`, `dependencyMajors`) |
+| R6-5 | server's `src/server/memory.ts` has its own recipe summarizer and matcher; two copies can drift | minor | server: switch to `src/core/recipes.ts` (`summarizeRecipe`, `matchRecipes`, `dependencyMajors`) || R6-6 | `yaml` was a devDependency while the CLI imports it at runtime: a packed install crashed on every command that loads recipes or triggers | blocker | FIXED (run 1): moved to `dependencies`; `tests/unit/core/dependencies.test.ts` guards it |
 
 ## Round 5 (2026-10-13)
 
