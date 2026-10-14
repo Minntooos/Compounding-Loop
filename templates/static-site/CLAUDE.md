@@ -59,7 +59,7 @@
 
 > The full method is in `.ai/method.md`. The § numbers point to Part B there.
 
-**Objective:** the most verified-correct results per minute of the owner's attention. Tokens are the cheapest resource. A wrong result that looks right is the most expensive one.
+**Objective:** the most verified-correct results per minute of the owner's attention, from the smallest context that still passes. A wrong result that looks right is the most expensive one. Tokens are spent where they buy correctness (checks, review), not on re-learning what a recipe, a trigger or a check already knows.
 
 **Start of every session**
 1. Read `.ai/index.md`. Open a knowledge entry only when it's relevant to what you're doing.

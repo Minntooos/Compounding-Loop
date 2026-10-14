@@ -1,3 +1,19 @@
+# Audit: kit (round 6, 2026-10-14)
+
+Goal this round: recipes, eval tasks, hook wiring and a method built on the new objective (IDEA.md Round 6 A1, A5, A6, B4, B5, C1, D). Judged as a specialist in agent memory and evaluation would.
+
+## Blockers
+None open.
+
+## Findings
+| # | Finding | Severity | Fix |
+|---|---|---|---|
+| 1 | The objective said "tokens are the cheapest resource" in the method, the card and the static-site template, against the round's pitch | major | fixed: one identical line in CLAUDE.md, the method (Part A and §1), `method/operating-card.md` and `templates/static-site/CLAUDE.md`; test in `tests/unit/kit/round6.test.ts` |
+| 2 | Method had no layer for procedures and named no hook events, so triggers were "a small script" | major | fixed: §2 Experience row, §7 recipes, §8 exact events table, §12 recipe step, §13 tokens per verified unit and the eval |
+| 3 | Recipes could rot by full rewrite (ACE context collapse) | major | the delta rule is in §7, the retro and the template; core's `recipe draft` enforces it |
+| 4 | Seed recipes are distilled from `templates/static-site` and this repo, not from the five sites' own commits; `uses`/`passes` start at 0, so they claim no track record | minor | status CONFIRMED means "the procedure was built that way"; the eval is what measures it |
+| 5 | Eval fixtures, hook wiring and the dogfood triggers are not written yet | major | units 4 to 6 |
+
 # Audit: kit (round 5, 2026-10-13)
 
 Goal this round: every new user gets the round 5 run model: thin prompts, `.ai/lane-run.md`, `.ai/control-run.md`, `.ai/schedule.json` and `steer.md` (IDEA.md B5).

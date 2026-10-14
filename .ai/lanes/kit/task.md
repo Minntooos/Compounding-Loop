@@ -1,7 +1,7 @@
 # Lane: kit — round 6 (0.6.0 "Memory + proof")
 
-Run: 0 / 20
-Status: not started
+Run: 1 / 20
+Status: in progress (units 1-3 done in run 1)
 Round 5 record: `.ai/lanes/kit/done-v5.md`.
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/policy.json`, run log, idle backoff).
 
@@ -25,6 +25,8 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/
 7. Audit majors, then minors.
 
 ## Decisions
+- Objective wording is CLAUDE.md's (owner's) "owner's attention" in all places, including the method's Part A (was "human's"); the test compares the lines byte for byte.
+- Seed recipes use `stack: node@20` only, so they match the zero-dependency eval fixtures (engines.node) as well as real projects.
 
 ## Confirmed
 

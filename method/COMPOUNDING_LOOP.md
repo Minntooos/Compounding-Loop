@@ -36,7 +36,7 @@
 > Copy this section into your always-loaded rules file. Keep it under ~60 lines.
 > The § numbers point to Part B of `COMPOUNDING_LOOP.md`.
 
-**Objective:** the most verified-correct results per minute of the human's attention. Tokens are the cheapest resource. A wrong result that looks right is the most expensive one.
+**Objective:** the most verified-correct results per minute of the owner's attention, from the smallest context that still passes. A wrong result that looks right is the most expensive one. Tokens are spent where they buy correctness (checks, review), not on re-learning what a recipe, a trigger or a check already knows.
 
 **Start of every session**
 1. Read `.ai/index.md`. Open a knowledge entry only when it's relevant to what you're doing.
@@ -79,11 +79,11 @@ Ranked by real cost, most expensive first:
 1. **Wrong results that look right.** You find out late, and everything built on top has to be redone.
 2. **Human attention.** Explaining, re-explaining, watching, reviewing.
 3. **Waiting time.**
-4. **Tokens and money.** The cheapest by far, and context that stays the same between calls is cached at a reduced rate.
+4. **Tokens.** Once cheap, now a real limit: a smaller context lets a smaller or local model do the job, and a subscription's five-hour limit is shared by every run. One loop spent about two thirds of its scheduled fires on idle runs; that is the same waste as re-reading what is already known.
 
-So the goal is **the most verified-correct results per minute of human attention.**
+So the goal is **the most verified-correct results per minute of human attention, from the smallest context that still passes.** Not "zero context": one recipe plus the checks that prove it.
 
-Trim context when it hurts quality (noise, stale notes, contradictions), not to save tokens. Compressing a note into keywords saves a few hundred tokens out of a session that uses 50–150k, and throws away the *why*, which is the part that prevents repeated mistakes. That's a net loss.
+Tokens are spent where they buy correctness (checks, review), not on re-learning what a recipe, a trigger or a check already knows. Trim context when it hurts quality (noise, stale notes, contradictions) and when a recipe or trigger can carry the lesson instead. Do not compress a note into keywords: that saves a few hundred tokens and throws away the *why*, which is the part that prevents repeated mistakes. Only a measured result counts as a claim that something got cheaper (§13).
 
 ### 2. Two ideas everything follows from
 
@@ -95,6 +95,7 @@ Trim context when it hurts quality (noise, stale notes, contradictions), not to 
 |---|---|---|
 | Memory | Load every rule every session | A short index, plus triggers that fire at the moment of relevance (§7, §8) |
 | Context | One long window that slowly degrades | Fresh windows with handoffs; subagents for reading (§9, §10) |
+| Experience | Start every project from zero, or paste a whole old repo | One recipe for this kind of project: steps, traps and the check that proves each step (§7) |
 | Compute | The strongest model for everything | The cheapest tier that passes the checks (§10) |
 | Rules | Prose rules re-read forever | Automated checks that cost nothing until broken (§12) |
 | Human attention | Watching the agent work | Four touchpoints (§14) |
@@ -160,13 +161,14 @@ This is the biggest multiplier in the whole method. An agent that can check its 
 
 ### 7. Memory
 
-Five layers, each loaded differently:
+Six layers, each loaded differently:
 
 | Layer | Holds | Loaded |
 |---|---|---|
 | Core | Operating Card + project core | Always. Small and unchanging, so it stays cached |
 | Index | One line per knowledge entry | Always |
 | Knowledge | Gotchas, facts, decisions, lessons, open questions | Only when relevant or triggered |
+| Recipes | Procedures that worked: steps, traps, checks (below) | One, when the task matches (`loop recipe match`); the SessionStart hook names the best one |
 | Task state | `.ai/task.md` | Every window of the current task; deleted afterwards |
 | Source of truth | Code, git history, test output, docs | Read when needed; never copied |
 
@@ -177,6 +179,12 @@ Five layers, each loaded differently:
 ```
 K-0017 gotcha ✔ MV3 service worker loses in-memory state after ~30s idle · files: src/background/**
 ```
+
+**Recipes are the layer for procedures.** A knowledge entry says "this breaks"; a recipe says "to build this kind of thing, do these steps, and this check proves each one". It is one Markdown file (`templates/recipe.md`) with front matter (`id`, `title`, `kind`, `stack` as `name@major`, `tags`, `status`, `source`, `uses`, `passes`, `updated`) and five sections in order: When to use, Steps (each names its proof), Traps (each pointing at a knowledge id or trigger), Checks, Start from. **Hard cap 6 KB**: a recipe is the small exact context, not a manual.
+- *Stored* in `.ai/recipes/` (project) and `~/.ai/recipes/` (yours, across projects). Nothing personal: no absolute paths, emails or secrets.
+- *Induced only from work whose checks passed*, as small appended or edited items with evidence, never a full rewrite. Rewriting the whole file loses what earlier runs learned (ACE, Zhang et al. 2025, "context collapse"). `loop recipe draft` follows this delta rule.
+- *Used* by `loop recipe match` (stack overlap at the major version, plus tag and keyword overlap) and `loop recipe show <id> --context`, which prints exactly what a model receives.
+- *Judged* by `uses` and `passes`; a recipe that fails more than it passes is fixed or deleted, like a trigger.
 
 **Cross-project knowledge is keyed by library and major version, not by project type.** At task start, read the dependency manifest (`package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, …) and load the index lines from `~/.ai/libs/<library>@<major>.md` for each dependency. This has three advantages:
 - No guessing about what "kind" of project this is.
@@ -196,7 +204,17 @@ Triggers watch events the tool already sees, run outside the model, and cost not
 | **Command** | Before a matching command runs | `npm run build` → "run `npx prisma generate` first" (or just run it automatically) |
 | **Topic** | The task text matches keywords | "persist auth" → a one-line hint pointing to K-0017 |
 
-- **With hooks** (for example Claude Code): a small script matches each event against `.ai/triggers.yaml` and injects the entry. Error and file triggers run after tool calls; command triggers run before.
+- **With hooks** (for example Claude Code): `loop hook <event>` reads the hook JSON from stdin, matches it against `.ai/triggers.yaml` and prints `{"hookSpecificOutput":{"hookEventName":"<event>","additionalContext":"…"}}`, or nothing. Wire it through the plugin (`plugin/hooks/hooks.json`) or a project `.claude/settings.json` (`loop init --hooks`). Match built-in tools only (`Bash|Read|Edit|Write|Glob|Grep`); context from MCP and Agent calls may be dropped.
+
+| Hook event | Kinds it checks |
+|---|---|
+| `SessionStart` | The best matching recipe, as one line |
+| `UserPromptSubmit` | Topic |
+| `PreToolUse` (Bash) | Command |
+| `PostToolUse` | File. It fires only after a tool *succeeds* |
+| `PostToolUseFailure` | Error and file. A failed Bash call fires this, not `PostToolUse` |
+
+  A hook never calls a model or the network, exits 0 on any error (a broken hook must not break a run), injects at most 2,000 characters, and injects each trigger once per session. Each fire is logged locally to `.ai/.trigger-log.jsonl`.
 - **Without hooks:** manual trigger mode. Card rules 7 and 8 make the agent search the index after errors and before edits. It's less automatic but has the same effect, and works in any tool.
 - **Precision beats coverage.** A trigger that fires often and doesn't help is noise. Track `fired` and `helped`, and fix or delete triggers that help less than about half the time.
 
@@ -312,6 +330,7 @@ The AI writes prompts for its next window, its subagents and its reviewers. It's
 **Retro.** About 2 minutes, when the checks pass. The AI drafts it and the human approves.
 1. List what was learned. For each item: does it apply beyond this task, or only to it? Is it confirmed or a guess? At what moment would it have helped (which file, command or error)?
 2. Move general, confirmed items down the promotion ladder as far as they'll go.
+   **Recipe step:** is this a *procedure* someone will repeat (a kind of project or feature)? Then draft a recipe (`loop recipe draft`, §7), check it with `loop recipe check`, and keep it only if it is short and every step has a proof. A repeated *procedure* becomes a recipe; a repeated *mistake* still goes note → trigger → check.
 3. Put library-level lessons in `~/.ai/libs/<library>@<major>.md`.
 4. Delete `.ai/task.md`. Knowledge that only mattered for this task goes with it, on purpose.
 5. Add a line to `.ai/log.md` (§13) and update `routing.md`.
@@ -320,6 +339,7 @@ The AI writes prompts for its next window, its subagents and its reviewers. It's
 
 ```
 guess → confirmed note → note with a trigger → automated check
+                    ↘ repeated procedure → recipe
 ```
 
 The last step is the goal: **the best memory is one the model never has to read.** "Never use `require()` here" becomes a lint rule. "Run prisma generate before build" becomes part of the build script. Then the prose note is deleted. A check costs nothing until it's broken, and it can't be ignored.
@@ -346,6 +366,8 @@ What to watch:
 - **First-try pass rate per tier.** This feeds the routing table.
 - **Trigger precision:** times helped ÷ times fired.
 - **Windows until the checks pass**, and cost.
+- **Tokens per verified unit:** tokens spent divided by units whose checks passed. A cheaper run that fails its checks is not cheaper.
+- **The eval** (`loop eval`) is the one place a context claim is tested: it rebuilds known tasks cold, with a recipe, and with triggers, then reports pass rate, tokens and time per arm and model. Read the headline only when a results file exists; no results, no claim. The owner runs it; unattended lanes use the fake runner.
 
 Prefer numbers from tools (check results, git, billing) over the AI's own account of how things went. Change one thing at a time and watch the numbers. Every threshold in this file (50–60%, 20 tasks, 90%, 5 windows) is a starting guess for your log to correct.
 
