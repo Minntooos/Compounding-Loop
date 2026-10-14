@@ -4,5 +4,5 @@
   "type": "module",
   "bin": { "notes": "bin/notes.js" },
   "engines": { "node": ">=20" },
-  "scripts": { "test": "node --test \"tests/**/*.test.mjs\"" }
+  "scripts": { "test": "node --test" }
 }

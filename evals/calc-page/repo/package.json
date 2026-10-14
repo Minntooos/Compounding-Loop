@@ -5,7 +5,7 @@
   "engines": { "node": ">=20" },
   "scripts": {
     "check": "node scripts/check.mjs",
-    "unit": "node --test \"tests/unit/**/*.test.mjs\"",
+    "unit": "node --test",
     "test": "npm run check && npm run unit"
   }
 }
