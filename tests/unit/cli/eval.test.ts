@@ -68,6 +68,22 @@ describe('loop eval', () => {
     await expect(loadTask(evals, 'nope')).rejects.toThrow(/task.md is missing/);
   });
 
+  it('overlays verify/ after the run and reads recipeFile from the task folder', async () => {
+    await mkdir(path.join(evals, 'demo', 'verify'), { recursive: true });
+    await writeFile(path.join(evals, 'demo', 'verify', 'check.mjs'), CHECK);
+    await writeFile(path.join(evals, 'demo', 'recipe.md'), RECIPE);
+    await rm(path.join(evals, 'demo', 'repo', 'check.mjs'));
+    await writeFile(path.join(evals, 'demo', 'eval.json'), JSON.stringify({ check: ['node', 'verify/check.mjs'], recipe: 'R-other', recipeFile: 'recipe.md' }));
+    expect((await loadTask(evals, 'demo')).recipeText).toContain('R-demo');
+    const prompts: string[] = [];
+    const spy: EvalRunner = async (input) => { prompts.push(input.prompt); return fakeRunner('solve')(input); };
+    const run = await runEval({ evalsDir: evals, arms: ['recipe'], model: 'fake', runs: 1, runner: spy });
+    expect(run.results[0]?.pass).toBe(true);
+    expect(prompts[0]).toContain('Demo recipe');
+    await writeFile(path.join(evals, 'demo', 'eval.json'), JSON.stringify({ check: ['node', 'x'], recipeFile: '../outside.md' }));
+    await expect(loadTask(evals, 'demo')).rejects.toThrow(/inside the task folder/);
+  });
+
   it('the fake runner passes when it applies solution/ and fails when it does nothing', async () => {
     const solve = await runEval({ evalsDir: evals, arms: ['cold'], model: 'fake', runs: 1, runner: fakeRunner('solve') });
     const nothing = await runEval({ evalsDir: evals, arms: ['cold'], model: 'fake', runs: 1, runner: fakeRunner('nothing') });

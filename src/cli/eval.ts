@@ -22,6 +22,8 @@ export interface EvalTask {
   check: string[];
   /** Recipe id for the recipe arm, when the task names one. */
   recipe?: string;
+  /** Recipe text from `recipeFile` (a path inside the task folder) for a recipe that is not a shipped seed. */
+  recipeText?: string;
 }
 
 const readText = (file: string) => readFile(file, 'utf8').catch(() => undefined);
@@ -43,7 +45,15 @@ export async function loadTask(evalsDir: string, id: string): Promise<EvalTask> 
   const check = Array.isArray(rawCheck) ? rawCheck.filter((c): c is string => typeof c === 'string') : typeof rawCheck === 'string' ? splitCommand(rawCheck) : [];
   if (check.length === 0) throw new Error(`evals/${id} has no check: put "check" in eval.json or write the command in evals/${id}/check.`);
   const recipe = typeof meta.recipe === 'string' ? meta.recipe : (await readText(path.join(dir, 'recipe')))?.trim();
-  return { id, dir, prompt, check, ...(recipe && { recipe }) };
+  let recipeText: string | undefined;
+  if (typeof meta.recipeFile === 'string') {
+    const file = path.resolve(dir, meta.recipeFile);
+    const rel = path.relative(dir, file);
+    if (rel.startsWith('..') || path.isAbsolute(rel)) throw new Error(`evals/${id}/eval.json: recipeFile must stay inside the task folder.`);
+    recipeText = await readText(file);
+    if (recipeText === undefined) throw new Error(`evals/${id}/eval.json: recipeFile ${meta.recipeFile} is missing.`);
+  }
+  return { id, dir, prompt, check, ...(recipe && { recipe }), ...(recipeText !== undefined && { recipeText }) };
 }
 
 export async function listTaskIds(evalsDir: string): Promise<string[]> {
@@ -108,6 +118,7 @@ export function parseArms(value: string): EvalArm[] {
 
 /** The recipe's context: the user's or project's store first, then the seeds shipped in the package. */
 async function recipeFor(task: EvalTask, repoDir: string): Promise<string> {
+  if (task.recipeText !== undefined) return recipeContext(task.recipeText);
   if (!task.recipe) throw new Error(`evals/${task.id} names no recipe, so the recipe arm cannot run.`);
   const stored = await findRecipe(repoDir, task.recipe).then((s) => s.text, () => undefined);
   const seed = stored ?? (await readdir(path.join(packageRoot, 'templates', 'recipes')).catch(() => [] as string[]).then(async (names) => {
@@ -162,6 +173,8 @@ export async function runEval(options: EvalRunOptions): Promise<EvalRunReport> {
           const started = Date.now();
           const stdout = await options.runner({ prompt, cwd, model: options.model, task, arm, env });
           const stats: ClaudeRunStats = parseClaudeJson(stdout);
+          // The check lives outside repo/ so the agent cannot read or edit it; it joins the copy only after the run.
+          await cp(path.join(task.dir, 'verify'), path.join(cwd, 'verify'), { recursive: true }).catch(() => undefined);
           const [bin, ...args] = task.check;
           const pass = await execFileAsync(bin as string, args, { cwd, timeout: 120_000, env: process.env }).then(() => true, () => false);
           results.push({

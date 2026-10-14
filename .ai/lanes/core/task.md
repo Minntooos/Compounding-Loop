@@ -1,6 +1,6 @@
 # Lane: core — round 6 (0.6.0 "Memory + proof")
 
-Run: 1 / 20
+Run: 2 / 20
 Status: in progress (units 1-6 done; waiting on kit seeds/evals for the packed-tarball check)
 Round 5 record: `.ai/lanes/core/done-v5.md`.
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/policy.json`, run log, idle backoff).
@@ -35,6 +35,8 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/
 ## Confirmed
 - `yaml` was a devDependency but `src/core/triggers.ts` and `recipes.ts` import it at runtime, so a packed install crashed with ERR_MODULE_NOT_FOUND (found by the tarball smoke test in run 1). Moved to `dependencies` (reason: the CLI parses front matter and triggers.yaml); `tests/unit/core/dependencies.test.ts` now guards this for every package.
 
+- Eval `verify/` is overlaid into the temp copy after the agent run and before the check; `recipeFile` (inside the task folder only) feeds the recipe arm. Done in run 2 for kit's outbox request. `evals/` not in package.json `files`: needs owner's call (CLAUDE.md lists published folders), not changed.
+
 ## Guesses
 
 ## Tried
@@ -45,4 +47,5 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/
 - Run `loop eval --runner claude` or call any model for an eval: tests use the fake runner.
 
 ## Handoff
+Run 2: eval verify overlay + recipeFile shipped; all 3 kit tasks pass with `--runner fake`. Remaining: packed-tarball check (needs `evals/` shipped, owner's call), then DONE.md.
 Units 1-6 done. Nothing else open in the core contract except verifying with kit's content: when `templates/recipes/*.md` and `evals/<task>/` are on main, run the packed-tarball done-when by hand (`npm pack`, install in an empty temp dir, `loop init --hooks`, `loop recipe match` in a copy of `evals/calc-page/repo` ranks static-calculator-site first, `loop eval run --runner fake --task calc-page`, `loop hook PostToolUseFailure` with sample stdin) and fix what breaks. Also: the dogfood requirement (a lane run with `triggers` > 0 in runs.jsonl) needs kit's `.claude/settings.json`; note in the log if the cloud sandbox does not load it. Then retro, read outboxes, write `.ai/lanes/core/DONE.md` (10 next improvements). Read first: outboxes of kit and server.
