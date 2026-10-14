@@ -1,0 +1,39 @@
+# Triggers: a lesson that fires at the moment it matters (see .ai/method.md, C.5).
+# Each entry: id, on (error | file | command | topic), match (text, /regex/ or a list), inject (text, or a path to a knowledge entry).
+# `loop hook <event>` reads this file (wired in .claude/settings.json); `loop triggers stats` shows how often each one fired.
+# Delete a trigger that helps less than half the time it fires.
+
+- id: K-0001
+  on: file
+  match: ["src/server/index.ts", "tests/unit/server/loops.test.ts"]
+  inject: .ai/knowledge/K-0001.md
+
+- id: K-0001-error
+  on: error
+  match: ["Forbidden"]
+  inject: .ai/knowledge/K-0001.md
+
+- id: K-0002
+  on: error
+  match: ["EBUSY", "Vitest failed to find the runner", "Test timed out in 5000ms"]
+  inject: .ai/knowledge/K-0002.md
+
+- id: T-claude-exe
+  on: error
+  match: ["Could not find claude.exe on PATH"]
+  inject: "A 'cannot find claude' error from loop run can be the abort signal firing first (a timeout reports the same way). Check the abort signal before changing PATH or resolveExecutable (src/cli/run.ts)."
+
+- id: T-crlf-python
+  on: command
+  match: ["python", "python3"]
+  inject: "On Windows, Python's open(path, 'w') writes CRLF. This repo is LF (.gitattributes eol=lf): write with newline='' (or 'wb'), or every line shows as changed."
+
+- id: T-playwright-disposed
+  on: error
+  match: ["Response has been disposed"]
+  inject: "Playwright 'Response has been disposed' is a flaky route (the response is read after navigation). Await the response inside the same step (waitForResponse) before assuming the app is broken; re-run once to confirm."
+
+- id: T-lane-ownership
+  on: error
+  match: ["Lane ownership", "check-lanes"]
+  inject: "Every commit ends with a 'Lane: <lane>' trailer, and the lane must own the files it touches. Version bumps use 'Lane: release'. Fix the trailer or move the change to the owning lane's outbox; do not edit another lane's paths."

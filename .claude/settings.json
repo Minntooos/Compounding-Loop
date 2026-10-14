@@ -1,0 +1,62 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -f \"$CLAUDE_PROJECT_DIR/dist/cli/index.js\" ] && node \"$CLAUDE_PROJECT_DIR/bin/loop.js\" hook SessionStart || (cd \"$CLAUDE_PROJECT_DIR\" && npx --no-install tsx src/cli/index.ts hook SessionStart)",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -f \"$CLAUDE_PROJECT_DIR/dist/cli/index.js\" ] && node \"$CLAUDE_PROJECT_DIR/bin/loop.js\" hook UserPromptSubmit || (cd \"$CLAUDE_PROJECT_DIR\" && npx --no-install tsx src/cli/index.ts hook UserPromptSubmit)",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Read|Edit|Write|Glob|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -f \"$CLAUDE_PROJECT_DIR/dist/cli/index.js\" ] && node \"$CLAUDE_PROJECT_DIR/bin/loop.js\" hook PreToolUse || (cd \"$CLAUDE_PROJECT_DIR\" && npx --no-install tsx src/cli/index.ts hook PreToolUse)",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|Read|Edit|Write|Glob|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -f \"$CLAUDE_PROJECT_DIR/dist/cli/index.js\" ] && node \"$CLAUDE_PROJECT_DIR/bin/loop.js\" hook PostToolUse || (cd \"$CLAUDE_PROJECT_DIR\" && npx --no-install tsx src/cli/index.ts hook PostToolUse)",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "Bash|Read|Edit|Write|Glob|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -f \"$CLAUDE_PROJECT_DIR/dist/cli/index.js\" ] && node \"$CLAUDE_PROJECT_DIR/bin/loop.js\" hook PostToolUseFailure || (cd \"$CLAUDE_PROJECT_DIR\" && npx --no-install tsx src/cli/index.ts hook PostToolUseFailure)",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
