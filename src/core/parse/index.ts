@@ -28,3 +28,5 @@ export type { DraftInputs } from '../draftBrief.js';
 export { DEFAULT_PACE, PACES, PACE_SUMMARY, POLICY_FILE, emptyPolicy, formatPolicy, isPace, paceFor, parsePolicy, policyProblem, withPace } from './policy.js';
 export { RECIPE_CAP_BYTES, RECIPE_FIELDS, RECIPE_SECTIONS, checkRecipe, checksOf, dependencyMajors, matchRecipes, parseRecipe, recipeContext, splitRecipe, stepsOf, summarizeRecipe } from '../recipes.js';
 export type { Recipe, RecipeMatch } from '../recipes.js';
+export { ENTRY_CAP, EVENT_KINDS, INJECT_CAP, TRIGGERS_FILE, TRIGGER_KINDS, TRIGGER_LOG_FILE, entryText, hookOutput, injectPath, matchTriggers, parseTriggerLog, parseTriggers, triggerStats } from '../triggers.js';
+export type { FireRecord, HookFacts, ParsedTriggers, TriggerEntry, TriggerKind, TriggerStat } from '../triggers.js';

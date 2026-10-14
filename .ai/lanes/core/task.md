@@ -1,7 +1,7 @@
 # Lane: core — round 6 (0.6.0 "Memory + proof")
 
 Run: 1 / 20
-Status: in progress (units 1-2 done; next: unit 3)
+Status: in progress (units 1-3 done; next: unit 4)
 Round 5 record: `.ai/lanes/core/done-v5.md`.
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/policy.json`, run log, idle backoff).
 
@@ -41,4 +41,4 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/
 - Run `loop eval --runner claude` or call any model for an eval: tests use the fake runner.
 
 ## Handoff
-Units 1-2 done (audit; recipes incl. `loop recipe draft --print-prompt`). Next: unit 3, triggers: `src/core/triggers.ts` (parse `.ai/triggers.yaml`, method C.5 shape in `.ai/method.md`; match error/file/command/topic), `loop hook <event>` (exact `hookSpecificOutput`, exit 0 on any error, 2,000-char cap, once per session_id, SessionStart uses `matchHere` from `src/cli/recipe.ts`), `.ai/.trigger-log.jsonl` in .gitignore, `loop triggers stats`, `triggers` count in `loop runs log`. Tell kit in the outbox when `loop hook` is on main and green. Read first: IDEA.md Round 6 B, `.ai/method.md` C.5. Shipped for others: recipe parser/matcher/CLI (outbox 2026-10-14 01:13).
+Units 1-3 done (audit; recipes incl. draft; triggers, `loop hook`, `loop triggers stats`, `--triggers` on `loop runs log`). Next: unit 4, `loop init --hooks` (writes starter `.ai/triggers.yaml` + project `.claude/settings.json` hooks running `loop hook <event>`; template for triggers is kit's, add to FALLBACK like other templates, check `src/core/init.ts` + `src/cli/init.ts`), and `loop init` offering seed recipes `match` ranks above zero (kit's seeds in `templates/recipes/` may not exist yet: check). Then unit 5 (eval). Read first: IDEA.md Round 6 B4, C. Shipped for others: outbox 01:22 (loop hook).

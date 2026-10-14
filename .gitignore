@@ -8,3 +8,4 @@ playwright-report/
 .env.*
 demo/static/
 session.lock
+.ai/.trigger-log.jsonl

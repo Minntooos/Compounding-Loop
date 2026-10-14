@@ -19,6 +19,7 @@ import { formatRuns, logRun, readRuns } from './runs.js';
 import { runPause, runResume, type PauseResult } from './pause.js';
 import { runRound } from './run.js';
 import { runDraft } from './draft.js';
+import { formatTriggersReport, runHook, triggersStats } from './hook.js';
 import { runRecipeDraft } from './recipeDraft.js';
 import { addRecipe, checkRecipes, formatMatches, formatRecipeList, listRecipes, matchHere, showRecipe } from './recipe.js';
 import { formatPaceReport, runPaceSet, runPaceShow } from './pace.js';
@@ -468,12 +469,13 @@ runsCommand
   .option('--units <list...>', 'units finished this run')
   .option('--passed <n>', 'tests passed on the last npm test')
   .option('--failed <n>', 'tests failed on the last npm test')
+  .option('--triggers <n>', 'how many triggers fired during the run (see `loop triggers stats`)')
   .option('--pushed', 'this run pushed to main')
   .option('--no-pushed', 'this run pushed nothing')
   .option('--session <url>', 'session link or id')
   .option('--note <text>', 'one line of context')
   .option('--dir <dir>', 'repo folder', '.')
-  .action(async (options: { lane: string; units?: string[]; passed?: string; failed?: string; pushed?: boolean; session?: string; note?: string; dir: string }) => {
+  .action(async (options: { lane: string; units?: string[]; passed?: string; failed?: string; triggers?: string; pushed?: boolean; session?: string; note?: string; dir: string }) => {
     try {
       // The parent `runs` command declares --dir too and Commander gives it the value wherever it appears.
       const dir = options.dir !== '.' ? options.dir : (runsCommand.opts<{ dir: string }>().dir);
@@ -481,6 +483,7 @@ runsCommand
         ...(options.units && { units: options.units }),
         ...(options.passed !== undefined && { passed: Number(options.passed) }),
         ...(options.failed !== undefined && { failed: Number(options.failed) }),
+        ...(options.triggers !== undefined && { triggers: Number(options.triggers) }),
         pushed: options.pushed ?? false,
         ...(options.session && { session: options.session }),
         ...(options.note && { note: options.note }),
@@ -583,6 +586,37 @@ recipeCmd
     try {
       const added = await addRecipe(path.resolve(options.dir), file, options.global === true);
       console.log(options.json ? JSON.stringify(added, null, 2) : `Added ${added.id} to ${added.path}`);
+    } catch (error) {
+      fail(error);
+    }
+  });
+
+program
+  .command('hook')
+  .description('Claude Code hook entry point: reads the hook JSON on stdin and prints context from .ai/triggers.yaml (or the best recipe on SessionStart). Always exits 0')
+  .argument('<event>', 'SessionStart | UserPromptSubmit | PreToolUse | PostToolUse | PostToolUseFailure')
+  .action(async (event: string) => {
+    try {
+      const chunks: Buffer[] = [];
+      for await (const chunk of process.stdin) chunks.push(chunk as Buffer);
+      const out = await runHook(event, Buffer.concat(chunks).toString('utf8'), path.resolve(process.env.CLAUDE_PROJECT_DIR || '.'));
+      if (out) process.stdout.write(`${out}\n`);
+    } catch {
+      // A broken hook must never break a run: print nothing.
+    }
+    process.exitCode = 0;
+  });
+
+const triggersCmd = program.command('triggers').description('Triggers from .ai/triggers.yaml');
+triggersCmd
+  .command('stats')
+  .description('How often each trigger fired (from .ai/.trigger-log.jsonl)')
+  .option('--json', 'print as JSON')
+  .option('--dir <dir>', 'repo folder', '.')
+  .action(async (options: { json?: boolean; dir: string }) => {
+    try {
+      const report = await triggersStats(path.resolve(options.dir));
+      console.log(options.json ? JSON.stringify(report, null, 2) : formatTriggersReport(report));
     } catch (error) {
       fail(error);
     }

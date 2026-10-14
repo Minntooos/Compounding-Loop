@@ -7,7 +7,7 @@ Goal judged as a specialist in agent memory and evaluation: recipe store and mat
 | # | Finding | Severity | Fix |
 |---|---|---|---|
 | R6-1 | No recipe parser, linter, store or matcher; kit's seeds and server's cards wait on it | blocker for kit/server | FIXED (run 1): `src/core/recipes.ts` (browser-safe, exported from `parse/index.ts`), `loop recipe list/show/match/check/add` |
-| R6-2 | No trigger engine or `loop hook`; a hook that throws or prints junk would break a run | blocker for kit | OPEN: unit 3; exit 0 on any error, 2,000-char cap, once per session |
+| R6-2 | No trigger engine or `loop hook`; a hook that throws or prints junk would break a run | blocker for kit | FIXED (run 1): `src/core/triggers.ts`, `loop hook <event>` (exit 0 on any error, 2,000-char cap, once per session), `loop triggers stats` |
 | R6-3 | No eval runner; a claimed number must come from a recorded result file, never invented | major | OPEN: unit 5; no results, no headline |
 | R6-4 | `next-round --brief` leaves `<placeholders>`, a duplicate `---`, and inserts the control note mid-file (owner dogfood) | major | OPEN: unit 6 |
 | R6-5 | server's `src/server/memory.ts` has its own recipe summarizer and matcher; two copies can drift | minor | server: switch to `src/core/recipes.ts` (`summarizeRecipe`, `matchRecipes`, `dependencyMajors`) |

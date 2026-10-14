@@ -14,6 +14,7 @@ export interface LogRunOptions {
   passed?: number;
   failed?: number;
   pushed: boolean;
+  triggers?: number;
   session?: string;
   note?: string;
   now?: Date;
@@ -32,6 +33,7 @@ export async function logRun(dir: string, lane: string, options: LogRunOptions):
   const { names } = await laneNames(dir);
   if (!names.includes(lane)) throw new Error(`No lane "${lane}". Lanes here: ${names.join(', ')}.`);
   if ((options.passed === undefined) !== (options.failed === undefined)) throw new Error('Pass --passed and --failed together.');
+  if (options.triggers !== undefined && (!Number.isInteger(options.triggers) || options.triggers < 0)) throw new Error('--triggers must be a whole number, 0 or more.');
   for (const n of [options.passed, options.failed]) if (n !== undefined && (!Number.isInteger(n) || n < 0)) throw new Error('--passed and --failed must be whole numbers, 0 or more.');
   const entry: RunEntry = {
     at: (options.now ?? new Date()).toISOString(),
@@ -40,6 +42,7 @@ export async function logRun(dir: string, lane: string, options: LogRunOptions):
     units: options.units ?? [],
     ...(options.passed !== undefined && options.failed !== undefined && { tests: { passed: options.passed, failed: options.failed } }),
     pushed: options.pushed,
+    ...(options.triggers !== undefined && { triggers: options.triggers }),
     ...(options.note && { note: options.note.replace(/\s+/g, ' ').trim() }),
   };
   const file = path.join(dir, ...runLogPath(lane).split('/'));

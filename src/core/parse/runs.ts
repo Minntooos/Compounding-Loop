@@ -8,6 +8,8 @@ export interface RunEntry {
   units: string[];
   tests?: { passed: number; failed: number };
   pushed: boolean;
+  /** How many triggers fired during the run (`.ai/.trigger-log.jsonl`); absent when not recorded. */
+  triggers?: number;
   note?: string;
 }
 
@@ -31,6 +33,7 @@ function toEntry(value: unknown): RunEntry | undefined {
     units: Array.isArray(v.units) ? v.units.filter((u): u is string => typeof u === 'string') : [],
     ...(tests && isCount(tests.passed) && isCount(tests.failed) && { tests: { passed: tests.passed, failed: tests.failed } }),
     pushed: v.pushed,
+    ...(isCount(v.triggers) && { triggers: v.triggers }),
     ...(typeof v.note === 'string' && { note: v.note }),
   };
 }
