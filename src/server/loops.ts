@@ -27,7 +27,7 @@ import { homepageOf, packageVersion, releaseInboxItem, roundState } from './roun
 import { commitLane, latestControlNotes, parseChangelog, parsePaused, parseSchedule } from '../core/parse/index.js';
 import { shipCheck } from '../core/shipCheck.js';
 import { buildRuns, lastRunOf, sessionKey, silentLanesItem } from './runs.js';
-import { readEval, readKnowledge, readRecipes } from './memory.js';
+import { readEval, readKnowledge, readRecipeEntries, readRecipes } from './memory.js';
 import { checkLoop, parseTestRecord } from './health.js';
 import { bulletsUnder, contractFromTask, laneNotesFromTask } from './taskBullets.js';
 
@@ -280,7 +280,7 @@ export function projectsSource(projectsDir: string, now: () => Date = () => new 
     },
     knowledge: async (id) => {
       const dir = await loopDir(id);
-      return dir === undefined ? undefined : readKnowledge(dir, await readRecipes(await findLoopDirs(projectsDir)));
+      return dir === undefined ? undefined : readKnowledge(dir, await readRecipeEntries(await findLoopDirs(projectsDir)));
     },
     recipes: async () => ({ recipes: await readRecipes(await findLoopDirs(projectsDir)) }),
     evalReport: async () => readEval([projectsDir, ...(await findLoopDirs(projectsDir))].map((d) => path.join(d, 'evals', 'results'))),
