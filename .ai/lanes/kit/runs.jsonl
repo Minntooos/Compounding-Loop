@@ -3,3 +3,4 @@
 {"at":"2026-10-11T22:21:40.812Z","lane":"kit","units":["prompt-md-pause"],"tests":{"passed":1,"failed":0},"pushed":true}
 {"at":"2026-10-13T01:25:17.790Z","lane":"kit","units":["audit-r5","templates","thin-prompts","r5-tests"],"tests":{"passed":144,"failed":0},"pushed":true,"note":"init hook waits on core"}
 {"at":"2026-10-13T02:23:00.708Z","lane":"kit","units":["wrap-up","done-md"],"tests":{"passed":156,"failed":0},"pushed":true,"note":"DONE written; init --lanes hook still with core"}
+{"at":"2026-10-14T01:32:05.260Z","lane":"kit","units":["audit-r6","method-objective","recipes","eval-tasks","hooks-wiring","dogfood-triggers"],"tests":{"passed":1052,"failed":0},"pushed":true,"triggers":1,"note":"waiting on core: eval verify overlay + recipeFile"}

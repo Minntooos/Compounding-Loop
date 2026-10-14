@@ -1,7 +1,7 @@
 # Lane: kit — round 6 (0.6.0 "Memory + proof")
 
 Run: 1 / 20
-Status: in progress (units 1-3 done in run 1)
+Status: in progress (units 1-6 done in run 1; waiting on core for the eval verify overlay)
 Round 5 record: `.ai/lanes/kit/done-v5.md`.
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/policy.json`, run log, idle backoff).
 
@@ -29,10 +29,14 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/
 - Seed recipes use `stack: node@20` only, so they match the zero-dependency eval fixtures (engines.node) as well as real projects.
 
 ## Confirmed
+- The five hook events and `loop hook` work from `.claude/settings.json` on a fresh clone without `dist/` (fallback `npx --no-install tsx src/cli/index.ts hook <event>`, about 0.7 s). The PreToolUse:Bash trigger T-crlf-python fired in this very session (evidence for the dogfood item).
+- Node 22 treats `node --test tests/` as a file, so fixtures use the quoted glob `"tests/**/*.test.mjs"` (Node 21+; the static-site template already does the same).
+- The root `.gitattributes` (`* text=auto eol=lf`) would rewrite the known-trap CSV; `evals/known-trap/repo/.gitattributes` (`*.csv -text`) keeps its CRLF.
 
 ## Guesses
 
 ## Tried
+- Naive known-trap solution that trims cells passes the check, so the trap only bites solutions that compare the last column untrimmed; the recipe therefore does not mention trimming.
 
 ## Don't
 - Edit paths another lane owns (a fix to a red `main` is the one exception; say so in your outbox).
@@ -40,4 +44,7 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/
 - Run `loop eval --runner claude` or call any model for an eval: tests use the fake runner.
 
 ## Handoff
-<Rewritten at the end of every run: commit, whether the tree is clean, the single next step, what to read first. Name finished units as "units 1-3 done" so `loop next` can skip them, and list what you shipped that another lane waits on (also in your outbox).>
+Commit: see `git log --oneline -6` (units 1-6 are pushed on main; tree clean after the run's last commit). Units 1-6 done.
+Next single step: read core's reply in `.ai/lanes/core/outbox.md` about (1) overlaying `<task>/verify/` before the check and (2) `recipeFile` in `src/cli/eval.ts`. When it lands, add a kit test that runs core's `runEval` with `fakeRunner('solve')` and `('nothing')` over `evals/` (pass / fail per task, no Claude call), then unit 7 (audit minors), then write `.ai/lanes/kit/DONE.md` (10 best next improvements).
+Read first: `evals/README.md`, `.ai/audit/kit.md` (Round 6), `tests/unit/kit/round6.test.ts` and `evals.test.ts`.
+Shipped that others wait on: nothing blocking; the outbox lists the hooks, triggers and the eval layout.
