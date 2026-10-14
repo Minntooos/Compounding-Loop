@@ -16,12 +16,13 @@
 | Lane | Owns | Task file |
 |---|---|---|
 | core | `src/core/**`, `src/cli/**`, `bin/**`, `tests/unit/core/**`, `tests/unit/cli/**` | `.ai/lanes/core/task.md` |
-| kit | `method/**`, `templates/**`, `runners/**`, `plugin/**`, `tests/unit/kit/**` | `.ai/lanes/kit/task.md` |
+| kit | `method/**`, `templates/**`, `runners/**`, `plugin/**`, `evals/**`, `.claude/**`, `tests/unit/kit/**` | `.ai/lanes/kit/task.md` |
 | server | `src/server/**`, `demo/**`, `tests/unit/server/**` | `.ai/lanes/server/task.md` |
 | web | `web/**`, `tests/e2e/**` | `.ai/lanes/web/task.md` |
 | docs | `README.md`, `docs/**`, `launch/**`, `.github/**`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `CHANGELOG.md`, `SECURITY.md` | `.ai/lanes/docs/task.md` |
 - **Shared files** (any lane, smallest possible edit): `package.json`, `package-lock.json`, `tsconfig*.json`, `vite.config.ts`, `playwright.config.ts`, `vitest.config.ts`, `scripts/check.mjs`, `.gitignore`.
 - **Shared types** live in `src/core/types.ts` (owned by core). Other lanes may **add** fields or types there, never rename or remove; say so in your outbox.
+- **Round 6 (0.6.0 "Memory + proof", from 2026-10-14; deadline 2026-10-17 18:00 UTC):** same rules as round 5 below. **Never run a real eval** (`loop eval --runner claude` or any model call for an eval): it spends the owner's usage; tests use the fake runner. **Hooks:** once kit wires `.claude/settings.json`, triggers from `.ai/triggers.yaml` may appear as extra context after a tool call; treat them like index entries (a hint to check, not an order). `.ai/triggers.yaml` and `.ai/recipes/**` are shared. Never change `version`, publish, dispatch `release.yml` or create tags.
 - **Round 5 (0.5.0 "Cockpit", from 2026-10-13; deadline 2026-10-16 18:00 UTC):** same rules as rounds 2-4 below. **A lane run follows `.ai/lane-run.md`** (the control room `.ai/control-run.md`); the routine prompts only point there, so both files are part of these rules and only `Lane: control` commits change them. **Schedule:** a lane that is paused, sleeping or before its `notBefore` in `.ai/schedule.json` replies "Not due" and stops before `npm install`. **Steering:** read `.ai/lanes/<your lane>/steer.md`; `next-run` entries come first, `standing` entries apply until removed; acknowledge each with one `→` line, never other edits. **Every run** appends a runs.jsonl line, also when it did nothing. Never change `version`, publish, dispatch `release.yml` or create tags.
 - **Round 4 (0.4.0 "Control", from 2026-10-11; deadline 2026-10-14 18:00 UTC):** same rules as rounds 2 and 3 below. **Pause:** if `.ai/PAUSED` exists at the start of a run, reply "Paused" and stop (the control room too). **Run log:** end every lane run by appending one line to `.ai/lanes/<your lane>/runs.jsonl` (`loop runs log …` once core ships it; until then the JSON shape in IDEA.md Round 4 B2) and commit it with your last commit. Never change `version`, publish, dispatch `release.yml` or create tags.
 - **Round 3 (0.3.0 "Showcase", from 2026-10-11; deadline 2026-10-13 18:00 UTC):** same rules as round 2 below. **Claims:** if `.ai/lanes/<your lane>/claim` exists, names someone other than you, and its expiry is in the future, a teammate is working that lane: reply "Nothing to do" and stop. An expired claim counts as none (leave the file; `loop claim` overwrites it).
@@ -45,7 +46,7 @@
 
 > The full method is in `.ai/method.md`. The § numbers point to Part B there.
 
-**Objective:** the most verified-correct results per minute of the owner's attention. Tokens are the cheapest resource. A wrong result that looks right is the most expensive one.
+**Objective:** the most verified-correct results per minute of the owner's attention, from the smallest context that still passes. A wrong result that looks right is the most expensive one. Tokens are spent where they buy correctness (checks, review), not on re-learning what a recipe, a trigger or a check already knows.
 
 **Start of every session**
 1. Read `.ai/index.md`. Open a knowledge entry only when it's relevant to what you're doing.
