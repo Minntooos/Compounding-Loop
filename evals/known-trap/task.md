@@ -1,0 +1,1 @@
+Add `qtyByCategory(file)` to `src/stock.js`: it reads a stock CSV (columns `item,qty,category`, with a header row) and returns an object with the total `qty` per category, for example `{ fruit: 12, veg: 4 }`. The real data is `data/stock.csv`. Skip blank lines. Add a unit test in `tests/`. `npm test` must pass.

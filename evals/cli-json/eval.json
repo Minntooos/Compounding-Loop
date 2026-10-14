@@ -1,0 +1,9 @@
+{
+  "id": "cli-json",
+  "title": "Add a subcommand with --json output and tests to a small Node CLI",
+  "task": "task.md",
+  "recipe": "R-cli-command-json",
+  "arms": ["cold", "recipe"],
+  "check": ["node", "--test", "verify/verify.test.mjs"],
+  "maxTurns": 30
+}

@@ -1,0 +1,11 @@
+{
+  "id": "known-trap",
+  "title": "A change that hits a planted trap (CRLF line endings) a trigger covers",
+  "task": "task.md",
+  "recipe": "R-node-csv-report",
+  "recipeFile": "recipe.md",
+  "triggers": "triggers.yaml",
+  "arms": ["cold", "recipe", "recipe+triggers"],
+  "check": ["node", "--test", "verify/verify.test.mjs"],
+  "maxTurns": 30
+}

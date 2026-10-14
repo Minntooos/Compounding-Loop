@@ -1,0 +1,9 @@
+{
+  "id": "calc-page",
+  "title": "Add a tested calculator page to a small static site",
+  "task": "task.md",
+  "recipe": "R-static-calculator-site",
+  "arms": ["cold", "recipe"],
+  "check": ["node", "--test", "verify/verify.test.mjs"],
+  "maxTurns": 30
+}

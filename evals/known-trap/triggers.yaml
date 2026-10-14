@@ -1,0 +1,8 @@
+- id: T-csv-crlf
+  on: file
+  match: ["data/*.csv", "**/*.csv"]
+  inject: "CSV files in this repo use Windows line endings (CRLF). Split lines with /\\r?\\n/, never '\\n', or the last column keeps a trailing \\r and comparisons fail (\"fruit\\r\" !== \"fruit\")."
+- id: T-csv-crlf-topic
+  on: topic
+  match: ["csv", "stock.csv"]
+  inject: "This repo's CSV data uses CRLF line endings: split on /\\r?\\n/ and test against data/stock.csv, not only a string you typed."

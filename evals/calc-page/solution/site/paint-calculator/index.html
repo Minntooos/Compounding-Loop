@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paint calculator</title>
+<meta name="description" content="Work out how many litres of paint to buy from wall area, coverage per litre and the number of coats.">
+<link rel="canonical" href="https://example.com/paint-calculator/">
+</head>
+<body>
+<h1>Paint calculator</h1>
+<form>
+<label>Area (m2) <input name="area" type="number" step="any"></label>
+<label>Coverage (m2 per litre) <input name="coverage" type="number" step="any"></label>
+<label>Coats <input name="coats" type="number" step="1" value="2"></label>
+<button>Calculate</button>
+</form>
+<p id="result"></p>
+<p>Enter the wall area in square metres, the coverage printed on the tin in square metres per litre, and the number of coats you plan to apply. The page divides the area by the coverage, multiplies by the number of coats and rounds the answer up to the next half litre, because paint is sold in tins and running short mid wall is worse than having a little left over.</p>
+<p>For example, forty square metres of wall with a tin that covers ten square metres per litre needs four litres for one coat, so two coats need eight litres. If the area is twenty five square metres with one coat, the exact answer is two and a half litres, and that is what you should buy. Always check the coverage on your own tin, since rough walls soak up more paint than smooth ones.</p>
+<script type="module" src="/js/paint-page.js"></script>
+</body>
+</html>
