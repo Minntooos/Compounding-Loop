@@ -1,7 +1,7 @@
 # Lane: core — round 6 (0.6.0 "Memory + proof")
 
 Run: 1 / 20
-Status: in progress (units 1-2 done)
+Status: in progress (units 1-2 done; next: unit 3)
 Round 5 record: `.ai/lanes/core/done-v5.md`.
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/policy.json`, run log, idle backoff).
 
@@ -41,4 +41,4 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/
 - Run `loop eval --runner claude` or call any model for an eval: tests use the fake runner.
 
 ## Handoff
-Units 1-2 done except `loop recipe draft --print-prompt` (A4), which is the next step: model it on `src/cli/draft.ts` and `src/core/draftBrief.ts` (pure prompt builder in core, `--print-prompt` makes no Claude call, draft goes to `.ai/recipes/<id>.draft.md`, delta rule for an existing id). Then unit 3 (triggers, `loop hook`). Read first: IDEA.md Round 6 B, `src/core/recipes.ts`, `src/cli/recipe.ts`. Shipped for others: recipe parser/matcher (see outbox).
+Units 1-2 done (audit; recipes incl. `loop recipe draft --print-prompt`). Next: unit 3, triggers: `src/core/triggers.ts` (parse `.ai/triggers.yaml`, method C.5 shape in `.ai/method.md`; match error/file/command/topic), `loop hook <event>` (exact `hookSpecificOutput`, exit 0 on any error, 2,000-char cap, once per session_id, SessionStart uses `matchHere` from `src/cli/recipe.ts`), `.ai/.trigger-log.jsonl` in .gitignore, `loop triggers stats`, `triggers` count in `loop runs log`. Tell kit in the outbox when `loop hook` is on main and green. Read first: IDEA.md Round 6 B, `.ai/method.md` C.5. Shipped for others: recipe parser/matcher/CLI (outbox 2026-10-14 01:13).

@@ -19,6 +19,7 @@ import { formatRuns, logRun, readRuns } from './runs.js';
 import { runPause, runResume, type PauseResult } from './pause.js';
 import { runRound } from './run.js';
 import { runDraft } from './draft.js';
+import { runRecipeDraft } from './recipeDraft.js';
 import { addRecipe, checkRecipes, formatMatches, formatRecipeList, listRecipes, matchHere, showRecipe } from './recipe.js';
 import { formatPaceReport, runPaceSet, runPaceShow } from './pace.js';
 import { formatScheduleReport, runScheduleAction, runScheduleShow, runScheduleUpdate, runSteer, type ScheduleAction, type ScheduleResult } from './schedule.js';
@@ -546,6 +547,27 @@ recipeCmd
       else if (results.length === 0) console.log('No recipes to check.');
       else for (const r of results) console.log(r.problems.length ? `${r.file}\n- ${r.problems.join('\n- ')}` : `${r.file}: ok`);
       if (results.some((r) => r.problems.length > 0)) process.exitCode = 1;
+    } catch (error) {
+      fail(error);
+    }
+  });
+recipeCmd
+  .command('draft')
+  .description('Ask Claude (claude -p) to draft a recipe from finished work; writes .ai/recipes/<id>.draft.md and scores it. A human renames it to accept it')
+  .option('--from <lane|dir>', 'a lane name, or a folder inside the repo with its own .ai/ (default: this repo)')
+  .option('--id <id>', 'the recipe id (R-<slug>); an existing id gets a delta, not a rewrite')
+  .option('--print-prompt', 'print the prompt only; makes no Claude call')
+  .option('--model <model>', 'the Claude model to use')
+  .option('--json', 'print as JSON')
+  .option('--dir <dir>', 'repo folder', '.')
+  .action(async (options: { from?: string; id?: string; printPrompt?: boolean; model?: string; json?: boolean; dir: string }) => {
+    try {
+      const r = await runRecipeDraft(path.resolve(options.dir), { ...(options.from && { from: options.from }), ...(options.id && { id: options.id }), ...(options.printPrompt && { printPrompt: true }), ...(options.model && { model: options.model }) });
+      if (options.json) console.log(JSON.stringify(r, null, 2));
+      else if (!r.draft) console.log(r.prompt);
+      else if (r.delta) console.log(`${r.draft}\n\nThis id already exists, so this is a delta: apply the items by hand, nothing was written.`);
+      else if (!r.outFile) console.log(`${r.draft}\n\nNot saved: ${(r.problems ?? []).join(' ')}`);
+      else console.log(`Draft written to ${r.outFile}.${r.problems?.length ? ` Fix before accepting:\n- ${r.problems.join('\n- ')}` : ' It passes `loop recipe check`.'}\nAccept it by renaming it to ${r.outFile.replace('.draft', '')}, or \`loop recipe add ${r.outFile}\`.`);
     } catch (error) {
       fail(error);
     }
