@@ -6,3 +6,4 @@
 {"at":"2026-10-13T07:11:41Z","lane":"core","units":["lane-done"],"tests":{"passed":184,"failed":0},"pushed":true,"note":"run 5: DONE.md written"}
 {"at":"2026-10-14T01:12:53.858Z","lane":"core","units":["recipes-parser","recipes-cli","recipe-draft","triggers","loop-hook","init-hooks","eval","next-round-dogfood","yaml-runtime-dependency"],"pushed":true,"note":"run 1: round 6 audit, recipes, triggers + loop hook, init --hooks, eval, next-round dogfood fixes; full npm test green (1046 unit, 263 e2e); waiting on kit seeds/evals for tarball check","tests":{"passed":1046,"failed":0}}
 {"at":"2026-10-14T02:12:38Z","lane":"core","units":["eval-verify-overlay","eval-recipefile"],"tests":{"passed":1047,"failed":0},"pushed":true,"note":"run 2: kit eval request done"}
+{"at":"2026-10-14T03:12:26.783Z","lane":"core","units":["tarball-check,done"],"tests":{"passed":1047,"failed":0},"pushed":true,"note":"run 3: packed-tarball check passed by hand; DONE.md written"}

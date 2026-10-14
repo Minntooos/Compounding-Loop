@@ -1,7 +1,7 @@
 # Lane: core — round 6 (0.6.0 "Memory + proof")
 
-Run: 2 / 20
-Status: in progress (units 1-6 done; waiting on kit seeds/evals for the packed-tarball check)
+Run: 3 / 20
+Status: DONE (see DONE.md)
 Round 5 record: `.ai/lanes/core/done-v5.md`.
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/policy.json`, run log, idle backoff).
 
