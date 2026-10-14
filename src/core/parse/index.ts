@@ -26,3 +26,5 @@ export type { ClassifiedRuns, ClassifiedSlot, ClassifyInput, RunOutcome } from '
 export { buildDraftPrompt, draftClaudeArgs, extractOpenFindings, extractOutOfScope, nextRoundNumber } from '../draftBrief.js';
 export type { DraftInputs } from '../draftBrief.js';
 export { DEFAULT_PACE, PACES, PACE_SUMMARY, POLICY_FILE, emptyPolicy, formatPolicy, isPace, paceFor, parsePolicy, policyProblem, withPace } from './policy.js';
+export { RECIPE_CAP_BYTES, RECIPE_FIELDS, RECIPE_SECTIONS, checkRecipe, checksOf, dependencyMajors, matchRecipes, parseRecipe, recipeContext, splitRecipe, stepsOf, summarizeRecipe } from '../recipes.js';
+export type { Recipe, RecipeMatch } from '../recipes.js';

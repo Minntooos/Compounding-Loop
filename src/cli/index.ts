@@ -19,6 +19,7 @@ import { formatRuns, logRun, readRuns } from './runs.js';
 import { runPause, runResume, type PauseResult } from './pause.js';
 import { runRound } from './run.js';
 import { runDraft } from './draft.js';
+import { addRecipe, checkRecipes, formatMatches, formatRecipeList, listRecipes, matchHere, showRecipe } from './recipe.js';
 import { formatPaceReport, runPaceSet, runPaceShow } from './pace.js';
 import { formatScheduleReport, runScheduleAction, runScheduleShow, runScheduleUpdate, runSteer, type ScheduleAction, type ScheduleResult } from './schedule.js';
 
@@ -484,6 +485,82 @@ runsCommand
         ...(options.note && { note: options.note }),
       });
       console.log(`Logged ${entry.lane} run at ${entry.at} (${entry.pushed ? 'pushed' : 'pushed nothing'}). Commit .ai/lanes/${entry.lane}/runs.jsonl with your last commit.`);
+    } catch (error) {
+      fail(error);
+    }
+  });
+
+const recipeCmd = program.command('recipe').description('Recipes: small exact contexts for work you repeat (.ai/recipes/, ~/.ai/recipes/)');
+recipeCmd
+  .command('list')
+  .description('Every recipe in the project and user stores')
+  .option('--json', 'print as JSON (RecipeSummary[])')
+  .option('--dir <dir>', 'repo folder', '.')
+  .action(async (options: { json?: boolean; dir: string }) => {
+    try {
+      const recipes = await listRecipes(path.resolve(options.dir));
+      console.log(options.json ? JSON.stringify(recipes, null, 2) : formatRecipeList(recipes));
+    } catch (error) {
+      fail(error);
+    }
+  });
+recipeCmd
+  .command('show')
+  .description('Print a recipe; --context prints exactly what a model would receive (no front matter)')
+  .argument('<id>', 'recipe id, e.g. R-static-calculator-site')
+  .option('--context', 'drop the front matter')
+  .option('--json', 'print {id, context|text} as JSON')
+  .option('--dir <dir>', 'repo folder', '.')
+  .action(async (id: string, options: { context?: boolean; json?: boolean; dir: string }) => {
+    try {
+      const text = await showRecipe(path.resolve(options.dir), id, options.context === true);
+      console.log(options.json ? JSON.stringify({ id, [options.context ? 'context' : 'text']: text }, null, 2) : text.trimEnd());
+    } catch (error) {
+      fail(error);
+    }
+  });
+recipeCmd
+  .command('match')
+  .description('Rank recipes for this repo (stack from package.json) and an optional task text; prints the top 3')
+  .argument('[task...]', 'what you are about to do')
+  .option('--json', 'print as JSON')
+  .option('--dir <dir>', 'repo folder', '.')
+  .action(async (task: string[], options: { json?: boolean; dir: string }) => {
+    try {
+      const matches = await matchHere(path.resolve(options.dir), task.join(' '));
+      console.log(options.json ? JSON.stringify(matches, null, 2) : formatMatches(matches));
+    } catch (error) {
+      fail(error);
+    }
+  });
+recipeCmd
+  .command('check')
+  .description('Lint a recipe file (or every project recipe): fields, sections, 6 KB cap, a proof per step, no paths, emails or tokens')
+  .argument('[file]', 'recipe file')
+  .option('--json', 'print as JSON')
+  .option('--dir <dir>', 'repo folder', '.')
+  .action(async (file: string | undefined, options: { json?: boolean; dir: string }) => {
+    try {
+      const results = await checkRecipes(path.resolve(options.dir), file);
+      if (options.json) console.log(JSON.stringify(results, null, 2));
+      else if (results.length === 0) console.log('No recipes to check.');
+      else for (const r of results) console.log(r.problems.length ? `${r.file}\n- ${r.problems.join('\n- ')}` : `${r.file}: ok`);
+      if (results.some((r) => r.problems.length > 0)) process.exitCode = 1;
+    } catch (error) {
+      fail(error);
+    }
+  });
+recipeCmd
+  .command('add')
+  .description('Copy a recipe that passes `check` into .ai/recipes/ (or ~/.ai/recipes/ with --global)')
+  .argument('<file>', 'recipe file')
+  .option('--global', 'add to the user store')
+  .option('--json', 'print as JSON')
+  .option('--dir <dir>', 'repo folder', '.')
+  .action(async (file: string, options: { global?: boolean; json?: boolean; dir: string }) => {
+    try {
+      const added = await addRecipe(path.resolve(options.dir), file, options.global === true);
+      console.log(options.json ? JSON.stringify(added, null, 2) : `Added ${added.id} to ${added.path}`);
     } catch (error) {
       fail(error);
     }

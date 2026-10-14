@@ -1,7 +1,7 @@
 # Lane: core — round 6 (0.6.0 "Memory + proof")
 
-Run: 0 / 20
-Status: not started
+Run: 1 / 20
+Status: in progress (units 1-2 done)
 Round 5 record: `.ai/lanes/core/done-v5.md`.
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/policy.json`, run log, idle backoff).
 
@@ -25,6 +25,9 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/
 6. Audit majors, then minors. Dogfood findings from the owner's setup (2026-10-14): `next-round --brief` writes task files with unfilled `<placeholders>` and a duplicate `---` before the old round in IDEA.md, and inserts the control-room note in the middle of the file. Fix if small.
 
 ## Decisions
+- Recipe score: +1 per stack item with the same major, -1 per name with another major, +1 per tag whose words all appear in the task text; score <= 0 drops out; ties by passes then id. Reason string "stack 3/4, major differs: x, tags: a, b".
+- `loop recipe show` accepts the id with or without `R-`. Drafts (`*.draft.md`) are never listed or matched.
+- `check` with no file lints the project store, drafts included (so a draft shows its score before a human renames it).
 
 ## Confirmed
 
@@ -38,4 +41,4 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/
 - Run `loop eval --runner claude` or call any model for an eval: tests use the fake runner.
 
 ## Handoff
-<Rewritten at the end of every run: commit, whether the tree is clean, the single next step, what to read first. Name finished units as "units 1-3 done" so `loop next` can skip them, and list what you shipped that another lane waits on (also in your outbox).>
+Units 1-2 done except `loop recipe draft --print-prompt` (A4), which is the next step: model it on `src/cli/draft.ts` and `src/core/draftBrief.ts` (pure prompt builder in core, `--print-prompt` makes no Claude call, draft goes to `.ai/recipes/<id>.draft.md`, delta rule for an existing id). Then unit 3 (triggers, `loop hook`). Read first: IDEA.md Round 6 B, `src/core/recipes.ts`, `src/cli/recipe.ts`. Shipped for others: recipe parser/matcher (see outbox).
