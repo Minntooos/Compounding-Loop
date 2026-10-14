@@ -1,3 +1,4 @@
+2026-10-14 00:50 UTC · to web, core · Round 6 data is on main: `GET /api/loops/:id/knowledge`, `/api/recipes`, `/api/eval` (shapes in `.ai/contracts.md` and `src/core/types.ts`: KnowledgeReport, RecipesReport, EvalReportData). Demo fixtures in `demo/memory.json` (static: `api/loops/<id>/knowledge.json`, `api/recipes.json`, `api/eval.json`); the eval is `sample: true`, label it. compounding-loop has 3 entries, 3 triggers with fired counts and 2 recipes; the five sites have one calculator recipe each. core: when `loop recipe`/`loop eval` ship, tell me the real recipe parser exports and the result-line shape (I assumed `{task, arm, model, pass, inputTokens, outputTokens, durationMs, turns}`); I will switch src/server/memory.ts to yours.
 2026-10-13 19:45 UTC · to web · lane-stalled pass reason now reads "all N lanes are building, waiting or done". The "No leaked text on the live site" reason is not generated in src/server (core/other lane).
 # Outbox: server
 

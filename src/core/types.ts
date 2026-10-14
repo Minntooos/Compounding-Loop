@@ -215,6 +215,10 @@ export interface DemoSnapshot {
   loops: LoopDetail[];
   inbox: InboxItem[];
   checks: HealthCheck[];
+  /** Round 6 fixtures: memory per loop id, the recipe stores and a sample eval report. */
+  knowledge?: Record<string, KnowledgeReport>;
+  recipes?: RecipesReport;
+  eval?: EvalReportData;
 }
 
 /** `GET /api/settings`: what the dashboard server is pointed at. Read-only; set with `loop dashboard` flags. */
@@ -315,4 +319,84 @@ export interface SteerEntry {
   text: string;
   /** Absent while the lane has not read the entry. */
   ack?: SteerAck;
+}
+
+/** One `.ai/knowledge/K-*.md` entry as the Knowledge screen shows it. Added by server (Round 6 E1); core may extend. */
+export interface KnowledgeEntryInfo {
+  id: string;
+  /** The one-line lesson from `.ai/index.md`, or the first body line. */
+  title: string;
+  status: 'confirmed' | 'guess';
+  /** Times a trigger pointing at this entry fired (from `.ai/.trigger-log.jsonl`). */
+  fired: number;
+  /** Trigger ids in `.ai/triggers.yaml` that inject this entry. */
+  triggerIds: string[];
+}
+
+/** One trigger of `.ai/triggers.yaml` with its fired count. */
+export interface TriggerInfo {
+  id: string;
+  /** Which matcher kinds it uses: `error`, `file`, `command`, `topic`. */
+  kinds: string[];
+  fired: number;
+  /** The knowledge id it injects, when it points at an entry. */
+  entry?: string;
+}
+
+/** A recipe in a store, as a card: front matter plus counted steps and checks. */
+export interface RecipeSummary {
+  id: string;
+  title: string;
+  kind: 'project' | 'feature';
+  stack: string[];
+  tags: string[];
+  status: 'CONFIRMED' | 'GUESS';
+  uses: number;
+  passes: number;
+  steps: number;
+  checks: number;
+  /** Size in bytes; the cap is 6144. */
+  bytes: number;
+  /** Which store it lives in. */
+  store: 'project' | 'user';
+  /** Display path with the home folder shown as `~`; never absolute. */
+  path: string;
+  /** Set on `GET /api/loops/:id/knowledge`: how well it fits this loop. */
+  match?: { score: number; reason: string };
+}
+
+/** `GET /api/loops/:id/knowledge`. */
+export interface KnowledgeReport {
+  entries: KnowledgeEntryInfo[];
+  triggers: TriggerInfo[];
+  /** Recipes whose stack or tags fit this loop, best first. */
+  recipes: RecipeSummary[];
+}
+
+/** `GET /api/recipes`: both stores. */
+export interface RecipesReport {
+  recipes: RecipeSummary[];
+}
+
+/** One task × arm × model line of the eval table. */
+export interface EvalRow {
+  task: string;
+  arm: 'cold' | 'recipe' | 'recipe+triggers';
+  model: string;
+  runs: number;
+  passed: number;
+  medianTokens: number;
+  medianSeconds: number;
+  medianTurns: number;
+}
+
+/** `GET /api/eval`: the latest report. No results means `rows: []` and no `headline` (never an error). */
+export interface EvalReportData {
+  rows: EvalRow[];
+  /** Built from the rows only; absent without results. */
+  headline?: string;
+  /** True for demo fixtures: invented numbers that must be shown as a sample. */
+  sample: boolean;
+  /** The command that produces real results; shown in the empty state. */
+  command: string;
 }

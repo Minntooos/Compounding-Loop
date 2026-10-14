@@ -6,6 +6,7 @@ import { Hono, type Context } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import { DEFAULT_WATCH, EventBus, watchProjects, type WatchOptions } from './events.js';
 import { parseDraftBody, parsePaceBody, parseScheduleBody, parseSteerBody, type Parsed } from './actionBody.js';
+import { EVAL_COMMAND } from './memory.js';
 import { projectsSource } from './loops.js';
 import { SECURITY_HEADERS, staticHandler } from './static.js';
 import { loadDemoSnapshot, snapshotSource, type DataSource, type LoopControls } from './data.js';
@@ -83,6 +84,12 @@ export async function createApp(options: AppOptions): Promise<Hono> {
     const loop = await source.loop(c.req.param('id'));
     return loop ? c.json(loop) : c.json({ error: 'no such loop' }, 404);
   });
+  app.get('/api/loops/:id/knowledge', async (c) => {
+    const report = source.knowledge ? await source.knowledge(c.req.param('id')) : undefined;
+    return report ? c.json(report) : c.json({ error: 'no such loop' }, 404);
+  });
+  app.get('/api/recipes', async (c) => c.json((await source.recipes?.()) ?? { recipes: [] }));
+  app.get('/api/eval', async (c) => c.json((await source.evalReport?.()) ?? { rows: [], sample: false, command: EVAL_COMMAND }));
   app.post('/api/loops/:id/answer', async (c) => {
     if (!source.answer) return c.json({ error: 'demo is read-only' }, 409);
     const body: unknown = await c.req.json().catch(() => undefined);

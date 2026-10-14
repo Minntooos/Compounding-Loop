@@ -25,3 +25,4 @@
 {"at":"2026-10-13T18:36:02Z","lane":"server","units":["export-quiet-kinds"],"tests":{"passed":904,"failed":0},"pushed":true,"note":"run 16: QUIET_KINDS exported for web (sprint pace: check+typecheck+unit)"}
 {"at":"2026-10-13T19:45:00Z","lane":"server","units":["lane-reason-fact","abortable-claude-test"],"tests":{"passed":935,"failed":0},"pushed":true,"note":"run 17: lane health reason states lane count; abortableClaude test (sprint: check+typecheck+unit)"}
 {"at":"2026-10-13T20:33:12Z","lane":"server","units":["lane-done"],"tests":{"passed":936,"failed":0},"pushed":true,"note":"run 18: no units left, no open audit items; DONE.md written (sprint: check+typecheck+unit)"}
+{"at":"2026-10-14T00:39:08Z","lane":"server","units":["audit-r6","memory-routes","memory-fixtures"],"tests":{"passed":263,"failed":0},"pushed":true,"note":"run 1: knowledge/recipes/eval routes + demo/memory.json fixtures (sprint)"}

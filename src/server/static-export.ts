@@ -4,6 +4,7 @@ import type { DemoSnapshot } from '../core/types.js';
 import { DEFAULT_RUNNER } from './settings.js';
 import { withLabel } from './checkLabels.js';
 import { sortByAttention, toSummary } from './data.js';
+import { EVAL_COMMAND } from './memory.js';
 import { CSP } from './static.js';
 
 /** The only hosts the static site may fetch from, besides itself: the live data path (src/server/live) and npm's registry (release state). */
@@ -41,6 +42,10 @@ export function staticApiFiles(snapshot: DemoSnapshot, version: string): Map<str
   files.set('api/health.json', { ok: true, version, demo: true });
   files.set('api/loops.json', sortByAttention(snapshot.loops.map(toSummary)));
   for (const loop of snapshot.loops) files.set(`api/loops/${loop.id}.json`, loop);
+  // Round 6: one knowledge file per loop (an empty report without fixtures), the recipe stores and the eval report.
+  for (const loop of snapshot.loops) files.set(`api/loops/${loop.id}/knowledge.json`, snapshot.knowledge?.[loop.id] ?? { entries: [], triggers: [], recipes: [] });
+  files.set('api/recipes.json', snapshot.recipes ?? { recipes: [] });
+  files.set('api/eval.json', snapshot.eval ?? { rows: [], sample: false, command: EVAL_COMMAND });
   files.set('api/inbox.json', snapshot.inbox);
   files.set('api/checks.json', snapshot.checks.map(withLabel));
   // Same body as the demo server's /api/settings; without the file the static site logged a 404 on every visit.

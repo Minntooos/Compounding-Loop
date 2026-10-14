@@ -132,7 +132,10 @@ describe('static demo export', () => {
 
   it('lists one file per API read route', () => {
     const files = staticApiFiles(snapshot, '1.2.3');
-    expect([...files.keys()].sort()).toEqual(['api/checks.json', 'api/health.json', 'api/inbox.json', 'api/loops.json', 'api/loops/a.json', 'api/settings.json', 'live.json']);
+    expect([...files.keys()].sort()).toEqual(['api/checks.json', 'api/eval.json', 'api/health.json', 'api/inbox.json', 'api/loops.json', 'api/loops/a.json', 'api/loops/a/knowledge.json', 'api/recipes.json', 'api/settings.json', 'live.json']);
+    expect(files.get('api/loops/a/knowledge.json')).toEqual({ entries: [], triggers: [], recipes: [] });
+    expect(files.get('api/recipes.json')).toEqual({ recipes: [] });
+    expect(files.get('api/eval.json')).toMatchObject({ rows: [], sample: false });
     expect(files.get('api/health.json')).toEqual({ ok: true, version: '1.2.3', demo: true });
     expect(files.get('api/settings.json')).toEqual({ demo: true, defaultRunner: 'routine' });
     expect(files.get('api/loops.json')).toEqual([expect.not.objectContaining({ timeline: expect.anything() })]);

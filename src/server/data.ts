@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
+import { EVAL_COMMAND } from './memory.js';
 import { withLabel } from './checkLabels.js';
-import type { DemoSnapshot, HealthCheck, InboxItem, LoopDetail, LoopState, LoopSummary } from '../core/types.js';
+import type { DemoSnapshot, EvalReportData, HealthCheck, KnowledgeReport, RecipesReport, InboxItem, LoopDetail, LoopState, LoopSummary } from '../core/types.js';
 
 /** Where the API gets its loops from: the demo snapshot or a projects folder. */
 export interface DataSource {
@@ -14,6 +15,12 @@ export interface DataSource {
   control?: LoopControls;
   /** The `loop doctor` report of this machine; absent for the demo. */
   doctor?(): Promise<{ report: string; passed: boolean }>;
+  /** Round 6: a loop's index entries, triggers and matching recipes; undefined for an unknown loop. */
+  knowledge?(id: string): Promise<KnowledgeReport | undefined>;
+  /** Round 6: project and user recipe stores. */
+  recipes?(): Promise<RecipesReport>;
+  /** Round 6: the latest eval report; no results is an empty report, not an error. */
+  evalReport?(): Promise<EvalReportData>;
 }
 
 export interface ControlResult {
@@ -80,6 +87,9 @@ export function snapshotSource(snapshot: DemoSnapshot): DataSource {
     loop: async (id) => snapshot.loops.find((l) => l.id === id),
     inbox: async () => snapshot.inbox,
     checks: async () => checks,
+    knowledge: async (id) => (snapshot.loops.some((l) => l.id === id) ? (snapshot.knowledge?.[id] ?? { entries: [], triggers: [], recipes: [] }) : undefined),
+    recipes: async () => snapshot.recipes ?? { recipes: [] },
+    evalReport: async () => snapshot.eval ?? { rows: [], sample: false, command: EVAL_COMMAND },
   };
 }
 
@@ -109,9 +119,11 @@ export function withSelfLoop(snapshot: DemoSnapshot, self: { loop: LoopDetail })
 export async function loadDemoSnapshot(
   candidates: readonly URL[] = [new URL('./five-sites.json', import.meta.url), new URL('../../demo/five-sites.json', import.meta.url)],
   selfCandidates: readonly URL[] = [new URL('./this-repo.json', import.meta.url), new URL('../../demo/this-repo.json', import.meta.url)],
+  memoryCandidates: readonly URL[] = [new URL('./memory.json', import.meta.url), new URL('../../demo/memory.json', import.meta.url)],
 ): Promise<DemoSnapshot> {
   const snapshot = await readFirst<DemoSnapshot>(candidates);
   if (!snapshot) throw new Error('demo snapshot not found (run `node demo/build-demo.mjs`)');
   const self = await readFirst<{ loop: LoopDetail; checks: HealthCheck[] }>(selfCandidates);
-  return stampSnapshot(self ? withSelfLoop(snapshot, self) : snapshot);
+  const memory = await readFirst<Pick<DemoSnapshot, 'knowledge' | 'recipes' | 'eval'>>(memoryCandidates);
+  return stampSnapshot({ ...(self ? withSelfLoop(snapshot, self) : snapshot), ...memory });
 }

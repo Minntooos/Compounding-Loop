@@ -1,3 +1,22 @@
+# Round 6 (2026-10-14)
+
+Method: fresh `origin/main`, read `src/server/{data,index,loops,static-export}.ts`, IDEA.md Round 6 A-E.
+
+## Blockers
+None open.
+
+## Findings
+| # | Area | Result | Severity |
+|---|---|---|---|
+| 1 | Routes | `/api/loops/:id/knowledge`, `/api/recipes`, `/api/eval` did not exist. Added (`src/server/memory.ts`), unit-tested, recorded in `contracts.md`. | fixed (this run) |
+| 2 | Home paths | A recipe in `~/.ai/recipes` would leak the account name through its path. `RecipeSummary.path` is `~/...`, `$LOOP_HOME/...` or clone-relative, never absolute (tested). | fixed (this run) |
+| 3 | Eval honesty | No results must not read as a failure or invent a number: empty rows, no headline, `sample: true` only on demo fixtures. | fixed (this run) |
+| 4 | Duplicated parsing | Recipe/trigger/eval parsing here duplicates what core will ship (A3, B1, C3). Behind one module; switch to core's exports when they land (core outbox). | minor, open |
+| 5 | Matching | `matchRecipes` scores stack overlap only (no tag/task-text keywords). Core's `loop recipe match` is the source of truth. | minor, open |
+| 6 | Perf | `/api/loops/:id/knowledge` re-reads the recipe stores and the clone's knowledge on each call (a few small files). Fine locally. | ok |
+
+Other lanes: core owns the final eval result-line shape (see `contracts.md`); web builds the screens from `demo/memory.json`.
+
 # Round 5 (2026-10-13)
 
 Method: fresh `origin/main` (`npm test` green, 144 e2e pass), read `src/server/loops.ts`, `live/build.ts`, `roundState.ts`, `controls.ts`, `runs.ts`, IDEA.md Round 5 A, B6.
