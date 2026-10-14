@@ -1,7 +1,7 @@
 # Lane: web — round 6 (0.6.0 "Memory + proof")
 
-Run: 0 / 20
-Status: not started
+Run: 1 / 20
+Status: units 2-3 done (run 1)
 Round 5 record: `.ai/lanes/web/done-v5.md`.
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/policy.json`, run log, idle backoff).
 
@@ -24,6 +24,7 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/
 4. Audit majors, then minors (round 5 leftovers in `done-v5.md` only if time remains).
 
 ## Decisions
+- Knowledge tab keeps its name; Eval is a section of it (the data is global, not per loop). Old lane notes / plain notes stay below it. Copy button copies `loop recipe show <id> --context` (id shell-quoted if odd).
 
 ## Confirmed
 
@@ -37,4 +38,4 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/
 - Run `loop eval --runner claude` or call any model for an eval: tests use the fake runner.
 
 ## Handoff
-<Rewritten at the end of every run: commit, whether the tree is clean, the single next step, what to read first. Name finished units as "units 1-3 done" so `loop next` can skip them, and list what you shipped that another lane waits on (also in your outbox).>
+Run 1: units 2-3 done (KnowledgeTab.tsx, EvalView.tsx, lib/knowledge.ts, e2e knowledge.spec.ts; bundle 170 kB gz). Unit 1 (Round 6 audit section in .ai/audit/web.md) is only a design-review note so far. Next: unit 4 (audit majors/minors), screenshots of the new tab if docs wants them. Read the reviewer minors in .ai/audit/web.md first.

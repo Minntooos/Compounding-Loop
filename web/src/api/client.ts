@@ -1,4 +1,4 @@
-import type { DashboardSettings, HealthCheck, InboxItem, LoopDetail, LoopSummary, Pace } from '@core/types';
+import type { DashboardSettings, EvalReportData, HealthCheck, InboxItem, KnowledgeReport, LoopDetail, LoopSummary, Pace } from '@core/types';
 import { probeOrder } from '../lib/probe';
 import { newestActivity, shortDateUtc } from '../lib/format';
 import { takeSseEvents } from '../lib/draft';
@@ -175,6 +175,10 @@ setSnapshotLoader(async (id) => {
   return detail?.timeline ?? [];
 });
 
+/** Shown when no memory fixtures exist (static host without them, or a loop the server does not know). */
+const NO_MEMORY: KnowledgeReport = { entries: [], triggers: [], recipes: [] };
+const NO_EVAL: EvalReportData = { rows: [], sample: false, command: 'loop eval run' };
+
 export interface DoctorReport { report: string; passed: boolean }
 
 export const api = {
@@ -193,5 +197,9 @@ export const api = {
     .then((rows) => withLive(rows, (r, live) => mergeFacts(r, live.detail.id, live.inbox))),
   checks: () => getJson<HealthCheck[]>('/checks', () => mockSnapshot.checks)
     .then((rows) => withLive(rows, (r, live) => mergeFacts(r, live.detail.id, live.checks))),
+  /** Round 6: index entries, triggers and fitting recipes of one loop. An unknown loop reads as no memory. */
+  knowledge: (id: string) => getJson<KnowledgeReport>(`/loops/${encodeURIComponent(id)}/knowledge`, () => NO_MEMORY, NO_MEMORY),
+  /** Round 6: the latest eval report; no results is an empty table, never an error. */
+  eval: () => getJson<EvalReportData>('/eval', () => NO_EVAL, NO_EVAL),
   settings: () => getJson<DashboardSettings>('/settings', (): DashboardSettings => ({ demo: true, defaultRunner: 'routine' })),
 };

@@ -9,6 +9,7 @@ import { RunsTab } from './RunsTab';
 import { TestsTab } from './TestsTab';
 import { ReleasesTab } from './ReleasesTab';
 import { LaneNotesView } from './LaneNotesView';
+import { KnowledgeTab } from './KnowledgeTab';
 import { relativeTime } from '../lib/format';
 import { ShipPanel } from './ShipPanel';
 import { ControlBar } from './ControlBar';
@@ -58,8 +59,7 @@ function TabBody({ tab, loop, focus, toRuns }: { tab: Tab; loop: Detail; focus?:
         </ul>
       );
     case 'Knowledge':
-      if (loop.laneNotes?.length) return <LaneNotesView notes={loop.laneNotes} kind="knowledge" />;
-      return <TextList items={loop.knowledge} empty="No knowledge entries yet." />;
+      return <KnowledgeTab loopId={loop.id} notes={loop.knowledge} {...(loop.laneNotes?.length && { laneNotes: loop.laneNotes })} />;
     case 'Decisions':
       if (loop.laneNotes?.length) return <LaneNotesView notes={loop.laneNotes} kind="decisions" />;
       return <TextList items={loop.decisions} empty="No decisions recorded." />;
