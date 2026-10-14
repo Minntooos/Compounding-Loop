@@ -21,7 +21,8 @@ const utcDay = (d: Date) => d.toISOString().slice(0, 10);
 
 /** Puts `brief` first in IDEA.md and turns the previous "(current)" heading into "(finished <date>)". */
 export function insertBrief(ideaText: string, brief: string, round: number, now: Date): string {
-  const body = brief.trim();
+  // A brief that ends with its own rule would double up with the one we add before the older rounds.
+  const body = brief.trim().replace(/(?:\r?\n\s*-{3,}\s*)+$/, '');
   const section = /^##\s/.test(body) ? body : `## Round ${round} (current) — started ${utcDay(now)} ${now.toISOString().slice(11, 16)} UTC\n\n${body}`;
   const lines = ideaText.split(/\r?\n/).map((line) => (ROUND_HEADING.test(line) ? line.replace(/\(current\)/i, `(finished ${utcDay(now)})`) : line));
   const firstRound = lines.findIndex((line) => ROUND_HEADING.test(line));
@@ -31,12 +32,34 @@ export function insertBrief(ideaText: string, brief: string, round: number, now:
   return `${before ? `${before}\n\n` : ''}${section}\n\n---\n\n${after}`.trimEnd() + '\n';
 }
 
-/** A control-room note, newest first, right under the file's header paragraph. */
+/**
+ * A control-room note, newest first: before the first dated note that follows the `# ` title (so stray dated lines above
+ * the title do not pull it to the middle of the file), or at the end when there is none.
+ */
 export function addControlNote(controlText: string, note: string): string {
   const lines = controlText.split(/\r?\n/);
-  const firstNote = lines.findIndex((l) => /^\d{4}-\d\d-\d\d \d\d:\d\d UTC · /.test(l));
-  if (firstNote !== -1) return [...lines.slice(0, firstNote), note, ...lines.slice(firstNote)].join('\n');
-  return `${controlText.trimEnd()}\n\n${note}\n`;
+  const isNote = (l: string) => /^\d{4}-\d\d-\d\d \d\d:\d\d UTC · /.test(l);
+  const title = lines.findIndex((l) => /^#\s/.test(l));
+  const from = title === -1 ? 0 : title + 1;
+  const at = lines.findIndex((l, i) => i >= from && isNote(l));
+  if (at === -1) return `${controlText.trimEnd()}\n\n${note}\n`;
+  return [...lines.slice(0, at), note, ...lines.slice(at)].join('\n');
+}
+
+const PLACEHOLDER_LINE = /^\s*<[^>\n]+>\s*$/;
+
+/** Replaces the `<placeholders>` of the lane task template so a fresh task.md has no unfilled field. */
+export function fillTaskPlaceholders(task: string, round: number): string {
+  const brief = `the Round ${round} brief (IDEA.md, first section)`;
+  return task
+    .replace(/^(\*\*Goal:\*\*)\s*<[^>\n]+>\s*$/m, `$1 this lane's part of ${brief}.`)
+    .replace(/^(\*\*Out of scope:\*\*)\s*<[^>\n]+>\s*$/m, '$1 paths another lane owns (see `.ai/lanes.json`).')
+    .replace(/^(\s*-\s)<[^>\n]+>\s*$/m, `$1every item ${brief} assigns to this lane passes its test.`)
+    .replace(/^(\d+\.\s)<first real unit>\s*$/m, `$1The first item ${brief} assigns to this lane.`)
+    .replace(/^<Rewritten at the end of every run[^\n]*>\s*$/m, `Not started. Read ${brief}, then begin with the audit.`)
+    .split('\n')
+    .filter((line) => !PLACEHOLDER_LINE.test(line))
+    .join('\n');
 }
 
 export type RoundChange = { kind: 'write'; path: string; content: string } | { kind: 'move'; from: string; to: string } | { kind: 'delete'; path: string };
@@ -80,7 +103,7 @@ export function planLaneRound(input: RoundInput): RoundPlan {
     if (own.includes('DONE.md')) changes.push({ kind: 'move', from: `${dir}/DONE.md`, to: `${dir}/${nextDoneFileName(own)}` });
     if (own.includes('BLOCKED.md')) blockedLanes.push(lane.name);
     const limit = parseRunCounter(input.laneTasks[lane.name] ?? '')?.limit ?? DEFAULT_RUN_LIMIT;
-    const task = fillPlaceholders(input.taskTemplate, { lane: lane.name, owns: lane.owns.join(', ') }).replace(/^Run:\s*\d+\s*\/\s*\d+/m, `Run: 0 / ${limit}`);
+    const task = fillTaskPlaceholders(fillPlaceholders(input.taskTemplate, { lane: lane.name, owns: lane.owns.join(', ') }), round).replace(/^Run:\s*\d+\s*\/\s*\d+/m, `Run: 0 / ${limit}`);
     changes.push({ kind: 'write', path: `${dir}/task.md`, content: task });
   }
   const stamp = `${utcDay(now)} ${now.toISOString().slice(11, 16)} UTC`;

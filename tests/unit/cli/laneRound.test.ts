@@ -5,7 +5,7 @@ import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { runCheckLanes } from '../../../src/cli/checkLanes.js';
 import { formatLaneRound, runLaneRound } from '../../../src/cli/laneRound.js';
-import { addControlNote, insertBrief, nextRoundNumber, planLaneRound } from '../../../src/core/laneRound.js';
+import { addControlNote, fillTaskPlaceholders, insertBrief, nextRoundNumber, planLaneRound } from '../../../src/core/laneRound.js';
 
 const now = new Date('2026-10-12T08:05:00Z');
 const BRIEF = '## Round 5 (current): 0.5.0 "Next" — more\n\nBuild the thing.\n\n### Must have\n- `npm test` passes with 3 new tests for the thing\n';
@@ -30,6 +30,28 @@ describe('pure helpers', () => {
     const out = addControlNote('# Control\n\nintro\n\n2026-10-11 10:00 UTC · to all · old\n', '2026-10-12 08:05 UTC · to all · new');
     expect(out.indexOf('· new')).toBeLessThan(out.indexOf('· old'));
     expect(addControlNote('# Control\n', 'N')).toBe('# Control\n\nN\n');
+  });
+  it('puts the note under the title, not among stray dated lines above it', () => {
+    const text = '## 2026-10-11 07:55 UTC · to web · review\n2026-10-11 07:56 UTC · to all · stray\n\n# Control room notes\n\nIntro.\n\n2026-10-13 18:35 UTC · to server · old\n';
+    const out = addControlNote(text, '2026-10-14 01:00 UTC · to all · new');
+    expect(out.indexOf('Intro.')).toBeLessThan(out.indexOf('· new'));
+    expect(out.indexOf('· new')).toBeLessThan(out.indexOf('· old'));
+    expect(out.startsWith('## 2026-10-11 07:55')).toBe(true);
+    expect(out.indexOf('· stray')).toBeLessThan(out.indexOf('# Control room notes'));
+  });
+  it('does not double the rule when the brief ends with one', () => {
+    const out = insertBrief('# IDEA\n\n## Round 1 (current)\n\nold\n', '## Round 2: x\n\nbody\n\n---\n', 2, now);
+    expect(out).not.toMatch(/---\s*\n+---/);
+    expect(out.match(/^---$/gm)).toHaveLength(1);
+  });
+  it('fills every placeholder of the lane task template', async () => {
+    const template = await readFile(path.resolve('templates/lanes/task.md'), 'utf8');
+    const task = fillTaskPlaceholders(template.replace(/\{\{lane\}\}/g, 'core').replace(/\{\{owns\}\}/g, 'src/**'), 6);
+    expect(task).not.toMatch(/<[a-zA-Z][^>\n]*>/);
+    expect(task).toContain("**Goal:** this lane's part of the Round 6 brief (IDEA.md, first section).");
+    expect(task).toContain('Not started. Read the Round 6 brief');
+    expect(task).toContain('## Decisions\n');
+    expect(task).toContain('`npm test` passes');
   });
   it('plans nothing against the disk: moves, resets with the old limit, and notes', () => {
     const plan = planLaneRound({

@@ -1,7 +1,7 @@
 # Lane: core — round 6 (0.6.0 "Memory + proof")
 
 Run: 1 / 20
-Status: in progress (units 1-5 done; next: unit 6)
+Status: in progress (units 1-6 done; waiting on kit seeds/evals for the packed-tarball check)
 Round 5 record: `.ai/lanes/core/done-v5.md`.
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/policy.json`, run log, idle backoff).
 
@@ -44,4 +44,4 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/
 - Run `loop eval --runner claude` or call any model for an eval: tests use the fake runner.
 
 ## Handoff
-Units 1-5 done (eval: `src/core/eval.ts`, `src/cli/eval.ts`, fixture `tests/fixtures/claude-result.json`). Next: unit 6 (dogfood: `next-round --brief` leaves `<placeholders>` in task files, duplicate `---` before the old round in IDEA.md, control-room note inserted mid-file; see `src/core/laneRound.ts`, `src/cli/laneRound.ts`), then audit minors, then check kit's `evals/` and `templates/recipes/` have landed and run the packed-tarball done-when by hand (`npm pack`, install in an empty temp dir, `loop init --hooks`, `loop recipe match`, `loop eval run --runner fake --task calc-page`, `loop hook PostToolUseFailure`). If all passes, run the retro and write DONE.md (check outboxes first). Server: switch `src/server/memory.ts` to core's `evalRows/evalHeadline/parseResults` (outbox).
+Units 1-6 done. Nothing else open in the core contract except verifying with kit's content: when `templates/recipes/*.md` and `evals/<task>/` are on main, run the packed-tarball done-when by hand (`npm pack`, install in an empty temp dir, `loop init --hooks`, `loop recipe match` in a copy of `evals/calc-page/repo` ranks static-calculator-site first, `loop eval run --runner fake --task calc-page`, `loop hook PostToolUseFailure` with sample stdin) and fix what breaks. Also: the dogfood requirement (a lane run with `triggers` > 0 in runs.jsonl) needs kit's `.claude/settings.json`; note in the log if the cloud sandbox does not load it. Then retro, read outboxes, write `.ai/lanes/core/DONE.md` (10 next improvements). Read first: outboxes of kit and server.
