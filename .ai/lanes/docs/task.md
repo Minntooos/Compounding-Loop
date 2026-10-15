@@ -1,7 +1,7 @@
 # Lane: docs — round 6 (0.6.0 "Memory + proof")
 
-Run: 0 / 20
-Status: not started
+Run: 1 / 20
+Status: DONE (units 1-5 done, run 1)
 Round 5 record: `.ai/lanes/docs/done-v5.md`.
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/policy.json`, run log, idle backoff).
 
@@ -37,4 +37,4 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/
 - Run `loop eval --runner claude` or call any model for an eval: tests use the fake runner.
 
 ## Handoff
-<Rewritten at the end of every run: commit, whether the tree is clean, the single next step, what to read first. Name finished units as "units 1-3 done" so `loop next` can skip them, and list what you shipped that another lane waits on (also in your outbox).>
+Lane DONE: nothing left. Tree clean after push. Only follow-up is swapping the eval placeholders once the owner has a real result. (old note: <Rewritten at the end of every run: commit, whether the tree is clean, the single next step, what to read first. Name finished units as "units 1-3 done" so `loop next` can skip them, and list what you shipped that another lane waits on (also in your outbox).>

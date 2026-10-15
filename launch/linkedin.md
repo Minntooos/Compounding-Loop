@@ -1,5 +1,7 @@
 # LinkedIn draft
 
+**Lead with the eval number (owner: fill in after the real `loop eval run`, then delete this note):** <!-- eval: pending --> "[headline from `npx compounding-loop eval report`]". Quote the report only; never invent or round up a figure. Frame: learn once, one-shot the next; the smallest context that still passes.
+
 I let scheduled Claude Code runs build five live websites while I did other things: 215 pages, 2,125 passing tests, 464 commits.
 
 The lesson was that unattended work needs a referee. The agent can't declare itself done; the tests do. A second agent reviews every change. Runs can't overlap or exceed a budget, and they ask for help in a file when stuck.

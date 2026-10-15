@@ -56,6 +56,18 @@ flowchart LR
 5. **Compounding.** Every run writes what it learned into a small indexed knowledge base the next run reads first.
 6. **Escalation.** When it is stuck it writes `BLOCKED.md`. You answer from the dashboard inbox or `loop answer`.
 
+## Learn once, one-shot the next
+
+When work finishes, what it taught is kept as a **recipe** (steps, traps and the check that proves each step, under 6 KB) and as **triggers** that fire at the moment they matter, through Claude Code hooks. The next project of the same kind starts from one small, exact context instead of from zero, so a smaller model has a chance to do it in one pass.
+
+```sh
+npx compounding-loop recipe match "add a mortgage calculator page"   # which recipe fits this repo
+npx compounding-loop init --hooks                                     # wire triggers without the plugin
+npx compounding-loop eval run --runner fake                           # free dry run of the proof
+```
+
+The proof is a number from `loop eval`: known tasks rebuilt cold and with a recipe, reporting pass rate, tokens and time. <!-- eval: pending -->Result pending: the first real run is not published yet, and no number appears here until it is. Details: [Memory](docs/memory.md), [Prove it with an eval](docs/eval.md).
+
 ## Glance, steer, sleep
 
 Leave a laned loop running, look at the dashboard, and steer it without opening a chat. The top strip says in five seconds whether anything needs you, whether lanes are running or stalled, whether runs hit the usage limit, whether CI is green and whether it is ready to ship.
@@ -115,7 +127,7 @@ If you work at the keyboard and want to watch agents in parallel, those tools ar
 
 ## Docs
 
-[Getting started](docs/getting-started.md) · [Lanes](docs/lanes.md) · [Team](docs/team.md) · [Concepts](docs/concepts.md) · [Runners](docs/runners.md) · [Dashboard](docs/dashboard.md) · [Steering](docs/steering.md) · [Release](docs/release.md) · [Templates](docs/templates.md) · [FAQ](docs/faq.md) · [Troubleshooting](docs/troubleshooting.md) · [Contributing](CONTRIBUTING.md)
+[Getting started](docs/getting-started.md) · [Lanes](docs/lanes.md) · [Team](docs/team.md) · [Concepts](docs/concepts.md) · [Runners](docs/runners.md) · [Dashboard](docs/dashboard.md) · [Steering](docs/steering.md) · [Memory](docs/memory.md) · [Eval](docs/eval.md) · [Release](docs/release.md) · [Templates](docs/templates.md) · [FAQ](docs/faq.md) · [Troubleshooting](docs/troubleshooting.md) · [Contributing](CONTRIBUTING.md)
 
 ## FAQ
 

@@ -1,5 +1,7 @@
 # Show HN draft
 
+**Lead with the eval number (owner: fill in after the real `loop eval run`, then delete this note):** <!-- eval: pending --> "[headline from `npx compounding-loop eval report`]". Quote the report only; never invent or round up a figure. Frame: learn once, one-shot the next; the smallest context that still passes.
+
 **Title:** Show HN: Compounding Loop – parallel unattended Claude Code lanes, one repo
 
 Note for the owner: publish `compounding-loop` 0.5.0 to npm before posting, or the `npx` command will fail.

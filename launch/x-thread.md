@@ -1,5 +1,7 @@
 # X thread draft
 
+**Lead with the eval number (owner: fill in after the real `loop eval run`, then delete this note):** <!-- eval: pending --> "[headline from `npx compounding-loop eval report`]". Quote the report only; never invent or round up a figure. Frame: learn once, one-shot the next; the smallest context that still passes.
+
 1/ I let scheduled Claude Code runs build five live sites while I wasn't watching: 215 pages, 2,125 passing tests, 464 commits. What kept it honest is below.
 
 2/ The agent never says it's done. The task file lists done-when as commands. If `npm test` is red, the work doesn't count.

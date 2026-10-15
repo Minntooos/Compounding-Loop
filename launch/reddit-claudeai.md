@@ -1,5 +1,7 @@
 # r/ClaudeAI draft
 
+**Lead with the eval number (owner: fill in after the real `loop eval run`, then delete this note):** <!-- eval: pending --> "[headline from `npx compounding-loop eval report`]". Quote the report only; never invent or round up a figure. Frame: learn once, one-shot the next; the smallest context that still passes.
+
 **Title:** I used scheduled Claude Code runs to build 5 sites unattended; 0.2.0 adds parallel lanes
 
 The short version: briefs with checkable done-when, one unit of work per run, a reviewer subagent before every push, a session lock, a run budget, and `BLOCKED.md` when stuck. Each site finished 5 rounds with all tests passing (278–543 per site).

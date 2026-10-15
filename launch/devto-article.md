@@ -1,5 +1,7 @@
 # What I learned letting Claude Code build 215 pages unattended
 
+**Lead with the eval number (owner: fill in after the real `loop eval run`, then delete this note):** <!-- eval: pending --> "[headline from `npx compounding-loop eval report`]". Quote the report only; never invent or round up a figure. Frame: learn once, one-shot the next; the smallest context that still passes.
+
 *Draft. Numbers are from `demo/five-sites.json`; verify any new claim before publishing.*
 
 I wrote five briefs, scheduled Claude Code to run against each, and went away. Roughly 18–22 hours later (first to last commit) there were five live sites with 215 pages, 2,125 passing tests and 464 commits. This is what I learned, mostly from what went wrong.

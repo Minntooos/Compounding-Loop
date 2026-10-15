@@ -1,5 +1,22 @@
 # Audit: docs
 
+## Round 6 (2026-10-15, 0.6.0 "Memory + proof")
+Goal judged: a stranger can learn recipes, triggers and hooks and run the eval (fake runner) from the docs alone, with no invented number.
+
+### Blockers
+None open.
+
+### Findings
+| # | Area | Evidence | Severity | One-line fix |
+|---|---|---|---|---|
+| 1 | Memory docs | No page for recipes, triggers, hooks. | major | `docs/memory.md` written from `loop ... --help` and src/core/triggers.ts. |
+| 2 | Eval docs | No page for `loop eval`. | major | `docs/eval.md`; Ollama variables marked unverified. |
+| 3 | README/CHANGELOG/launch | No round 6 story. | major | Section, `[Unreleased]`, lead placeholder `<!-- eval: pending -->` in all five drafts. |
+| 4 | Commands run as written | Checked by hand in a fresh temp repo copied from `evals/calc-page/repo`: `init --force --recipes --hooks`, `recipe list/match/show --context/check/draft --print-prompt`, `triggers stats`, `eval run --runner fake --task calc-page`, `eval report` (no results, no headline), `hook PostToolUseFailure`. | minor | Owner steer forbids running tests; CI covers the existing link/command doc tests. A dedicated docs test for these commands is a follow-up. |
+| 5 | Headline number | Pending the owner's real run. | minor (waiting) | Replace the `eval: pending` markers with the report's sentence. |
+
+Cross-lane: `evals/` is not in package.json `files`, so a packed install finds no tasks for `loop eval run` (kit's outbox says the same; owner's call).
+
 ## Round 5 (2026-10-13, 0.5.0 "Cockpit")
 Goal judged: a stranger can steer, schedule and pace a loop from the docs alone.
 

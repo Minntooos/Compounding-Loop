@@ -4,6 +4,16 @@ All notable changes are listed here. Format follows [Keep a Changelog](https://k
 
 ## [Unreleased]
 
+### Added ("Memory + proof")
+- Recipes: `loop recipe list|show|match|check|draft|add` over `.ai/recipes/` and `~/.ai/recipes/`; one Markdown file under 6 KB with steps, traps and checks. Two seed recipes ship in `templates/recipes/`.
+- Triggers: `.ai/triggers.yaml` entries fire through `loop hook <event>` (five Claude Code hook events; plugin or `loop init --hooks`); `loop triggers stats` shows how often each fired.
+- Eval: `loop eval run|report` rebuilds the tasks in `evals/` cold and with a recipe and reports pass rate, tokens and time. The headline number is pending the owner's first real run.
+- Dashboard: Knowledge & recipes tab and an Eval view.
+- Docs: [Memory](docs/memory.md) and [Prove it with an eval](docs/eval.md).
+
+### Changed
+- The Operating Card objective now reads "the most verified-correct results per minute of the owner's attention, from the smallest context that still passes" (method section 1, templates and the card). Tokens are spent where they buy correctness, not on re-learning what a recipe, trigger or check already knows.
+
 ## [0.5.0] - 2026-10-14
 
 ### Added ("Cockpit")
