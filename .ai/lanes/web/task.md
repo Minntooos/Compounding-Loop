@@ -1,7 +1,7 @@
 # Lane: web — round 6 (0.6.0 "Memory + proof")
 
-Run: 2 / 20
-Status: units 2-3 done (run 1); run 2 fixed the audit minors
+Run: 3 / 20
+Status: DONE (run 3); see DONE.md
 Round 5 record: `.ai/lanes/web/done-v5.md`.
 How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/policy.json`, run log, idle backoff).
 
@@ -40,3 +40,4 @@ How a run works: `.ai/lane-run.md` (cheap stop checks, steering, pace from `.ai/
 ## Handoff
 Run 1: units 2-3 done (KnowledgeTab.tsx, EvalView.tsx, lib/knowledge.ts, e2e knowledge.spec.ts; bundle 170 kB gz). Unit 1 (Round 6 audit section in .ai/audit/web.md) is only a design-review note so far. Next: unit 4 (audit majors/minors), screenshots of the new tab if docs wants them. Read the reviewer minors in .ai/audit/web.md first.
 Run 2: fixed the two open audit minors in KnowledgeTab.tsx. Remaining: only optional round 5 leftovers in done-v5.md; if run 3 finds nothing worth doing, follow Lane finished (write DONE.md).
+Run 3: nothing left worth doing; wrote DONE.md (Lane finished).
