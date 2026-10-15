@@ -111,17 +111,23 @@ function Memory({ report }: { report: KnowledgeReport }) {
 /** Knowledge & recipes (Round 6): index entries with trigger badges, fitting recipes, the eval, and the lane notes the tab showed before. */
 export function KnowledgeTab({ loopId, laneNotes, notes = [] }: { loopId: string; laneNotes?: LaneNotes[]; notes?: string[] }) {
   const q = useQuery({ queryKey: ['knowledge', loopId], queryFn: () => api.knowledge(loopId) });
-  if (q.isPending) return <Loading />;
-  if (q.isError) return <LoadError what="the knowledge" onRetry={() => void q.refetch()} busy={q.isFetching} />;
-  return (
-    <div className="space-y-6">
-      <h2 className="sr-only">Knowledge &amp; recipes</h2>
-      <Memory report={q.data} />
-      <EvalView />
+  const notesBlock = (
+    <>
       {!laneNotes?.length && notes.length > 0 && (
         <Section id="kn-notes" title="Notes"><ul className="space-y-2">{notes.map((t, i) => <li key={i} className="whitespace-pre-wrap rounded-lg border p-3" style={card}>{t}</li>)}</ul></Section>
       )}
       {laneNotes && laneNotes.length > 0 && <Section id="kn-lanes" title="Lane notes"><LaneNotesView notes={laneNotes} kind="knowledge" /></Section>}
+    </>
+  );
+  // The notes come with the loop, not from the knowledge fetch, so they stay visible while it loads or fails.
+  return (
+    <div className="space-y-6">
+      <h2 className="sr-only">Knowledge &amp; recipes</h2>
+      {q.isPending && <Loading />}
+      {q.isError && <LoadError what="the knowledge" onRetry={() => void q.refetch()} busy={q.isFetching} />}
+      {q.data && <Memory report={q.data} />}
+      {q.data && <EvalView />}
+      {notesBlock}
     </div>
   );
 }

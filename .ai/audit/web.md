@@ -202,3 +202,4 @@ Reviewer on 76d831f: no blockers. Kept: the pinned fleet replaces the live sites
 
 ## Round 6 (2026-10-14, run 1)
 - Knowledge & recipes tab + Eval section (entries with trigger badges, recipe cards with copy button, sample marking, empty states). Independent reviewer: 1 blocker fixed (plain `loop.knowledge` notes were dropped; now a Notes section), minors fixed (break-all on ids, shell-quoted copy command, /eval 404 fallback). Open minors: lane notes hidden when the knowledge fetch errors; two loaders while both queries load. No screenshots reviewed visually; axe (both themes, both viewports), no horizontal scroll and zero console errors are tested.
+- Run 2: lane notes / plain notes now show while the knowledge fetch loads or fails (minor fixed; the two-loaders minor too, one loader remains). No separate reviewer for this 20-line change.
